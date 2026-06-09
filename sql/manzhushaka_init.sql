@@ -59,6 +59,7 @@ CREATE TABLE `sys_user` (
   `mobile` varchar(20) DEFAULT NULL COMMENT '手机号',
   `email` varchar(100) DEFAULT NULL COMMENT '邮箱',
   `status` tinyint NOT NULL DEFAULT 1 COMMENT '状态：1 启用，0 停用',
+  `deleted` tinyint NOT NULL DEFAULT 0 COMMENT '逻辑删除标记',
   `last_login_ip` varchar(64) DEFAULT NULL COMMENT '最后登录 IP',
   `last_login_time` datetime DEFAULT NULL COMMENT '最后登录时间',
   `remark` varchar(255) DEFAULT NULL COMMENT '备注',
@@ -221,8 +222,8 @@ INSERT INTO `sys_role` (`id`, `role_name`, `role_code`, `data_scope`, `sort`, `s
 (100, '超级管理员', 'SUPER_ADMIN', 'ALL', 1, 1, '拥有系统全部管理权限', 'system', NOW(), 'system', NOW()),
 (101, '普通运维', 'OPS', 'DEPT_AND_CHILD', 2, 1, '示例角色，覆盖部门及子部门数据权限', 'system', NOW(), 'system', NOW());
 
-INSERT INTO `sys_user` (`id`, `dept_id`, `username`, `nickname`, `password`, `real_name`, `mobile`, `email`, `status`, `last_login_ip`, `last_login_time`, `remark`, `create_by`, `create_time`, `update_by`, `update_time`) VALUES
-(100, 100, 'admin', '系统管理员', 'Admin@123456', '系统管理员', '13812345678', 'admin@manzhushaka.com', 1, NULL, NULL, '初始化超级管理员账号', 'system', NOW(), 'system', NOW());
+INSERT INTO `sys_user` (`id`, `dept_id`, `username`, `nickname`, `password`, `real_name`, `mobile`, `email`, `status`, `deleted`, `last_login_ip`, `last_login_time`, `remark`, `create_by`, `create_time`, `update_by`, `update_time`) VALUES
+(100, 100, 'admin', '系统管理员', 'Admin@123456', '系统管理员', '13812345678', 'admin@manzhushaka.com', 1, 0, NULL, NULL, '初始化超级管理员账号', 'system', NOW(), 'system', NOW());
 
 INSERT INTO `sys_user_role` (`id`, `user_id`, `role_id`, `create_by`, `create_time`, `update_by`, `update_time`) VALUES
 (100, 100, 100, 'system', NOW(), 'system', NOW());
