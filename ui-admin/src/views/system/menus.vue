@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <PageHeaderCard title="菜单管理" description="按真实菜单控制器联调，保留目录、菜单、按钮三类的基础维护。">
-      <a-space>
+  <div class="system-page">
+    <PageHeaderCard mode="toolbar">
+      <a-space wrap>
         <a-input-search
           v-model="keyword"
           allow-clear
@@ -15,14 +15,40 @@
 
     <div class="page-card table-card">
       <a-table :data="rows" :loading="loading" row-key="id" :pagination="false">
-        <a-table-column data-index="menuName" title="菜单名称" />
-        <a-table-column data-index="menuType" title="类型" />
-        <a-table-column data-index="routePath" title="路由地址" />
-        <a-table-column data-index="component" title="组件路径" />
-        <a-table-column data-index="perms" title="权限标识" />
-        <a-table-column data-index="visibleText" title="显示状态" />
-        <a-table-column data-index="statusText" title="状态" />
-        <a-table-column data-index="sort" title="排序" />
+        <a-table-column data-index="menuName" title="菜单名称">
+          <template #cell="{ record }">
+            <div class="primary-cell">
+              <div class="primary-cell-title">{{ record.menuName }}</div>
+              <div class="primary-cell-sub">{{ record.routePath }}</div>
+            </div>
+          </template>
+        </a-table-column>
+        <a-table-column data-index="menuType" title="类型" :width="100">
+          <template #cell="{ record }">
+            <a-tag :color="menuTypeColorMap[record.menuType] ?? 'arcoblue'">{{ record.menuType }}</a-tag>
+          </template>
+        </a-table-column>
+        <a-table-column data-index="component" title="组件路径">
+          <template #cell="{ record }">
+            <span class="code-text">{{ record.component }}</span>
+          </template>
+        </a-table-column>
+        <a-table-column data-index="perms" title="权限标识">
+          <template #cell="{ record }">
+            <span class="code-text">{{ record.perms }}</span>
+          </template>
+        </a-table-column>
+        <a-table-column data-index="visibleText" title="显示状态" :width="110">
+          <template #cell="{ record }">
+            <a-tag :color="record.visibleValue === 1 ? 'green' : 'gray'">{{ record.visibleText }}</a-tag>
+          </template>
+        </a-table-column>
+        <a-table-column data-index="statusText" title="状态" :width="110">
+          <template #cell="{ record }">
+            <a-tag :color="record.statusValue === 1 ? 'green' : 'red'">{{ record.statusText }}</a-tag>
+          </template>
+        </a-table-column>
+        <a-table-column data-index="sort" title="排序" :width="90" />
         <a-table-column title="操作" :width="220">
           <template #cell="{ record }">
             <a-space>
@@ -91,6 +117,11 @@ const editingId = ref<number | null>(null);
 const rows = ref<MenuRow[]>([]);
 const parentOptions = ref<SelectOption[]>([]);
 const parentIdValue = ref<string | number | undefined>();
+const menuTypeColorMap: Record<string, 'green' | 'arcoblue' | 'orange'> = {
+  DIR: 'orange',
+  MENU: 'arcoblue',
+  BUTTON: 'green',
+};
 
 const form = reactive<Required<MenuForm>>({
   parentId: null,
@@ -210,7 +241,19 @@ fetchRows();
 </script>
 
 <style scoped>
-.table-card {
-  padding: 16px;
+.system-page {
+  display: grid;
+  gap: 18px;
+}
+
+.primary-cell-title {
+  color: #17233c;
+  font-weight: 700;
+}
+
+.primary-cell-sub {
+  margin-top: 4px;
+  color: #74839a;
+  font-size: 12px;
 }
 </style>

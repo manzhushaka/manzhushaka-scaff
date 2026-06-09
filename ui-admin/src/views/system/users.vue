@@ -1,12 +1,12 @@
 <template>
-  <div>
-    <PageHeaderCard title="用户管理" description="按真实用户控制器联调，保留分页查询与最小新增、编辑、删除能力。">
-      <a-space>
+  <div class="system-page">
+    <PageHeaderCard mode="toolbar">
+      <a-space wrap>
         <a-input-search
           v-model="keyword"
           allow-clear
           placeholder="搜索用户名或昵称"
-          style="width: 260px"
+          style="width: 280px"
           @search="handleSearch"
         />
         <a-select
@@ -29,12 +29,26 @@
         :pagination="pagination"
         @page-change="handlePageChange"
       >
-        <a-table-column data-index="username" title="用户名" />
-        <a-table-column data-index="nickname" title="昵称" />
+        <a-table-column data-index="username" title="用户名">
+          <template #cell="{ record }">
+            <div class="primary-cell">
+              <div class="primary-cell-title">{{ record.username }}</div>
+              <div class="primary-cell-sub">{{ record.nickname }}</div>
+            </div>
+          </template>
+        </a-table-column>
         <a-table-column data-index="deptName" title="部门" />
-        <a-table-column data-index="roleCodesText" title="角色编码" />
-        <a-table-column data-index="statusText" title="状态" />
-        <a-table-column data-index="createTimeText" title="创建时间" />
+        <a-table-column data-index="roleCodesText" title="角色编码">
+          <template #cell="{ record }">
+            <span class="code-text">{{ record.roleCodesText }}</span>
+          </template>
+        </a-table-column>
+        <a-table-column data-index="statusText" title="状态" :width="110">
+          <template #cell="{ record }">
+            <a-tag :color="record.statusValue === 1 ? 'green' : 'red'">{{ record.statusText }}</a-tag>
+          </template>
+        </a-table-column>
+        <a-table-column data-index="createTimeText" title="创建时间" :width="180" />
         <a-table-column title="操作" :width="220">
           <template #cell="{ record }">
             <a-space>
@@ -214,7 +228,19 @@ fetchRows();
 </script>
 
 <style scoped>
-.table-card {
-  padding: 16px;
+.system-page {
+  display: grid;
+  gap: 18px;
+}
+
+.primary-cell-title {
+  color: #17233c;
+  font-weight: 700;
+}
+
+.primary-cell-sub {
+  margin-top: 4px;
+  color: #74839a;
+  font-size: 12px;
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <PageHeaderCard title="参数管理" description="按真实参数控制器联调，提供分页查询与基础维护。">
-      <a-space>
+  <div class="system-page">
+    <PageHeaderCard mode="toolbar">
+      <a-space wrap>
         <a-input-search
           v-model="keyword"
           allow-clear
@@ -29,11 +29,21 @@
         :pagination="pagination"
         @page-change="handlePageChange"
       >
-        <a-table-column data-index="configName" title="参数名称" />
-        <a-table-column data-index="configKey" title="参数键" />
+        <a-table-column data-index="configName" title="参数">
+          <template #cell="{ record }">
+            <div class="primary-cell">
+              <div class="primary-cell-title">{{ record.configName }}</div>
+              <div class="primary-cell-sub code-text">{{ record.configKey }}</div>
+            </div>
+          </template>
+        </a-table-column>
         <a-table-column data-index="configValue" title="参数值" />
-        <a-table-column data-index="statusText" title="状态" />
-        <a-table-column data-index="createTimeText" title="创建时间" />
+        <a-table-column data-index="statusText" title="状态" :width="110">
+          <template #cell="{ record }">
+            <a-tag :color="record.statusValue === 1 ? 'green' : 'red'">{{ record.statusText }}</a-tag>
+          </template>
+        </a-table-column>
+        <a-table-column data-index="createTimeText" title="创建时间" :width="180" />
         <a-table-column title="操作" :width="220">
           <template #cell="{ record }">
             <a-space>
@@ -193,8 +203,19 @@ fetchRows();
 </script>
 
 <style scoped>
-.table-card {
-  padding: 16px;
+.system-page {
+  display: grid;
+  gap: 18px;
+}
+
+.primary-cell-title {
+  color: #17233c;
+  font-weight: 700;
+}
+
+.primary-cell-sub {
+  margin-top: 4px;
+  color: #74839a;
+  font-size: 12px;
 }
 </style>
-

@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <PageHeaderCard title="操作日志" description="操作日志按真实后端分页查询处理，保持只读语义。">
-      <a-space>
+  <div class="system-page">
+    <PageHeaderCard mode="toolbar">
+      <a-space wrap>
         <a-input-search
           v-model="keyword"
           allow-clear
@@ -29,15 +29,31 @@
         :pagination="pagination"
         @page-change="handlePageChange"
       >
-        <a-table-column data-index="module" title="模块" />
-        <a-table-column data-index="action" title="动作" />
+        <a-table-column data-index="module" title="模块">
+          <template #cell="{ record }">
+            <div class="primary-cell">
+              <div class="primary-cell-title">{{ record.module }}</div>
+              <div class="primary-cell-sub">{{ record.action }}</div>
+            </div>
+          </template>
+        </a-table-column>
         <a-table-column data-index="operatorName" title="操作人" />
-        <a-table-column data-index="successText" title="结果" />
-        <a-table-column data-index="costMsText" title="耗时" />
-        <a-table-column data-index="requestMethod" title="请求方法" />
-        <a-table-column data-index="requestUri" title="请求路径" />
+        <a-table-column data-index="successText" title="结果" :width="110">
+          <template #cell="{ record }">
+            <a-tag :color="record.successValue === true ? 'green' : record.successValue === false ? 'red' : 'gray'">
+              {{ record.successText }}
+            </a-tag>
+          </template>
+        </a-table-column>
+        <a-table-column data-index="costMsText" title="耗时" :width="110" />
+        <a-table-column data-index="requestMethod" title="请求方法" :width="110" />
+        <a-table-column data-index="requestUri" title="请求路径">
+          <template #cell="{ record }">
+            <span class="code-text">{{ record.requestUri }}</span>
+          </template>
+        </a-table-column>
         <a-table-column data-index="errorMsg" title="错误信息" />
-        <a-table-column data-index="createTimeText" title="时间" />
+        <a-table-column data-index="createTimeText" title="时间" :width="180" />
       </a-table>
     </div>
   </div>
@@ -97,8 +113,19 @@ fetchRows();
 </script>
 
 <style scoped>
-.table-card {
-  padding: 16px;
+.system-page {
+  display: grid;
+  gap: 18px;
+}
+
+.primary-cell-title {
+  color: #17233c;
+  font-weight: 700;
+}
+
+.primary-cell-sub {
+  margin-top: 4px;
+  color: #74839a;
+  font-size: 12px;
 }
 </style>
-

@@ -1,6 +1,13 @@
 export interface LoginPayload {
   username: string;
   password: string;
+  captchaKey: string;
+  captchaCode: string;
+}
+
+export interface CaptchaPayload {
+  key: string;
+  imageBase64: string;
 }
 
 export interface UserProfile {

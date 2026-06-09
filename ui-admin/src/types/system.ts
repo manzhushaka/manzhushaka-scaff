@@ -234,6 +234,7 @@ export interface UserRow {
   nickname: string;
   deptName: string;
   statusText: string;
+  statusValue: number;
   roleCodesText: string;
   createTimeText: string;
 }
@@ -244,6 +245,7 @@ export interface RoleRow {
   roleName: string;
   dataScopeText: string;
   statusText: string;
+  statusValue: number;
   createTimeText: string;
 }
 
@@ -253,6 +255,7 @@ export interface DeptRow {
   deptName: string;
   sort: number;
   statusText: string;
+  statusValue: number;
   children: DeptRow[];
 }
 
@@ -265,7 +268,9 @@ export interface MenuRow {
   component: string;
   perms: string;
   visibleText: string;
+  visibleValue: number;
   statusText: string;
+  statusValue: number;
   sort: number;
   createTimeText: string;
 }
@@ -275,6 +280,7 @@ export interface DictTypeRow {
   dictName: string;
   dictCode: string;
   statusText: string;
+  statusValue: number;
   createTimeText: string;
 }
 
@@ -284,6 +290,7 @@ export interface DictItemRow {
   itemValue: string;
   sort: number;
   statusText: string;
+  statusValue: number;
 }
 
 export interface ConfigRow {
@@ -292,6 +299,7 @@ export interface ConfigRow {
   configKey: string;
   configValue: string;
   statusText: string;
+  statusValue: number;
   createTimeText: string;
 }
 
@@ -299,6 +307,7 @@ export interface LoginLogRow {
   id: number;
   username: string;
   loginStatus: string;
+  loginStatusValue: string;
   ip: string;
   userAgent: string;
   message: string;
@@ -311,6 +320,7 @@ export interface OpLogRow {
   action: string;
   operatorName: string;
   successText: string;
+  successValue: boolean | null;
   costMsText: string;
   requestMethod: string;
   requestUri: string;

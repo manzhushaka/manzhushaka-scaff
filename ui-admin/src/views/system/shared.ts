@@ -96,6 +96,7 @@ export function mapUserRow(user: UserVO): UserRow {
     nickname: user.nickname,
     deptName: user.deptName ?? '--',
     statusText: toStatusText(user.status),
+    statusValue: user.status ?? 0,
     roleCodesText: user.roleCodes.length ? user.roleCodes.join(', ') : '--',
     createTimeText: formatDateTime(user.createTime),
   };
@@ -108,6 +109,7 @@ export function mapRoleRow(role: RoleVO): RoleRow {
     roleName: role.roleName,
     dataScopeText: toDataScopeText(role.dataScope),
     statusText: toStatusText(role.status),
+    statusValue: role.status ?? 0,
     createTimeText: formatDateTime(role.createTime),
   };
 }
@@ -119,6 +121,7 @@ export function mapDeptRow(dept: DeptTreeVO): DeptRow {
     deptName: dept.deptName,
     sort: dept.sort ?? 0,
     statusText: toStatusText(dept.status),
+    statusValue: dept.status ?? 0,
     children: dept.children.map(mapDeptRow),
   };
 }
@@ -133,7 +136,9 @@ export function mapMenuRow(menu: MenuVO): MenuRow {
     component: menu.component ?? '--',
     perms: menu.perms ?? '--',
     visibleText: toVisibleText(menu.visible),
+    visibleValue: menu.visible ?? 0,
     statusText: toStatusText(menu.status),
+    statusValue: menu.status ?? 0,
     sort: menu.sort ?? 0,
     createTimeText: formatDateTime(menu.createTime),
   };
@@ -145,6 +150,7 @@ export function mapDictTypeRow(dictType: DictTypeVO): DictTypeRow {
     dictName: dictType.dictName,
     dictCode: dictType.dictCode,
     statusText: toStatusText(dictType.status),
+    statusValue: dictType.status ?? 0,
     createTimeText: formatDateTime(dictType.createTime),
   };
 }
@@ -156,6 +162,7 @@ export function mapDictItemRow(item: DictItemVO): DictItemRow {
     itemValue: item.itemValue,
     sort: item.sort ?? 0,
     statusText: toStatusText(item.status),
+    statusValue: item.status ?? 0,
   };
 }
 
@@ -166,6 +173,7 @@ export function mapConfigRow(config: import('@/types/system').ConfigVO): ConfigR
     configKey: config.configKey,
     configValue: config.configValue ?? '',
     statusText: toStatusText(config.status),
+    statusValue: config.status ?? 0,
     createTimeText: formatDateTime(config.createTime),
   };
 }
@@ -175,6 +183,7 @@ export function mapLoginLogRow(log: LoginLogVO): LoginLogRow {
     id: log.id,
     username: log.username,
     loginStatus: toLoginStatusText(log.loginStatus),
+    loginStatusValue: log.loginStatus ?? '',
     ip: log.ip ?? '--',
     userAgent: log.userAgent ?? '--',
     message: log.message ?? '--',
@@ -189,6 +198,7 @@ export function mapOpLogRow(log: OpLogVO): OpLogRow {
     action: log.action ?? '--',
     operatorName: log.operatorName ?? '--',
     successText: log.success === true ? '成功' : log.success === false ? '失败' : '--',
+    successValue: log.success,
     costMsText: log.costMs == null ? '--' : `${log.costMs} ms`,
     requestMethod: log.requestMethod ?? '--',
     requestUri: log.requestUri ?? '--',
@@ -196,4 +206,3 @@ export function mapOpLogRow(log: OpLogVO): OpLogRow {
     createTimeText: formatDateTime(log.createTime),
   };
 }
-

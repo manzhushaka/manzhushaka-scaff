@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <PageHeaderCard title="字典管理" description="按真实字典控制器联调，左侧维护字典类型，右侧查看和维护对应字典项。">
-      <a-space>
+  <div class="system-page">
+    <PageHeaderCard mode="toolbar">
+      <a-space wrap>
         <a-input-search
           v-model="keyword"
           allow-clear
@@ -28,10 +28,20 @@
             @page-change="handleTypePageChange"
             @row-click="handleRowClick"
           >
-            <a-table-column data-index="dictName" title="字典名称" />
-            <a-table-column data-index="dictCode" title="字典编码" />
-            <a-table-column data-index="statusText" title="状态" />
-            <a-table-column data-index="createTimeText" title="创建时间" />
+            <a-table-column data-index="dictName" title="字典类型">
+              <template #cell="{ record }">
+                <div class="primary-cell">
+                  <div class="primary-cell-title">{{ record.dictName }}</div>
+                  <div class="primary-cell-sub code-text">{{ record.dictCode }}</div>
+                </div>
+              </template>
+            </a-table-column>
+            <a-table-column data-index="statusText" title="状态" :width="110">
+              <template #cell="{ record }">
+                <a-tag :color="record.statusValue === 1 ? 'green' : 'red'">{{ record.statusText }}</a-tag>
+              </template>
+            </a-table-column>
+            <a-table-column data-index="createTimeText" title="创建时间" :width="180" />
             <a-table-column title="操作" :width="220">
               <template #cell="{ record }">
                 <a-space>
@@ -51,10 +61,20 @@
         <div class="page-card table-card">
           <div class="section-title">字典项</div>
           <a-table :data="itemRows" :loading="loadingItems" row-key="id" :pagination="false">
-            <a-table-column data-index="itemLabel" title="标签" />
-            <a-table-column data-index="itemValue" title="键值" />
-            <a-table-column data-index="sort" title="排序" />
-            <a-table-column data-index="statusText" title="状态" />
+            <a-table-column data-index="itemLabel" title="字典项">
+              <template #cell="{ record }">
+                <div class="primary-cell">
+                  <div class="primary-cell-title">{{ record.itemLabel }}</div>
+                  <div class="primary-cell-sub code-text">{{ record.itemValue }}</div>
+                </div>
+              </template>
+            </a-table-column>
+            <a-table-column data-index="sort" title="排序" :width="90" />
+            <a-table-column data-index="statusText" title="状态" :width="110">
+              <template #cell="{ record }">
+                <a-tag :color="record.statusValue === 1 ? 'green' : 'red'">{{ record.statusText }}</a-tag>
+              </template>
+            </a-table-column>
             <a-table-column title="操作" :width="220">
               <template #cell="{ record }">
                 <a-space>
@@ -336,14 +356,19 @@ fetchTypes();
 </script>
 
 <style scoped>
-.table-card {
-  padding: 16px;
+.system-page {
+  display: grid;
+  gap: 18px;
 }
 
-.section-title {
-  margin-bottom: 12px;
-  font-size: 16px;
+.primary-cell-title {
+  color: #17233c;
   font-weight: 700;
 }
-</style>
 
+.primary-cell-sub {
+  margin-top: 4px;
+  color: #74839a;
+  font-size: 12px;
+}
+</style>

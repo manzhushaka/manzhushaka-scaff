@@ -1,8 +1,10 @@
 package com.manzhushaka.auth.controller;
 
 import com.manzhushaka.auth.dto.LoginRequest;
+import com.manzhushaka.auth.service.AuthCaptchaService;
 import com.manzhushaka.auth.service.AuthService;
 import com.manzhushaka.auth.vo.AuthMenuVO;
+import com.manzhushaka.auth.vo.CaptchaResponse;
 import com.manzhushaka.auth.vo.LoginResponse;
 import com.manzhushaka.common.annotation.OpLog;
 import com.manzhushaka.common.enums.BusinessType;
@@ -20,9 +22,16 @@ import java.util.List;
 @RequestMapping("/api/auth")
 public class AuthController {
     private final AuthService authService;
+    private final AuthCaptchaService authCaptchaService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, AuthCaptchaService authCaptchaService) {
         this.authService = authService;
+        this.authCaptchaService = authCaptchaService;
+    }
+
+    @GetMapping("/captcha")
+    public ApiResponse<CaptchaResponse> captcha() {
+        return ApiResponse.success(authCaptchaService.createCaptcha());
     }
 
     @PostMapping("/login")

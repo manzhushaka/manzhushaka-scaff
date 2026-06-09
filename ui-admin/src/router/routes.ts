@@ -16,7 +16,7 @@ export const staticRoutes: RouteRecordRaw[] = [
     name: 'Root',
     component: MainLayout,
     redirect: '/dashboard',
-    meta: { title: '首页' },
+    meta: { title: '首页', affix: true },
     children: [],
   },
 ];

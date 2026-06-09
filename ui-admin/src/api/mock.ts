@@ -202,7 +202,36 @@ export async function mockLogin(username: string, password: string) {
   if (!username || !password) {
     throw new Error('用户名和密码不能为空');
   }
-  return delay({ token: `mock-token-${username}` });
+  return delay({ token: `mock-token-${username}`, userInfo: profile });
+}
+
+export async function mockCaptcha() {
+  return delay({
+    key: 'mock-captcha-key',
+    imageBase64:
+      'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNjAiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCAxNjAgNDgiPjxyZWN0IHdpZHRoPSIxNjAiIGhlaWdodD0iNDgiIHJ4PSIxMiIgZmlsbD0iI2YzZjdmZiIvPjxwYXRoIGQ9Ik0wIDM0YzIwLTEyIDM4LTEyIDU1IDBzMzYgMTIgNTMgMCAzNC0xMiA1MiAwIiBmaWxsPSJub25lIiBzdHJva2U9IiNkMGRkZmYiIHN0cm9rZS13aWR0aD0iMiIvPjx0ZXh0IHg9IjgwIiB5PSIzMSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjIyIiBmb250LXdlaWdodD0iNzAwIiBsZXR0ZXItc3BhY2luZz0iNiIgZmlsbD0iIzI4NWZkOCI+QUJDRDwvdGV4dD48L3N2Zz4=',
+  });
+}
+
+export async function mockLoginWithCaptcha(
+  username: string,
+  password: string,
+  captchaKey: string,
+  captchaCode: string,
+) {
+  if (!username || !password) {
+    throw new Error('用户名和密码不能为空');
+  }
+  if (!captchaKey) {
+    throw new Error('验证码标识不能为空');
+  }
+  if (!captchaCode) {
+    throw new Error('验证码不能为空');
+  }
+  if (captchaCode.trim().toUpperCase() !== 'ABCD') {
+    throw new Error('验证码错误');
+  }
+  return delay({ token: `mock-token-${username}`, userInfo: profile });
 }
 
 export async function mockProfile() {
@@ -281,8 +310,18 @@ export async function dispatchMockRequest(config: {
   const { url = '', method = 'get', params } = config;
   const body = config.data ? (JSON.parse(config.data) as Record<string, string | number>) : {};
 
+  if (url === '/auth/captcha' && method === 'get') {
+    return ok(await mockCaptcha());
+  }
   if (url === '/auth/login' && method === 'post') {
-    return ok(await mockLogin(String(body.username ?? ''), String(body.password ?? '')));
+    return ok(
+      await mockLoginWithCaptcha(
+        String(body.username ?? ''),
+        String(body.password ?? ''),
+        String(body.captchaKey ?? ''),
+        String(body.captchaCode ?? ''),
+      ),
+    );
   }
   if ((url === '/auth/profile' || url === '/auth/me') && method === 'get') {
     return ok(await mockProfile());

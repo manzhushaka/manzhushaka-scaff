@@ -35,21 +35,30 @@ public class AuthService {
     private final SysDeptMapper sysDeptMapper;
     private final SysMenuMapper sysMenuMapper;
     private final SysLoginLogMapper sysLoginLogMapper;
+    private final AuthCaptchaService authCaptchaService;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public AuthService(
         SysUserMapper sysUserMapper,
         SysDeptMapper sysDeptMapper,
         SysMenuMapper sysMenuMapper,
-        SysLoginLogMapper sysLoginLogMapper
+        SysLoginLogMapper sysLoginLogMapper,
+        AuthCaptchaService authCaptchaService
     ) {
         this.sysUserMapper = sysUserMapper;
         this.sysDeptMapper = sysDeptMapper;
         this.sysMenuMapper = sysMenuMapper;
         this.sysLoginLogMapper = sysLoginLogMapper;
+        this.authCaptchaService = authCaptchaService;
     }
 
     public LoginResponse login(LoginRequest request) {
+        try {
+            authCaptchaService.validate(request.getCaptchaKey(), request.getCaptchaCode());
+        } catch (BizException exception) {
+            writeLoginLog(request.getUsername(), "FAIL", exception.getMessage());
+            throw exception;
+        }
         SysUser user = sysUserMapper.selectByUsername(request.getUsername());
         if (user == null) {
             writeLoginLog(request.getUsername(), "FAIL", "用户名或密码错误");
@@ -173,17 +182,26 @@ public class AuthService {
             SysMenu source = sourceMap.get(entry.getKey());
             Long parentId = source.getParentId();
             if (parentId == null || parentId == 0L || !menuMap.containsKey(parentId)) {
-                attachResolvedRoute(entry.getValue(), source, null);
                 roots.add(entry.getValue());
                 continue;
             }
             AuthMenuVO parent = menuMap.get(parentId);
-            attachResolvedRoute(entry.getValue(), source, parent);
             parent.getChildren().add(entry.getValue());
         }
 
+        populateResolvedRoutes(roots, sourceMap, null);
         fillRedirects(roots);
         return roots;
+    }
+
+    private void populateResolvedRoutes(List<AuthMenuVO> nodes, Map<Long, SysMenu> sourceMap, AuthMenuVO parent) {
+        for (AuthMenuVO node : nodes) {
+            SysMenu source = sourceMap.get(node.getId());
+            attachResolvedRoute(node, source, parent);
+            if (!node.getChildren().isEmpty()) {
+                populateResolvedRoutes(node.getChildren(), sourceMap, node);
+            }
+        }
     }
 
     private void attachResolvedRoute(AuthMenuVO node, SysMenu source, AuthMenuVO parent) {

@@ -8,33 +8,34 @@ export function buildDynamicRoutes(menus: MenuItem[]): RouteRecordRaw[] {
   return menus
     .filter((menu) => menu.type !== 'BUTTON')
     .map((menu) => {
-    const route = {
-      path: menu.path,
-      name: menu.name,
-      meta: {
-        title: menu.title,
-        icon: menu.icon,
-        hidden: menu.hidden,
-      },
-    } as unknown as RouteRecordRaw;
+      const route = {
+        path: menu.path,
+        name: menu.name,
+        meta: {
+          title: menu.title,
+          icon: menu.icon,
+          hidden: menu.hidden,
+          tab: Boolean(menu.component),
+        },
+      } as unknown as RouteRecordRaw;
 
-    if (menu.component) {
-      route.component = componentMap[menu.component as keyof typeof componentMap];
-    }
+      if (menu.component) {
+        route.component = componentMap[menu.component as keyof typeof componentMap];
+      }
 
-    if (!menu.component && menu.children?.length) {
-      route.component = { render: () => h(RouterView) };
-    }
+      if (!menu.component && menu.children?.length) {
+        route.component = { render: () => h(RouterView) };
+      }
 
-    if (menu.redirect) {
-      route.redirect = menu.redirect;
-    }
+      if (menu.redirect) {
+        route.redirect = menu.redirect;
+      }
 
-    if (menu.children?.length) {
-      route.children = buildDynamicRoutes(menu.children);
-    }
+      if (menu.children?.length) {
+        route.children = buildDynamicRoutes(menu.children);
+      }
 
-    return route;
+      return route;
     });
 }
 

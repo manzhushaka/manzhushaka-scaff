@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div class="log-page">
     <PageHeaderCard :title="title" :description="description">
-      <a-space>
+      <a-space wrap>
         <a-input-search
           v-model="keyword"
           allow-clear
@@ -55,7 +55,8 @@ fetchRows();
 </script>
 
 <style scoped>
-.table-card {
-  padding: 16px;
+.log-page {
+  display: grid;
+  gap: 18px;
 }
 </style>

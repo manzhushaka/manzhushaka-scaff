@@ -23,7 +23,7 @@
         <div class="login-card">
           <div class="card-header">
             <h2>登录</h2>
-            <p>请输入您的账号和密码</p>
+            <p>请输入您的账号、密码和图片验证码</p>
           </div>
 
           <a-form :model="form" class="login-form" @submit-success="handleSubmit">
@@ -46,6 +46,26 @@
                   <icon-lock />
                 </template>
               </a-input-password>
+            </a-form-item>
+
+            <a-form-item field="captchaCode" hide-label>
+              <div class="captcha-row">
+                <a-input
+                  v-model="form.captchaCode"
+                  class="login-input captcha-input"
+                  placeholder="请输入图片验证码"
+                  allow-clear
+                />
+                <button
+                  class="captcha-trigger"
+                  type="button"
+                  :disabled="captchaLoading"
+                  @click="refreshCaptcha"
+                >
+                  <img v-if="captchaImage" :src="captchaImage" alt="登录验证码" />
+                  <span v-else class="captcha-placeholder">{{ captchaLoading ? '加载中...' : '点击刷新' }}</span>
+                </button>
+              </div>
             </a-form-item>
 
             <div class="form-meta">
@@ -75,7 +95,7 @@
             </button>
           </div>
 
-          <div class="login-hint">默认演示账号：admin，默认密码：Admin@123456</div>
+          <div class="login-hint">默认演示账号：admin，默认密码：Admin@123456，验证码可点击图片刷新。</div>
         </div>
       </section>
     </div>
@@ -83,7 +103,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import { Message } from '@arco-design/web-vue';
 import { useRouter } from 'vue-router';
 import {
@@ -98,10 +118,14 @@ import { useAuthStore } from '@/store/auth';
 const router = useRouter();
 const authStore = useAuthStore();
 const loading = ref(false);
+const captchaLoading = ref(false);
+const captchaImage = ref('');
 const currentYear = new Date().getFullYear();
 const form = reactive({
   username: 'admin',
   password: 'Admin@123456',
+  captchaKey: '',
+  captchaCode: '',
   remember: true,
 });
 const socialProviders = [
@@ -113,19 +137,40 @@ const socialProviders = [
 async function handleSubmit() {
   loading.value = true;
   try {
-    await authStore.login(form.username, form.password);
+    await authStore.login(form.username, form.password, form.captchaKey, form.captchaCode);
     Message.success('登录成功');
     router.replace('/');
   } catch (error) {
+    try {
+      await refreshCaptcha();
+    } catch {
+      // Request layer already surfaces the refresh error.
+    }
     Message.error((error as Error).message || '登录失败');
   } finally {
     loading.value = false;
   }
 }
 
+async function refreshCaptcha() {
+  captchaLoading.value = true;
+  try {
+    const captcha = await authStore.fetchCaptcha();
+    form.captchaKey = captcha.key;
+    form.captchaCode = '';
+    captchaImage.value = captcha.imageBase64;
+  } finally {
+    captchaLoading.value = false;
+  }
+}
+
 function handleAssist(feature: string) {
   Message.info(`${feature}功能将在后续版本开放`);
 }
+
+onMounted(() => {
+  void refreshCaptcha();
+});
 </script>
 
 <style scoped>
@@ -395,6 +440,49 @@ p {
   color: #a4aec1;
 }
 
+.captcha-row {
+  display: flex;
+  gap: 12px;
+}
+
+.captcha-input {
+  flex: 1;
+}
+
+.captcha-trigger {
+  width: 148px;
+  height: 48px;
+  padding: 0;
+  border: 1px solid rgba(196, 209, 232, 0.82);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(248, 251, 255, 0.98), rgba(240, 245, 255, 0.92));
+  box-shadow: inset 0 1px 2px rgba(12, 36, 86, 0.03);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.captcha-trigger:disabled {
+  cursor: wait;
+}
+
+.captcha-trigger img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.captcha-placeholder {
+  display: inline-flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  color: #7f8ca5;
+  font-size: 13px;
+  font-weight: 600;
+}
+
 .form-meta {
   display: flex;
   align-items: center;
@@ -585,6 +673,14 @@ p {
 
   .social-row {
     gap: 16px;
+  }
+
+  .captcha-row {
+    flex-direction: column;
+  }
+
+  .captcha-trigger {
+    width: 100%;
   }
 }
 </style>

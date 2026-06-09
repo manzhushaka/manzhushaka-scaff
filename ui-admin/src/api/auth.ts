@@ -1,6 +1,10 @@
-import type { LoginPayload } from '@/types/auth';
+import type { CaptchaPayload, LoginPayload } from '@/types/auth';
 import type { MenuItem, UserProfile } from '@/types/auth';
 import request from './request';
+
+export function fetchCaptcha() {
+  return request.get<CaptchaPayload>('/auth/captcha');
+}
 
 export function login(payload: LoginPayload) {
   return request.post<{ token: string; userInfo: UserProfile }>('/auth/login', payload);

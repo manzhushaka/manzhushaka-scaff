@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <PageHeaderCard title="部门管理" description="保持部门树语义，按真实 `/system/depts/tree` 和部门维护接口联调。">
-      <a-space>
+  <div class="system-page">
+    <PageHeaderCard mode="toolbar">
+      <a-space wrap>
         <a-input-search
           v-model="keyword"
           allow-clear
@@ -16,8 +16,12 @@
     <div class="page-card table-card">
       <a-table :data="rows" :loading="loading" row-key="id" :pagination="false" :default-expand-all-rows="true">
         <a-table-column data-index="deptName" title="部门名称" />
-        <a-table-column data-index="sort" title="排序" />
-        <a-table-column data-index="statusText" title="状态" />
+        <a-table-column data-index="sort" title="排序" :width="100" />
+        <a-table-column data-index="statusText" title="状态" :width="110">
+          <template #cell="{ record }">
+            <a-tag :color="record.statusValue === 1 ? 'green' : 'red'">{{ record.statusText }}</a-tag>
+          </template>
+        </a-table-column>
         <a-table-column title="操作" :width="220">
           <template #cell="{ record }">
             <a-space>
@@ -152,7 +156,8 @@ fetchRows();
 </script>
 
 <style scoped>
-.table-card {
-  padding: 16px;
+.system-page {
+  display: grid;
+  gap: 18px;
 }
 </style>

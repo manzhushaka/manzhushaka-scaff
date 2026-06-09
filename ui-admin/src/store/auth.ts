@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
-import { fetchMenus, fetchPermissions, fetchProfile, login as loginApi } from '@/api/auth';
+import { fetchCaptcha as fetchCaptchaApi, fetchMenus, fetchPermissions, fetchProfile, login as loginApi } from '@/api/auth';
 import type { MenuItem, UserProfile } from '@/types/auth';
+import type { CaptchaPayload } from '@/types/auth';
 import { extractPermissionCodes } from '@/router/dynamic';
 import { clearToken, getToken, setToken } from '@/utils/storage';
 
@@ -24,8 +25,11 @@ export const useAuthStore = defineStore('auth', {
     isLoggedIn: (state) => Boolean(state.token),
   },
   actions: {
-    async login(username: string, password: string) {
-      const result = await loginApi({ username, password });
+    async fetchCaptcha(): Promise<CaptchaPayload> {
+      return fetchCaptchaApi();
+    },
+    async login(username: string, password: string, captchaKey: string, captchaCode: string) {
+      const result = await loginApi({ username, password, captchaKey, captchaCode });
       this.token = result.token;
       this.profile = result.userInfo;
       setToken(result.token);

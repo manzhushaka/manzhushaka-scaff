@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <PageHeaderCard title="登录日志" description="日志页按真实后端分页查询处理，只提供筛选和列表查看。">
-      <a-space>
+  <div class="system-page">
+    <PageHeaderCard mode="toolbar">
+      <a-space wrap>
         <a-input-search
           v-model="keyword"
           allow-clear
@@ -30,11 +30,19 @@
         @page-change="handlePageChange"
       >
         <a-table-column data-index="username" title="登录账号" />
-        <a-table-column data-index="loginStatus" title="登录结果" />
-        <a-table-column data-index="ip" title="来源 IP" />
+        <a-table-column data-index="loginStatus" title="登录结果" :width="110">
+          <template #cell="{ record }">
+            <a-tag :color="record.loginStatusValue === 'SUCCESS' ? 'green' : 'red'">{{ record.loginStatus }}</a-tag>
+          </template>
+        </a-table-column>
+        <a-table-column data-index="ip" title="来源 IP">
+          <template #cell="{ record }">
+            <span class="code-text">{{ record.ip }}</span>
+          </template>
+        </a-table-column>
         <a-table-column data-index="message" title="结果说明" />
         <a-table-column data-index="userAgent" title="User Agent" />
-        <a-table-column data-index="createTimeText" title="时间" />
+        <a-table-column data-index="createTimeText" title="时间" :width="180" />
       </a-table>
     </div>
   </div>
@@ -92,8 +100,8 @@ fetchRows();
 </script>
 
 <style scoped>
-.table-card {
-  padding: 16px;
+.system-page {
+  display: grid;
+  gap: 18px;
 }
 </style>
-
