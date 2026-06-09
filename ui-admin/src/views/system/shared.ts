@@ -1,0 +1,199 @@
+import type {
+  ConfigRow,
+  DeptRow,
+  DeptTreeVO,
+  DictItemRow,
+  DictItemVO,
+  DictTypeRow,
+  DictTypeVO,
+  LoginLogRow,
+  LoginLogVO,
+  MenuRow,
+  MenuVO,
+  OpLogRow,
+  OpLogVO,
+  RoleRow,
+  RoleVO,
+  UserRow,
+  UserVO,
+} from '@/types/system';
+
+export const statusOptions = [
+  { label: '启用', value: 1 },
+  { label: '停用', value: 0 },
+];
+
+export const yesNoOptions = [
+  { label: '显示', value: 1 },
+  { label: '隐藏', value: 0 },
+];
+
+export const keepAliveOptions = [
+  { label: '缓存', value: 1 },
+  { label: '不缓存', value: 0 },
+];
+
+export const menuTypeOptions = [
+  { label: '目录', value: 'DIR' },
+  { label: '菜单', value: 'MENU' },
+  { label: '按钮', value: 'BUTTON' },
+];
+
+export const dataScopeOptions = [
+  { label: '仅本人', value: 'SELF' },
+  { label: '本部门', value: 'DEPT' },
+  { label: '本部门及子部门', value: 'DEPT_AND_CHILD' },
+  { label: '全部数据', value: 'ALL' },
+];
+
+export const loginStatusOptions = [
+  { label: '成功', value: 'SUCCESS' },
+  { label: '失败', value: 'FAIL' },
+];
+
+export const opSuccessOptions = [
+  { label: '成功', value: 'true' },
+  { label: '失败', value: 'false' },
+];
+
+export function toStatusText(status: number | null | undefined) {
+  return status === 1 ? '启用' : '停用';
+}
+
+export function toVisibleText(visible: number | null | undefined) {
+  return visible === 1 ? '显示' : '隐藏';
+}
+
+export function toLoginStatusText(status: string | null | undefined) {
+  return status === 'SUCCESS' ? '成功' : status === 'FAIL' ? '失败' : '--';
+}
+
+export function toDataScopeText(value: RoleVO['dataScope']) {
+  return dataScopeOptions.find((item) => item.value === value)?.label ?? '--';
+}
+
+export function formatDateTime(value: string | null | undefined) {
+  if (!value) {
+    return '--';
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hour = String(date.getHours()).padStart(2, '0');
+  const minute = String(date.getMinutes()).padStart(2, '0');
+  const second = String(date.getSeconds()).padStart(2, '0');
+  return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+}
+
+export function mapUserRow(user: UserVO): UserRow {
+  return {
+    id: user.id,
+    username: user.username,
+    nickname: user.nickname,
+    deptName: user.deptName ?? '--',
+    statusText: toStatusText(user.status),
+    roleCodesText: user.roleCodes.length ? user.roleCodes.join(', ') : '--',
+    createTimeText: formatDateTime(user.createTime),
+  };
+}
+
+export function mapRoleRow(role: RoleVO): RoleRow {
+  return {
+    id: role.id,
+    roleCode: role.roleCode,
+    roleName: role.roleName,
+    dataScopeText: toDataScopeText(role.dataScope),
+    statusText: toStatusText(role.status),
+    createTimeText: formatDateTime(role.createTime),
+  };
+}
+
+export function mapDeptRow(dept: DeptTreeVO): DeptRow {
+  return {
+    id: dept.id,
+    parentId: dept.parentId,
+    deptName: dept.deptName,
+    sort: dept.sort ?? 0,
+    statusText: toStatusText(dept.status),
+    children: dept.children.map(mapDeptRow),
+  };
+}
+
+export function mapMenuRow(menu: MenuVO): MenuRow {
+  return {
+    id: menu.id,
+    parentId: menu.parentId,
+    menuType: menu.menuType,
+    menuName: menu.menuName,
+    routePath: menu.routePath ?? '--',
+    component: menu.component ?? '--',
+    perms: menu.perms ?? '--',
+    visibleText: toVisibleText(menu.visible),
+    statusText: toStatusText(menu.status),
+    sort: menu.sort ?? 0,
+    createTimeText: formatDateTime(menu.createTime),
+  };
+}
+
+export function mapDictTypeRow(dictType: DictTypeVO): DictTypeRow {
+  return {
+    id: dictType.id,
+    dictName: dictType.dictName,
+    dictCode: dictType.dictCode,
+    statusText: toStatusText(dictType.status),
+    createTimeText: formatDateTime(dictType.createTime),
+  };
+}
+
+export function mapDictItemRow(item: DictItemVO): DictItemRow {
+  return {
+    id: item.id,
+    itemLabel: item.itemLabel,
+    itemValue: item.itemValue,
+    sort: item.sort ?? 0,
+    statusText: toStatusText(item.status),
+  };
+}
+
+export function mapConfigRow(config: import('@/types/system').ConfigVO): ConfigRow {
+  return {
+    id: config.id,
+    configName: config.configName,
+    configKey: config.configKey,
+    configValue: config.configValue ?? '',
+    statusText: toStatusText(config.status),
+    createTimeText: formatDateTime(config.createTime),
+  };
+}
+
+export function mapLoginLogRow(log: LoginLogVO): LoginLogRow {
+  return {
+    id: log.id,
+    username: log.username,
+    loginStatus: toLoginStatusText(log.loginStatus),
+    ip: log.ip ?? '--',
+    userAgent: log.userAgent ?? '--',
+    message: log.message ?? '--',
+    createTimeText: formatDateTime(log.createTime),
+  };
+}
+
+export function mapOpLogRow(log: OpLogVO): OpLogRow {
+  return {
+    id: log.id,
+    module: log.module ?? '--',
+    action: log.action ?? '--',
+    operatorName: log.operatorName ?? '--',
+    successText: log.success === true ? '成功' : log.success === false ? '失败' : '--',
+    costMsText: log.costMs == null ? '--' : `${log.costMs} ms`,
+    requestMethod: log.requestMethod ?? '--',
+    requestUri: log.requestUri ?? '--',
+    errorMsg: log.errorMsg ?? '--',
+    createTimeText: formatDateTime(log.createTime),
+  };
+}
+

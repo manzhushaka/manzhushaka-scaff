@@ -1,0 +1,17 @@
+.idea/
+.vscode/
+.DS_Store
+
+target/
+*/target/
+
+node_modules/
+ui-admin/dist/
+ui-admin/.vite/
+
+logs/
+*.log
+
+.env
+.env.local
+

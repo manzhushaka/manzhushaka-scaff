@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: manzhushaka-admin
+  profiles:
+    active: dev
+
+server:
+  port: 8080
+
+sa-token:
+  token-name: Authorization
+  timeout: 2592000
+  is-read-cookie: false
+  is-share: false
+
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+manzhushaka:
+  mq:
+    group: manzhushaka-group
+    consumer: oplog-consumer
+    max-retry: 3
