@@ -1,6 +1,5 @@
-package com.manzhushaka.mq.core;
+package com.manzhushaka.common.enums;
 
-import com.manzhushaka.common.enums.MqMessageStatus;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -32,5 +31,6 @@ class MqMessageStatusRuleTest {
     @Test
     void successDoesNotAllowManualRetry() {
         assertFalse(MqMessageStatus.SUCCESS.allowsManualRetry(false));
+        assertFalse(MqMessageStatus.SUCCESS.allowsManualRetry(true));
     }
 }
