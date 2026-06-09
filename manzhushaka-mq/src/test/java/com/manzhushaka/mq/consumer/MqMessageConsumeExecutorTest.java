@@ -10,10 +10,13 @@ import org.springframework.data.redis.connection.stream.RecordId;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -89,11 +92,71 @@ class MqMessageConsumeExecutorTest {
         verify(handler, never()).handle(record);
     }
 
+    @Test
+    void executeShouldOnlyAcknowledgeWhenEventIdIsMissing() throws Exception {
+        MqMessageLedgerService ledgerService = mock(MqMessageLedgerService.class);
+        MqProperties mqProperties = new MqProperties();
+        MqMessageConsumeExecutor executor = new MqMessageConsumeExecutor(ledgerService, mqProperties);
+        MapRecord<String, Object, Object> record = buildRecordWithoutEventId();
+        @SuppressWarnings("unchecked")
+        MqMessageConsumeExecutor.MessageHandler handler = mock(MqMessageConsumeExecutor.MessageHandler.class);
+        @SuppressWarnings("unchecked")
+        Consumer<RecordId> acknowledge = mock(Consumer.class);
+
+        executor.execute(record, "oplog-group", "consumer-a", handler, acknowledge);
+
+        verify(acknowledge).accept(record.getId());
+        verify(ledgerService, never()).isSuccess("event-001");
+        verify(ledgerService, never()).markProcessing("event-001", "oplog-group", "consumer-a", 300);
+        verify(ledgerService, never()).markSuccess("event-001");
+        verify(ledgerService, never()).markFailed("event-001", "handler failed");
+        verify(handler, never()).handle(record);
+    }
+
+    @Test
+    void executeShouldNotMarkFailedWhenMarkSuccessThrowsException() throws Exception {
+        MqMessageLedgerService ledgerService = mock(MqMessageLedgerService.class);
+        MqProperties mqProperties = new MqProperties();
+        mqProperties.setProcessingTimeoutSeconds(300);
+        MqMessageConsumeExecutor executor = new MqMessageConsumeExecutor(ledgerService, mqProperties);
+        MapRecord<String, Object, Object> record = buildRecord();
+        @SuppressWarnings("unchecked")
+        MqMessageConsumeExecutor.MessageHandler handler = mock(MqMessageConsumeExecutor.MessageHandler.class);
+        @SuppressWarnings("unchecked")
+        Consumer<RecordId> acknowledge = mock(Consumer.class);
+        when(ledgerService.isSuccess("event-001")).thenReturn(false);
+        IllegalStateException expected = new IllegalStateException("mark success failed");
+        doThrow(expected).when(ledgerService).markSuccess("event-001");
+
+        IllegalStateException actual = assertThrows(
+            IllegalStateException.class,
+            () -> executor.execute(record, "oplog-group", "consumer-a", handler, acknowledge)
+        );
+
+        assertSame(expected, actual);
+        InOrder inOrder = inOrder(ledgerService, handler, acknowledge);
+        inOrder.verify(ledgerService).isSuccess("event-001");
+        inOrder.verify(ledgerService).markProcessing("event-001", "oplog-group", "consumer-a", 300);
+        inOrder.verify(handler).handle(record);
+        inOrder.verify(ledgerService).markSuccess("event-001");
+        inOrder.verify(acknowledge).accept(record.getId());
+        verify(ledgerService, never()).markFailed("event-001", "mark success failed");
+        verify(acknowledge, times(1)).accept(record.getId());
+    }
+
     @SuppressWarnings("unchecked")
     private MapRecord<String, Object, Object> buildRecord() {
         MapRecord<String, Object, Object> record = mock(MapRecord.class);
         when(record.getId()).thenReturn(RecordId.of("1717910400000-0"));
         when(record.getValue()).thenReturn(Map.of("eventId", "event-001", "payload", "{\"ok\":true}"));
+        return record;
+    }
+
+    @SuppressWarnings("unchecked")
+    private MapRecord<String, Object, Object> buildRecordWithoutEventId() {
+        MapRecord<String, Object, Object> record = mock(MapRecord.class);
+        when(record.getId()).thenReturn(RecordId.of("1717910400000-1"));
+        when(record.getValue()).thenReturn(Map.of("payload", "{\"ok\":true}"));
         return record;
     }
 }

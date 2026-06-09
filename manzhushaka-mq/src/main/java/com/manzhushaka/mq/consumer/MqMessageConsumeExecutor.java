@@ -6,7 +6,6 @@ import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.connection.stream.RecordId;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
 import java.util.function.Consumer;
 
 @Component
@@ -27,8 +26,11 @@ public class MqMessageConsumeExecutor {
         MessageHandler handler,
         Consumer<RecordId> acknowledge
     ) {
-        String eventId = parseEventId(record);
         try {
+            String eventId = parseEventId(record);
+            if (eventId == null) {
+                return;
+            }
             if (ledgerService.isSuccess(eventId)) {
                 return;
             }
@@ -38,10 +40,13 @@ public class MqMessageConsumeExecutor {
                 consumerName,
                 mqProperties.getProcessingTimeoutSeconds()
             );
-            handler.handle(record);
+            try {
+                handler.handle(record);
+            } catch (Exception exception) {
+                ledgerService.markFailed(eventId, exception.getMessage());
+                return;
+            }
             ledgerService.markSuccess(eventId);
-        } catch (Exception exception) {
-            ledgerService.markFailed(eventId, exception.getMessage());
         } finally {
             acknowledge.accept(record.getId());
         }
@@ -50,7 +55,7 @@ public class MqMessageConsumeExecutor {
     private String parseEventId(MapRecord<String, Object, Object> record) {
         Object eventId = record.getValue().get("eventId");
         if (eventId == null || String.valueOf(eventId).isBlank()) {
-            throw new IllegalStateException("MQ 消息缺少 eventId");
+            return null;
         }
         return String.valueOf(eventId);
     }
