@@ -2,7 +2,7 @@ spring:
   application:
     name: manzhushaka-admin
   profiles:
-    active: dev
+    active: ${ACTIVE:dev}
 
 server:
   port: 8080
