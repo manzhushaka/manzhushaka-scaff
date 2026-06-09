@@ -55,14 +55,22 @@ function unwrapResponse<T>(payload: ApiEnvelope<T> | string): T {
   return normalized.data;
 }
 
+function normalizeRequestError(error: unknown) {
+  if (axios.isAxiosError(error) && !error.response) {
+    return new Error('无法连接后端服务，请确认后端服务和前端代理已启动');
+  }
+  return error instanceof Error ? error : new Error('请求失败，请稍后重试');
+}
+
 const request = {
   async get<T>(url: string, config?: object) {
     try {
       const response = await service.get<ApiEnvelope<T> | string>(url, config);
       return unwrapResponse(response.data);
     } catch (error) {
-      Message.error((error as Error).message || '请求失败，请稍后重试');
-      throw error;
+      const normalized = normalizeRequestError(error);
+      Message.error(normalized.message);
+      throw normalized;
     }
   },
   async post<T>(url: string, data?: unknown, config?: object) {
@@ -70,8 +78,9 @@ const request = {
       const response = await service.post<ApiEnvelope<T> | string>(url, data, config);
       return unwrapResponse(response.data);
     } catch (error) {
-      Message.error((error as Error).message || '请求失败，请稍后重试');
-      throw error;
+      const normalized = normalizeRequestError(error);
+      Message.error(normalized.message);
+      throw normalized;
     }
   },
   async put<T>(url: string, data?: unknown, config?: object) {
@@ -79,8 +88,9 @@ const request = {
       const response = await service.put<ApiEnvelope<T> | string>(url, data, config);
       return unwrapResponse(response.data);
     } catch (error) {
-      Message.error((error as Error).message || '请求失败，请稍后重试');
-      throw error;
+      const normalized = normalizeRequestError(error);
+      Message.error(normalized.message);
+      throw normalized;
     }
   },
   async delete<T>(url: string, config?: object) {
@@ -88,8 +98,9 @@ const request = {
       const response = await service.delete<ApiEnvelope<T> | string>(url, config);
       return unwrapResponse(response.data);
     } catch (error) {
-      Message.error((error as Error).message || '请求失败，请稍后重试');
-      throw error;
+      const normalized = normalizeRequestError(error);
+      Message.error(normalized.message);
+      throw normalized;
     }
   },
 };
