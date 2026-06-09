@@ -215,7 +215,7 @@ CREATE TABLE `sys_login_log` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='登录日志表';
 
 INSERT INTO `sys_dept` (`id`, `parent_id`, `ancestor_path`, `dept_name`, `leader`, `phone`, `email`, `sort`, `status`, `deleted`, `create_by`, `create_time`, `update_by`, `update_time`) VALUES
-(100, 0, ',', '满朱砂科技', 'admin', '13812345678', 'admin@manzhushaka.com', 0, 1, 0, 'system', NOW(), 'system', NOW()),
+(100, 0, ',', 'manzhushaka', 'admin', '13812345678', 'admin@manzhushaka.com', 0, 1, 0, 'system', NOW(), 'system', NOW()),
 (101, 100, ',100,', '平台研发部', 'admin', '13812345678', 'rd@manzhushaka.com', 1, 1, 0, 'system', NOW(), 'system', NOW());
 
 INSERT INTO `sys_role` (`id`, `role_name`, `role_code`, `data_scope`, `sort`, `status`, `remark`, `create_by`, `create_time`, `update_by`, `update_time`) VALUES
@@ -311,7 +311,7 @@ INSERT INTO `sys_dict_item` (`id`, `dict_type_id`, `item_label`, `item_value`, `
 (1021, 102, '否', 'N', 2, 1, 'system', NOW(), 'system', NOW());
 
 INSERT INTO `sys_config` (`id`, `config_name`, `config_key`, `config_value`, `status`, `create_by`, `create_time`, `update_by`, `update_time`) VALUES
-(100, '系统名称', 'sys.app.name', '满朱砂管理后台', 1, 'system', NOW(), 'system', NOW()),
+(100, '系统名称', 'sys.app.name', 'manzhushaka 管理后台', 1, 'system', NOW(), 'system', NOW()),
 (101, '默认密码', 'sys.user.default-password', 'Admin@123456', 1, 'system', NOW(), 'system', NOW()),
 (102, '前端标题', 'sys.ui.title', 'Manzhushaka Admin', 1, 'system', NOW(), 'system', NOW());
 

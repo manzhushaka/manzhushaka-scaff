@@ -2,7 +2,7 @@
   <a-layout class="layout-shell">
     <a-layout-sider :width="240" collapsible breakpoint="lg">
       <div class="brand-block">
-        <div class="brand-title">满洲沙卡管理台</div>
+        <div class="brand-title">manzhushaka 管理台</div>
         <div class="brand-subtitle">Admin Scaffold V1</div>
       </div>
       <a-menu

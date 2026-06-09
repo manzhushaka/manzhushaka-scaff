@@ -9,14 +9,14 @@
         <div class="hero-content">
           <div class="brand-row">
             <span class="brand-mark"></span>
-            <span class="brand-name">满洲沙卡 Admin</span>
+            <span class="brand-name">manzhushaka Admin</span>
           </div>
           <h1>欢迎回来</h1>
           <p>登录管理系统，继续高效管理</p>
           <span class="hero-divider"></span>
         </div>
 
-        <div class="hero-note">© {{ currentYear }} 满洲沙卡. 保留所有权利。</div>
+        <div class="hero-note">© {{ currentYear }} manzhushaka. 保留所有权利。</div>
       </section>
 
       <section class="login-panel">
@@ -27,7 +27,7 @@
           </div>
 
           <a-form :model="form" class="login-form" @submit-success="handleSubmit">
-            <a-form-item field="username">
+            <a-form-item field="username" hide-label>
               <a-input v-model="form.username" class="login-input" placeholder="用户名 / 邮箱" allow-clear>
                 <template #prefix>
                   <icon-user />
@@ -35,7 +35,7 @@
               </a-input>
             </a-form-item>
 
-            <a-form-item field="password">
+            <a-form-item field="password" hide-label>
               <a-input-password
                 v-model="form.password"
                 class="login-input"

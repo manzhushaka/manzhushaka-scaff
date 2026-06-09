@@ -2,7 +2,7 @@ spring:
   datasource:
     url: ${DB_URL:jdbc:mysql://127.0.0.1:3306/manzhushaka?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai}
     username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:P1a2s3d4fG}
+    password: ${DB_PASSWORD:1a2s3d4f}
     driver-class-name: com.mysql.cj.jdbc.Driver
   data:
     redis:
