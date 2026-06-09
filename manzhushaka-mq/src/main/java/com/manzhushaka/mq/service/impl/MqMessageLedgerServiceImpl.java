@@ -76,6 +76,7 @@ public class MqMessageLedgerServiceImpl implements MqMessageLedgerService {
     public void markSuccess(String eventId) {
         updateStatus(eventId, MqMessageStatus.SUCCESS, entity -> {
             entity.setConsumedAt(LocalDateTime.now());
+            entity.setProcessingDeadlineAt(null);
             entity.setLastError(null);
         });
     }
@@ -83,13 +84,16 @@ public class MqMessageLedgerServiceImpl implements MqMessageLedgerService {
     @Override
     @Transactional
     public void markFailed(String eventId, String errorMessage) {
-        updateStatus(eventId, MqMessageStatus.FAIL, entity -> entity.setLastError(truncateError(errorMessage)));
+        updateStatus(eventId, MqMessageStatus.FAIL, entity -> {
+            entity.setProcessingDeadlineAt(null);
+            entity.setLastError(truncateError(errorMessage));
+        });
     }
 
     private void updateStatus(String eventId, MqMessageStatus status, java.util.function.Consumer<SysMqMessage> customizer) {
         SysMqMessage entity = getByEventId(eventId);
         if (entity == null) {
-            return;
+            throw new IllegalStateException("MQ 消息台账不存在: " + eventId);
         }
         entity.setStatus(status.name());
         entity.setUpdateTime(LocalDateTime.now());
@@ -113,6 +117,6 @@ public class MqMessageLedgerServiceImpl implements MqMessageLedgerService {
 
     private String truncateError(String errorMessage) {
         String message = (errorMessage == null || errorMessage.isBlank()) ? "unknown error" : errorMessage;
-        return message.length() > 500 ? message.substring(0, 500) : message;
+        return message.length() > 1000 ? message.substring(0, 1000) : message;
     }
 }

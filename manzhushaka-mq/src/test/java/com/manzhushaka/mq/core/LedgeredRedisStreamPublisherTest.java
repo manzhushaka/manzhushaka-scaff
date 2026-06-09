@@ -11,6 +11,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 class LedgeredRedisStreamPublisherTest {
 
@@ -45,6 +47,25 @@ class LedgeredRedisStreamPublisherTest {
         inOrder.verify(ledgerService).createInitRecord("stream:test", event);
         inOrder.verify(redisStreamPublisher).publish("stream:test", event);
         inOrder.verify(ledgerService).markFailed(event.getEventId(), "redis stream write failed");
+    }
+
+    @Test
+    void publishShouldNotMarkFailedWhenMarkPublishedThrowsException() {
+        MqMessageLedgerService ledgerService = mock(MqMessageLedgerService.class);
+        RedisStreamPublisher redisStreamPublisher = mock(RedisStreamPublisher.class);
+        LedgeredRedisStreamPublisher publisher = new LedgeredRedisStreamPublisher(ledgerService, redisStreamPublisher);
+        MqEvent<String> event = buildEvent();
+        IllegalStateException expected = new IllegalStateException("mark published failed");
+        doThrow(expected).when(ledgerService).markPublished(event.getEventId());
+
+        IllegalStateException actual = assertThrows(IllegalStateException.class, () -> publisher.publish("stream:test", event));
+
+        assertSame(expected, actual);
+        InOrder inOrder = inOrder(ledgerService, redisStreamPublisher);
+        inOrder.verify(ledgerService).createInitRecord("stream:test", event);
+        inOrder.verify(redisStreamPublisher).publish("stream:test", event);
+        inOrder.verify(ledgerService).markPublished(event.getEventId());
+        verify(ledgerService, never()).markFailed(event.getEventId(), "mark published failed");
     }
 
     private MqEvent<String> buildEvent() {

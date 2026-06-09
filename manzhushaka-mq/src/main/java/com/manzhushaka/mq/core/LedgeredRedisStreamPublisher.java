@@ -18,10 +18,10 @@ public class LedgeredRedisStreamPublisher {
         ledgerService.createInitRecord(streamKey, event);
         try {
             redisStreamPublisher.publish(streamKey, event);
-            ledgerService.markPublished(event.getEventId());
         } catch (RuntimeException exception) {
             ledgerService.markFailed(event.getEventId(), exception.getMessage());
             throw exception;
         }
+        ledgerService.markPublished(event.getEventId());
     }
 }
