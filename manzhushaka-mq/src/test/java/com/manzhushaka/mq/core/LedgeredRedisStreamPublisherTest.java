@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -29,6 +31,7 @@ class LedgeredRedisStreamPublisherTest {
         inOrder.verify(ledgerService).createInitRecord("stream:test", event);
         inOrder.verify(redisStreamPublisher).publish("stream:test", event);
         inOrder.verify(ledgerService).markPublished(event.getEventId());
+        verify(ledgerService, never()).markFailed(eq(event.getEventId()), anyString());
     }
 
     @Test
@@ -47,6 +50,7 @@ class LedgeredRedisStreamPublisherTest {
         inOrder.verify(ledgerService).createInitRecord("stream:test", event);
         inOrder.verify(redisStreamPublisher).publish("stream:test", event);
         inOrder.verify(ledgerService).markFailed(event.getEventId(), "redis stream write failed");
+        verify(ledgerService, never()).markPublished(event.getEventId());
     }
 
     @Test
@@ -65,7 +69,7 @@ class LedgeredRedisStreamPublisherTest {
         inOrder.verify(ledgerService).createInitRecord("stream:test", event);
         inOrder.verify(redisStreamPublisher).publish("stream:test", event);
         inOrder.verify(ledgerService).markPublished(event.getEventId());
-        verify(ledgerService, never()).markFailed(event.getEventId(), "mark published failed");
+        verify(ledgerService, never()).markFailed(eq(event.getEventId()), anyString());
     }
 
     private MqEvent<String> buildEvent() {
