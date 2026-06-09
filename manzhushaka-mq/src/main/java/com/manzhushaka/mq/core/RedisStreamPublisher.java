@@ -20,18 +20,22 @@ public class RedisStreamPublisher {
 
     public void publish(String streamKey, MqEvent<?> event) {
         try {
-            redisTemplate.opsForStream().add(MapRecord.create(streamKey, Map.of(
-                "eventId", event.getEventId(),
-                "eventType", event.getEventType(),
-                "bizKey", event.getBizKey() == null ? "" : event.getBizKey(),
-                "traceId", event.getTraceId() == null ? "" : event.getTraceId(),
-                "source", event.getSource() == null ? "" : event.getSource(),
-                "retryCount", String.valueOf(event.getRetryCount() == null ? 0 : event.getRetryCount()),
-                "occurredAt", String.valueOf(event.getOccurredAt()),
-                "payload", objectMapper.writeValueAsString(event.getPayload())
-            )));
+            redisTemplate.opsForStream().add(MapRecord.create(streamKey, buildRecordValue(event)));
         } catch (JsonProcessingException exception) {
             throw new IllegalStateException("序列化 MQ 事件失败", exception);
         }
+    }
+
+    private Map<String, String> buildRecordValue(MqEvent<?> event) throws JsonProcessingException {
+        return Map.of(
+            "eventId", event.getEventId(),
+            "eventType", event.getEventType(),
+            "bizKey", event.getBizKey() == null ? "" : event.getBizKey(),
+            "traceId", event.getTraceId() == null ? "" : event.getTraceId(),
+            "source", event.getSource() == null ? "" : event.getSource(),
+            "retryCount", String.valueOf(event.getRetryCount() == null ? 0 : event.getRetryCount()),
+            "occurredAt", String.valueOf(event.getOccurredAt()),
+            "payload", objectMapper.writeValueAsString(event.getPayload())
+        );
     }
 }

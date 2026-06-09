@@ -9,9 +9,9 @@ import java.util.UUID;
 
 @Component
 public class RedisOpLogPublisher implements OpLogPublisher {
-    private final RedisStreamPublisher streamPublisher;
+    private final LedgeredRedisStreamPublisher streamPublisher;
 
-    public RedisOpLogPublisher(RedisStreamPublisher streamPublisher) {
+    public RedisOpLogPublisher(LedgeredRedisStreamPublisher streamPublisher) {
         this.streamPublisher = streamPublisher;
     }
 
