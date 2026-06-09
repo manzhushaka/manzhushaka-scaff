@@ -7,6 +7,7 @@ public class MqProperties {
     private String group = "manzhushaka-group";
     private String consumer = "oplog-consumer";
     private int maxRetry = 3;
+    private int processingTimeoutSeconds = 300;
 
     public String getGroup() {
         return group;
@@ -30,5 +31,13 @@ public class MqProperties {
 
     public void setMaxRetry(int maxRetry) {
         this.maxRetry = maxRetry;
+    }
+
+    public int getProcessingTimeoutSeconds() {
+        return processingTimeoutSeconds;
+    }
+
+    public void setProcessingTimeoutSeconds(int processingTimeoutSeconds) {
+        this.processingTimeoutSeconds = processingTimeoutSeconds;
     }
 }
