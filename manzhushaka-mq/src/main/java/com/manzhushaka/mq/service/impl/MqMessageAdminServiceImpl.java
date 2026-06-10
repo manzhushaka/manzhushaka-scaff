@@ -1,5 +1,6 @@
 package com.manzhushaka.mq.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.manzhushaka.common.enums.MqMessageStatus;
@@ -11,7 +12,6 @@ import com.manzhushaka.mq.core.RedisStreamPublisher;
 import com.manzhushaka.mq.properties.MqProperties;
 import com.manzhushaka.mq.service.MqMessageAdminService;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -36,7 +36,6 @@ public class MqMessageAdminServiceImpl implements MqMessageAdminService {
     }
 
     @Override
-    @Transactional
     public void retry(Long id) {
         SysMqMessage message = mqMessageMapper.selectById(id);
         if (message == null) {
@@ -46,9 +45,43 @@ public class MqMessageAdminServiceImpl implements MqMessageAdminService {
             throw new BizException(400, "当前消息状态不允许手动重试");
         }
         MqEvent<Object> event = rebuildEvent(message);
-        redisStreamPublisher.publish(message.getStreamKey(), event);
+        claimRetry(message);
+        try {
+            redisStreamPublisher.publish(message.getStreamKey(), event);
+        } catch (RuntimeException exception) {
+            markRetryFailed(message, exception.getMessage());
+            mqMessageMapper.updateById(message);
+            throw exception;
+        }
         markRepublished(message, event.getRetryCount());
         mqMessageMapper.updateById(message);
+    }
+
+    private void claimRetry(SysMqMessage message) {
+        LocalDateTime now = LocalDateTime.now();
+        SysMqMessage updating = new SysMqMessage();
+        updating.setStatus(MqMessageStatus.PROCESSING.name());
+        updating.setProcessingDeadlineAt(now.plusSeconds(mqProperties.getProcessingTimeoutSeconds()));
+        updating.setLastError(null);
+        updating.setConsumerGroup(null);
+        updating.setConsumerName(null);
+        updating.setConsumeStartedAt(now);
+        updating.setConsumedAt(null);
+        updating.setUpdateTime(now);
+        int updated = mqMessageMapper.update(updating, new LambdaUpdateWrapper<SysMqMessage>()
+            .eq(SysMqMessage::getId, message.getId())
+            .eq(SysMqMessage::getStatus, message.getStatus()));
+        if (updated != 1) {
+            throw new BizException(409, "消息正在重试中，请刷新后重试");
+        }
+        message.setStatus(updating.getStatus());
+        message.setProcessingDeadlineAt(updating.getProcessingDeadlineAt());
+        message.setLastError(null);
+        message.setConsumerGroup(null);
+        message.setConsumerName(null);
+        message.setConsumeStartedAt(updating.getConsumeStartedAt());
+        message.setConsumedAt(null);
+        message.setUpdateTime(now);
     }
 
     private boolean allowsRetry(SysMqMessage message, LocalDateTime now) {
@@ -90,6 +123,18 @@ public class MqMessageAdminServiceImpl implements MqMessageAdminService {
         message.setUpdateTime(now);
     }
 
+    private void markRetryFailed(SysMqMessage message, String errorMessage) {
+        LocalDateTime now = LocalDateTime.now();
+        message.setStatus(MqMessageStatus.FAIL.name());
+        message.setProcessingDeadlineAt(null);
+        message.setLastError(truncateError(errorMessage));
+        message.setConsumerGroup(null);
+        message.setConsumerName(null);
+        message.setConsumeStartedAt(null);
+        message.setConsumedAt(null);
+        message.setUpdateTime(now);
+    }
+
     private MqMessageStatus resolveStatus(String status) {
         try {
             return MqMessageStatus.valueOf(status);
@@ -116,5 +161,10 @@ public class MqMessageAdminServiceImpl implements MqMessageAdminService {
             case PUBLISHED -> isPublishedTimedOut(message, now);
             default -> false;
         };
+    }
+
+    private String truncateError(String errorMessage) {
+        String message = (errorMessage == null || errorMessage.isBlank()) ? "unknown error" : errorMessage;
+        return message.length() > 1000 ? message.substring(0, 1000) : message;
     }
 }
