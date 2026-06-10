@@ -2,7 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   buildMenuTree,
+  collectAncestorMenuKeys,
+  collectExpandedMenuKeys,
   findMenuSelectionAfterFilter,
+  isRootMenuParentId,
   mapMenuDetail,
 } from '../src/views/system/menus-support.ts';
 import type { MenuVO } from '../src/types/system.ts';
@@ -410,6 +413,23 @@ test('returns null selected id when the filter result is empty', () => {
     tree: [],
     selectedId: null,
   });
+});
+
+test('collects expandable ancestor keys from a filtered menu tree', () => {
+  const filtered = findMenuSelectionAfterFilter(menus, '新增', null);
+
+  assert.deepEqual(collectExpandedMenuKeys(filtered.tree), [100, 110]);
+});
+
+test('collects ancestor keys for a deep selected menu id', () => {
+  assert.deepEqual(collectAncestorMenuKeys(buildMenuTree(menus), 111), [100, 110]);
+  assert.deepEqual(collectAncestorMenuKeys(buildMenuTree(menus), 100), []);
+});
+
+test('treats both null and zero parent ids as root menus', () => {
+  assert.equal(isRootMenuParentId(null), true);
+  assert.equal(isRootMenuParentId(0), true);
+  assert.equal(isRootMenuParentId(100), false);
 });
 
 test('maps menu detail for page consumption with raw tag and flat groups', () => {

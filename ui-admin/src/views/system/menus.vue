@@ -30,8 +30,9 @@
             v-else
             block-node
             :data="treeData"
-            :default-expand-all="true"
+            :expanded-keys="expandedKeys"
             :selected-keys="selectedKeys"
+            @expand="handleTreeExpand"
             @select="handleTreeSelect"
           >
             <template #title="nodeData">
@@ -112,7 +113,7 @@
           <a-input v-model="form.menuName" placeholder="请输入菜单名称" />
         </a-form-item>
         <a-form-item field="parentId" label="上级菜单">
-          <a-select v-model="parentIdValue" :options="parentOptions" allow-clear placeholder="根菜单可留空" />
+          <a-select v-model="parentIdValue" :options="parentOptions" allow-clear placeholder="请选择上级菜单" />
         </a-form-item>
         <a-form-item field="menuType" label="菜单类型">
           <a-select v-model="form.menuType" :options="menuTypeOptions" />
@@ -153,7 +154,14 @@ import PageHeaderCard from '@/components/PageHeaderCard.vue';
 import { systemApi } from '@/api/system';
 import type { MenuForm, MenuVO, SelectOption } from '@/types/system';
 import { keepAliveOptions, menuTypeOptions, statusOptions, yesNoOptions } from './shared';
-import { findMenuSelectionAfterFilter, mapMenuDetail, type MenuTreeNode } from './menus-support';
+import {
+  collectAncestorMenuKeys,
+  collectExpandedMenuKeys,
+  findMenuSelectionAfterFilter,
+  isRootMenuParentId,
+  mapMenuDetail,
+  type MenuTreeNode,
+} from './menus-support';
 
 interface MenuTreeViewNode {
   key: number;
@@ -164,6 +172,9 @@ interface MenuTreeViewNode {
   children?: MenuTreeViewNode[];
 }
 
+const ROOT_PARENT_VALUE = '__ROOT__';
+type ParentSelectValue = string | number | undefined;
+
 const keyword = ref('');
 const loading = ref(false);
 const visible = ref(false);
@@ -172,7 +183,8 @@ const allMenus = ref<MenuVO[]>([]);
 const filteredTree = ref<MenuTreeNode[]>([]);
 const selectedId = ref<number | null>(null);
 const rawParentOptions = ref<SelectOption[]>([]);
-const parentIdValue = ref<string | number | undefined>();
+const parentIdValue = ref<ParentSelectValue>();
+const manualExpandedKeys = ref<Array<string | number>>([]);
 const latestMenuRequestId = ref(0);
 const menuTypeColorMap: Record<string, 'green' | 'arcoblue' | 'orange'> = {
   DIR: 'orange',
@@ -211,13 +223,27 @@ const selectedMenu = computed(() => {
 });
 
 const selectedKeys = computed<Array<string | number>>(() => (selectedId.value == null ? [] : [selectedId.value]));
+const expandedKeys = computed<Array<string | number>>(() => {
+  const nextExpandedKeys = new Set<string | number>(manualExpandedKeys.value);
+  const normalizedKeyword = keyword.value.trim();
+
+  if (normalizedKeyword) {
+    collectExpandedMenuKeys(filteredTree.value).forEach((key) => nextExpandedKeys.add(key));
+  }
+
+  if (selectedId.value != null) {
+    collectAncestorMenuKeys(filteredTree.value, selectedId.value).forEach((key) => nextExpandedKeys.add(key));
+  }
+
+  return Array.from(nextExpandedKeys);
+});
 
 const parentName = computed(() => {
   const menu = selectedMenu.value;
   if (!menu) {
     return '根菜单';
   }
-  if (menu.parentId == null) {
+  if (isRootMenuParentId(menu.parentId)) {
     return '根菜单';
   }
   return menuMap.value.get(menu.parentId)?.menuName ?? `菜单 #${menu.parentId}`;
@@ -251,12 +277,19 @@ const excludedParentIds = computed(() => {
 });
 
 const parentOptions = computed(() =>
-  rawParentOptions.value.filter((option) => !excludedParentIds.value.has(Number(option.value))),
+  [
+    {
+      label: '顶级菜单',
+      value: ROOT_PARENT_VALUE,
+    },
+    ...rawParentOptions.value.filter((option) => !excludedParentIds.value.has(Number(option.value))),
+  ],
 );
 
 function resetForm(parentId?: number | null) {
-  form.parentId = parentId ?? null;
-  parentIdValue.value = parentId ?? undefined;
+  const normalizedParentId = normalizeParentId(parentId);
+  form.parentId = normalizedParentId;
+  parentIdValue.value = toParentSelectValue(normalizedParentId);
   form.menuType = 'MENU';
   form.menuName = '';
   form.routePath = '';
@@ -308,6 +341,10 @@ function handleTreeSelect(selectedKeysValue: Array<string | number>) {
   selectedId.value = nextSelectedKey == null ? null : Number(nextSelectedKey);
 }
 
+function handleTreeExpand(expandedKeysValue: Array<string | number>) {
+  manualExpandedKeys.value = expandedKeysValue;
+}
+
 function openCreate() {
   resetForm(null);
   visible.value = true;
@@ -322,8 +359,8 @@ async function openEdit(id: number) {
   selectedId.value = id;
   const detail = await systemApi.getMenu(id);
   editingId.value = id;
-  form.parentId = detail.parentId;
-  parentIdValue.value = detail.parentId ?? undefined;
+  form.parentId = normalizeParentId(detail.parentId);
+  parentIdValue.value = toParentSelectValue(detail.parentId);
   form.menuType = detail.menuType as 'DIR' | 'MENU' | 'BUTTON';
   form.menuName = detail.menuName;
   form.routePath = detail.routePath ?? '';
@@ -345,7 +382,7 @@ async function submitForm() {
   }
 
   const payload: MenuForm = {
-    parentId: parentIdValue.value == null ? null : Number(parentIdValue.value),
+    parentId: toParentPayloadValue(parentIdValue.value),
     menuType: form.menuType,
     menuName: form.menuName.trim(),
     routePath: form.routePath.trim(),
@@ -415,6 +452,22 @@ function collectDescendantIds(rootId: number) {
   }
 
   return excludedIds;
+}
+
+function normalizeParentId(parentId?: number | null) {
+  return isRootMenuParentId(parentId) ? null : parentId;
+}
+
+function toParentSelectValue(parentId?: number | null): ParentSelectValue {
+  const normalizedParentId = normalizeParentId(parentId);
+  return normalizedParentId == null ? ROOT_PARENT_VALUE : normalizedParentId;
+}
+
+function toParentPayloadValue(parentValue: ParentSelectValue) {
+  if (parentValue == null || parentValue === ROOT_PARENT_VALUE) {
+    return null;
+  }
+  return Number(parentValue);
 }
 </script>
 

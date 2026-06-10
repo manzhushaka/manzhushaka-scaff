@@ -20,9 +20,8 @@
       <a-menu
         class="sidebar-menu"
         theme="dark"
+        v-model:open-keys="openKeys"
         :selected-keys="[selectedKey]"
-        :default-open-keys="defaultOpenKeys"
-        auto-open
         @menu-item-click="handleMenuClick"
       >
         <SidebarMenuItem
@@ -92,10 +91,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { IconDown } from '@arco-design/web-vue/es/icon';
 import SidebarMenuItem from '@/components/SidebarMenuItem.vue';
+import { collectAncestorMenuPaths, collectExpandableMenuPaths } from '@/layout/sidebar-menu-state';
 import { resolveMenuIcon } from '@/layout/menu-icons';
 import { resetDynamicRoutes } from '@/router';
 import { extractSidebarMenus } from '@/router/dynamic';
@@ -111,20 +111,9 @@ const tabsStore = useTabsStore();
 
 const visibleMenus = computed(() => extractSidebarMenus(authStore.menus));
 const selectedKey = computed(() => route.path);
+const openKeys = ref<string[]>([]);
 const userInitial = computed(() => authStore.profile?.nickname?.slice(0, 1) ?? 'M');
-const defaultOpenKeys = computed(() => {
-  const keys: string[] = [];
-  const walk = (items: typeof visibleMenus.value) => {
-    items.forEach((item) => {
-      if (item.children?.length) {
-        keys.push(item.path);
-        walk(item.children);
-      }
-    });
-  };
-  walk(visibleMenus.value);
-  return keys;
-});
+const expandableMenuKeys = computed(() => collectExpandableMenuPaths(visibleMenus.value));
 
 function handleMenuClick(path: string) {
   router.push(path);
@@ -175,6 +164,29 @@ function handleLogout() {
   resetDynamicRoutes();
   router.replace('/login');
 }
+
+watch(
+  [expandableMenuKeys, selectedKey],
+  ([currentMenuKeys, currentPath], [previousMenuKeys, previousPath]) => {
+    const validMenuKeys = new Set(currentMenuKeys);
+    const nextOpenKeys = openKeys.value.filter((key) => validMenuKeys.has(key));
+    const shouldSyncAncestors =
+      openKeys.value.length === 0 ||
+      currentPath !== previousPath ||
+      currentMenuKeys.toString() !== (previousMenuKeys ?? []).toString();
+
+    if (shouldSyncAncestors) {
+      for (const key of collectAncestorMenuPaths(visibleMenus.value, currentPath)) {
+        if (validMenuKeys.has(key) && !nextOpenKeys.includes(key)) {
+          nextOpenKeys.push(key);
+        }
+      }
+    }
+
+    openKeys.value = nextOpenKeys;
+  },
+  { immediate: true },
+);
 
 watch(
   () => route.fullPath,
@@ -358,6 +370,31 @@ watch(
   border: 1px solid rgba(255, 255, 255, 0.04);
   border-radius: 12px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  transition:
+    height 0.2s cubic-bezier(0.34, 0.69, 0.1, 1),
+    margin 0.2s cubic-bezier(0.34, 0.69, 0.1, 1),
+    padding 0.2s cubic-bezier(0.34, 0.69, 0.1, 1),
+    border-width 0.2s cubic-bezier(0.34, 0.69, 0.1, 1),
+    background-color 0.16s ease,
+    box-shadow 0.16s ease,
+    opacity 0.16s ease;
+}
+
+.sidebar-menu :deep(.arco-menu-inline-content.v-enter-from),
+.sidebar-menu :deep(.arco-menu-inline-content.v-leave-to) {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-right: 0;
+  padding-bottom: 0;
+  padding-left: 0;
+  border-top: 0 none transparent;
+  border-right: 0 none transparent;
+  border-bottom: 0 none transparent;
+  border-left: 0 none transparent;
+  background: transparent;
+  box-shadow: none;
+  opacity: 0;
 }
 
 .sidebar-menu :deep(.arco-menu-inline-content .arco-menu-item),

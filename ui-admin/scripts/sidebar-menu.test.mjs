@@ -17,4 +17,10 @@ assert.match(
   'MainLayout.vue needs a dedicated selected style for top-level menu items.',
 );
 
+assert.match(
+  mainLayoutSource,
+  /\.arco-menu-inline-content\.v-leave-to/,
+  'MainLayout.vue needs a leave-state style for submenu shells so collapse animations do not stall at the end.',
+);
+
 console.log('sidebar menu checks passed');

@@ -98,6 +98,29 @@ export function mapMenuDetail(menu?: MenuVO, parentName = '根菜单'): MenuDeta
   };
 }
 
+export function collectExpandedMenuKeys(tree: MenuTreeNode[]): number[] {
+  const expandedKeys: number[] = [];
+
+  for (const node of tree) {
+    if (!node.children.length) {
+      continue;
+    }
+    expandedKeys.push(node.id, ...collectExpandedMenuKeys(node.children));
+  }
+
+  return expandedKeys;
+}
+
+export function collectAncestorMenuKeys(tree: MenuTreeNode[], targetId: number): number[] {
+  return findNodePath(tree, targetId)
+    .slice(0, -1)
+    .map((node) => node.id);
+}
+
+export function isRootMenuParentId(parentId: number | null | undefined): parentId is null | undefined | 0 {
+  return parentId == null || parentId === 0;
+}
+
 function filterNode(node: MenuTreeNode, keyword: string): MenuTreeNode[] {
   const matchedChildren = node.children.flatMap((child) => filterNode(child, keyword));
   const matchedSelf = includesKeyword(node, keyword);
@@ -184,7 +207,7 @@ function findNodePath(tree: MenuTreeNode[], targetId: number): MenuTreeNode[] {
 }
 
 function normalizeParentId(parentId: number | null) {
-  return parentId ?? 0;
+  return isRootMenuParentId(parentId) ? 0 : parentId;
 }
 
 function isCyclicParentChain(menuId: number, parentMap: Map<number, number>) {

@@ -1,6 +1,6 @@
 <template>
-  <a-card class="page-card page-header-card" :bordered="false">
-    <div class="page-header-card__inner" :class="`page-header-card__inner--${mode}`">
+  <a-card v-if="shouldRender" class="page-card page-header-card" :bordered="false">
+    <div class="page-header-card__inner" :class="{ 'page-header-card__inner--toolbar': useToolbarLayout }">
       <div v-if="showHeading" class="header-content">
         <div v-if="eyebrow" class="eyebrow">{{ eyebrow }}</div>
         <div v-if="title" class="title-row">
@@ -8,7 +8,7 @@
         </div>
         <div v-if="description" class="description">{{ description }}</div>
       </div>
-      <div class="header-actions" :class="{ 'header-actions--stretch': !showHeading }">
+      <div v-if="hasActions" class="header-actions" :class="{ 'header-actions--stretch': !showHeading }">
         <slot />
       </div>
     </div>
@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, useSlots } from 'vue';
 
 const props = withDefaults(
   defineProps<{
@@ -31,7 +31,13 @@ const props = withDefaults(
   },
 );
 
-const showHeading = computed(() => props.mode === 'header' && Boolean(props.title || props.description || props.eyebrow));
+const slots = useSlots();
+const hasActions = computed(() => Boolean(slots.default));
+
+// Intro header blocks are disabled globally; keep the API for backward compatibility.
+const showHeading = computed(() => false);
+const useToolbarLayout = computed(() => props.mode === 'toolbar' || !showHeading.value);
+const shouldRender = computed(() => showHeading.value || hasActions.value);
 </script>
 
 <style scoped>

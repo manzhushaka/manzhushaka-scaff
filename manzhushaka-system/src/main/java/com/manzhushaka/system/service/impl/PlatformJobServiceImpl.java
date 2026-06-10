@@ -25,6 +25,7 @@ import com.manzhushaka.system.vo.job.PlatformJobLogDetailVO;
 import com.manzhushaka.system.vo.job.PlatformJobLogVO;
 import com.manzhushaka.system.vo.job.PlatformJobVO;
 import org.quartz.CronExpression;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -43,6 +44,7 @@ public class PlatformJobServiceImpl implements PlatformJobService {
     private final PlatformJobScheduler platformJobScheduler;
     private final PlatformJobHandlerRegistry handlerRegistry;
 
+    @Autowired
     public PlatformJobServiceImpl(
         SysJobMapper jobMapper,
         SysJobLogMapper jobLogMapper,
