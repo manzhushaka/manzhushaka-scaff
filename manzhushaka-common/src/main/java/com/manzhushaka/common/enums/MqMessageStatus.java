@@ -10,8 +10,8 @@ public enum MqMessageStatus {
     public boolean allowsManualRetry(boolean processingTimedOut) {
         return switch (this) {
             case INIT, FAIL -> true;
-            case PROCESSING -> processingTimedOut;
-            case PUBLISHED, SUCCESS -> false;
+            case PUBLISHED, PROCESSING -> processingTimedOut;
+            case SUCCESS -> false;
         };
     }
 }
