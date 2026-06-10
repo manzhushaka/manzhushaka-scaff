@@ -12,6 +12,7 @@ public class SysImportExportTask extends BaseEntity {
     private String taskName;
     private String taskStatus;
     private String taskMessage;
+    private String taskParam;
     private String sourceFileName;
     private String sourceObjectKey;
     private Long sourceFileSize;
@@ -77,6 +78,14 @@ public class SysImportExportTask extends BaseEntity {
 
     public void setTaskMessage(String taskMessage) {
         this.taskMessage = taskMessage;
+    }
+
+    public String getTaskParam() {
+        return taskParam;
+    }
+
+    public void setTaskParam(String taskParam) {
+        this.taskParam = taskParam;
     }
 
     public String getSourceFileName() {

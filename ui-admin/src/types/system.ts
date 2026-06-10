@@ -284,11 +284,6 @@ export interface ImportExportTaskQuery {
   taskStatus?: string;
 }
 
-export interface ExportTaskCreateForm {
-  bizType: string;
-  taskName?: string;
-}
-
 export interface DownloadUrlVO {
   url: string;
 }

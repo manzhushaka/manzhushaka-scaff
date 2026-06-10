@@ -1,6 +1,7 @@
 package com.manzhushaka.system.service.impexp;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.manzhushaka.db.system.entity.SysImportExportTask;
 import com.manzhushaka.db.system.entity.SysUser;
 import com.manzhushaka.db.system.mapper.SysImportExportTaskMapper;
@@ -13,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Component
-public class UserExportTaskTemplate extends AbstractExportTaskTemplate {
+public class UserExportTaskTemplate extends AbstractExportTaskTemplate<UserExportTaskTemplate.Command> {
 
     private final SysUserMapper userMapper;
 
@@ -21,9 +22,10 @@ public class UserExportTaskTemplate extends AbstractExportTaskTemplate {
         SysImportExportTaskMapper taskMapper,
         ObjectStorageService storageService,
         BosStorageProperties properties,
+        ObjectMapper objectMapper,
         SysUserMapper userMapper
     ) {
-        super(taskMapper, storageService, properties.getBasePath());
+        super(taskMapper, storageService, objectMapper, Command.class, properties.getBasePath());
         this.userMapper = userMapper;
     }
 
@@ -43,7 +45,7 @@ public class UserExportTaskTemplate extends AbstractExportTaskTemplate {
     }
 
     @Override
-    protected TaskExecutionResult executeExport(SysImportExportTask task) {
+    protected TaskExecutionResult executeExport(SysImportExportTask task, Command command) {
         List<SysUser> users = userMapper.selectList(new LambdaQueryWrapper<SysUser>()
             .eq(SysUser::getDeleted, 0)
             .orderByAsc(SysUser::getId));
@@ -74,5 +76,8 @@ public class UserExportTaskTemplate extends AbstractExportTaskTemplate {
             return "\"" + normalized + "\"";
         }
         return normalized;
+    }
+
+    public static class Command extends ExportTaskSubmitCommand {
     }
 }

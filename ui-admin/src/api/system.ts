@@ -9,7 +9,6 @@ import type {
   ConfigQuery,
   ConfigVO,
   DownloadUrlVO,
-  ExportTaskCreateForm,
   PlatformConfigVO,
   CacheEntryDetailVO,
   CacheEntryQuery,
@@ -323,18 +322,6 @@ export const systemApi = {
   },
   listImportExportSceneOptions(taskType: 'EXPORT' | 'IMPORT') {
     return get<SelectOption[]>('/system/io-tasks/scenes', { taskType });
-  },
-  createExportTask(payload: ExportTaskCreateForm) {
-    return post<number>('/system/io-tasks/exports', payload);
-  },
-  createImportTask(payload: { bizType: string; taskName?: string; file: File }) {
-    const formData = new FormData();
-    formData.append('bizType', payload.bizType);
-    if (payload.taskName) {
-      formData.append('taskName', payload.taskName);
-    }
-    formData.append('file', payload.file);
-    return post<number>('/system/io-tasks/imports', formData);
   },
   getImportExportDownloadUrl(id: number, fileRole: 'SOURCE' | 'RESULT') {
     return get<DownloadUrlVO>(`/system/io-tasks/${id}/download-url`, { fileRole });

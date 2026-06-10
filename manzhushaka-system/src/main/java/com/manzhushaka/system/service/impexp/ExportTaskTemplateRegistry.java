@@ -11,16 +11,16 @@ import java.util.Map;
 @Component
 public class ExportTaskTemplateRegistry {
 
-    private final Map<String, AbstractExportTaskTemplate> templates = new LinkedHashMap<>();
+    private final Map<String, AbstractExportTaskTemplate<?>> templates = new LinkedHashMap<>();
 
-    public ExportTaskTemplateRegistry(List<AbstractExportTaskTemplate> templates) {
-        for (AbstractExportTaskTemplate template : templates) {
+    public ExportTaskTemplateRegistry(List<AbstractExportTaskTemplate<?>> templates) {
+        for (AbstractExportTaskTemplate<?> template : templates) {
             this.templates.put(template.bizType(), template);
         }
     }
 
-    public AbstractExportTaskTemplate getRequired(String bizType) {
-        AbstractExportTaskTemplate template = templates.get(bizType);
+    public AbstractExportTaskTemplate<?> getRequired(String bizType) {
+        AbstractExportTaskTemplate<?> template = templates.get(bizType);
         if (template == null) {
             throw new BizException(404, "未找到导出场景");
         }

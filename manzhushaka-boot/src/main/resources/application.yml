@@ -29,6 +29,9 @@ mybatis-plus:
     map-underscore-to-camel-case: true
 
 manzhushaka:
+  db:
+    crypto:
+      key: ${DB_CRYPTO_KEY:}
   mq:
     group: manzhushaka-group
     consumer: oplog-consumer

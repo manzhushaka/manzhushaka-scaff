@@ -2,7 +2,7 @@
   <div class="system-page">
     <PageHeaderCard
       title="导出任务管理"
-      description="统一管理异步导出任务。当前内置系统用户 CSV 导出示例，生成文件会落到 BOS，任务完成后可直接复制下载链接。"
+      description="统一查看各业务模块提交的异步导出任务。任务完成后可直接复制结果文件下载链接。"
     />
 
     <PageHeaderCard mode="toolbar">
@@ -31,7 +31,6 @@
           @change="handleSearch"
         />
         <a-button v-permission="'system:io:export:query'" @click="fetchRows">刷新</a-button>
-        <a-button type="primary" v-permission="'system:io:export:create'" @click="openCreate">新建导出任务</a-button>
       </a-space>
     </PageHeaderCard>
 
@@ -69,30 +68,19 @@
       </a-table>
     </div>
 
-    <a-modal v-model:visible="visible" title="新建导出任务" @before-ok="submitCreate">
-      <a-form :model="form" layout="vertical">
-        <a-form-item field="bizType" label="导出场景">
-          <a-select v-model="form.bizType" :options="sceneOptions" placeholder="请选择导出场景" />
-        </a-form-item>
-        <a-form-item field="taskName" label="任务名称">
-          <a-input v-model="form.taskName" placeholder="可选，不填则使用默认任务名称" />
-        </a-form-item>
-      </a-form>
-    </a-modal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue';
+import { computed, ref } from 'vue';
 import { Message, type TableColumnData } from '@arco-design/web-vue';
 import PageHeaderCard from '@/components/PageHeaderCard.vue';
 import { systemApi } from '@/api/system';
 import { copyTextToClipboard } from '@/utils/clipboard';
-import type { ExportTaskCreateForm, ImportExportTaskRow, SelectOption } from '@/types/system';
+import type { ImportExportTaskRow, SelectOption } from '@/types/system';
 import { importExportTaskStatusOptions, mapImportExportTaskRow } from './import-export-support';
 
 const loading = ref(false);
-const visible = ref(false);
 const keyword = ref('');
 const sceneFilter = ref<string | undefined>();
 const statusFilter = ref<string | undefined>();
@@ -101,10 +89,6 @@ const pageSize = ref(10);
 const total = ref(0);
 const rows = ref<ImportExportTaskRow[]>([]);
 const sceneOptions = ref<SelectOption[]>([]);
-const form = reactive<ExportTaskCreateForm>({
-  bizType: '',
-  taskName: '',
-});
 
 const statusColorMap: Record<string, string> = {
   PENDING: 'gold',
@@ -135,9 +119,6 @@ const pagination = computed(() => ({
 
 async function fetchSceneOptions() {
   sceneOptions.value = await systemApi.listImportExportSceneOptions('EXPORT');
-  if (!form.bizType && sceneOptions.value.length > 0) {
-    form.bizType = String(sceneOptions.value[0].value);
-  }
 }
 
 async function fetchRows() {
@@ -166,29 +147,6 @@ function handleSearch() {
 function handlePageChange(page: number) {
   current.value = page;
   fetchRows();
-}
-
-function openCreate() {
-  form.taskName = '';
-  if (!form.bizType && sceneOptions.value.length > 0) {
-    form.bizType = String(sceneOptions.value[0].value);
-  }
-  visible.value = true;
-}
-
-async function submitCreate() {
-  if (!form.bizType) {
-    Message.warning('请选择导出场景');
-    return false;
-  }
-  await systemApi.createExportTask({
-    bizType: form.bizType,
-    taskName: form.taskName?.trim() || undefined,
-  });
-  Message.success('导出任务已创建');
-  visible.value = false;
-  fetchRows();
-  return true;
 }
 
 async function copyDownloadUrl(id: number) {

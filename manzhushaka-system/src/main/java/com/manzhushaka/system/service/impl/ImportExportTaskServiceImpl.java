@@ -2,20 +2,13 @@ package com.manzhushaka.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.manzhushaka.common.context.LoginUser;
-import com.manzhushaka.common.context.LoginUserContext;
 import com.manzhushaka.common.exception.BizException;
 import com.manzhushaka.db.system.entity.SysImportExportTask;
 import com.manzhushaka.db.system.mapper.SysImportExportTaskMapper;
 import com.manzhushaka.framework.storage.ObjectStorageService;
-import com.manzhushaka.system.dto.impexp.ExportTaskCreateForm;
 import com.manzhushaka.system.dto.impexp.ImportExportTaskQuery;
-import com.manzhushaka.system.dto.impexp.ImportTaskCreateCommand;
 import com.manzhushaka.system.service.ImportExportTaskService;
-import com.manzhushaka.system.service.impexp.AbstractExportTaskTemplate;
-import com.manzhushaka.system.service.impexp.AbstractImportTaskTemplate;
 import com.manzhushaka.system.service.impexp.ExportTaskTemplateRegistry;
-import com.manzhushaka.system.service.impexp.ImportExportTaskAsyncExecutor;
 import com.manzhushaka.system.service.impexp.ImportExportTaskSupport;
 import com.manzhushaka.system.service.impexp.ImportTaskTemplateRegistry;
 import com.manzhushaka.system.service.support.SystemMappingSupport;
@@ -35,20 +28,17 @@ public class ImportExportTaskServiceImpl implements ImportExportTaskService {
     private final SysImportExportTaskMapper taskMapper;
     private final ExportTaskTemplateRegistry exportTaskTemplateRegistry;
     private final ImportTaskTemplateRegistry importTaskTemplateRegistry;
-    private final ImportExportTaskAsyncExecutor asyncExecutor;
     private final ObjectStorageService storageService;
 
     public ImportExportTaskServiceImpl(
         SysImportExportTaskMapper taskMapper,
         ExportTaskTemplateRegistry exportTaskTemplateRegistry,
         ImportTaskTemplateRegistry importTaskTemplateRegistry,
-        ImportExportTaskAsyncExecutor asyncExecutor,
         ObjectStorageService storageService
     ) {
         this.taskMapper = taskMapper;
         this.exportTaskTemplateRegistry = exportTaskTemplateRegistry;
         this.importTaskTemplateRegistry = importTaskTemplateRegistry;
-        this.asyncExecutor = asyncExecutor;
         this.storageService = storageService;
     }
 
@@ -76,22 +66,6 @@ public class ImportExportTaskServiceImpl implements ImportExportTaskService {
     }
 
     @Override
-    public Long createExportTask(ExportTaskCreateForm form) {
-        AbstractExportTaskTemplate template = exportTaskTemplateRegistry.getRequired(form.getBizType());
-        Long taskId = template.submit(form, currentOperator());
-        asyncExecutor.dispatch(ImportExportTaskSupport.TASK_TYPE_EXPORT, template.bizType(), taskId);
-        return taskId;
-    }
-
-    @Override
-    public Long createImportTask(ImportTaskCreateCommand command) {
-        AbstractImportTaskTemplate template = importTaskTemplateRegistry.getRequired(command.getBizType());
-        Long taskId = template.submit(command, currentOperator());
-        asyncExecutor.dispatch(ImportExportTaskSupport.TASK_TYPE_IMPORT, template.bizType(), taskId);
-        return taskId;
-    }
-
-    @Override
     public DownloadUrlVO generateDownloadUrl(Long id, String fileRole) {
         SysImportExportTask task = taskMapper.selectById(id);
         if (task == null) {
@@ -110,14 +84,6 @@ public class ImportExportTaskServiceImpl implements ImportExportTaskService {
             return new DownloadUrlVO(storageService.generateDownloadUrl(task.getResultObjectKey(), task.getResultFileName()));
         }
         throw new BizException(400, "不支持的文件类型");
-    }
-
-    private LoginUser currentOperator() {
-        LoginUser loginUser = LoginUserContext.get();
-        if (loginUser == null) {
-            throw new BizException(401, "未登录");
-        }
-        return loginUser;
     }
 
     private ImportExportTaskVO toVO(SysImportExportTask task) {

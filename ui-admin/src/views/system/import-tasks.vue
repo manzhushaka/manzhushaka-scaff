@@ -2,7 +2,7 @@
   <div class="system-page">
     <PageHeaderCard
       title="导入任务管理"
-      description="统一管理异步导入任务。上传文件后会先进入异步校验流程，源文件和结果回执都会落到 BOS，并支持复制下载链接。"
+      description="统一查看各业务模块提交的异步导入任务，可按需复制源文件或结果文件下载链接。"
     />
 
     <PageHeaderCard mode="toolbar">
@@ -31,7 +31,6 @@
           @change="handleSearch"
         />
         <a-button v-permission="'system:io:import:query'" @click="fetchRows">刷新</a-button>
-        <a-button type="primary" v-permission="'system:io:import:create'" @click="openCreate">新建导入任务</a-button>
       </a-space>
     </PageHeaderCard>
 
@@ -82,25 +81,11 @@
       </a-table>
     </div>
 
-    <a-modal v-model:visible="visible" title="新建导入任务" @before-ok="submitCreate">
-      <a-form :model="form" layout="vertical">
-        <a-form-item field="bizType" label="导入场景">
-          <a-select v-model="form.bizType" :options="sceneOptions" placeholder="请选择导入场景" />
-        </a-form-item>
-        <a-form-item field="taskName" label="任务名称">
-          <a-input v-model="form.taskName" placeholder="可选，不填则使用默认任务名称" />
-        </a-form-item>
-        <a-form-item field="file" label="导入文件">
-          <input type="file" accept=".csv,text/csv" @change="handleFileChange" />
-          <div class="upload-hint">{{ selectedFileName }}</div>
-        </a-form-item>
-      </a-form>
-    </a-modal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue';
+import { computed, ref } from 'vue';
 import { Message, type TableColumnData } from '@arco-design/web-vue';
 import PageHeaderCard from '@/components/PageHeaderCard.vue';
 import { systemApi } from '@/api/system';
@@ -109,7 +94,6 @@ import type { ImportExportTaskRow, SelectOption } from '@/types/system';
 import { importExportTaskStatusOptions, mapImportExportTaskRow } from './import-export-support';
 
 const loading = ref(false);
-const visible = ref(false);
 const keyword = ref('');
 const sceneFilter = ref<string | undefined>();
 const statusFilter = ref<string | undefined>();
@@ -118,13 +102,6 @@ const pageSize = ref(10);
 const total = ref(0);
 const rows = ref<ImportExportTaskRow[]>([]);
 const sceneOptions = ref<SelectOption[]>([]);
-const selectedFile = ref<File | null>(null);
-const form = reactive({
-  bizType: '',
-  taskName: '',
-});
-
-const selectedFileName = computed(() => selectedFile.value?.name ?? '请选择一个 CSV 文件');
 const statusColorMap: Record<string, string> = {
   PENDING: 'gold',
   PROCESSING: 'arcoblue',
@@ -155,9 +132,6 @@ const pagination = computed(() => ({
 
 async function fetchSceneOptions() {
   sceneOptions.value = await systemApi.listImportExportSceneOptions('IMPORT');
-  if (!form.bizType && sceneOptions.value.length > 0) {
-    form.bizType = String(sceneOptions.value[0].value);
-  }
 }
 
 async function fetchRows() {
@@ -188,41 +162,6 @@ function handlePageChange(page: number) {
   fetchRows();
 }
 
-function openCreate() {
-  form.taskName = '';
-  selectedFile.value = null;
-  if (!form.bizType && sceneOptions.value.length > 0) {
-    form.bizType = String(sceneOptions.value[0].value);
-  }
-  visible.value = true;
-}
-
-function handleFileChange(event: Event) {
-  const target = event.target as HTMLInputElement;
-  selectedFile.value = target.files?.[0] ?? null;
-}
-
-async function submitCreate() {
-  if (!form.bizType) {
-    Message.warning('请选择导入场景');
-    return false;
-  }
-  if (!selectedFile.value) {
-    Message.warning('请选择导入文件');
-    return false;
-  }
-  await systemApi.createImportTask({
-    bizType: form.bizType,
-    taskName: form.taskName?.trim() || undefined,
-    file: selectedFile.value,
-  });
-  Message.success('导入任务已创建');
-  visible.value = false;
-  selectedFile.value = null;
-  fetchRows();
-  return true;
-}
-
 async function copyDownloadUrl(id: number, fileRole: 'SOURCE' | 'RESULT') {
   const response = await systemApi.getImportExportDownloadUrl(id, fileRole);
   await copyTextToClipboard(response.url);
@@ -236,11 +175,5 @@ Promise.all([fetchSceneOptions(), fetchRows()]);
 .system-page {
   display: grid;
   gap: 18px;
-}
-
-.upload-hint {
-  margin-top: 8px;
-  color: rgb(var(--gray-6));
-  font-size: 12px;
 }
 </style>

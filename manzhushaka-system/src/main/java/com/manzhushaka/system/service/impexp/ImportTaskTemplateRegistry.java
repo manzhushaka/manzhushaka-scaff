@@ -11,16 +11,16 @@ import java.util.Map;
 @Component
 public class ImportTaskTemplateRegistry {
 
-    private final Map<String, AbstractImportTaskTemplate> templates = new LinkedHashMap<>();
+    private final Map<String, AbstractImportTaskTemplate<?>> templates = new LinkedHashMap<>();
 
-    public ImportTaskTemplateRegistry(List<AbstractImportTaskTemplate> templates) {
-        for (AbstractImportTaskTemplate template : templates) {
+    public ImportTaskTemplateRegistry(List<AbstractImportTaskTemplate<?>> templates) {
+        for (AbstractImportTaskTemplate<?> template : templates) {
             this.templates.put(template.bizType(), template);
         }
     }
 
-    public AbstractImportTaskTemplate getRequired(String bizType) {
-        AbstractImportTaskTemplate template = templates.get(bizType);
+    public AbstractImportTaskTemplate<?> getRequired(String bizType) {
+        AbstractImportTaskTemplate<?> template = templates.get(bizType);
         if (template == null) {
             throw new BizException(404, "未找到导入场景");
         }

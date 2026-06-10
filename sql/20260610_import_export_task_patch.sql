@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS `sys_import_export_task` (
   `task_name` varchar(100) NOT NULL COMMENT '任务名称',
   `task_status` varchar(16) NOT NULL DEFAULT 'PENDING' COMMENT '任务状态：PENDING、PROCESSING、SUCCESS、FAIL',
   `task_message` varchar(500) DEFAULT NULL COMMENT '任务说明',
+  `task_param` longtext COMMENT '任务参数快照',
   `source_file_name` varchar(255) DEFAULT NULL COMMENT '源文件名',
   `source_object_key` varchar(500) DEFAULT NULL COMMENT '源文件 BOS Key',
   `source_file_size` bigint DEFAULT NULL COMMENT '源文件大小（字节）',

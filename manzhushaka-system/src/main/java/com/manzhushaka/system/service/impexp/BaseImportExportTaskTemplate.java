@@ -1,6 +1,9 @@
 package com.manzhushaka.system.service.impexp;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.manzhushaka.common.context.LoginUser;
+import com.manzhushaka.common.exception.BizException;
 import com.manzhushaka.db.system.entity.SysImportExportTask;
 import com.manzhushaka.db.system.mapper.SysImportExportTaskMapper;
 import com.manzhushaka.framework.storage.ObjectStorageService;
@@ -12,19 +15,26 @@ abstract class BaseImportExportTaskTemplate {
 
     protected final SysImportExportTaskMapper taskMapper;
     protected final ObjectStorageService storageService;
+    private final ObjectMapper objectMapper;
     private final String storageBasePath;
 
-    protected BaseImportExportTaskTemplate(SysImportExportTaskMapper taskMapper, ObjectStorageService storageService) {
-        this(taskMapper, storageService, "import-export");
+    protected BaseImportExportTaskTemplate(
+        SysImportExportTaskMapper taskMapper,
+        ObjectStorageService storageService,
+        ObjectMapper objectMapper
+    ) {
+        this(taskMapper, storageService, objectMapper, "import-export");
     }
 
     protected BaseImportExportTaskTemplate(
         SysImportExportTaskMapper taskMapper,
         ObjectStorageService storageService,
+        ObjectMapper objectMapper,
         String storageBasePath
     ) {
         this.taskMapper = taskMapper;
         this.storageService = storageService;
+        this.objectMapper = objectMapper;
         this.storageBasePath = StringUtils.hasText(storageBasePath) ? trimSlashes(storageBasePath) : "import-export";
     }
 
@@ -86,6 +96,28 @@ abstract class BaseImportExportTaskTemplate {
     protected void ensureBizType(String requestBizType) {
         if (!bizType().equals(requestBizType)) {
             throw new IllegalArgumentException("任务场景不匹配");
+        }
+    }
+
+    protected String writeTaskParam(Object value) {
+        if (value == null) {
+            return null;
+        }
+        try {
+            return objectMapper.writeValueAsString(value);
+        } catch (JsonProcessingException exception) {
+            throw new BizException(500, "任务参数序列化失败");
+        }
+    }
+
+    protected <T> T readTaskParam(String taskParam, Class<T> valueType) {
+        if (!StringUtils.hasText(taskParam) || valueType == null) {
+            return null;
+        }
+        try {
+            return objectMapper.readValue(taskParam, valueType);
+        } catch (JsonProcessingException exception) {
+            throw new BizException(500, "任务参数解析失败");
         }
     }
 

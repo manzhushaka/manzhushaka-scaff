@@ -1,54 +1,76 @@
 package com.manzhushaka.system.service.impexp;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.manzhushaka.common.context.LoginUser;
 import com.manzhushaka.db.system.entity.SysImportExportTask;
 import com.manzhushaka.db.system.mapper.SysImportExportTaskMapper;
 import com.manzhushaka.framework.storage.ObjectStorageService;
-import com.manzhushaka.system.dto.impexp.ExportTaskCreateForm;
-import com.manzhushaka.system.dto.impexp.ImportTaskCreateCommand;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class ImportExportTaskTemplateTest {
 
     @Test
-    void shouldUploadGeneratedExportFileAndMarkTaskSuccess() {
+    void businessModuleShouldBeAbleToSubmitAndExecuteTypedExportTask() {
         SysImportExportTaskMapper taskMapper = mock(SysImportExportTaskMapper.class);
         ObjectStorageService storageService = mock(ObjectStorageService.class);
-        DemoExportTemplate template = new DemoExportTemplate(taskMapper, storageService);
-        SysImportExportTask task = new SysImportExportTask();
-        task.setId(101L);
-        task.setTaskNo("EXP-101");
-        task.setTaskType("EXPORT");
-        task.setTaskStatus("PENDING");
-        when(taskMapper.selectById(101L)).thenReturn(task);
+        ImportExportTaskAsyncExecutor asyncExecutor = mock(ImportExportTaskAsyncExecutor.class);
+        ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
+        AtomicReference<SysImportExportTask> persistedTask = new AtomicReference<>();
+        DemoExportTemplate template = new DemoExportTemplate(taskMapper, storageService, objectMapper);
+        ImportExportTaskManager taskManager = new ImportExportTaskManager(asyncExecutor);
+        LoginUser operator = new LoginUser();
+        operator.setUsername("admin");
 
-        template.execute(101L);
+        doAnswer(invocation -> {
+            SysImportExportTask entity = invocation.getArgument(0);
+            entity.setId(101L);
+            persistedTask.set(copyTask(entity));
+            return 1;
+        }).when(taskMapper).insert(any(SysImportExportTask.class));
+        doAnswer(invocation -> {
+            persistedTask.set(copyTask(invocation.getArgument(0)));
+            return 1;
+        }).when(taskMapper).updateById(any(SysImportExportTask.class));
+        when(taskMapper.selectById(101L)).thenAnswer(invocation -> copyTask(persistedTask.get()));
 
+        Long taskId = taskManager.submitExportTask(template, new DemoExportCommand("用户按部门导出", 9L), operator);
+        template.execute(taskId);
+
+        assertEquals(101L, taskId);
+        verify(taskMapper).insert(argThat((SysImportExportTask entity) ->
+            "EXPORT".equals(entity.getTaskType())
+                && "SYS_USER_EXPORT".equals(entity.getBizType())
+                && "用户按部门导出".equals(entity.getTaskName())
+                && entity.getTaskParam() != null
+                && entity.getTaskParam().contains("\"deptId\":9")
+        ));
+        verify(asyncExecutor).dispatch("EXPORT", "SYS_USER_EXPORT", 101L);
         verify(storageService).putObject(
             contains("/export/"),
-            argThat((byte[] bytes) -> Arrays.equals(bytes, "username,nickname\nadmin,系统管理员\n".getBytes(StandardCharsets.UTF_8))),
+            argThat((byte[] bytes) -> Arrays.equals(bytes, "deptId,username\n9,admin\n".getBytes(StandardCharsets.UTF_8))),
             eq("text/csv")
         );
         verify(taskMapper, atLeastOnce()).updateById(argThat((SysImportExportTask entity) ->
             "SUCCESS".equals(entity.getTaskStatus())
-                && "users.csv".equals(entity.getResultFileName())
-                && entity.getResultObjectKey() != null
-                && entity.getFinishedTime() != null
+                && "dept-9-users.csv".equals(entity.getResultFileName())
                 && Integer.valueOf(1).equals(entity.getTotalCount())
                 && Integer.valueOf(1).equals(entity.getSuccessCount())
                 && Integer.valueOf(0).equals(entity.getFailCount())
@@ -56,42 +78,56 @@ class ImportExportTaskTemplateTest {
     }
 
     @Test
-    void shouldPersistImportSourceAndGenerateResultReport() {
+    void businessModuleShouldBeAbleToSubmitAndExecuteTypedImportTask() {
         SysImportExportTaskMapper taskMapper = mock(SysImportExportTaskMapper.class);
         ObjectStorageService storageService = mock(ObjectStorageService.class);
-        DemoImportTemplate template = new DemoImportTemplate(taskMapper, storageService);
+        ImportExportTaskAsyncExecutor asyncExecutor = mock(ImportExportTaskAsyncExecutor.class);
+        ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
+        AtomicReference<SysImportExportTask> persistedTask = new AtomicReference<>();
+        DemoImportTemplate template = new DemoImportTemplate(taskMapper, storageService, objectMapper);
+        ImportExportTaskManager taskManager = new ImportExportTaskManager(asyncExecutor);
         LoginUser operator = new LoginUser();
         operator.setUsername("admin");
-        ImportTaskCreateCommand command = new ImportTaskCreateCommand(
-            "SYS_USER_IMPORT",
-            "系统用户导入",
-            "users.csv",
-            "text/csv",
-            "username,nickname\nadmin,系统管理员\n".getBytes(StandardCharsets.UTF_8)
-        );
 
         doAnswer(invocation -> {
             SysImportExportTask entity = invocation.getArgument(0);
             entity.setId(202L);
+            persistedTask.set(copyTask(entity));
             return 1;
         }).when(taskMapper).insert(any(SysImportExportTask.class));
-        when(taskMapper.selectById(202L)).thenAnswer(invocation -> {
-            SysImportExportTask task = new SysImportExportTask();
-            task.setId(202L);
-            task.setTaskNo("IMP-202");
-            task.setTaskType("IMPORT");
-            task.setTaskStatus("PENDING");
-            task.setSourceFileName("users.csv");
-            task.setSourceObjectKey("import-export/import/IMP-202/source/users.csv");
-            return task;
-        });
-        when(storageService.getObjectContent("import-export/import/IMP-202/source/users.csv"))
+        doAnswer(invocation -> {
+            persistedTask.set(copyTask(invocation.getArgument(0)));
+            return 1;
+        }).when(taskMapper).updateById(any(SysImportExportTask.class));
+        when(taskMapper.selectById(202L)).thenAnswer(invocation -> copyTask(persistedTask.get()));
+
+        Long taskId = taskManager.submitImportTask(
+            template,
+            new DemoImportCommand(
+                "VIP 用户导入",
+                "VIP",
+                "users.csv",
+                "text/csv",
+                "username,nickname\nadmin,系统管理员\n".getBytes(StandardCharsets.UTF_8)
+            ),
+            operator
+        );
+        SysImportExportTask submittedTask = persistedTask.get();
+        assertTrue(submittedTask.getSourceObjectKey().contains("/source/users.csv"));
+        when(storageService.getObjectContent(submittedTask.getSourceObjectKey()))
             .thenReturn("username,nickname\nadmin,系统管理员\n".getBytes(StandardCharsets.UTF_8));
 
-        Long taskId = template.submit(command, operator);
         template.execute(taskId);
 
         assertEquals(202L, taskId);
+        verify(taskMapper).insert(argThat((SysImportExportTask entity) ->
+            "IMPORT".equals(entity.getTaskType())
+                && "CRM_CUSTOMER_IMPORT".equals(entity.getBizType())
+                && "VIP 用户导入".equals(entity.getTaskName())
+                && entity.getTaskParam() != null
+                && entity.getTaskParam().contains("\"customerGroup\":\"VIP\"")
+        ));
+        verify(asyncExecutor).dispatch("IMPORT", "CRM_CUSTOMER_IMPORT", 202L);
         verify(storageService).putObject(
             contains("/source/"),
             argThat((byte[] bytes) -> Arrays.equals(bytes, "username,nickname\nadmin,系统管理员\n".getBytes(StandardCharsets.UTF_8))),
@@ -99,23 +135,60 @@ class ImportExportTaskTemplateTest {
         );
         verify(storageService).putObject(
             contains("/result/"),
-            argThat((byte[] bytes) -> Arrays.equals(bytes, "rowNumber,username,result,message\n2,admin,SUCCESS,校验通过\n".getBytes(StandardCharsets.UTF_8))),
+            argThat((byte[] bytes) -> Arrays.equals(
+                bytes,
+                "rowNumber,group,username,result\n2,VIP,admin,SUCCESS\n".getBytes(StandardCharsets.UTF_8)
+            )),
             eq("text/csv")
         );
         verify(taskMapper, atLeastOnce()).updateById(argThat((SysImportExportTask entity) ->
             "SUCCESS".equals(entity.getTaskStatus())
-                && "report.csv".equals(entity.getResultFileName())
-                && entity.getFinishedTime() != null
+                && "vip-customers-report.csv".equals(entity.getResultFileName())
                 && Integer.valueOf(1).equals(entity.getTotalCount())
                 && Integer.valueOf(1).equals(entity.getSuccessCount())
                 && Integer.valueOf(0).equals(entity.getFailCount())
         ));
     }
 
-    private static final class DemoExportTemplate extends AbstractExportTaskTemplate {
+    private static SysImportExportTask copyTask(SysImportExportTask source) {
+        if (source == null) {
+            return null;
+        }
+        SysImportExportTask target = new SysImportExportTask();
+        target.setId(source.getId());
+        target.setTaskNo(source.getTaskNo());
+        target.setTaskType(source.getTaskType());
+        target.setBizType(source.getBizType());
+        target.setBizLabel(source.getBizLabel());
+        target.setTaskName(source.getTaskName());
+        target.setTaskStatus(source.getTaskStatus());
+        target.setTaskMessage(source.getTaskMessage());
+        target.setTaskParam(source.getTaskParam());
+        target.setSourceFileName(source.getSourceFileName());
+        target.setSourceObjectKey(source.getSourceObjectKey());
+        target.setSourceFileSize(source.getSourceFileSize());
+        target.setResultFileName(source.getResultFileName());
+        target.setResultObjectKey(source.getResultObjectKey());
+        target.setResultFileSize(source.getResultFileSize());
+        target.setTotalCount(source.getTotalCount());
+        target.setSuccessCount(source.getSuccessCount());
+        target.setFailCount(source.getFailCount());
+        target.setCreateBy(source.getCreateBy());
+        target.setCreateTime(source.getCreateTime());
+        target.setUpdateBy(source.getUpdateBy());
+        target.setUpdateTime(source.getUpdateTime());
+        target.setFinishedTime(source.getFinishedTime());
+        return target;
+    }
 
-        private DemoExportTemplate(SysImportExportTaskMapper taskMapper, ObjectStorageService storageService) {
-            super(taskMapper, storageService);
+    private static final class DemoExportTemplate extends AbstractExportTaskTemplate<DemoExportCommand> {
+
+        private DemoExportTemplate(
+            SysImportExportTaskMapper taskMapper,
+            ObjectStorageService storageService,
+            ObjectMapper objectMapper
+        ) {
+            super(taskMapper, storageService, objectMapper, DemoExportCommand.class);
         }
 
         @Override
@@ -134,63 +207,105 @@ class ImportExportTaskTemplateTest {
         }
 
         @Override
-        protected TaskExecutionResult executeExport(SysImportExportTask task) {
-            assertNotNull(task);
+        protected TaskExecutionResult executeExport(SysImportExportTask task, DemoExportCommand command) {
             return TaskExecutionResult.success(
                 1,
                 1,
                 0,
                 "导出成功",
                 new TaskFileArtifact(
-                    "users.csv",
+                    "dept-" + command.getDeptId() + "-users.csv",
                     "text/csv",
-                    "username,nickname\nadmin,系统管理员\n".getBytes(StandardCharsets.UTF_8)
+                    ("deptId,username\n" + command.getDeptId() + ",admin\n").getBytes(StandardCharsets.UTF_8)
                 )
             );
         }
     }
 
-    private static final class DemoImportTemplate extends AbstractImportTaskTemplate {
+    private static final class DemoImportTemplate extends AbstractImportTaskTemplate<DemoImportCommand> {
 
-        private DemoImportTemplate(SysImportExportTaskMapper taskMapper, ObjectStorageService storageService) {
-            super(taskMapper, storageService);
+        private DemoImportTemplate(
+            SysImportExportTaskMapper taskMapper,
+            ObjectStorageService storageService,
+            ObjectMapper objectMapper
+        ) {
+            super(taskMapper, storageService, objectMapper, DemoImportCommand.class);
         }
 
         @Override
         public String bizType() {
-            return "SYS_USER_IMPORT";
+            return "CRM_CUSTOMER_IMPORT";
         }
 
         @Override
         public String bizLabel() {
-            return "系统用户导入";
+            return "客户导入";
         }
 
         @Override
         protected String defaultTaskName() {
-            return "系统用户导入";
+            return "客户导入";
         }
 
         @Override
-        protected TaskExecutionResult executeImport(SysImportExportTask task, TaskSourceFile sourceFile) {
-            assertNotNull(task);
+        protected TaskExecutionResult executeImport(
+            SysImportExportTask task,
+            DemoImportCommand command,
+            TaskSourceFile sourceFile
+        ) {
             assertEquals("users.csv", sourceFile.fileName());
             return TaskExecutionResult.success(
                 1,
                 1,
                 0,
-                "导入校验完成",
+                "导入成功",
                 new TaskFileArtifact(
-                    "report.csv",
+                    "vip-customers-report.csv",
                     "text/csv",
-                    "rowNumber,username,result,message\n2,admin,SUCCESS,校验通过\n".getBytes(StandardCharsets.UTF_8)
+                    ("rowNumber,group,username,result\n2," + command.getCustomerGroup() + ",admin,SUCCESS\n")
+                        .getBytes(StandardCharsets.UTF_8)
                 )
             );
         }
     }
 
-    @SuppressWarnings("unused")
-    private static ExportTaskCreateForm unusedFormReference() {
-        return new ExportTaskCreateForm();
+    private static final class DemoExportCommand extends ExportTaskSubmitCommand {
+        private Long deptId;
+
+        @JsonCreator
+        private DemoExportCommand(
+            @JsonProperty("taskName") String taskName,
+            @JsonProperty("deptId") Long deptId
+        ) {
+            setTaskName(taskName);
+            this.deptId = deptId;
+        }
+
+        public Long getDeptId() {
+            return deptId;
+        }
+    }
+
+    private static final class DemoImportCommand extends ImportTaskSubmitCommand {
+        private String customerGroup;
+
+        @JsonCreator
+        private DemoImportCommand(
+            @JsonProperty("taskName") String taskName,
+            @JsonProperty("customerGroup") String customerGroup,
+            @JsonProperty("fileName") String fileName,
+            @JsonProperty("contentType") String contentType,
+            @JsonProperty("content") byte[] content
+        ) {
+            setTaskName(taskName);
+            this.customerGroup = customerGroup;
+            setFileName(fileName);
+            setContentType(contentType);
+            setContent(content);
+        }
+
+        public String getCustomerGroup() {
+            return customerGroup;
+        }
     }
 }

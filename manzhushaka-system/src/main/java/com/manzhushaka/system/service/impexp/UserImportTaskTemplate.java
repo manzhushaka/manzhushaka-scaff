@@ -1,11 +1,11 @@
 package com.manzhushaka.system.service.impexp;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.manzhushaka.common.exception.BizException;
 import com.manzhushaka.db.system.entity.SysImportExportTask;
 import com.manzhushaka.db.system.mapper.SysImportExportTaskMapper;
 import com.manzhushaka.framework.storage.BosStorageProperties;
 import com.manzhushaka.framework.storage.ObjectStorageService;
-import com.manzhushaka.system.dto.impexp.ImportTaskCreateCommand;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -14,14 +14,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Component
-public class UserImportTaskTemplate extends AbstractImportTaskTemplate {
+public class UserImportTaskTemplate extends AbstractImportTaskTemplate<UserImportTaskTemplate.Command> {
 
     public UserImportTaskTemplate(
         SysImportExportTaskMapper taskMapper,
         ObjectStorageService storageService,
-        BosStorageProperties properties
+        BosStorageProperties properties,
+        ObjectMapper objectMapper
     ) {
-        super(taskMapper, storageService, properties.getBasePath());
+        super(taskMapper, storageService, objectMapper, Command.class, properties.getBasePath());
     }
 
     @Override
@@ -40,7 +41,7 @@ public class UserImportTaskTemplate extends AbstractImportTaskTemplate {
     }
 
     @Override
-    protected void validateSubmit(ImportTaskCreateCommand command) {
+    protected void validateSubmit(Command command) {
         if (!StringUtils.hasText(command.getFileName())) {
             throw new BizException(400, "导入文件名不能为空");
         }
@@ -50,7 +51,7 @@ public class UserImportTaskTemplate extends AbstractImportTaskTemplate {
     }
 
     @Override
-    protected TaskExecutionResult executeImport(SysImportExportTask task, TaskSourceFile sourceFile) {
+    protected TaskExecutionResult executeImport(SysImportExportTask task, Command command, TaskSourceFile sourceFile) {
         String csv = new String(sourceFile.content(), StandardCharsets.UTF_8);
         String[] lines = csv.replace("\r\n", "\n").split("\n");
         if (lines.length == 0 || !"username,nickname,deptId,status".equals(lines[0].trim())) {
@@ -111,5 +112,8 @@ public class UserImportTaskTemplate extends AbstractImportTaskTemplate {
             return "status 仅支持 0 或 1";
         }
         return "";
+    }
+
+    public static class Command extends ImportTaskSubmitCommand {
     }
 }
