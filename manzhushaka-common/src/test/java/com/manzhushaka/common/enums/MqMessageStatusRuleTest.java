@@ -18,8 +18,9 @@ class MqMessageStatusRuleTest {
     }
 
     @Test
-    void publishedDoesNotAllowManualRetry() {
+    void publishedOnlyAllowsManualRetryAfterTimeout() {
         assertFalse(MqMessageStatus.PUBLISHED.allowsManualRetry(false));
+        assertTrue(MqMessageStatus.PUBLISHED.allowsManualRetry(true));
     }
 
     @Test

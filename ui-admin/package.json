@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "check:mock-menus": "node --loader ./scripts/alias-loader.mjs --experimental-strip-types scripts/mock-menu-consistency.test.mjs",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview"
   },

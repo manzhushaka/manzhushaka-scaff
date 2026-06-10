@@ -3,6 +3,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE IF EXISTS `sys_login_log`;
 DROP TABLE IF EXISTS `sys_op_log`;
+DROP TABLE IF EXISTS `sys_mq_message`;
 DROP TABLE IF EXISTS `sys_config`;
 DROP TABLE IF EXISTS `sys_dict_item`;
 DROP TABLE IF EXISTS `sys_dict_type`;
@@ -214,6 +215,37 @@ CREATE TABLE `sys_login_log` (
   KEY `idx_sys_login_log_create_time` (`create_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='登录日志表';
 
+CREATE TABLE `sys_mq_message` (
+  `id` bigint NOT NULL COMMENT '主键',
+  `event_id` varchar(64) NOT NULL COMMENT '逻辑事件 ID',
+  `stream_key` varchar(128) NOT NULL COMMENT 'Redis Stream Key',
+  `event_type` varchar(64) NOT NULL COMMENT '事件类型',
+  `biz_key` varchar(128) DEFAULT NULL COMMENT '业务键',
+  `trace_id` varchar(64) DEFAULT NULL COMMENT '链路追踪 ID',
+  `source` varchar(64) DEFAULT NULL COMMENT '事件来源',
+  `status` varchar(32) NOT NULL COMMENT '台账状态',
+  `payload_snapshot` longtext COMMENT '消息体快照',
+  `retry_count` int NOT NULL DEFAULT 0 COMMENT '重试次数',
+  `last_error` varchar(1000) DEFAULT NULL COMMENT '最近一次错误摘要',
+  `consumer_group` varchar(64) DEFAULT NULL COMMENT '最近一次消费组',
+  `consumer_name` varchar(64) DEFAULT NULL COMMENT '最近一次消费者',
+  `processing_deadline_at` datetime DEFAULT NULL COMMENT '处理超时时间',
+  `published_at` datetime DEFAULT NULL COMMENT '发布时间',
+  `consume_started_at` datetime DEFAULT NULL COMMENT '开始消费时间',
+  `consumed_at` datetime DEFAULT NULL COMMENT '消费完成时间',
+  `create_by` varchar(64) DEFAULT NULL COMMENT '创建人',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_by` varchar(64) DEFAULT NULL COMMENT '更新人',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_sys_mq_message_event_id` (`event_id`),
+  KEY `idx_sys_mq_message_stream_key` (`stream_key`),
+  KEY `idx_sys_mq_message_status` (`status`),
+  KEY `idx_sys_mq_message_biz_key` (`biz_key`),
+  KEY `idx_sys_mq_message_trace_id` (`trace_id`),
+  KEY `idx_sys_mq_message_create_time` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='消息台账表';
+
 INSERT INTO `sys_dept` (`id`, `parent_id`, `ancestor_path`, `dept_name`, `leader`, `phone`, `email`, `sort`, `status`, `deleted`, `create_by`, `create_time`, `update_by`, `update_time`) VALUES
 (100, 0, ',', 'manzhushaka', 'admin', '13812345678', 'admin@manzhushaka.com', 0, 1, 0, 'system', NOW(), 'system', NOW()),
 (101, 100, ',100,', '平台研发部', 'admin', '13812345678', 'rd@manzhushaka.com', 1, 1, 0, 'system', NOW(), 'system', NOW());
@@ -258,7 +290,10 @@ INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `menu_type`, `route_name
 (262, 260, '参数修改', 'BUTTON', NULL, NULL, NULL, 'system:config:update', NULL, 2, 1, 1, 0, 0, '参数修改按钮', 'system', NOW(), 'system', NOW()),
 (270, 0, '日志管理', 'DIR', 'SystemLogs', '/logs', NULL, NULL, 'icon-history', 3, 1, 1, 0, 1, '日志管理目录', 'system', NOW(), 'system', NOW()),
 (271, 270, '登录日志', 'MENU', 'SystemLoginLogs', 'login', 'system/login-logs', 'system:log:view', 'icon-history', 1, 1, 1, 0, 0, '登录日志菜单', 'system', NOW(), 'system', NOW()),
-(272, 270, '操作日志', 'MENU', 'SystemOpLogs', 'op', 'system/op-logs', 'system:log:view', 'icon-file', 2, 1, 1, 0, 0, '操作日志菜单', 'system', NOW(), 'system', NOW());
+(272, 270, '操作日志', 'MENU', 'SystemOpLogs', 'op', 'system/op-logs', 'system:log:view', 'icon-file', 2, 1, 1, 0, 0, '操作日志菜单', 'system', NOW(), 'system', NOW()),
+(273, 270, '消息台账', 'MENU', 'SystemMqMessages', 'mq-messages', 'system/mq-messages', 'system:mq-message:query', 'icon-list', 3, 1, 1, 0, 0, '消息台账菜单', 'system', NOW(), 'system', NOW()),
+(274, 273, '消息查询', 'BUTTON', NULL, NULL, NULL, 'system:mq-message:query', NULL, 1, 1, 1, 0, 0, '消息查询按钮', 'system', NOW(), 'system', NOW()),
+(275, 273, '消息重试', 'BUTTON', NULL, NULL, NULL, 'system:mq-message:retry', NULL, 2, 1, 1, 0, 0, '消息重试按钮', 'system', NOW(), 'system', NOW());
 
 INSERT INTO `sys_role_menu` (`id`, `role_id`, `menu_id`, `create_by`, `create_time`, `update_by`, `update_time`) VALUES
 (1000, 100, 100, 'system', NOW(), 'system', NOW()),
@@ -291,6 +326,9 @@ INSERT INTO `sys_role_menu` (`id`, `role_id`, `menu_id`, `create_by`, `create_ti
 (1027, 100, 270, 'system', NOW(), 'system', NOW()),
 (1028, 100, 271, 'system', NOW(), 'system', NOW()),
 (1029, 100, 272, 'system', NOW(), 'system', NOW()),
+(1036, 100, 273, 'system', NOW(), 'system', NOW()),
+(1037, 100, 274, 'system', NOW(), 'system', NOW()),
+(1038, 100, 275, 'system', NOW(), 'system', NOW()),
 (1031, 101, 100, 'system', NOW(), 'system', NOW()),
 (1032, 101, 200, 'system', NOW(), 'system', NOW()),
 (1033, 101, 270, 'system', NOW(), 'system', NOW()),

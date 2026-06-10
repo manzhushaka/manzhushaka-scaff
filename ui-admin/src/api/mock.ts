@@ -40,6 +40,26 @@ type MenuRecord = EntityRecord & {
   visible: string;
 };
 
+type MockMqMessageRecord = {
+  id: number;
+  eventId: string;
+  streamKey: string;
+  eventType: string;
+  bizKey: string | null;
+  traceId: string | null;
+  status: string;
+  retryCount: number;
+  source: string | null;
+  lastError: string | null;
+  processingDeadlineAt: string | null;
+  processingTimedOut: boolean;
+  publishedAt: string | null;
+  consumeStartedAt: string | null;
+  consumedAt: string | null;
+  createTime: string | null;
+  payloadSnapshot: string | null;
+};
+
 const delay = async <T>(data: T, ms = 180): Promise<T> =>
   new Promise((resolve) => {
     window.setTimeout(() => resolve(data), ms);
@@ -133,10 +153,32 @@ const menus: MenuItem[] = [
     children: [
       { id: 21, name: 'LoginLogs', type: 'MENU', path: '/logs/login', component: 'system/login-logs', title: '登录日志' },
       { id: 22, name: 'OpLogs', type: 'MENU', path: '/logs/op', component: 'system/op-logs', title: '操作日志' },
+      { id: 24, name: 'MqMessages', type: 'MENU', path: '/logs/mq-messages', component: 'system/mq-messages', title: '消息台账', permission: 'system:mq-message:query' },
       { id: 23, name: 'LogView', type: 'BUTTON', path: '', title: '日志查看', permission: 'system:log:view' },
+      { id: 25, name: 'MqMessageQuery', type: 'BUTTON', path: '', title: '消息台账查询', permission: 'system:mq-message:query' },
+      { id: 26, name: 'MqMessageRetry', type: 'BUTTON', path: '', title: '消息重试', permission: 'system:mq-message:retry' },
     ],
   },
 ];
+
+function flattenMenuTree(items: MenuItem[]): MenuItem[] {
+  return items.flatMap((item) => [item, ...(item.children ? flattenMenuTree(item.children) : [])]);
+}
+
+function toMenuRecord(item: MenuItem): MenuRecord {
+  return {
+    id: item.id,
+    name: item.title,
+    menuType: item.type,
+    routePath: item.path,
+    component: item.component ?? '',
+    permission: item.permission ?? '',
+    visible: item.hidden ? '隐藏' : '显示',
+    status: '启用',
+    remark: item.permission ?? item.title,
+    updatedAt: formatNow(),
+  };
+}
 
 const permissions = [
   'system:user:add',
@@ -154,6 +196,8 @@ const permissions = [
   'system:config:add',
   'system:config:update',
   'system:log:view',
+  'system:mq-message:query',
+  'system:mq-message:retry',
 ];
 
 const profile: UserProfile = {
@@ -175,11 +219,7 @@ const db: Record<string, DbRecord[]> = {
     { id: 2, name: '平台研发部', parentId: 1, leader: '周工', orderNum: 10, status: '启用', remark: '负责平台建设', updatedAt: formatNow(), children: [] },
     { id: 3, name: '风控产品部', parentId: 1, leader: '陈工', orderNum: 20, status: '启用', remark: '负责规则与数据产品', updatedAt: formatNow(), children: [] },
   ],
-  menus: [
-    { id: 1, name: '系统管理', menuType: 'DIR', routePath: '/system', component: 'Layout', permission: '', visible: '显示', status: '启用', remark: '系统目录', updatedAt: formatNow() },
-    { id: 2, name: '菜单管理', menuType: 'MENU', routePath: '/system/access/menus', component: 'system/menus', permission: 'system:menu:list', visible: '显示', status: '启用', remark: '菜单页', updatedAt: formatNow() },
-    { id: 3, name: '菜单新增', menuType: 'BUTTON', routePath: '', component: '', permission: 'system:menu:add', visible: '隐藏', status: '启用', remark: '按钮权限', updatedAt: formatNow() },
-  ],
+  menus: flattenMenuTree(menus).map(toMenuRecord),
   dictTypes: [
     { id: 1, name: '用户状态', dictType: 'sys_user_status', status: '启用', remark: '用户状态字典', updatedAt: formatNow() },
     { id: 2, name: '通知级别', dictType: 'sys_notice_level', status: '启用', remark: '通知级别字典', updatedAt: formatNow() },
@@ -197,6 +237,120 @@ const db: Record<string, DbRecord[]> = {
     { id: 2, name: '调整菜单', operator: 'admin', ip: '127.0.0.1', status: '启用', remark: '修改菜单顺序', updatedAt: formatNow() },
   ],
 };
+
+let mockMqMessages: MockMqMessageRecord[] = [
+  {
+    id: 1,
+    eventId: '1749555555000-0',
+    streamKey: 'stream:system:user',
+    eventType: 'USER_CREATED',
+    bizKey: 'user:9527',
+    traceId: 'TRACE-9527',
+    status: 'PUBLISHED',
+    retryCount: 2,
+    source: 'system',
+    lastError: 'consumer timeout',
+    processingDeadlineAt: '2026-06-10T09:10:30',
+    processingTimedOut: true,
+    publishedAt: '2026-06-10T09:10:15',
+    consumeStartedAt: null,
+    consumedAt: null,
+    createTime: '2026-06-10T09:10:11',
+    payloadSnapshot: '{"userId":9527}',
+  },
+  {
+    id: 2,
+    eventId: '1749555566000-0',
+    streamKey: 'stream:notify:sms',
+    eventType: 'SMS_SEND',
+    bizKey: 'sms:10086',
+    traceId: 'TRACE-SMS-10086',
+    status: 'FAIL',
+    retryCount: 1,
+    source: 'notify',
+    lastError: 'provider unavailable',
+    processingDeadlineAt: '2026-06-10T10:00:30',
+    processingTimedOut: false,
+    publishedAt: '2026-06-10T10:00:03',
+    consumeStartedAt: '2026-06-10T10:00:05',
+    consumedAt: '2026-06-10T10:00:11',
+    createTime: '2026-06-10T10:00:00',
+    payloadSnapshot: '{"mobile":"13800000000"}',
+  },
+  {
+    id: 3,
+    eventId: '1749555577000-0',
+    streamKey: 'stream:order:pay',
+    eventType: 'PAY_SUCCESS',
+    bizKey: 'order:20260610001',
+    traceId: 'TRACE-PAY-1',
+    status: 'SUCCESS',
+    retryCount: 0,
+    source: 'trade',
+    lastError: null,
+    processingDeadlineAt: '2026-06-10T11:20:30',
+    processingTimedOut: false,
+    publishedAt: '2026-06-10T11:20:02',
+    consumeStartedAt: '2026-06-10T11:20:03',
+    consumedAt: '2026-06-10T11:20:05',
+    createTime: '2026-06-10T11:20:00',
+    payloadSnapshot: '{"orderNo":"20260610001"}',
+  },
+];
+
+function paginateRecords<T>(records: T[], pageNum: number, pageSize: number) {
+  const start = (pageNum - 1) * pageSize;
+  return {
+    total: records.length,
+    records: records.slice(start, start + pageSize),
+  };
+}
+
+function listMockMqMessages(params: Record<string, string | number | undefined>) {
+  const keyword = String(
+    params.streamKey
+      ?? params.eventType
+      ?? params.bizKey
+      ?? params.traceId
+      ?? '',
+  ).trim();
+  const status = String(params.status ?? '').trim();
+  const source = String(params.source ?? '').trim();
+  const pageNum = Number(params.pageNum ?? 1);
+  const pageSize = Number(params.pageSize ?? 10);
+  const filtered = mockMqMessages.filter((item) => {
+    const matchKeyword = !keyword || [
+      item.streamKey,
+      item.eventType,
+      item.bizKey ?? '',
+      item.traceId ?? '',
+    ].some((field) => field.includes(keyword));
+    const matchStatus = !status || item.status === status;
+    const matchSource = !source || (item.source ?? '').includes(source);
+    return matchKeyword && matchStatus && matchSource;
+  });
+  return delay(paginateRecords(filtered, pageNum, pageSize));
+}
+
+function retryMockMqMessage(id: number) {
+  mockMqMessages = mockMqMessages.map((item) => {
+    if (item.id !== id) {
+      return item;
+    }
+    return {
+      ...item,
+      status: 'PUBLISHED',
+      retryCount: item.retryCount + 1,
+      lastError: null,
+      processingTimedOut: false,
+      processingDeadlineAt: null,
+      publishedAt: formatNow(),
+      consumeStartedAt: null,
+      consumedAt: null,
+    };
+  });
+  return delay(null);
+}
 
 export async function mockLogin(username: string, password: string) {
   if (!username || !password) {
@@ -304,11 +458,12 @@ function ok<T>(data: T): MockResponse<T> {
 export async function dispatchMockRequest(config: {
   url?: string;
   method?: string;
-  params?: Record<string, string>;
+  params?: Record<string, string | number | undefined>;
   data?: string;
 }) {
   const { url = '', method = 'get', params } = config;
   const body = config.data ? (JSON.parse(config.data) as Record<string, string | number>) : {};
+  const mqMessageRetryMatch = url.match(/^\/system\/logs\/mq-messages\/(\d+)\/retry$/);
 
   if (url === '/auth/captcha' && method === 'get') {
     return ok(await mockCaptcha());
@@ -332,9 +487,15 @@ export async function dispatchMockRequest(config: {
   if (url === '/auth/permissions' && method === 'get') {
     return ok(await mockPermissions());
   }
+  if (url === '/system/logs/mq-messages' && method === 'get') {
+    return ok(await listMockMqMessages(params ?? {}));
+  }
+  if (mqMessageRetryMatch && method === 'post') {
+    return ok(await retryMockMqMessage(Number(mqMessageRetryMatch[1])));
+  }
   if (url.startsWith('/system/') && method === 'get') {
     const key = url.replace('/system/', '') as keyof typeof db;
-    return ok(await listEntities(key, params?.keyword ?? ''));
+    return ok(await listEntities(key, String(params?.keyword ?? '')));
   }
   if (url.startsWith('/system/') && method === 'post') {
     const key = url.replace('/system/', '') as keyof typeof db;

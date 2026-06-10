@@ -228,6 +228,37 @@ export interface OpLogQuery {
   success?: boolean;
 }
 
+export interface MqMessageVO {
+  id: number;
+  eventId: string;
+  streamKey: string;
+  eventType: string;
+  bizKey: string | null;
+  traceId: string | null;
+  source: string | null;
+  status: string | null;
+  retryCount: number | null;
+  lastError: string | null;
+  processingDeadlineAt: string | null;
+  processingTimedOut: boolean | null;
+  publishedAt: string | null;
+  consumeStartedAt: string | null;
+  consumedAt: string | null;
+  createTime: string | null;
+  payloadSnapshot: string | null;
+}
+
+export interface MqMessageQuery {
+  pageNum: number;
+  pageSize: number;
+  streamKey?: string;
+  eventType?: string;
+  bizKey?: string;
+  traceId?: string;
+  status?: string;
+  source?: string;
+}
+
 export interface UserRow {
   id: number;
   username: string;
@@ -326,6 +357,30 @@ export interface OpLogRow {
   requestUri: string;
   errorMsg: string;
   createTimeText: string;
+}
+
+export interface MqMessageRow {
+  id: number;
+  eventId: string;
+  streamKey: string;
+  eventType: string;
+  bizKey: string;
+  traceId: string;
+  source: string;
+  statusText: string;
+  statusValue: string;
+  retryCountText: string;
+  retryCountValue: number;
+  lastError: string;
+  processingDeadlineAtText: string;
+  payloadSnapshot: string;
+  processingTimedOut: boolean;
+  canRetry: boolean;
+  createTimeText: string;
+  publishedAtText: string;
+  consumeStartedAtText: string;
+  consumedAtText: string;
+  timelineText: string;
 }
 
 export interface EntityRecord {
