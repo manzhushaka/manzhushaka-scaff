@@ -26,30 +26,30 @@ public class MqMessageConsumeExecutor {
         MessageHandler handler,
         Consumer<RecordId> acknowledge
     ) {
-        try {
-            String eventId = parseEventId(record);
-            if (eventId == null) {
-                return;
-            }
-            if (ledgerService.isSuccess(eventId)) {
-                return;
-            }
-            ledgerService.markProcessing(
-                eventId,
-                consumerGroup,
-                consumerName,
-                mqProperties.getProcessingTimeoutSeconds()
-            );
-            try {
-                handler.handle(record);
-            } catch (Exception exception) {
-                ledgerService.markFailed(eventId, exception.getMessage());
-                return;
-            }
-            ledgerService.markSuccess(eventId);
-        } finally {
+        String eventId = parseEventId(record);
+        if (eventId == null) {
             acknowledge.accept(record.getId());
+            return;
         }
+        if (ledgerService.isSuccess(eventId)) {
+            acknowledge.accept(record.getId());
+            return;
+        }
+        ledgerService.markProcessing(
+            eventId,
+            consumerGroup,
+            consumerName,
+            mqProperties.getProcessingTimeoutSeconds()
+        );
+        try {
+            handler.handle(record);
+        } catch (Exception exception) {
+            ledgerService.markFailed(eventId, exception.getMessage());
+            acknowledge.accept(record.getId());
+            return;
+        }
+        ledgerService.markSuccess(eventId);
+        acknowledge.accept(record.getId());
     }
 
     private String parseEventId(MapRecord<String, Object, Object> record) {
