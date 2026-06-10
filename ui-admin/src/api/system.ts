@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Message } from '@arco-design/web-vue';
 import { getToken } from '@/utils/storage';
+import { dispatchMockRequest } from './mock';
 import request from './request';
 import { buildSystemAuthHeader, unwrapSystemResponse } from './system-client';
 import type {
@@ -10,6 +11,10 @@ import type {
   DownloadUrlVO,
   ExportTaskCreateForm,
   PlatformConfigVO,
+  CacheEntryDetailVO,
+  CacheEntryQuery,
+  CacheEntryVO,
+  ServerMonitorVO,
   PlatformJobForm,
   PlatformJobLogDetailVO,
   PlatformJobLogQuery,
@@ -69,6 +74,31 @@ systemRequest.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = token;
   }
+  return config;
+});
+
+systemRequest.interceptors.request.use(async (config) => {
+  const useMock = import.meta.env.VITE_USE_MOCK === 'true';
+  if (!useMock) {
+    return config;
+  }
+
+  const result = await dispatchMockRequest({
+    url: config.url,
+    method: config.method,
+    params: config.params as Record<string, string | number | undefined> | undefined,
+    data: config.data as Record<string, string | number> | string | undefined,
+  });
+
+  config.adapter = async () => ({
+    data: result,
+    status: 200,
+    statusText: 'OK',
+    headers: {},
+    config,
+    request: {},
+  });
+
   return config;
 });
 
@@ -232,6 +262,15 @@ export const systemApi = {
   },
   updatePlatformConfig(payload: PlatformConfigVO) {
     return put<void>('/system/platform-config', payload);
+  },
+  listCacheEntries(params: CacheEntryQuery) {
+    return get<CacheEntryVO[]>('/system/cache/entries', params);
+  },
+  getCacheEntryDetail(key: string) {
+    return get<CacheEntryDetailVO>('/system/cache/entries/detail', { key });
+  },
+  getServerMonitor() {
+    return get<ServerMonitorVO>('/system/monitor/server');
   },
   listPlatformJobs(params: PlatformJobQuery) {
     return get<PageResult<PlatformJobVO>>('/system/jobs', params);

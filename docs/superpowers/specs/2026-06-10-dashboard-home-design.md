@@ -147,14 +147,14 @@
 - `/system/users`
 - `/system/roles`
 - `/system/access/menus`
-- `/system/op-logs`
+- `/logs/op`
 
 对应权限码如下：
 
 - 用户管理：`system:user:list`
 - 角色管理：`system:role:list`
 - 菜单管理：`system:menu:list`
-- 日志管理：`system:op-log:query`
+- 日志管理：`system:log:view`
 
 如果当前登录用户不具备对应权限，则不渲染该入口卡。
 

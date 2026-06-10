@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { Message } from '@arco-design/web-vue';
 import { useAuthStore } from '@/store/auth';
+import { SESSION_EXPIRED_MESSAGE } from '@/api/request-client';
 import { buildDynamicRoutes } from './dynamic';
 import { staticRoutes, WHITE_LIST } from './routes';
 
@@ -58,7 +59,7 @@ router.beforeEach(async (to, _from, next) => {
     } catch (_error) {
       authStore.logout();
       resetDynamicRoutes();
-      Message.error('初始化用户上下文失败，请重新登录');
+      Message.error(SESSION_EXPIRED_MESSAGE);
       next('/login');
       return;
     }

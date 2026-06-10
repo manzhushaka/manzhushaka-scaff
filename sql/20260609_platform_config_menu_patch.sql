@@ -6,7 +6,11 @@ SET
   `remark` = '参数管理菜单',
   `update_by` = 'system',
   `update_time` = NOW()
-WHERE `id` = 260;
+WHERE `id` = 260
+  AND (
+    `menu_name` <> '参数管理'
+    OR `remark` <> '参数管理菜单'
+  );
 
 SET @next_menu_id := IFNULL((SELECT MAX(`id`) FROM `sys_menu`), 0);
 

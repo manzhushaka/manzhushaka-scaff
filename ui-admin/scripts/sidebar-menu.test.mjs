@@ -23,4 +23,10 @@ assert.match(
   'MainLayout.vue needs a leave-state style for submenu shells so collapse animations do not stall at the end.',
 );
 
+assert.match(
+  mainLayoutSource,
+  /\.sidebar-menu\s*:deep\(\.arco-menu-item\),[\s\S]*?\.sidebar-menu\s*:deep\(\.arco-menu-inline-header\)\s*\{[\s\S]*?-webkit-user-select:\s*none;[\s\S]*?user-select:\s*none;/,
+  'MainLayout.vue needs to prevent sidebar menu labels from being text-selected during rapid clicks.',
+);
+
 console.log('sidebar menu checks passed');

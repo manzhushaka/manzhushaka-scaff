@@ -69,6 +69,14 @@ type MockMqMessageRecord = {
   payloadSnapshot: string | null;
 };
 
+type MockCacheEntryRecord = {
+  key: string;
+  type: 'string' | 'hash' | 'list' | 'set' | 'zset';
+  ttlSeconds: number | null;
+  valuePreview: string;
+  value: unknown;
+};
+
 const delay = async <T>(data: T, ms = 180): Promise<T> =>
   new Promise((resolve) => {
     globalThis.setTimeout(() => resolve(data), ms);
@@ -270,6 +278,91 @@ let mockMenuStore: MockMenuItemRecord[] = [
     createTime: formatNow(),
   },
   {
+    id: 28,
+    parentId: 10,
+    menuType: 'MENU',
+    menuName: '运行监控',
+    routeName: 'SystemMonitor',
+    routePath: '/system/monitor',
+    component: 'system/monitor',
+    icon: 'icon-dashboard',
+    perms: 'system:monitor:view',
+    sort: 4,
+    visible: 1,
+    keepAlive: 0,
+    status: 1,
+    remark: '系统运行监控菜单',
+    createTime: formatNow(),
+  },
+  {
+    id: 30,
+    parentId: 10,
+    menuType: 'MENU',
+    menuName: '缓存管理',
+    routeName: 'SystemCache',
+    routePath: '/system/cache',
+    component: 'system/cache',
+    icon: 'icon-storage',
+    perms: 'system:cache:query',
+    sort: 6,
+    visible: 1,
+    keepAlive: 0,
+    status: 1,
+    remark: 'Redis 缓存管理菜单',
+    createTime: formatNow(),
+  },
+  {
+    id: 31,
+    parentId: 30,
+    menuType: 'BUTTON',
+    menuName: '缓存查询',
+    routeName: 'SystemCacheQuery',
+    routePath: '',
+    component: '',
+    icon: '',
+    perms: 'system:cache:query',
+    sort: 1,
+    visible: 0,
+    keepAlive: 0,
+    status: 1,
+    remark: '缓存查询按钮',
+    createTime: formatNow(),
+  },
+  {
+    id: 32,
+    parentId: 30,
+    menuType: 'BUTTON',
+    menuName: '缓存详情',
+    routeName: 'SystemCacheDetail',
+    routePath: '',
+    component: '',
+    icon: '',
+    perms: 'system:cache:detail',
+    sort: 2,
+    visible: 0,
+    keepAlive: 0,
+    status: 1,
+    remark: '缓存详情按钮',
+    createTime: formatNow(),
+  },
+  {
+    id: 29,
+    parentId: 28,
+    menuType: 'BUTTON',
+    menuName: '运行监控刷新',
+    routeName: 'SystemMonitorRefresh',
+    routePath: '',
+    component: '',
+    icon: '',
+    perms: 'system:monitor:refresh',
+    sort: 1,
+    visible: 0,
+    keepAlive: 0,
+    status: 1,
+    remark: '运行监控刷新按钮',
+    createTime: formatNow(),
+  },
+  {
     id: 17,
     parentId: 14,
     menuType: 'BUTTON',
@@ -456,6 +549,9 @@ const permissions = [
   'system:dict:update',
   'system:config:add',
   'system:config:update',
+  'system:cache:query',
+  'system:cache:detail',
+  'system:monitor:refresh',
   'system:log:view',
   'system:mq-message:query',
   'system:mq-message:retry',
@@ -756,6 +852,33 @@ let mockMqMessages: MockMqMessageRecord[] = [
   },
 ];
 
+const mockCacheEntries: MockCacheEntryRecord[] = [
+  {
+    key: 'auth:captcha:demo',
+    type: 'string',
+    ttlSeconds: 120,
+    valuePreview: 'ABCD',
+    value: 'ABCD',
+  },
+  {
+    key: 'sa-token:login:10001',
+    type: 'hash',
+    ttlSeconds: -1,
+    valuePreview: 'Hash(2) [token=mock-token-admin, loginTime=2026-06-10 09:00:00]',
+    value: {
+      token: 'mock-token-admin',
+      loginTime: '2026-06-10 09:00:00',
+    },
+  },
+  {
+    key: 'stream:notify:recent',
+    type: 'list',
+    ttlSeconds: 3600,
+    valuePreview: 'List(3) ["SMS_SEND","EMAIL_SEND","PUSH_SEND"]',
+    value: ['SMS_SEND', 'EMAIL_SEND', 'PUSH_SEND'],
+  },
+];
+
 function paginateRecords<T>(records: T[], pageNum: number, pageSize: number) {
   const start = (pageNum - 1) * pageSize;
   return {
@@ -808,6 +931,87 @@ function retryMockMqMessage(id: number) {
     };
   });
   return delay(null);
+}
+
+function toMockCacheExpireAt(ttlSeconds: number | null) {
+  if (ttlSeconds == null || ttlSeconds < 0) {
+    return null;
+  }
+  return new Date(Date.now() + ttlSeconds * 1000).toISOString();
+}
+
+function listMockCacheEntries(params: Record<string, string | number | undefined>) {
+  const keyword = String(params.keyword ?? '').trim();
+  const limit = Number(params.limit ?? 20);
+  const filtered = mockCacheEntries
+    .filter((item) => !keyword || item.key.includes(keyword))
+    .slice(0, limit)
+    .map((item) => ({
+      key: item.key,
+      type: item.type,
+      ttlSeconds: item.ttlSeconds,
+      expireAt: toMockCacheExpireAt(item.ttlSeconds),
+      valuePreview: item.valuePreview,
+    }));
+  return delay(filtered);
+}
+
+function getMockCacheEntryDetail(key: string) {
+  const record = mockCacheEntries.find((item) => item.key === key);
+  if (!record) {
+    throw new Error(`未找到缓存 Key: ${key}`);
+  }
+  return delay({
+    key: record.key,
+    type: record.type,
+    ttlSeconds: record.ttlSeconds,
+    expireAt: toMockCacheExpireAt(record.ttlSeconds),
+    valuePreview: record.valuePreview,
+    value: record.value,
+  });
+}
+
+function createMockServerMonitor() {
+  return delay({
+    applicationName: 'manzhushaka-admin',
+    activeProfile: 'dev',
+    javaVersion: '17.0.0',
+    osName: 'macOS',
+    osArch: 'aarch64',
+    startTime: '2026-06-10 09:30:00',
+    uptimeMillis: 22680000,
+    system: {
+      availableProcessors: 8,
+      systemCpuUsage: 24.56,
+      processCpuUsage: 9.83,
+      totalPhysicalMemory: 17179869184,
+      freePhysicalMemory: 6871947673,
+    },
+    jvm: {
+      vmName: 'OpenJDK 64-Bit Server VM',
+      vmVendor: 'Eclipse Adoptium',
+      vmVersion: '17.0.12+7',
+      inputArguments: ['-Xms512m', '-Xmx1024m', '-Dspring.profiles.active=dev', '-XX:+UseG1GC'],
+      heapInit: 536870912,
+      heapUsed: 268435456,
+      heapCommitted: 536870912,
+      heapMax: 1073741824,
+      nonHeapUsed: 201326592,
+      nonHeapCommitted: 234881024,
+      nonHeapMax: -1,
+      liveThreadCount: 86,
+      daemonThreadCount: 55,
+    },
+    redis: {
+      available: true,
+      version: '7.2.5',
+      connectedClients: 12,
+      usedMemory: 1048576,
+      usedMemoryPeak: 2097152,
+      dbSize: 64,
+      errorMessage: null,
+    },
+  });
 }
 
 export async function mockLogin(username: string, password: string) {
@@ -927,14 +1131,26 @@ function ok<T>(data: T): MockResponse<T> {
   };
 }
 
+function parseMockBody(
+  data: string | Record<string, string | number> | undefined,
+): Record<string, string | number> {
+  if (!data) {
+    return {};
+  }
+  if (typeof data === 'string') {
+    return JSON.parse(data) as Record<string, string | number>;
+  }
+  return data;
+}
+
 export async function dispatchMockRequest(config: {
   url?: string;
   method?: string;
   params?: Record<string, string | number | undefined>;
-  data?: string;
+  data?: string | Record<string, string | number>;
 }) {
   const { url = '', method = 'get', params } = config;
-  const body = config.data ? (JSON.parse(config.data) as Record<string, string | number>) : {};
+  const body = parseMockBody(config.data);
   const menuIdMatch = url.match(/^\/system\/menus\/(\d+)$/);
   const mqMessageRetryMatch = url.match(/^\/system\/logs\/mq-messages\/(\d+)\/retry$/);
 
@@ -990,6 +1206,15 @@ export async function dispatchMockRequest(config: {
       logoUrl: normalizeText(body.logoUrl, mockPlatformConfig.logoUrl),
     };
     return ok(null);
+  }
+  if (url === '/system/monitor/server' && method === 'get') {
+    return ok(await createMockServerMonitor());
+  }
+  if (url === '/system/cache/entries' && method === 'get') {
+    return ok(await listMockCacheEntries(params ?? {}));
+  }
+  if (url === '/system/cache/entries/detail' && method === 'get') {
+    return ok(await getMockCacheEntryDetail(String(params?.key ?? '')));
   }
   if (url === '/system/logs/mq-messages' && method === 'get') {
     return ok(await listMockMqMessages(params ?? {}));

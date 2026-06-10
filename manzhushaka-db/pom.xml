@@ -35,5 +35,25 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>${project.basedir}/../sql</directory>
+                <includes>
+                    <include>*_patch.sql</include>
+                </includes>
+                <targetPath>db/patch</targetPath>
+            </resource>
+        </resources>
+    </build>
 </project>

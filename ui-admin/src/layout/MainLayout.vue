@@ -324,6 +324,12 @@ watch(
   transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
 }
 
+.sidebar-menu :deep(.arco-menu-item),
+.sidebar-menu :deep(.arco-menu-inline-header) {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 .sidebar-menu :deep(.arco-menu-item:hover),
 .sidebar-menu :deep(.arco-menu-inline-header:hover) {
   color: var(--sidebar-menu-text-strong);
@@ -361,6 +367,8 @@ watch(
 .sidebar-menu :deep(.arco-menu-item .arco-menu-pop-header),
 .sidebar-menu :deep(.arco-menu-item .arco-menu-pop-item) {
   color: #25324a;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .sidebar-menu :deep(.arco-menu-inline-content) {

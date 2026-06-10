@@ -373,6 +373,11 @@ INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `menu_type`, `route_name
 (273, 264, '任务暂停', 'BUTTON', NULL, NULL, NULL, 'system:job:pause', NULL, 6, 1, 1, 0, 0, '任务暂停按钮', 'system', NOW(), 'system', NOW()),
 (274, 264, '任务恢复', 'BUTTON', NULL, NULL, NULL, 'system:job:resume', NULL, 7, 1, 1, 0, 0, '任务恢复按钮', 'system', NOW(), 'system', NOW()),
 (275, 264, '任务日志', 'BUTTON', NULL, NULL, NULL, 'system:job:log', NULL, 8, 1, 1, 0, 0, '任务日志按钮', 'system', NOW(), 'system', NOW()),
+(292, 200, '运行监控', 'MENU', 'SystemMonitor', 'monitor', 'system/monitor', 'system:monitor:view', 'icon-dashboard', 9, 1, 1, 0, 0, '系统运行监控菜单', 'system', NOW(), 'system', NOW()),
+(293, 292, '监控刷新', 'BUTTON', NULL, NULL, NULL, 'system:monitor:refresh', NULL, 1, 1, 1, 0, 0, '运行监控刷新按钮', 'system', NOW(), 'system', NOW()),
+(294, 200, '缓存管理', 'MENU', 'SystemCache', 'cache', 'system/cache', 'system:cache:query', 'icon-storage', 10, 1, 1, 0, 0, 'Redis 缓存管理菜单', 'system', NOW(), 'system', NOW()),
+(295, 294, '缓存查询', 'BUTTON', NULL, NULL, NULL, 'system:cache:query', NULL, 1, 1, 1, 0, 0, '缓存查询按钮', 'system', NOW(), 'system', NOW()),
+(296, 294, '缓存详情', 'BUTTON', NULL, NULL, NULL, 'system:cache:detail', NULL, 2, 1, 1, 0, 0, '缓存详情按钮', 'system', NOW(), 'system', NOW()),
 (280, 0, '导入导出管理', 'DIR', 'SystemImportExport', '/io-tasks', NULL, NULL, 'icon-storage', 2, 1, 1, 0, 1, '导入导出任务目录', 'system', NOW(), 'system', NOW()),
 (281, 280, '导出任务管理', 'MENU', 'SystemExportTasks', 'exports', 'system/export-tasks', 'system:io:export:list', 'icon-file', 1, 1, 1, 1, 0, '导出任务管理菜单', 'system', NOW(), 'system', NOW()),
 (282, 281, '导出任务查询', 'BUTTON', NULL, NULL, NULL, 'system:io:export:query', NULL, 1, 1, 1, 0, 0, '导出任务查询按钮', 'system', NOW(), 'system', NOW()),
@@ -450,7 +455,17 @@ INSERT INTO `sys_role_menu` (`id`, `role_id`, `menu_id`, `create_by`, `create_ti
 (1057, 101, 272, 'system', NOW(), 'system', NOW()),
 (1058, 100, 289, 'system', NOW(), 'system', NOW()),
 (1059, 100, 290, 'system', NOW(), 'system', NOW()),
-(1060, 100, 291, 'system', NOW(), 'system', NOW());
+(1060, 100, 291, 'system', NOW(), 'system', NOW()),
+(1061, 100, 292, 'system', NOW(), 'system', NOW()),
+(1062, 100, 293, 'system', NOW(), 'system', NOW()),
+(1063, 101, 292, 'system', NOW(), 'system', NOW()),
+(1064, 101, 293, 'system', NOW(), 'system', NOW()),
+(1065, 100, 294, 'system', NOW(), 'system', NOW()),
+(1066, 100, 295, 'system', NOW(), 'system', NOW()),
+(1067, 100, 296, 'system', NOW(), 'system', NOW()),
+(1068, 101, 294, 'system', NOW(), 'system', NOW()),
+(1069, 101, 295, 'system', NOW(), 'system', NOW()),
+(1070, 101, 296, 'system', NOW(), 'system', NOW());
 
 INSERT INTO `sys_dict_type` (`id`, `dict_name`, `dict_code`, `status`, `remark`, `create_by`, `create_time`, `update_by`, `update_time`) VALUES
 (100, '用户状态', 'sys_user_status', 1, '用户启停状态', 'system', NOW(), 'system', NOW()),

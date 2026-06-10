@@ -33,3 +33,9 @@ manzhushaka:
     group: manzhushaka-group
     consumer: oplog-consumer
     max-retry: 3
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

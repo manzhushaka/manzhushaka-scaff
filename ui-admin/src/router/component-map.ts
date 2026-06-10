@@ -7,6 +7,8 @@ import DictsView from '@/views/system/dicts.vue';
 import ParamsView from '@/views/system/params.vue';
 import JobsView from '@/views/system/jobs.vue';
 import PlatformConfigView from '@/views/system/platform-config.vue';
+import MonitorView from '@/views/system/monitor.vue';
+import CacheView from '@/views/system/cache.vue';
 import LoginLogsView from '@/views/system/login-logs.vue';
 import OpLogsView from '@/views/system/op-logs.vue';
 import MqMessagesView from '@/views/system/mq-messages.vue';
@@ -23,6 +25,8 @@ export const componentMap = {
   'system/params': ParamsView,
   'system/jobs': JobsView,
   'system/platform-config': PlatformConfigView,
+  'system/monitor': MonitorView,
+  'system/cache': CacheView,
   'system/login-logs': LoginLogsView,
   'system/op-logs': OpLogsView,
   'system/mq-messages': MqMessagesView,

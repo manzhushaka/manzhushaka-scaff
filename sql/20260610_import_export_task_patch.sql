@@ -1,0 +1,30 @@
+SET NAMES utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `sys_import_export_task` (
+  `id` bigint NOT NULL COMMENT '主键',
+  `task_no` varchar(64) NOT NULL COMMENT '任务编号',
+  `task_type` varchar(16) NOT NULL COMMENT '任务类型：IMPORT、EXPORT',
+  `biz_type` varchar(64) NOT NULL COMMENT '业务场景编码',
+  `biz_label` varchar(100) NOT NULL COMMENT '业务场景名称',
+  `task_name` varchar(100) NOT NULL COMMENT '任务名称',
+  `task_status` varchar(16) NOT NULL DEFAULT 'PENDING' COMMENT '任务状态：PENDING、PROCESSING、SUCCESS、FAIL',
+  `task_message` varchar(500) DEFAULT NULL COMMENT '任务说明',
+  `source_file_name` varchar(255) DEFAULT NULL COMMENT '源文件名',
+  `source_object_key` varchar(500) DEFAULT NULL COMMENT '源文件 BOS Key',
+  `source_file_size` bigint DEFAULT NULL COMMENT '源文件大小（字节）',
+  `result_file_name` varchar(255) DEFAULT NULL COMMENT '结果文件名',
+  `result_object_key` varchar(500) DEFAULT NULL COMMENT '结果文件 BOS Key',
+  `result_file_size` bigint DEFAULT NULL COMMENT '结果文件大小（字节）',
+  `total_count` int NOT NULL DEFAULT 0 COMMENT '总记录数',
+  `success_count` int NOT NULL DEFAULT 0 COMMENT '成功记录数',
+  `fail_count` int NOT NULL DEFAULT 0 COMMENT '失败记录数',
+  `finished_time` datetime DEFAULT NULL COMMENT '完成时间',
+  `create_by` varchar(64) DEFAULT NULL COMMENT '创建人',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_by` varchar(64) DEFAULT NULL COMMENT '更新人',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_sys_import_export_task_task_no` (`task_no`),
+  KEY `idx_sys_import_export_task_type_status` (`task_type`, `task_status`),
+  KEY `idx_sys_import_export_task_create_time` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='导入导出任务表';

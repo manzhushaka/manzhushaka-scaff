@@ -192,6 +192,70 @@ export interface PlatformConfigVO {
   logoUrl: string;
 }
 
+export interface CacheEntryVO {
+  key: string;
+  type: string;
+  ttlSeconds: number | null;
+  expireAt: string | null;
+  valuePreview: string | null;
+}
+
+export interface CacheEntryDetailVO extends CacheEntryVO {
+  value: unknown;
+}
+
+export interface CacheEntryQuery {
+  keyword?: string;
+  limit?: number;
+}
+
+export interface ServerMonitorSystemVO {
+  availableProcessors: number | null;
+  systemCpuUsage: number | null;
+  processCpuUsage: number | null;
+  totalPhysicalMemory: number | null;
+  freePhysicalMemory: number | null;
+}
+
+export interface ServerMonitorJvmVO {
+  vmName: string | null;
+  vmVendor: string | null;
+  vmVersion: string | null;
+  inputArguments: string[];
+  heapInit: number | null;
+  heapUsed: number | null;
+  heapCommitted: number | null;
+  heapMax: number | null;
+  nonHeapUsed: number | null;
+  nonHeapCommitted: number | null;
+  nonHeapMax: number | null;
+  liveThreadCount: number | null;
+  daemonThreadCount: number | null;
+}
+
+export interface ServerMonitorRedisVO {
+  available: boolean | null;
+  version: string | null;
+  connectedClients: number | null;
+  usedMemory: number | null;
+  usedMemoryPeak: number | null;
+  dbSize: number | null;
+  errorMessage: string | null;
+}
+
+export interface ServerMonitorVO {
+  applicationName: string;
+  activeProfile: string;
+  javaVersion: string;
+  osName: string;
+  osArch: string;
+  startTime: string;
+  uptimeMillis: number;
+  system: ServerMonitorSystemVO;
+  jvm: ServerMonitorJvmVO;
+  redis: ServerMonitorRedisVO;
+}
+
 export interface ImportExportTaskVO {
   id: number;
   taskNo: string;
@@ -535,6 +599,15 @@ export interface MqMessageRow {
   consumeStartedAtText: string;
   consumedAtText: string;
   timelineText: string;
+}
+
+export interface CacheEntryRow {
+  key: string;
+  type: string;
+  ttlSeconds: number | null;
+  ttlText: string;
+  expireAtText: string;
+  valuePreview: string;
 }
 
 export interface EntityRecord {
