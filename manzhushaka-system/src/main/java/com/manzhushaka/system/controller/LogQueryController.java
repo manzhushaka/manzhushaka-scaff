@@ -1,24 +1,31 @@
 package com.manzhushaka.system.controller;
 
 import com.manzhushaka.common.model.ApiResponse;
+import com.manzhushaka.mq.service.MqMessageAdminService;
 import com.manzhushaka.system.dto.log.LoginLogQuery;
+import com.manzhushaka.system.dto.log.MqMessageQuery;
 import com.manzhushaka.system.dto.log.OpLogQuery;
 import com.manzhushaka.system.service.LogQueryService;
 import com.manzhushaka.system.vo.PageResult;
 import com.manzhushaka.system.vo.log.LoginLogVO;
+import com.manzhushaka.system.vo.log.MqMessageVO;
 import com.manzhushaka.system.vo.log.OpLogVO;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/system/logs")
+@RequestMapping({"/system/logs", "/api/system/logs"})
 public class LogQueryController {
 
     private final LogQueryService logQueryService;
+    private final MqMessageAdminService mqMessageAdminService;
 
-    public LogQueryController(LogQueryService logQueryService) {
+    public LogQueryController(LogQueryService logQueryService, MqMessageAdminService mqMessageAdminService) {
         this.logQueryService = logQueryService;
+        this.mqMessageAdminService = mqMessageAdminService;
     }
 
     @GetMapping("/login")
@@ -29,5 +36,16 @@ public class LogQueryController {
     @GetMapping("/op")
     public ApiResponse<PageResult<OpLogVO>> pageOpLogs(OpLogQuery query) {
         return ApiResponse.success(logQueryService.pageOpLogs(query));
+    }
+
+    @GetMapping("/mq-messages")
+    public ApiResponse<PageResult<MqMessageVO>> pageMqMessages(MqMessageQuery query) {
+        return ApiResponse.success(logQueryService.pageMqMessages(query));
+    }
+
+    @PostMapping("/mq-messages/{id}/retry")
+    public ApiResponse<Void> retryMqMessage(@PathVariable Long id) {
+        mqMessageAdminService.retry(id);
+        return ApiResponse.success(null);
     }
 }
