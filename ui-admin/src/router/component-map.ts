@@ -7,6 +7,7 @@ import DictsView from '@/views/system/dicts.vue';
 import ParamsView from '@/views/system/params.vue';
 import LoginLogsView from '@/views/system/login-logs.vue';
 import OpLogsView from '@/views/system/op-logs.vue';
+import MqMessagesView from '@/views/system/mq-messages.vue';
 
 export const componentMap = {
   'dashboard/index': DashboardView,
@@ -18,4 +19,5 @@ export const componentMap = {
   'system/params': ParamsView,
   'system/login-logs': LoginLogsView,
   'system/op-logs': OpLogsView,
+  'system/mq-messages': MqMessagesView,
 } as const;

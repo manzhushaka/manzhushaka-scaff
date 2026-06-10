@@ -20,6 +20,8 @@ import type {
   MenuForm,
   MenuQuery,
   MenuVO,
+  MqMessageQuery,
+  MqMessageVO,
   OpLogQuery,
   OpLogVO,
   PageResult,
@@ -208,6 +210,12 @@ export const systemApi = {
   listOpLogs(params: OpLogQuery) {
     return get<PageResult<OpLogVO>>('/system/logs/op', params);
   },
+  listMqMessages(params: MqMessageQuery) {
+    return get<PageResult<MqMessageVO>>('/system/logs/mq-messages', params);
+  },
+  retryMqMessage(id: number) {
+    return post<void>(`/system/logs/mq-messages/${id}/retry`);
+  },
 };
 
 function toPageQuery(keyword = '') {
@@ -385,4 +393,3 @@ export async function editEntity(_key: string, _id: number, _payload: Record<str
 export async function deleteEntity(_key: string, _id: number) {
   return true;
 }
-

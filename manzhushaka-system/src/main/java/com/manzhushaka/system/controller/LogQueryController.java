@@ -44,7 +44,7 @@ public class LogQueryController {
     }
 
     @PostMapping("/mq-messages/{id}/retry")
-    public ApiResponse<Void> retryMqMessage(@PathVariable Long id) {
+    public ApiResponse<Void> retryMqMessage(@PathVariable("id") Long id) {
         mqMessageAdminService.retry(id);
         return ApiResponse.success(null);
     }
