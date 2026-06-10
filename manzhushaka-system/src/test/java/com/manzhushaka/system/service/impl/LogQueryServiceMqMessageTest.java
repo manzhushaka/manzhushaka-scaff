@@ -1,6 +1,9 @@
 package com.manzhushaka.system.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
+import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.manzhushaka.common.enums.MqMessageStatus;
 import com.manzhushaka.db.system.entity.SysMqMessage;
 import com.manzhushaka.db.system.mapper.SysLoginLogMapper;
@@ -10,7 +13,9 @@ import com.manzhushaka.mq.properties.MqProperties;
 import com.manzhushaka.system.dto.log.MqMessageQuery;
 import com.manzhushaka.system.vo.PageResult;
 import com.manzhushaka.system.vo.log.MqMessageVO;
+import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -87,6 +92,40 @@ class LogQueryServiceMqMessageTest {
         PageResult<MqMessageVO> result = service.pageMqMessages(new MqMessageQuery());
 
         assertFalse(result.getRecords().get(0).getProcessingTimedOut());
+    }
+
+    @Test
+    void shouldTreatSharedKeywordFiltersAsSingleOrCondition() {
+        SysMqMessageMapper mqMessageMapper = mock(SysMqMessageMapper.class);
+        LogQueryServiceImpl service = new LogQueryServiceImpl(
+            mock(SysLoginLogMapper.class),
+            mock(SysOpLogMapper.class),
+            mqMessageMapper,
+            buildMqProperties()
+        );
+        SysMqMessage entity = buildMessage(MqMessageStatus.PUBLISHED.name());
+        ArgumentCaptor<LambdaQueryWrapper> wrapperCaptor = ArgumentCaptor.forClass(LambdaQueryWrapper.class);
+        when(mqMessageMapper.selectPage(any(), wrapperCaptor.capture())).thenReturn(new Page<SysMqMessage>(1, 20, 1)
+            .setRecords(List.of(entity)));
+        MqMessageQuery query = new MqMessageQuery();
+        query.setStreamKey("trace-100");
+        query.setEventType("trace-100");
+        query.setBizKey("trace-100");
+        query.setTraceId("trace-100");
+
+        service.pageMqMessages(query);
+
+        TableInfoHelper.initTableInfo(new MapperBuilderAssistant(new MybatisConfiguration(), ""), SysMqMessage.class);
+        LambdaQueryWrapper<?> wrapper = wrapperCaptor.getValue();
+        String sqlSegment = wrapper.getSqlSegment();
+        assertTrue(sqlSegment.contains("stream_key"), sqlSegment);
+        assertTrue(sqlSegment.contains("event_type"), sqlSegment);
+        assertTrue(sqlSegment.contains("biz_key"), sqlSegment);
+        assertTrue(sqlSegment.contains("trace_id"), sqlSegment);
+        assertTrue(sqlSegment.toUpperCase().contains(" OR "), sqlSegment);
+        assertTrue(wrapper.getParamNameValuePairs().values().stream()
+            .map(String::valueOf)
+            .anyMatch(value -> value.contains("trace-100")));
     }
 
     private SysMqMessage buildMessage(String status) {

@@ -1,5 +1,6 @@
 package com.manzhushaka.auth.controller;
 
+import cn.dev33.satoken.annotation.SaIgnore;
 import com.manzhushaka.auth.dto.LoginRequest;
 import com.manzhushaka.auth.service.AuthCaptchaService;
 import com.manzhushaka.auth.service.AuthService;
@@ -29,6 +30,7 @@ public class AuthController {
         this.authCaptchaService = authCaptchaService;
     }
 
+    @SaIgnore
     @GetMapping("/captcha")
     public ApiResponse<CaptchaResponse> captcha() {
         return ApiResponse.success(authCaptchaService.createCaptcha());

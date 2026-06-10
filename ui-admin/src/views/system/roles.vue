@@ -27,33 +27,26 @@
         :loading="loading"
         row-key="id"
         :pagination="pagination"
+        :columns="columns"
         @page-change="handlePageChange"
       >
-        <a-table-column data-index="roleName" title="角色">
-          <template #cell="{ record }">
-            <div class="primary-cell">
-              <div class="primary-cell-title">{{ record.roleName }}</div>
-              <div class="primary-cell-sub code-text">{{ record.roleCode }}</div>
-            </div>
-          </template>
-        </a-table-column>
-        <a-table-column data-index="dataScopeText" title="数据范围" />
-        <a-table-column data-index="statusText" title="状态" :width="110">
-          <template #cell="{ record }">
-            <a-tag :color="record.statusValue === 1 ? 'green' : 'red'">{{ record.statusText }}</a-tag>
-          </template>
-        </a-table-column>
-        <a-table-column data-index="createTimeText" title="创建时间" :width="180" />
-        <a-table-column title="操作" :width="220">
-          <template #cell="{ record }">
-            <a-space>
-              <a-button size="mini" v-permission="'system:role:update'" @click="openEdit(record.id)">编辑</a-button>
-              <a-popconfirm content="确认删除该角色吗？" @ok="handleDelete(record.id)">
-                <a-button size="mini" status="danger" v-permission="'system:role:delete'">删除</a-button>
-              </a-popconfirm>
-            </a-space>
-          </template>
-        </a-table-column>
+        <template #roleCell="{ record }">
+          <div class="primary-cell">
+            <div class="primary-cell-title">{{ record.roleName }}</div>
+            <div class="primary-cell-sub code-text">{{ record.roleCode }}</div>
+          </div>
+        </template>
+        <template #statusCell="{ record }">
+          <a-tag :color="record.statusValue === 1 ? 'green' : 'red'">{{ record.statusText }}</a-tag>
+        </template>
+        <template #actionsCell="{ record }">
+          <a-space>
+            <a-button size="mini" v-permission="'system:role:update'" @click="openEdit(record.id)">编辑</a-button>
+            <a-popconfirm content="确认删除该角色吗？" @ok="handleDelete(record.id)">
+              <a-button size="mini" status="danger" v-permission="'system:role:delete'">删除</a-button>
+            </a-popconfirm>
+          </a-space>
+        </template>
       </a-table>
     </div>
 
@@ -71,6 +64,22 @@
         <a-form-item field="status" label="状态">
           <a-select v-model="form.status" :options="statusOptions" />
         </a-form-item>
+        <a-form-item field="menuIds" label="菜单权限">
+          <div class="menu-tree-panel">
+            <a-spin :loading="menuLoading" class="menu-tree-spin">
+              <a-empty v-if="!menuTreeData.length" description="暂无可分配菜单" />
+              <a-tree
+                v-else
+                v-model:checked-keys="checkedMenuKeys"
+                v-model:half-checked-keys="halfCheckedMenuKeys"
+                block-node
+                checkable
+                :data="menuTreeData"
+                :default-expand-all="true"
+              />
+            </a-spin>
+          </div>
+        </a-form-item>
       </a-form>
     </a-modal>
   </div>
@@ -78,14 +87,16 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue';
-import { Message } from '@arco-design/web-vue';
+import { Message, type TableColumnData, type TreeNodeData } from '@arco-design/web-vue';
 import PageHeaderCard from '@/components/PageHeaderCard.vue';
 import { systemApi } from '@/api/system';
 import type { RoleForm, RoleRow } from '@/types/system';
+import { buildRoleMenuCheckedKeys, buildRoleMenuTreeData, normalizeRoleMenuIds } from './roles-support';
 import { dataScopeOptions, mapRoleRow, statusOptions } from './shared';
 
 const loading = ref(false);
 const visible = ref(false);
+const menuLoading = ref(false);
 const keyword = ref('');
 const statusFilter = ref<number | undefined>();
 const current = ref(1);
@@ -93,6 +104,9 @@ const pageSize = ref(10);
 const total = ref(0);
 const editingId = ref<number | null>(null);
 const rows = ref<RoleRow[]>([]);
+const menuTreeData = ref<TreeNodeData[]>([]);
+const checkedMenuKeys = ref<Array<string | number>>([]);
+const halfCheckedMenuKeys = ref<Array<string | number>>([]);
 const dataScopeValue = ref<'SELF' | 'DEPT' | 'DEPT_AND_CHILD' | 'ALL'>('SELF');
 
 const form = reactive<RoleForm>({
@@ -100,6 +114,7 @@ const form = reactive<RoleForm>({
   roleName: '',
   dataScope: 'SELF',
   status: 1,
+  menuIds: [],
 });
 
 const statusFilterOptions = [
@@ -113,6 +128,34 @@ const pagination = computed(() => ({
   total: total.value,
   showTotal: true,
 }));
+const columns: TableColumnData[] = [
+  {
+    dataIndex: 'roleName',
+    title: '角色',
+    slotName: 'roleCell',
+  },
+  {
+    dataIndex: 'dataScopeText',
+    title: '数据范围',
+  },
+  {
+    dataIndex: 'statusText',
+    title: '状态',
+    width: 110,
+    slotName: 'statusCell',
+  },
+  {
+    dataIndex: 'createTimeText',
+    title: '创建时间',
+    width: 180,
+  },
+  {
+    dataIndex: 'actions',
+    title: '操作',
+    width: 220,
+    slotName: 'actionsCell',
+  },
+];
 
 function resetForm() {
   form.roleCode = '';
@@ -120,7 +163,21 @@ function resetForm() {
   form.dataScope = 'SELF';
   dataScopeValue.value = 'SELF';
   form.status = 1;
+  form.menuIds = [];
+  checkedMenuKeys.value = [];
+  halfCheckedMenuKeys.value = [];
   editingId.value = null;
+}
+
+async function loadMenuTree() {
+  menuLoading.value = true;
+  try {
+    const menus = await systemApi.listMenus({ status: 1 });
+    menuTreeData.value = buildRoleMenuTreeData(menus);
+    return menus;
+  } finally {
+    menuLoading.value = false;
+  }
 }
 
 async function fetchRows() {
@@ -150,19 +207,23 @@ function handlePageChange(page: number) {
   fetchRows();
 }
 
-function openCreate() {
+async function openCreate() {
   resetForm();
+  await loadMenuTree();
   visible.value = true;
 }
 
 async function openEdit(id: number) {
-  const detail = await systemApi.getRole(id);
+  const [detail, menus] = await Promise.all([systemApi.getRole(id), loadMenuTree()]);
   editingId.value = id;
   form.roleCode = detail.roleCode;
   form.roleName = detail.roleName;
   form.dataScope = detail.dataScope ?? 'SELF';
   dataScopeValue.value = detail.dataScope ?? 'SELF';
   form.status = detail.status ?? 1;
+  form.menuIds = detail.menuIds ?? [];
+  checkedMenuKeys.value = buildRoleMenuCheckedKeys(menus, form.menuIds);
+  halfCheckedMenuKeys.value = [];
   visible.value = true;
 }
 
@@ -177,6 +238,7 @@ async function submitForm() {
     roleName: form.roleName.trim(),
     dataScope: dataScopeValue.value,
     status: form.status,
+    menuIds: normalizeRoleMenuIds(checkedMenuKeys.value, halfCheckedMenuKeys.value),
   };
 
   if (editingId.value) {
@@ -220,5 +282,18 @@ fetchRows();
   margin-top: 4px;
   color: #74839a;
   font-size: 12px;
+}
+
+.menu-tree-panel {
+  max-height: 320px;
+  overflow: auto;
+  padding: 12px;
+  border: 1px solid #e5e6eb;
+  border-radius: 8px;
+  background: #fbfcfe;
+}
+
+.menu-tree-spin {
+  width: 100%;
 }
 </style>

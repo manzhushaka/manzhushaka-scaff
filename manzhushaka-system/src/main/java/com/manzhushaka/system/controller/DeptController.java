@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/system/depts")
+@RequestMapping({"/system/depts", "/api/system/depts"})
 public class DeptController {
 
     private final DeptService deptService;
@@ -39,7 +39,7 @@ public class DeptController {
     }
 
     @GetMapping("/{id}")
-    public ApiResponse<DeptTreeVO> getById(@PathVariable Long id) {
+    public ApiResponse<DeptTreeVO> getById(@PathVariable("id") Long id) {
         return ApiResponse.success(deptService.getById(id));
     }
 
@@ -49,13 +49,13 @@ public class DeptController {
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<Void> update(@PathVariable Long id, @Valid @RequestBody DeptForm form) {
+    public ApiResponse<Void> update(@PathVariable("id") Long id, @Valid @RequestBody DeptForm form) {
         deptService.update(id, form);
         return ApiResponse.success(null);
     }
 
     @DeleteMapping("/{id}")
-    public ApiResponse<Void> delete(@PathVariable Long id) {
+    public ApiResponse<Void> delete(@PathVariable("id") Long id) {
         deptService.delete(id);
         return ApiResponse.success(null);
     }

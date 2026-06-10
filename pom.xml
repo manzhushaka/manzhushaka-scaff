@@ -29,6 +29,7 @@
         <mybatis.plus.version>3.5.7</mybatis.plus.version>
         <sa.token.version>1.39.0</sa.token.version>
         <jackson.version>2.17.1</jackson.version>
+        <bce.java.sdk.version>0.10.424</bce.java.sdk.version>
         <maven.compiler.plugin.version>3.12.1</maven.compiler.plugin.version>
         <maven.surefire.plugin.version>3.2.5</maven.surefire.plugin.version>
     </properties>
@@ -68,6 +69,7 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven.compiler.plugin.version}</version>
                     <configuration>
+                        <parameters>true</parameters>
                         <release>${maven.compiler.release}</release>
                     </configuration>
                 </plugin>

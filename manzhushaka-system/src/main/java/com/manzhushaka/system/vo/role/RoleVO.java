@@ -3,6 +3,7 @@ package com.manzhushaka.system.vo.role;
 import com.manzhushaka.common.enums.DataScopeType;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class RoleVO {
     private Long id;
@@ -11,6 +12,7 @@ public class RoleVO {
     private DataScopeType dataScope;
     private Integer status;
     private LocalDateTime createTime;
+    private List<Long> menuIds;
 
     public Long getId() {
         return id;
@@ -58,5 +60,13 @@ public class RoleVO {
 
     public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
+    }
+
+    public List<Long> getMenuIds() {
+        return menuIds;
+    }
+
+    public void setMenuIds(List<Long> menuIds) {
+        this.menuIds = menuIds;
     }
 }

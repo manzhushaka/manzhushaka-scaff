@@ -25,66 +25,53 @@
             :loading="loadingTypes"
             row-key="id"
             :pagination="typePagination"
+            :columns="typeColumns"
             @page-change="handleTypePageChange"
             @row-click="handleRowClick"
           >
-            <a-table-column data-index="dictName" title="字典类型">
-              <template #cell="{ record }">
-                <div class="primary-cell">
-                  <div class="primary-cell-title">{{ record.dictName }}</div>
-                  <div class="primary-cell-sub code-text">{{ record.dictCode }}</div>
-                </div>
-              </template>
-            </a-table-column>
-            <a-table-column data-index="statusText" title="状态" :width="110">
-              <template #cell="{ record }">
-                <a-tag :color="record.statusValue === 1 ? 'green' : 'red'">{{ record.statusText }}</a-tag>
-              </template>
-            </a-table-column>
-            <a-table-column data-index="createTimeText" title="创建时间" :width="180" />
-            <a-table-column title="操作" :width="220">
-              <template #cell="{ record }">
-                <a-space>
-                  <a-button size="mini" v-permission="'system:dict:update'" @click.stop="openTypeEdit(record.id)">编辑</a-button>
-                  <a-popconfirm content="确认删除该字典类型吗？" @ok="handleDeleteType(record.id)">
-                    <a-button size="mini" status="danger" v-permission="'system:dict:delete'" @click.stop>
-                      删除
-                    </a-button>
-                  </a-popconfirm>
-                </a-space>
-              </template>
-            </a-table-column>
+            <template #typeCell="{ record }">
+              <div class="primary-cell">
+                <div class="primary-cell-title">{{ record.dictName }}</div>
+                <div class="primary-cell-sub code-text">{{ record.dictCode }}</div>
+              </div>
+            </template>
+            <template #statusCell="{ record }">
+              <a-tag :color="record.statusValue === 1 ? 'green' : 'red'">{{ record.statusText }}</a-tag>
+            </template>
+            <template #typeActionsCell="{ record }">
+              <a-space>
+                <a-button size="mini" v-permission="'system:dict:update'" @click.stop="openTypeEdit(record.id)">编辑</a-button>
+                <a-popconfirm content="确认删除该字典类型吗？" @ok="handleDeleteType(record.id)">
+                  <a-button size="mini" status="danger" v-permission="'system:dict:delete'" @click.stop>
+                    删除
+                  </a-button>
+                </a-popconfirm>
+              </a-space>
+            </template>
           </a-table>
         </div>
       </a-col>
       <a-col :span="12">
         <div class="page-card table-card">
           <div class="section-title">字典项</div>
-          <a-table :data="itemRows" :loading="loadingItems" row-key="id" :pagination="false">
-            <a-table-column data-index="itemLabel" title="字典项">
-              <template #cell="{ record }">
-                <div class="primary-cell">
-                  <div class="primary-cell-title">{{ record.itemLabel }}</div>
-                  <div class="primary-cell-sub code-text">{{ record.itemValue }}</div>
-                </div>
-              </template>
-            </a-table-column>
-            <a-table-column data-index="sort" title="排序" :width="90" />
-            <a-table-column data-index="statusText" title="状态" :width="110">
-              <template #cell="{ record }">
-                <a-tag :color="record.statusValue === 1 ? 'green' : 'red'">{{ record.statusText }}</a-tag>
-              </template>
-            </a-table-column>
-            <a-table-column title="操作" :width="220">
-              <template #cell="{ record }">
-                <a-space>
-                  <a-button size="mini" v-permission="'system:dict:update'" @click="openItemEdit(record.id)">编辑</a-button>
-                  <a-popconfirm content="确认删除该字典项吗？" @ok="handleDeleteItem(record.id)">
-                    <a-button size="mini" status="danger" v-permission="'system:dict:delete'">删除</a-button>
-                  </a-popconfirm>
-                </a-space>
-              </template>
-            </a-table-column>
+          <a-table :data="itemRows" :loading="loadingItems" row-key="id" :pagination="false" :columns="itemColumns">
+            <template #itemCell="{ record }">
+              <div class="primary-cell">
+                <div class="primary-cell-title">{{ record.itemLabel }}</div>
+                <div class="primary-cell-sub code-text">{{ record.itemValue }}</div>
+              </div>
+            </template>
+            <template #itemStatusCell="{ record }">
+              <a-tag :color="record.statusValue === 1 ? 'green' : 'red'">{{ record.statusText }}</a-tag>
+            </template>
+            <template #itemActionsCell="{ record }">
+              <a-space>
+                <a-button size="mini" v-permission="'system:dict:update'" @click="openItemEdit(record.id)">编辑</a-button>
+                <a-popconfirm content="确认删除该字典项吗？" @ok="handleDeleteItem(record.id)">
+                  <a-button size="mini" status="danger" v-permission="'system:dict:delete'">删除</a-button>
+                </a-popconfirm>
+              </a-space>
+            </template>
           </a-table>
         </div>
       </a-col>
@@ -125,7 +112,7 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue';
-import { Message } from '@arco-design/web-vue';
+import { Message, type TableColumnData } from '@arco-design/web-vue';
 import PageHeaderCard from '@/components/PageHeaderCard.vue';
 import { systemApi } from '@/api/system';
 import type { DictItemForm, DictItemRow, DictTypeForm, DictTypeRow, DictTypeVO } from '@/types/system';
@@ -145,6 +132,54 @@ const selectedTypeId = ref<number | null>(null);
 const typeRows = ref<DictTypeRow[]>([]);
 const itemRows = ref<DictItemRow[]>([]);
 const currentItems = ref<Record<number, DictItemRow>>({});
+const typeColumns: TableColumnData[] = [
+  {
+    dataIndex: 'dictName',
+    title: '字典类型',
+    slotName: 'typeCell',
+  },
+  {
+    dataIndex: 'statusText',
+    title: '状态',
+    width: 110,
+    slotName: 'statusCell',
+  },
+  {
+    dataIndex: 'createTimeText',
+    title: '创建时间',
+    width: 180,
+  },
+  {
+    dataIndex: 'actions',
+    title: '操作',
+    width: 220,
+    slotName: 'typeActionsCell',
+  },
+];
+const itemColumns: TableColumnData[] = [
+  {
+    dataIndex: 'itemLabel',
+    title: '字典项',
+    slotName: 'itemCell',
+  },
+  {
+    dataIndex: 'sort',
+    title: '排序',
+    width: 90,
+  },
+  {
+    dataIndex: 'statusText',
+    title: '状态',
+    width: 110,
+    slotName: 'itemStatusCell',
+  },
+  {
+    dataIndex: 'actions',
+    title: '操作',
+    width: 220,
+    slotName: 'itemActionsCell',
+  },
+];
 
 const typeForm = reactive<DictTypeForm>({
   dictName: '',

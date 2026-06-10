@@ -1,44 +1,181 @@
 # manzhushaka-scaff
 
-基于 `Spring Boot 3`、`Sa-Token`、`MyBatis-Plus`、`Redis Stream` 和 `Vue 3` 的管理系统脚手架。
+`manzhushaka-scaff` 是一个面向后台管理系统的一体化脚手架仓库，采用「后端 Maven 多模块单体 + 前端独立 `ui-admin`」的组织方式，当前聚焦第一版交付，覆盖认证、权限、系统管理、日志审计、导入导出、平台任务和消息链路等核心能力。
 
-当前仓库面向第一版交付，目标范围包括：
+项目仍处于脚手架建设阶段。README 以当前仓库已经落地的模块、接口、页面和配置为准，方便后续继续扩展与二次开发。
 
-- 后端 Maven 多模块单体
-- 前端 `ui-admin` 独立项目
-- 认证、权限、菜单、数据权限、日志、消息总线
-- 用户、角色、部门、菜单、字典、参数、日志管理
-- 同仓库维护数据库初始化脚本与交付说明
+## 项目特点
 
-## 项目结构
+- 后端按领域与基础设施拆分为多个 Maven 模块，便于复用与边界控制。
+- 前端采用 Vue 3 管理台方案，支持动态路由、按钮级权限控制和统一页面模式复用。
+- 认证与权限基于 `Sa-Token`，支持当前用户信息、菜单装载、权限码下发。
+- 审计日志采用 `AOP + Redis Stream` 异步链路，兼顾解耦与可追踪性。
+- 平台能力内置导入导出任务、Quartz 定时任务和平台配置管理。
+
+## 技术栈
+
+### 后端
+
+- `Java 17`
+- `Maven 3.9+`
+- `Spring Boot 3.3.2`
+- `Sa-Token 1.39.0`
+- `MyBatis-Plus 3.5.7`
+- `MySQL 8.0`
+- `Redis 7.0+`
+- `Quartz`
+- `Spring Validation`
+- `Hutool Captcha`
+- `Baidu BOS SDK`
+
+### 前端
+
+- `Vue 3.5`
+- `Vite 5`
+- `TypeScript 5.8`
+- `Pinia`
+- `Vue Router 4`
+- `Axios`
+- `Arco Design Vue`
+
+## 仓库结构
 
 ```text
 .
-├── manzhushaka-auth/        认证与登录能力
-├── manzhushaka-boot/        Spring Boot 启动装配模块
-├── manzhushaka-common/      公共模型、枚举、注解、上下文
-├── manzhushaka-db/          数据库基础设施与实体元数据
-├── manzhushaka-framework/   Web、权限、日志、数据权限等基础框架
-├── manzhushaka-mq/          Redis Stream 消息链路
-├── manzhushaka-system/      系统管理领域能力
+├── manzhushaka-auth/        认证模块：登录、验证码、当前用户、菜单与权限装载
+├── manzhushaka-boot/        启动装配模块：Spring Boot 入口、application 配置
+├── manzhushaka-common/      公共模型、枚举、注解、上下文、SPI 与工具类
+├── manzhushaka-db/          数据库基础设施、实体与 Mapper
+├── manzhushaka-framework/   Web、鉴权、数据权限、日志切面、Quartz、存储能力
+├── manzhushaka-mq/          Redis Stream 消息发布与消费链路
+├── manzhushaka-system/      系统管理领域：用户、角色、部门、菜单、字典等
 ├── sql/                     MySQL 初始化脚本
-└── ui-admin/                Vue 3 管理台（按 spec 独立维护）
+└── ui-admin/                Vue 3 管理台
 ```
 
-## 环境依赖
+## 后端模块说明
 
-- JDK 17
-- Maven 3.9+
-- MySQL 8.0
-- Redis 7.0+
-- Node.js 20+
-- pnpm 9+
+### `manzhushaka-boot`
+
+启动模块，负责聚合其余业务模块并提供统一运行入口。
+
+- 提供 Spring Boot 启动能力。
+- 加载 `application.yml`、`application-dev.yml`、`application-prod.yml`。
+- 默认后端端口为 `8080`。
+- 当前已启用 Quartz 调度器，`job-store-type` 为 `memory`。
+
+### `manzhushaka-common`
+
+公共基础模块，承载各业务模块共享的基础定义。
+
+- 通用响应模型 `ApiResponse`。
+- 业务注解，如操作日志、数据权限等。
+- 登录用户上下文、数据权限上下文。
+- 公共枚举、异常与 SPI 扩展点。
+
+### `manzhushaka-db`
+
+数据访问基础模块，提供实体、Mapper 和持久层支撑。
+
+- 集成 `MyBatis-Plus`。
+- 对接 `MySQL` 数据源。
+- 为系统管理、认证、日志、任务等领域提供表结构映射。
+
+### `manzhushaka-framework`
+
+框架能力模块，负责横切逻辑和基础设施接入。
+
+- `Sa-Token` 鉴权配置与登录态透传。
+- 全局异常处理。
+- `@DataScope` 数据权限切面与 SQL 条件拼装。
+- `@OpLog` 操作日志切面。
+- Quartz 任务调度封装。
+- BOS 对象存储接入，供导入导出任务生成文件与下载链接。
+
+### `manzhushaka-auth`
+
+认证模块，负责登录流程及当前用户上下文装载。
+
+当前已落地接口：
+
+- `GET /api/auth/captcha`：获取验证码。
+- `POST /api/auth/login`：账号密码登录。
+- `POST /api/auth/logout`：登出。
+- `GET /api/auth/me`、`GET /api/auth/profile`：获取当前用户信息。
+- `GET /api/auth/menus`：获取当前用户菜单树。
+- `GET /api/auth/permissions`：获取当前用户权限码。
+
+### `manzhushaka-system`
+
+系统管理领域模块，负责后台管理台的核心业务。
+
+当前已落地接口分组：
+
+- 用户管理：用户分页、详情、新增、编辑、删除。
+- 角色管理：角色分页、详情、新增、编辑、删除、选项列表。
+- 部门管理：部门树、详情、新增、编辑、删除、选项列表。
+- 菜单管理：菜单列表、菜单树、路由装载、详情、新增、编辑、删除。
+- 字典管理：字典类型分页、字典项查询、按字典编码查询、新增、编辑、删除。
+- 参数管理：系统参数分页、详情、新增、编辑、删除。
+- 日志管理：登录日志分页、操作日志分页。
+- 导入导出任务：任务分页、场景选项、创建导入任务、创建导出任务、生成下载链接。
+- 平台任务：任务分页、详情、新增、编辑、删除、暂停、恢复、手动触发、执行日志查询。
+- 平台配置：读取与保存平台配置。
+
+### `manzhushaka-mq`
+
+消息链路模块，当前围绕操作日志异步落库实现。
+
+- 通过 `Redis Stream` 发布操作日志事件。
+- 消费 `op log` 流并落库到 `sys_op_log`。
+- 支持失败重试与死信流转。
+
+## 前端功能模块
+
+前端管理台位于 `ui-admin/`，当前已落地页面与能力如下：
+
+- 登录页：账号密码登录、验证码刷新。
+- 仪表盘：`/dashboard` 首页入口。
+- 用户管理：用户列表、新增、编辑、删除。
+- 角色管理：角色列表、数据权限配置、菜单权限配置。
+- 部门管理：部门树管理。
+- 菜单管理：菜单树、路由字段与权限标识维护。
+- 字典管理：字典类型与字典项维护。
+- 参数管理：系统参数维护。
+- 登录日志：登录记录查询。
+- 操作日志：操作审计记录查询。
+- 导入任务：上传文件并创建导入任务。
+- 导出任务：创建导出任务并查看结果文件。
+- 平台任务：定时任务维护、手动触发、查看执行日志。
+- 平台配置：平台级配置维护。
+
+前端当前具备的基础机制：
+
+- 基于后端菜单数据动态生成路由。
+- 基于权限码的按钮级显隐控制。
+- 使用 `Pinia` 管理登录态、菜单和权限集合。
+- 通过 Vite 代理将 `/api` 转发到 `http://127.0.0.1:8080`。
+
+## 业务功能总览
+
+从交付视角看，当前脚手架已经覆盖以下核心功能模块：
+
+| 功能模块 | 说明 |
+| --- | --- |
+| 认证中心 | 登录、登出、验证码、当前用户、菜单与权限装载 |
+| 权限中心 | 角色权限、菜单权限、按钮权限、数据权限 |
+| 组织中心 | 用户、角色、部门、菜单 |
+| 配置中心 | 字典、系统参数、平台配置 |
+| 审计中心 | 登录日志、操作日志 |
+| 数据任务中心 | 导入任务、导出任务、文件下载 |
+| 平台调度中心 | 定时任务配置、触发、暂停恢复、执行日志 |
+| 消息链路 | 基于 Redis Stream 的操作日志异步投递与消费 |
 
 ## 数据库初始化
 
-初始化脚本位于 [sql/manzhushaka_init.sql](/Users/manzhushaka/CodexProject/manzhushaka-scaff/sql/manzhushaka_init.sql)。
+初始化脚本位于 `sql/manzhushaka_init.sql`。
 
-推荐先创建数据库，再执行脚本：
+推荐先创建数据库：
 
 ```sql
 CREATE DATABASE IF NOT EXISTS manzhushaka
@@ -46,11 +183,13 @@ CREATE DATABASE IF NOT EXISTS manzhushaka
   COLLATE utf8mb4_0900_ai_ci;
 ```
 
+再执行初始化脚本：
+
 ```bash
 mysql -uroot -p manzhushaka < sql/manzhushaka_init.sql
 ```
 
-脚本覆盖以下第一版表与基础数据：
+当前脚本会初始化以下核心表：
 
 - `sys_user`
 - `sys_role`
@@ -61,40 +200,56 @@ mysql -uroot -p manzhushaka < sql/manzhushaka_init.sql
 - `sys_dict_type`
 - `sys_dict_item`
 - `sys_config`
-- `sys_op_log`
+- `sys_import_export_task`
+- `sys_job`
+- `sys_job_log`
 - `sys_login_log`
+- `sys_op_log`
 
-## 环境变量说明
+## 运行环境
 
-第一版建议通过环境变量注入后端运行参数，推荐键名如下：
+- `JDK 17`
+- `Maven 3.9+`
+- `MySQL 8.0`
+- `Redis 7.0+`
+- `Node.js 20+`
+- `pnpm 9+`
 
-| 变量名 | 说明 | 示例 |
+## 环境变量
+
+### 基础环境变量
+
+| 变量名 | 说明 | 默认值或示例 |
 | --- | --- | --- |
-| `SPRING_PROFILES_ACTIVE` | Spring Boot 运行环境 | `dev` |
+| `ACTIVE` | 当前配置文件直接读取的运行环境 | `dev` |
+| `SPRING_PROFILES_ACTIVE` | Spring Boot 标准运行环境变量，也可用于覆盖 profile | `dev` |
 | `DB_URL` | MySQL 连接串 | `jdbc:mysql://127.0.0.1:3306/manzhushaka?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai` |
 | `DB_USERNAME` | MySQL 用户名 | `root` |
 | `DB_PASSWORD` | MySQL 密码 | `root` |
-| `REDIS_HOST` | Redis 主机 | `127.0.0.1` |
+| `REDIS_HOST` | Redis 地址 | `127.0.0.1` |
 | `REDIS_PORT` | Redis 端口 | `6379` |
 
-当前仓库的 [application-prod.yml](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-boot/src/main/resources/application-prod.yml) 已接入以上数据库和 Redis 配置键。默认运行 profile 按当前仓库口径使用 `dev`。
+### 导入导出相关可选变量
 
-## 后端启动
+| 变量名 | 说明 |
+| --- | --- |
+| `BOS_ENDPOINT` | 百度 BOS 接入地址 |
+| `BOS_BUCKET` | BOS Bucket 名称 |
+| `BOS_ACCESS_KEY_ID` | BOS Access Key |
+| `BOS_SECRET_ACCESS_KEY` | BOS Secret Key |
+| `BOS_BASE_PATH` | 导入导出文件基础路径 |
+| `BOS_DOWNLOAD_EXPIRE_SECONDS` | 下载链接有效期，默认 `900` 秒 |
 
-后端采用 Maven 多模块单体，启动入口为 `manzhushaka-boot`。
+## 快速开始
+
+### 1. 启动后端
 
 ```bash
 mvn clean package
 ```
 
 ```bash
-mvn -pl manzhushaka-boot spring-boot:run
-```
-
-如果使用环境变量启动，可参考：
-
-```bash
-export SPRING_PROFILES_ACTIVE=dev
+export ACTIVE=dev
 export DB_URL='jdbc:mysql://127.0.0.1:3306/manzhushaka?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai'
 export DB_USERNAME=root
 export DB_PASSWORD=root
@@ -103,11 +258,11 @@ export REDIS_PORT=6379
 mvn -pl manzhushaka-boot spring-boot:run
 ```
 
-## 前端启动
+后端默认访问地址：
 
-按 spec，前端管理台位于 `ui-admin/`，与后端分仓目录、同仓库维护。
+- `http://127.0.0.1:8080`
 
-常用启动命令如下：
+### 2. 启动前端
 
 ```bash
 cd ui-admin
@@ -115,43 +270,49 @@ pnpm install
 pnpm dev
 ```
 
-生产构建命令：
+前端默认访问地址：
+
+- `http://127.0.0.1:5173`
+
+前端构建命令：
 
 ```bash
 cd ui-admin
 pnpm build
 ```
 
-说明：当前分支如果尚未同步任务 5 的前端产物，`ui-admin/` 目录可能暂未出现；届时请先合入对应前端脚手架提交，再执行上述命令。
+## 常用校验命令
 
-## 默认账号
+### 后端
 
-初始化脚本会写入一个系统管理员账号：
+```bash
+mvn clean package
+mvn -pl manzhushaka-auth test
+mvn -pl manzhushaka-framework test
+```
+
+### 前端
+
+```bash
+cd ui-admin
+pnpm build
+pnpm test:unit
+pnpm check:sidebar
+pnpm check:mock-menus
+```
+
+## 默认初始化账号
+
+初始化 SQL 当前会写入一个管理员账号：
 
 - 用户名：`admin`
 - 密码：`Admin@123456`
-- 角色：`SUPER_ADMIN`
-- 部门：`manzhushaka`
 
-说明：当前脚本中的初始密码以第一版演示可读性为先写入数据库，正式接入登录校验时应尽快切换为安全哈希存储，并在首登后强制修改默认密码。
+该默认密码仅适用于本地初始化和联调演示，正式环境应改为安全哈希存储，并在首次登录后尽快重置。
 
-登录与操作日志字段约定：
+## 当前阶段说明
 
-- `sys_role.data_scope` 使用字符串枚举：`ALL`、`DEPT_AND_CHILD`、`DEPT`、`SELF`
-- `sys_menu.menu_type` 使用字符串枚举：`DIR`、`MENU`、`BUTTON`
-- `sys_login_log.login_status` 使用字符串枚举：`SUCCESS`、`FAIL`
-
-## 基础数据说明
-
-第一版初始化数据包含：
-
-- 1 个根部门和 1 个默认管理员角色
-- 管理台核心菜单：仪表盘、系统管理、用户管理、角色管理、部门管理、菜单管理、字典管理、参数管理、登录日志、操作日志
-- 基础字典：用户状态、通用启停状态、是否枚举
-- 基础参数：系统名称、默认密码、前端标题
-
-## 当前交付边界
-
-- 本次 README 与 SQL 以 spec 第一版为准，重点覆盖初始化与启动说明。
-- 当前仓库内部分模块仍处于脚手架建设阶段，README 中的前端与环境变量章节同时承担交付说明作用。
-- 若后续认证实现确定了密码加密方案、配置文件命名或前端端口约定，应同步更新本 README 与初始化脚本。
+- 当前仓库已经具备一版管理台所需的核心骨架与主要系统管理能力。
+- 定时任务当前使用内存型 Quartz 存储，适合本地开发和脚手架阶段验证。
+- 导入导出依赖 BOS 配置；如未配置对象存储，仅相关任务能力会受限。
+- 新增需求时，建议先复用已有模块边界、页面模式和权限控制方式，再做局部扩展。

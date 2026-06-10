@@ -1,17 +1,18 @@
 <template>
-  <div class="page-card header-card" :class="`header-card--${mode}`">
-    <div v-if="showHeading" class="header-content">
-      <div v-if="eyebrow" class="eyebrow">{{ eyebrow }}</div>
-      <div v-if="title" class="title-row">
-        <div class="title">{{ title }}</div>
-        <div class="title-accent"></div>
+  <a-card class="page-card page-header-card" :bordered="false">
+    <div class="page-header-card__inner" :class="`page-header-card__inner--${mode}`">
+      <div v-if="showHeading" class="header-content">
+        <div v-if="eyebrow" class="eyebrow">{{ eyebrow }}</div>
+        <div v-if="title" class="title-row">
+          <div class="title">{{ title }}</div>
+        </div>
+        <div v-if="description" class="description">{{ description }}</div>
       </div>
-      <div v-if="description" class="description">{{ description }}</div>
+      <div class="header-actions" :class="{ 'header-actions--stretch': !showHeading }">
+        <slot />
+      </div>
     </div>
-    <div class="header-actions" :class="{ 'header-actions--stretch': !showHeading }">
-      <slot />
-    </div>
-  </div>
+  </a-card>
 </template>
 
 <script setup lang="ts">
@@ -25,7 +26,7 @@ const props = withDefaults(
     mode?: 'header' | 'toolbar';
   }>(),
   {
-    eyebrow: 'Management Module',
+    eyebrow: '',
     mode: 'header',
   },
 );
@@ -34,27 +35,26 @@ const showHeading = computed(() => props.mode === 'header' && Boolean(props.titl
 </script>
 
 <style scoped>
-.header-card {
+.page-header-card {
+  margin-bottom: 18px;
+}
+
+.page-header-card :deep(.arco-card-body) {
+  padding: 0;
+}
+
+.page-header-card__inner {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 20px;
-  margin-bottom: 18px;
   padding: 22px 24px;
 }
 
-.header-card--toolbar {
+.page-header-card__inner--toolbar {
   align-items: center;
   gap: 14px;
   padding: 16px 18px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(251, 253, 255, 0.94));
-  border-color: rgba(15, 23, 42, 0.06);
-  border-radius: 20px;
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
-}
-
-.header-card--toolbar::before {
-  content: none;
 }
 
 .header-content {
@@ -64,16 +64,13 @@ const showHeading = computed(() => props.mode === 'header' && Boolean(props.titl
 .eyebrow {
   color: #7888a0;
   font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-weight: 600;
 }
 
 .title-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-top: 8px;
+  margin-top: 4px;
 }
 
 .title {
@@ -82,18 +79,12 @@ const showHeading = computed(() => props.mode === 'header' && Boolean(props.titl
   font-weight: 700;
 }
 
-.title-accent {
-  width: 44px;
-  height: 10px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, rgba(36, 91, 219, 0.95), rgba(93, 176, 255, 0.36));
-}
-
 .description {
-  max-width: 640px;
+  max-width: 720px;
   margin-top: 8px;
   color: #627188;
-  line-height: 1.65;
+  font-size: 14px;
+  line-height: 1.6;
 }
 
 .header-actions {
@@ -103,19 +94,19 @@ const showHeading = computed(() => props.mode === 'header' && Boolean(props.titl
   min-height: 52px;
 }
 
-.header-card--toolbar .header-actions,
+.page-header-card__inner--toolbar .header-actions,
 .header-actions--stretch {
   width: 100%;
   min-height: 0;
   justify-content: flex-start;
 }
 
-.header-card--toolbar :deep(.arco-space) {
+.page-header-card__inner--toolbar :deep(.arco-space) {
   row-gap: 12px;
 }
 
 @media (max-width: 768px) {
-  .header-card {
+  .page-header-card__inner {
     flex-direction: column;
     padding: 18px;
   }

@@ -27,22 +27,15 @@
         :loading="loading"
         row-key="id"
         :pagination="pagination"
+        :columns="columns"
         @page-change="handlePageChange"
       >
-        <a-table-column data-index="username" title="登录账号" />
-        <a-table-column data-index="loginStatus" title="登录结果" :width="110">
-          <template #cell="{ record }">
-            <a-tag :color="record.loginStatusValue === 'SUCCESS' ? 'green' : 'red'">{{ record.loginStatus }}</a-tag>
-          </template>
-        </a-table-column>
-        <a-table-column data-index="ip" title="来源 IP">
-          <template #cell="{ record }">
-            <span class="code-text">{{ record.ip }}</span>
-          </template>
-        </a-table-column>
-        <a-table-column data-index="message" title="结果说明" />
-        <a-table-column data-index="userAgent" title="User Agent" />
-        <a-table-column data-index="createTimeText" title="时间" :width="180" />
+        <template #loginStatusCell="{ record }">
+          <a-tag :color="record.loginStatusValue === 'SUCCESS' ? 'green' : 'red'">{{ record.loginStatus }}</a-tag>
+        </template>
+        <template #ipCell="{ record }">
+          <span class="code-text">{{ record.ip }}</span>
+        </template>
       </a-table>
     </div>
   </div>
@@ -50,6 +43,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import type { TableColumnData } from '@arco-design/web-vue';
 import PageHeaderCard from '@/components/PageHeaderCard.vue';
 import { systemApi } from '@/api/system';
 import type { LoginLogRow } from '@/types/system';
@@ -62,6 +56,36 @@ const current = ref(1);
 const pageSize = ref(10);
 const total = ref(0);
 const rows = ref<LoginLogRow[]>([]);
+const columns: TableColumnData[] = [
+  {
+    dataIndex: 'username',
+    title: '登录账号',
+  },
+  {
+    dataIndex: 'loginStatus',
+    title: '登录结果',
+    width: 110,
+    slotName: 'loginStatusCell',
+  },
+  {
+    dataIndex: 'ip',
+    title: '来源 IP',
+    slotName: 'ipCell',
+  },
+  {
+    dataIndex: 'message',
+    title: '结果说明',
+  },
+  {
+    dataIndex: 'userAgent',
+    title: 'User Agent',
+  },
+  {
+    dataIndex: 'createTimeText',
+    title: '时间',
+    width: 180,
+  },
+];
 
 const pagination = computed(() => ({
   current: current.value,

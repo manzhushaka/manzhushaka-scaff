@@ -1,10 +1,21 @@
 import axios from 'axios';
 import { Message } from '@arco-design/web-vue';
 import { getToken } from '@/utils/storage';
+import request from './request';
+import { buildSystemAuthHeader, unwrapSystemResponse } from './system-client';
 import type {
   ConfigForm,
   ConfigQuery,
   ConfigVO,
+  DownloadUrlVO,
+  ExportTaskCreateForm,
+  PlatformConfigVO,
+  PlatformJobForm,
+  PlatformJobLogDetailVO,
+  PlatformJobLogQuery,
+  PlatformJobLogVO,
+  PlatformJobQuery,
+  PlatformJobVO,
   DepartmentRecord,
   DeptForm,
   DeptQuery,
@@ -15,11 +26,15 @@ import type {
   DictTypeQuery,
   DictTypeVO,
   EntityRecord,
+  ImportExportTaskQuery,
+  ImportExportTaskVO,
   LoginLogQuery,
   LoginLogVO,
   MenuForm,
   MenuQuery,
   MenuVO,
+  MqMessageQuery,
+  MqMessageVO,
   OpLogQuery,
   OpLogVO,
   PageResult,
@@ -50,18 +65,29 @@ const systemRequest = axios.create({
 });
 
 systemRequest.interceptors.request.use((config) => {
-  const token = getToken();
+  const token = buildSystemAuthHeader(getToken());
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    config.headers.Authorization = token;
   }
   return config;
 });
 
 systemRequest.interceptors.response.use(
-  (response) => response.data.data,
+  (response) => {
+    try {
+      return unwrapSystemResponse(response.data);
+    } catch (error) {
+      const normalized = error instanceof Error ? error : new Error('请求失败，请稍后重试');
+      Message.error(normalized.message);
+      return Promise.reject(normalized);
+    }
+  },
   (error) => {
-    Message.error(error?.response?.data?.message ?? '请求失败，请稍后重试');
-    return Promise.reject(error);
+    const normalized = error instanceof Error
+      ? error
+      : new Error(error?.response?.data?.message ?? '请求失败，请稍后重试');
+    Message.error(normalized.message);
+    return Promise.reject(normalized);
   },
 );
 
@@ -137,22 +163,22 @@ export const systemApi = {
   },
 
   listMenus(params?: MenuQuery) {
-    return get<MenuVO[]>('/system/menus', params);
+    return request.get<MenuVO[]>('/system/menus', { params });
   },
   listMenuOptions() {
-    return get<SelectOption[]>('/system/menus/options');
+    return request.get<SelectOption[]>('/system/menus/options');
   },
   getMenu(id: number) {
-    return get<MenuVO>(`/system/menus/${id}`);
+    return request.get<MenuVO>(`/system/menus/${id}`);
   },
   createMenu(payload: MenuForm) {
-    return post<number>('/system/menus', payload);
+    return request.post<number>('/system/menus', payload);
   },
   updateMenu(id: number, payload: MenuForm) {
-    return put<void>(`/system/menus/${id}`, payload);
+    return request.put<void>(`/system/menus/${id}`, payload);
   },
   deleteMenu(id: number) {
-    return del<void>(`/system/menus/${id}`);
+    return request.delete<void>(`/system/menus/${id}`);
   },
 
   listDictTypes(params: DictTypeQuery) {
@@ -201,12 +227,78 @@ export const systemApi = {
   deleteConfig(id: number) {
     return del<void>(`/system/configs/${id}`);
   },
+  getPlatformConfig() {
+    return get<PlatformConfigVO>('/system/platform-config');
+  },
+  updatePlatformConfig(payload: PlatformConfigVO) {
+    return put<void>('/system/platform-config', payload);
+  },
+  listPlatformJobs(params: PlatformJobQuery) {
+    return get<PageResult<PlatformJobVO>>('/system/jobs', params);
+  },
+  getPlatformJob(id: number) {
+    return get<PlatformJobVO>(`/system/jobs/${id}`);
+  },
+  createPlatformJob(payload: PlatformJobForm) {
+    return post<number>('/system/jobs', payload);
+  },
+  updatePlatformJob(id: number, payload: PlatformJobForm) {
+    return put<void>(`/system/jobs/${id}`, payload);
+  },
+  deletePlatformJob(id: number) {
+    return del<void>(`/system/jobs/${id}`);
+  },
+  pausePlatformJob(id: number) {
+    return post<void>(`/system/jobs/${id}/pause`);
+  },
+  resumePlatformJob(id: number) {
+    return post<void>(`/system/jobs/${id}/resume`);
+  },
+  triggerPlatformJob(id: number) {
+    return post<void>(`/system/jobs/${id}/trigger`);
+  },
+  listPlatformJobHandlerOptions() {
+    return get<SelectOption[]>('/system/jobs/handlers/options');
+  },
+  listPlatformJobLogs(id: number, params: PlatformJobLogQuery) {
+    return get<PageResult<PlatformJobLogVO>>(`/system/jobs/${id}/logs`, params);
+  },
+  getPlatformJobLogDetail(logId: number) {
+    return get<PlatformJobLogDetailVO>(`/system/jobs/logs/${logId}`);
+  },
 
   listLoginLogs(params: LoginLogQuery) {
     return get<PageResult<LoginLogVO>>('/system/logs/login', params);
   },
   listOpLogs(params: OpLogQuery) {
     return get<PageResult<OpLogVO>>('/system/logs/op', params);
+  },
+  listMqMessages(params: MqMessageQuery) {
+    return get<PageResult<MqMessageVO>>('/system/logs/mq-messages', params);
+  },
+  retryMqMessage(id: number) {
+    return post<void>(`/system/logs/mq-messages/${id}/retry`);
+  },
+  listImportExportTasks(params: ImportExportTaskQuery) {
+    return get<PageResult<ImportExportTaskVO>>('/system/io-tasks', params);
+  },
+  listImportExportSceneOptions(taskType: 'EXPORT' | 'IMPORT') {
+    return get<SelectOption[]>('/system/io-tasks/scenes', { taskType });
+  },
+  createExportTask(payload: ExportTaskCreateForm) {
+    return post<number>('/system/io-tasks/exports', payload);
+  },
+  createImportTask(payload: { bizType: string; taskName?: string; file: File }) {
+    const formData = new FormData();
+    formData.append('bizType', payload.bizType);
+    if (payload.taskName) {
+      formData.append('taskName', payload.taskName);
+    }
+    formData.append('file', payload.file);
+    return post<number>('/system/io-tasks/imports', formData);
+  },
+  getImportExportDownloadUrl(id: number, fileRole: 'SOURCE' | 'RESULT') {
+    return get<DownloadUrlVO>(`/system/io-tasks/${id}/download-url`, { fileRole });
   },
 };
 
@@ -385,4 +477,3 @@ export async function editEntity(_key: string, _id: number, _payload: Record<str
 export async function deleteEntity(_key: string, _id: number) {
   return true;
 }
-

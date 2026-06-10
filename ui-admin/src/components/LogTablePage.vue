@@ -14,19 +14,14 @@
     </PageHeaderCard>
 
     <div class="page-card table-card">
-      <a-table :data="rows" :loading="loading" :pagination="false" row-key="id">
-        <a-table-column data-index="name" title="日志内容" />
-        <a-table-column data-index="operator" title="操作人" />
-        <a-table-column data-index="ip" title="IP" />
-        <a-table-column data-index="remark" title="说明" />
-        <a-table-column data-index="updatedAt" title="时间" />
-      </a-table>
+      <a-table :data="rows" :loading="loading" :pagination="false" row-key="id" :columns="columns" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import type { TableColumnData } from '@arco-design/web-vue';
 import { getEntityList } from '@/api/system';
 import type { LogRecord } from '@/types/system';
 import PageHeaderCard from './PageHeaderCard.vue';
@@ -41,6 +36,28 @@ const props = defineProps<{
 const loading = ref(false);
 const keyword = ref('');
 const rows = ref<LogRecord[]>([]);
+const columns: TableColumnData[] = [
+  {
+    dataIndex: 'name',
+    title: '日志内容',
+  },
+  {
+    dataIndex: 'operator',
+    title: '操作人',
+  },
+  {
+    dataIndex: 'ip',
+    title: 'IP',
+  },
+  {
+    dataIndex: 'remark',
+    title: '说明',
+  },
+  {
+    dataIndex: 'updatedAt',
+    title: '时间',
+  },
+];
 
 async function fetchRows() {
   loading.value = true;

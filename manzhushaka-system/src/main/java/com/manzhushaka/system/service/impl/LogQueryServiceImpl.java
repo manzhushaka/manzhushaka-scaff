@@ -69,16 +69,39 @@ public class LogQueryServiceImpl implements LogQueryService {
 
     @Override
     public PageResult<MqMessageVO> pageMqMessages(MqMessageQuery query) {
-        LambdaQueryWrapper<SysMqMessage> wrapper = new LambdaQueryWrapper<SysMqMessage>()
-            .like(StringUtils.hasText(query.getStreamKey()), SysMqMessage::getStreamKey, query.getStreamKey())
-            .like(StringUtils.hasText(query.getEventType()), SysMqMessage::getEventType, query.getEventType())
-            .like(StringUtils.hasText(query.getBizKey()), SysMqMessage::getBizKey, query.getBizKey())
-            .like(StringUtils.hasText(query.getTraceId()), SysMqMessage::getTraceId, query.getTraceId())
+        LambdaQueryWrapper<SysMqMessage> wrapper = new LambdaQueryWrapper<SysMqMessage>();
+        if (usesSharedKeyword(query)) {
+            String keyword = query.getStreamKey();
+            wrapper.and(nested -> nested
+                .like(SysMqMessage::getStreamKey, keyword)
+                .or()
+                .like(SysMqMessage::getEventType, keyword)
+                .or()
+                .like(SysMqMessage::getBizKey, keyword)
+                .or()
+                .like(SysMqMessage::getTraceId, keyword));
+        } else {
+            wrapper
+                .like(StringUtils.hasText(query.getStreamKey()), SysMqMessage::getStreamKey, query.getStreamKey())
+                .like(StringUtils.hasText(query.getEventType()), SysMqMessage::getEventType, query.getEventType())
+                .like(StringUtils.hasText(query.getBizKey()), SysMqMessage::getBizKey, query.getBizKey())
+                .like(StringUtils.hasText(query.getTraceId()), SysMqMessage::getTraceId, query.getTraceId());
+        }
+        wrapper
             .eq(StringUtils.hasText(query.getStatus()), SysMqMessage::getStatus, query.getStatus())
             .like(StringUtils.hasText(query.getSource()), SysMqMessage::getSource, query.getSource())
             .orderByDesc(SysMqMessage::getCreateTime, SysMqMessage::getId);
         Page<SysMqMessage> page = mqMessageMapper.selectPage(SystemPageSupport.buildPage(query), wrapper);
         return SystemMappingSupport.toPageResult(page, this::toMqMessageVO);
+    }
+
+    private boolean usesSharedKeyword(MqMessageQuery query) {
+        if (!StringUtils.hasText(query.getStreamKey())) {
+            return false;
+        }
+        return query.getStreamKey().equals(query.getEventType())
+            && query.getStreamKey().equals(query.getBizKey())
+            && query.getStreamKey().equals(query.getTraceId());
     }
 
     private LoginLogVO toLoginLogVO(SysLoginLog entity) {

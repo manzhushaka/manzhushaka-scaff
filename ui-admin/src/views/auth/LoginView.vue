@@ -20,7 +20,7 @@
       </section>
 
       <section class="login-panel">
-        <div class="login-card">
+        <a-card class="login-card" :bordered="false">
           <div class="card-header">
             <h2>登录</h2>
             <p>请输入您的账号、密码和图片验证码</p>
@@ -56,21 +56,21 @@
                   placeholder="请输入图片验证码"
                   allow-clear
                 />
-                <button
+                <a-button
                   class="captcha-trigger"
-                  type="button"
-                  :disabled="captchaLoading"
+                  type="outline"
+                  :loading="captchaLoading"
                   @click="refreshCaptcha"
                 >
                   <img v-if="captchaImage" :src="captchaImage" alt="登录验证码" />
-                  <span v-else class="captcha-placeholder">{{ captchaLoading ? '加载中...' : '点击刷新' }}</span>
-                </button>
+                  <span v-else class="captcha-placeholder">点击刷新</span>
+                </a-button>
               </div>
             </a-form-item>
 
             <div class="form-meta">
               <a-checkbox v-model="form.remember">记住我</a-checkbox>
-              <button class="text-button" type="button" @click="handleAssist('找回密码')">忘记密码？</button>
+              <a-link class="assist-link" @click="handleAssist('找回密码')">忘记密码？</a-link>
             </div>
 
             <a-button class="login-submit" type="primary" long html-type="submit" :loading="loading">
@@ -78,25 +78,25 @@
             </a-button>
           </a-form>
 
-          <div class="divider-row">
-            <span>其他登录方式</span>
-          </div>
+          <a-divider class="divider-row">其他登录方式</a-divider>
 
-          <div class="social-row">
-            <button
+          <a-space class="social-row" size="large">
+            <a-button
               v-for="item in socialProviders"
               :key="item.name"
-              class="social-button"
-              type="button"
-              :aria-label="item.name"
+              :class="['social-button', `social-button--${item.className}`]"
+              type="outline"
+              shape="circle"
               @click="handleAssist(`${item.name} 登录`)"
             >
               <component :is="item.icon" />
-            </button>
-          </div>
+            </a-button>
+          </a-space>
 
-          <div class="login-hint">默认演示账号：admin，默认密码：Admin@123456，验证码可点击图片刷新。</div>
-        </div>
+          <a-alert class="login-hint" type="info" :show-icon="false">
+            默认演示账号：admin，默认密码：Admin@123456，验证码可点击图片刷新。
+          </a-alert>
+        </a-card>
       </section>
     </div>
   </div>
@@ -129,9 +129,9 @@ const form = reactive({
   remember: true,
 });
 const socialProviders = [
-  { name: 'QQ', icon: IconQqCircleFill },
-  { name: '微信', icon: IconWechat },
-  { name: 'Google', icon: IconGoogle },
+  { name: 'QQ', icon: IconQqCircleFill, className: 'qq' },
+  { name: '微信', icon: IconWechat, className: 'wechat' },
+  { name: 'Google', icon: IconGoogle, className: 'google' },
 ];
 
 async function handleSubmit() {
@@ -227,9 +227,9 @@ onMounted(() => {
 
 .login-hero {
   position: relative;
-  min-height: 640px;
   display: flex;
   align-items: center;
+  min-height: 640px;
   padding: 64px 24px 72px 80px;
   color: #18243d;
 }
@@ -240,36 +240,36 @@ onMounted(() => {
 }
 
 .hero-geometry-panel {
-  left: 8px;
   top: 34px;
+  left: 8px;
   width: 330px;
   height: 480px;
+  border: 1px solid rgba(184, 203, 246, 0.46);
   border-radius: 32px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(225, 235, 255, 0.34));
-  border: 1px solid rgba(184, 203, 246, 0.46);
   box-shadow: 0 36px 70px rgba(132, 154, 200, 0.18);
   transform: rotate(20deg);
 }
 
 .hero-geometry-shadow {
-  left: 4px;
   bottom: 86px;
+  left: 4px;
   width: 650px;
   height: 200px;
   border-radius: 34px;
   background: linear-gradient(135deg, rgba(31, 99, 255, 0.24), rgba(104, 163, 255, 0.04));
-  transform: rotate(32deg);
   box-shadow: 0 18px 60px rgba(83, 124, 216, 0.18);
+  transform: rotate(32deg);
 }
 
 .hero-geometry-accent {
-  left: 185px;
   top: -50px;
+  left: 185px;
   width: 4px;
   height: 760px;
   background: linear-gradient(180deg, rgba(163, 191, 255, 0.12), rgba(255, 255, 255, 0.96), rgba(127, 163, 255, 0.06));
-  transform: rotate(20deg);
   box-shadow: 0 0 12px rgba(255, 255, 255, 0.5);
+  transform: rotate(20deg);
 }
 
 .hero-content {
@@ -303,16 +303,16 @@ onMounted(() => {
 }
 
 .brand-mark::before {
-  right: -8px;
   top: 4px;
+  right: -8px;
   width: 14px;
   height: 14px;
   opacity: 0.7;
 }
 
 .brand-mark::after {
-  left: 5px;
   top: 5px;
+  left: 5px;
   width: 12px;
   height: 12px;
   background: rgba(255, 255, 255, 0.92);
@@ -352,8 +352,8 @@ p {
 
 .hero-note {
   position: absolute;
-  left: 0;
   bottom: 18px;
+  left: 0;
   color: rgba(135, 146, 170, 0.78);
   font-size: 12px;
 }
@@ -365,7 +365,6 @@ p {
 
 .login-card {
   width: 100%;
-  padding: 40px 42px 28px;
   border: 1px solid rgba(255, 255, 255, 0.86);
   border-radius: 28px;
   background: rgba(255, 255, 255, 0.82);
@@ -373,6 +372,10 @@ p {
     0 32px 72px rgba(118, 145, 201, 0.18),
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(16px);
+}
+
+.login-card :deep(.arco-card-body) {
+  padding: 40px 42px 28px;
 }
 
 .card-header {
@@ -405,8 +408,8 @@ p {
 .login-form :deep(.arco-input-wrapper),
 .login-form :deep(.arco-input-password) {
   height: 48px;
-  border-radius: 14px;
   border: 1px solid rgba(196, 209, 232, 0.82);
+  border-radius: 14px;
   background: rgba(255, 255, 255, 0.94);
   box-shadow: inset 0 1px 2px rgba(12, 36, 86, 0.03);
 }
@@ -453,16 +456,19 @@ p {
   width: 148px;
   height: 48px;
   padding: 0;
-  border: 1px solid rgba(196, 209, 232, 0.82);
+  overflow: hidden;
+  border-color: rgba(196, 209, 232, 0.82);
   border-radius: 14px;
   background: linear-gradient(180deg, rgba(248, 251, 255, 0.98), rgba(240, 245, 255, 0.92));
   box-shadow: inset 0 1px 2px rgba(12, 36, 86, 0.03);
-  overflow: hidden;
-  cursor: pointer;
 }
 
-.captcha-trigger:disabled {
-  cursor: wait;
+.captcha-trigger :deep(.arco-btn-content) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
 }
 
 .captcha-trigger img {
@@ -474,10 +480,10 @@ p {
 
 .captcha-placeholder {
   display: inline-flex;
-  width: 100%;
-  height: 100%;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  height: 100%;
   color: #7f8ca5;
   font-size: 13px;
   font-weight: 600;
@@ -495,18 +501,9 @@ p {
   font-size: 13px;
 }
 
-.text-button {
-  padding: 0;
-  border: 0;
-  color: #3974ff;
+.assist-link {
   font-size: 13px;
   font-weight: 600;
-  background: transparent;
-  cursor: pointer;
-}
-
-.text-button:hover {
-  color: #1e5df7;
 }
 
 .login-submit {
@@ -524,63 +521,49 @@ p {
 }
 
 .divider-row {
-  display: flex;
-  align-items: center;
-  gap: 16px;
   margin: 28px 0 22px;
   color: #b0b8c7;
   font-size: 12px;
 }
 
-.divider-row::before,
-.divider-row::after {
-  flex: 1;
-  height: 1px;
-  content: '';
-  background: linear-gradient(90deg, rgba(216, 223, 235, 0), rgba(216, 223, 235, 1) 50%, rgba(216, 223, 235, 0));
+.divider-row :deep(.arco-divider-text) {
+  color: inherit;
 }
 
 .social-row {
   display: flex;
   justify-content: center;
-  gap: 22px;
+  width: 100%;
 }
 
 .social-button {
   width: 48px;
   height: 48px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(214, 221, 233, 0.9);
   border-radius: 50%;
-  color: #4f84ff;
   background: rgba(255, 255, 255, 0.95);
   box-shadow: 0 12px 24px rgba(166, 180, 208, 0.14);
-  cursor: pointer;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    border-color 0.2s ease;
 }
 
-.social-button:nth-child(2) {
+.social-button--qq {
+  color: #4f84ff;
+}
+
+.social-button--wechat {
   color: #17b26a;
 }
 
-.social-button:nth-child(3) {
+.social-button--google {
   color: #f04438;
-}
-
-.social-button:hover {
-  transform: translateY(-2px);
-  border-color: rgba(99, 142, 235, 0.72);
-  box-shadow: 0 16px 28px rgba(144, 166, 205, 0.2);
 }
 
 .login-hint {
   margin-top: 22px;
-  color: #95a1b8;
+  border-radius: 14px;
+  background: rgba(247, 250, 255, 0.92);
+}
+
+.login-hint :deep(.arco-alert-content) {
+  color: #7a88a0;
   font-size: 12px;
   line-height: 1.6;
 }
@@ -613,8 +596,8 @@ p {
 
 @media (max-width: 720px) {
   .login-page::before {
-    left: 50%;
     top: -8%;
+    left: 50%;
     width: 320px;
     height: 420px;
     transform: translateX(-50%) rotate(20deg);
@@ -630,22 +613,22 @@ p {
   }
 
   .hero-geometry-panel {
-    left: -16px;
     top: 34px;
+    left: -16px;
     width: 240px;
     height: 290px;
   }
 
   .hero-geometry-shadow {
-    left: -32px;
     bottom: 58px;
+    left: -32px;
     width: 360px;
     height: 120px;
   }
 
   .hero-geometry-accent {
-    left: 120px;
     top: -12px;
+    left: 120px;
     height: 420px;
   }
 
@@ -658,21 +641,20 @@ p {
   }
 
   .hero-note {
-    left: 0;
     bottom: 8px;
+    left: 0;
+  }
+
+  .login-card :deep(.arco-card-body) {
+    padding: 30px 22px 24px;
   }
 
   .login-card {
-    padding: 30px 22px 24px;
     border-radius: 24px;
   }
 
   .card-header h2 {
     font-size: 34px;
-  }
-
-  .social-row {
-    gap: 16px;
   }
 
   .captcha-row {

@@ -1,0 +1,115 @@
+package com.manzhushaka.system.service.impexp;
+
+import com.manzhushaka.common.context.LoginUser;
+import com.manzhushaka.db.system.entity.SysImportExportTask;
+import com.manzhushaka.db.system.mapper.SysImportExportTaskMapper;
+import com.manzhushaka.framework.storage.ObjectStorageService;
+import org.springframework.util.StringUtils;
+
+import java.time.LocalDateTime;
+
+abstract class BaseImportExportTaskTemplate {
+
+    protected final SysImportExportTaskMapper taskMapper;
+    protected final ObjectStorageService storageService;
+    private final String storageBasePath;
+
+    protected BaseImportExportTaskTemplate(SysImportExportTaskMapper taskMapper, ObjectStorageService storageService) {
+        this(taskMapper, storageService, "import-export");
+    }
+
+    protected BaseImportExportTaskTemplate(
+        SysImportExportTaskMapper taskMapper,
+        ObjectStorageService storageService,
+        String storageBasePath
+    ) {
+        this.taskMapper = taskMapper;
+        this.storageService = storageService;
+        this.storageBasePath = StringUtils.hasText(storageBasePath) ? trimSlashes(storageBasePath) : "import-export";
+    }
+
+    public abstract String bizType();
+
+    public abstract String bizLabel();
+
+    protected abstract String defaultTaskName();
+
+    protected String buildSourceObjectKey(String taskNo, String fileName) {
+        return storageBasePath + "/import/" + taskNo + "/source/" + normalizeFileName(fileName);
+    }
+
+    protected String buildResultObjectKey(String taskType, String taskNo, String fileName) {
+        return storageBasePath + "/" + taskType.toLowerCase() + "/" + taskNo + "/result/" + normalizeFileName(fileName);
+    }
+
+    protected void applyOperator(SysImportExportTask task, LoginUser operator) {
+        String username = operator == null || !StringUtils.hasText(operator.getUsername()) ? "system" : operator.getUsername().trim();
+        task.setCreateBy(username);
+        task.setUpdateBy(username);
+    }
+
+    protected SysImportExportTask loadTask(Long taskId) {
+        return taskMapper.selectById(taskId);
+    }
+
+    protected void markProcessing(SysImportExportTask task) {
+        task.setTaskStatus(ImportExportTaskSupport.TASK_STATUS_PROCESSING);
+        task.setTaskMessage("任务处理中");
+        taskMapper.updateById(task);
+    }
+
+    protected void markSuccess(SysImportExportTask task, TaskExecutionResult result) {
+        task.setTaskStatus(ImportExportTaskSupport.TASK_STATUS_SUCCESS);
+        task.setTaskMessage(result.message());
+        task.setTotalCount(result.totalCount());
+        task.setSuccessCount(result.successCount());
+        task.setFailCount(result.failCount());
+        task.setFinishedTime(LocalDateTime.now());
+        TaskFileArtifact resultFile = result.resultFile();
+        if (resultFile != null) {
+            String resultObjectKey = buildResultObjectKey(task.getTaskType(), task.getTaskNo(), resultFile.fileName());
+            storageService.putObject(resultObjectKey, resultFile.content(), resultFile.contentType());
+            task.setResultFileName(resultFile.fileName());
+            task.setResultObjectKey(resultObjectKey);
+            task.setResultFileSize((long) resultFile.content().length);
+        }
+        taskMapper.updateById(task);
+    }
+
+    protected void markFail(SysImportExportTask task, Exception exception) {
+        task.setTaskStatus(ImportExportTaskSupport.TASK_STATUS_FAIL);
+        task.setTaskMessage(limitMessage(exception.getMessage()));
+        task.setFinishedTime(LocalDateTime.now());
+        taskMapper.updateById(task);
+    }
+
+    protected void ensureBizType(String requestBizType) {
+        if (!bizType().equals(requestBizType)) {
+            throw new IllegalArgumentException("任务场景不匹配");
+        }
+    }
+
+    private String normalizeFileName(String fileName) {
+        String normalized = StringUtils.hasText(fileName) ? fileName.trim() : "file.bin";
+        normalized = normalized.replace('\\', '-').replace('/', '-');
+        return normalized;
+    }
+
+    private String limitMessage(String message) {
+        if (!StringUtils.hasText(message)) {
+            return "任务执行失败";
+        }
+        return message.length() > 500 ? message.substring(0, 500) : message;
+    }
+
+    private String trimSlashes(String value) {
+        String normalized = value.trim();
+        while (normalized.startsWith("/")) {
+            normalized = normalized.substring(1);
+        }
+        while (normalized.endsWith("/")) {
+            normalized = normalized.substring(0, normalized.length() - 1);
+        }
+        return normalized;
+    }
+}

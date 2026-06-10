@@ -16,30 +16,22 @@
     </PageHeaderCard>
 
     <div class="page-card table-card">
-      <a-table :data="rows" :loading="loading" :pagination="false" row-key="id">
-        <a-table-column
-          v-for="column in meta.columns"
-          :key="column.dataIndex"
-          :data-index="column.dataIndex"
-          :title="column.title"
-        />
-        <a-table-column title="操作" :width="220">
-          <template #cell="{ record }">
-            <a-space>
-              <a-button size="mini" v-permission="`${meta.permissionPrefix}:update`" @click="openEdit(record)">
-                编辑
+      <a-table :data="rows" :loading="loading" :pagination="false" row-key="id" :columns="columns">
+        <template #actionsCell="{ record }">
+          <a-space>
+            <a-button size="mini" v-permission="`${meta.permissionPrefix}:update`" @click="openEdit(record)">
+              编辑
+            </a-button>
+            <a-popconfirm
+              content="确认删除这条记录吗？"
+              @ok="handleDelete(record.id)"
+            >
+              <a-button size="mini" status="danger" v-permission="`${meta.permissionPrefix}:delete`">
+                删除
               </a-button>
-              <a-popconfirm
-                content="确认删除这条记录吗？"
-                @ok="handleDelete(record.id)"
-              >
-                <a-button size="mini" status="danger" v-permission="`${meta.permissionPrefix}:delete`">
-                  删除
-                </a-button>
-              </a-popconfirm>
-            </a-space>
-          </template>
-        </a-table-column>
+            </a-popconfirm>
+          </a-space>
+        </template>
       </a-table>
     </div>
 
@@ -61,7 +53,7 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue';
-import { Message } from '@arco-design/web-vue';
+import { Message, type TableColumnData } from '@arco-design/web-vue';
 import { addEntity, deleteEntity, editEntity, getEntityList } from '@/api/system';
 import type { CrudMeta, EntityRecord } from '@/types/system';
 import PageHeaderCard from './PageHeaderCard.vue';
@@ -90,6 +82,18 @@ const form = reactive<FormState>({
 
 const statusOptions = ['启用', '停用'];
 const modalTitle = computed(() => (editingId.value ? `编辑${props.meta.title}` : `新增${props.meta.title}`));
+const columns = computed<TableColumnData[]>(() => [
+  ...props.meta.columns.map((column) => ({
+    dataIndex: column.dataIndex,
+    title: column.title,
+  })),
+  {
+    dataIndex: 'actions',
+    title: '操作',
+    width: 220,
+    slotName: 'actionsCell',
+  },
+]);
 
 function resetForm() {
   form.name = '';

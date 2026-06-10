@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/system/dicts")
+@RequestMapping({"/system/dicts", "/api/system/dicts"})
 public class DictController {
 
     private final DictService dictService;
@@ -43,17 +43,17 @@ public class DictController {
     }
 
     @GetMapping("/types/{id}")
-    public ApiResponse<DictTypeVO> getTypeById(@PathVariable Long id) {
+    public ApiResponse<DictTypeVO> getTypeById(@PathVariable("id") Long id) {
         return ApiResponse.success(dictService.getTypeById(id));
     }
 
     @GetMapping("/types/{id}/items")
-    public ApiResponse<List<DictItemVO>> listItemsByTypeId(@PathVariable Long id) {
+    public ApiResponse<List<DictItemVO>> listItemsByTypeId(@PathVariable("id") Long id) {
         return ApiResponse.success(dictService.listItemsByTypeId(id));
     }
 
     @GetMapping("/items/by-code")
-    public ApiResponse<List<DictItemVO>> listItemsByTypeCode(@RequestParam String dictCode) {
+    public ApiResponse<List<DictItemVO>> listItemsByTypeCode(@RequestParam("dictCode") String dictCode) {
         return ApiResponse.success(dictService.listItemsByTypeCode(dictCode));
     }
 
@@ -63,13 +63,13 @@ public class DictController {
     }
 
     @PutMapping("/types/{id}")
-    public ApiResponse<Void> updateType(@PathVariable Long id, @Valid @RequestBody DictTypeForm form) {
+    public ApiResponse<Void> updateType(@PathVariable("id") Long id, @Valid @RequestBody DictTypeForm form) {
         dictService.updateType(id, form);
         return ApiResponse.success(null);
     }
 
     @DeleteMapping("/types/{id}")
-    public ApiResponse<Void> deleteType(@PathVariable Long id) {
+    public ApiResponse<Void> deleteType(@PathVariable("id") Long id) {
         dictService.deleteType(id);
         return ApiResponse.success(null);
     }
@@ -80,13 +80,13 @@ public class DictController {
     }
 
     @PutMapping("/items/{id}")
-    public ApiResponse<Void> updateItem(@PathVariable Long id, @Valid @RequestBody DictItemForm form) {
+    public ApiResponse<Void> updateItem(@PathVariable("id") Long id, @Valid @RequestBody DictItemForm form) {
         dictService.updateItem(id, form);
         return ApiResponse.success(null);
     }
 
     @DeleteMapping("/items/{id}")
-    public ApiResponse<Void> deleteItem(@PathVariable Long id) {
+    public ApiResponse<Void> deleteItem(@PathVariable("id") Long id) {
         dictService.deleteItem(id);
         return ApiResponse.success(null);
     }
