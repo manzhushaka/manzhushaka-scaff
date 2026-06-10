@@ -1,0 +1,132 @@
+package com.manzhushaka.framework.job;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.FormattingTuple;
+import org.slf4j.helpers.MessageFormatter;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+public final class JobLogger {
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobLogger.class);
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final int MAX_LOG_CONTENT_LENGTH = 1_000_000;
+    private static final ThreadLocal<JobLogBuffer> BUFFER_HOLDER = new ThreadLocal<>();
+
+    private JobLogger() {
+    }
+
+    public static void bind(Long jobLogId) {
+        BUFFER_HOLDER.set(new JobLogBuffer(jobLogId));
+    }
+
+    public static String collectAndClear() {
+        JobLogBuffer buffer = BUFFER_HOLDER.get();
+        BUFFER_HOLDER.remove();
+        return buffer == null ? "" : buffer.content();
+    }
+
+    public static void info(String template, Object... args) {
+        write("INFO", template, args);
+    }
+
+    public static void warn(String template, Object... args) {
+        write("WARN", template, args);
+    }
+
+    public static void error(String template, Object... args) {
+        write("ERROR", template, args);
+    }
+
+    public static void error(String message, Throwable throwable) {
+        write("ERROR", message, throwable);
+    }
+
+    private static void write(String level, String template, Object... args) {
+        FormattingTuple tuple = MessageFormatter.arrayFormat(template, args);
+        write(level, tuple.getMessage(), tuple.getThrowable());
+    }
+
+    private static void write(String level, String message, Throwable throwable) {
+        logToApplication(level, message, throwable);
+
+        JobLogBuffer buffer = BUFFER_HOLDER.get();
+        if (buffer == null) {
+            return;
+        }
+
+        StringBuilder builder = new StringBuilder()
+            .append('[')
+            .append(LocalDateTime.now().format(DATE_TIME_FORMATTER))
+            .append("] [")
+            .append(level)
+            .append("] ")
+            .append(message == null ? "" : message);
+        if (throwable != null) {
+            builder.append(System.lineSeparator()).append(stackTraceOf(throwable));
+        }
+        buffer.append(builder.toString(), MAX_LOG_CONTENT_LENGTH);
+    }
+
+    private static void logToApplication(String level, String message, Throwable throwable) {
+        if ("ERROR".equals(level)) {
+            if (throwable != null) {
+                LOGGER.error(message, throwable);
+            } else {
+                LOGGER.error(message);
+            }
+            return;
+        }
+        if ("WARN".equals(level)) {
+            if (throwable != null) {
+                LOGGER.warn(message, throwable);
+            } else {
+                LOGGER.warn(message);
+            }
+            return;
+        }
+        if (throwable != null) {
+            LOGGER.info(message, throwable);
+        } else {
+            LOGGER.info(message);
+        }
+    }
+
+    private static String stackTraceOf(Throwable throwable) {
+        StringWriter writer = new StringWriter();
+        throwable.printStackTrace(new PrintWriter(writer));
+        return writer.toString();
+    }
+
+    private static final class JobLogBuffer {
+        private final Long jobLogId;
+        private final StringBuilder content = new StringBuilder();
+        private boolean truncated;
+
+        private JobLogBuffer(Long jobLogId) {
+            this.jobLogId = jobLogId;
+        }
+
+        private void append(String line, int maxLength) {
+            if (truncated) {
+                return;
+            }
+            if (content.length() + line.length() + System.lineSeparator().length() > maxLength) {
+                content.append("[")
+                    .append(LocalDateTime.now().format(DATE_TIME_FORMATTER))
+                    .append("] [WARN] 日志内容已达到上限，后续内容已截断。")
+                    .append(System.lineSeparator());
+                truncated = true;
+                return;
+            }
+            content.append(line).append(System.lineSeparator());
+        }
+
+        private String content() {
+            return content.toString();
+        }
+    }
+}

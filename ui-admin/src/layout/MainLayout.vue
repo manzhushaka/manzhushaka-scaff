@@ -1,19 +1,20 @@
 <template>
   <a-layout class="layout-shell">
     <a-layout-sider
-      :width="264"
+      :width="240"
       hide-trigger
       breakpoint="lg"
       class="layout-sider"
-      :style="{ padding: '18px 16px 16px' }"
+      :style="{ padding: '16px 12px 12px' }"
     >
       <div class="brand-block">
-        <div class="brand-mark">
+        <img v-if="platformStore.logoUrl" :src="platformStore.logoUrl" alt="平台 Logo" class="brand-logo" />
+        <div v-else class="brand-mark">
           <span class="brand-mark-core"></span>
         </div>
         <div class="brand-copy">
-          <div class="brand-title">manzhushaka 管理台</div>
-          <div class="brand-subtitle">System Console</div>
+          <div class="brand-title">{{ platformStore.platformName }}</div>
+          <div class="brand-subtitle">{{ platformStore.platformSubtitle }}</div>
         </div>
       </div>
       <a-menu
@@ -28,7 +29,7 @@
           v-for="menu in visibleMenus"
           :key="menu.id"
           :menu="menu"
-          :resolve-icon="resolveIcon"
+          :resolve-icon="resolveMenuIcon"
         />
       </a-menu>
     </a-layout-sider>
@@ -92,24 +93,20 @@
 
 <script setup lang="ts">
 import { computed, watch } from 'vue';
-import type { Component } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import {
-  IconDashboard,
-  IconHistory,
-  IconSettings,
-  IconApps,
-  IconDown,
-} from '@arco-design/web-vue/es/icon';
+import { IconDown } from '@arco-design/web-vue/es/icon';
 import SidebarMenuItem from '@/components/SidebarMenuItem.vue';
+import { resolveMenuIcon } from '@/layout/menu-icons';
 import { resetDynamicRoutes } from '@/router';
 import { extractSidebarMenus } from '@/router/dynamic';
 import { useAuthStore } from '@/store/auth';
+import { usePlatformStore } from '@/store/platform';
 import { useTabsStore } from '@/store/tabs';
 
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
+const platformStore = usePlatformStore();
 const tabsStore = useTabsStore();
 
 const visibleMenus = computed(() => extractSidebarMenus(authStore.menus));
@@ -128,19 +125,6 @@ const defaultOpenKeys = computed(() => {
   walk(visibleMenus.value);
   return keys;
 });
-
-const iconMap = {
-  'icon-dashboard': IconDashboard,
-  'icon-history': IconHistory,
-  'icon-settings': IconSettings,
-};
-
-function resolveIcon(icon?: string): Component {
-  if (!icon) {
-    return IconApps;
-  }
-  return iconMap[icon as keyof typeof iconMap] ?? IconApps;
-}
 
 function handleMenuClick(path: string) {
   router.push(path);
@@ -222,8 +206,8 @@ watch(
 .brand-block {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 8px 6px 18px;
+  gap: 12px;
+  padding: 6px 4px 14px;
   color: #fff;
 }
 
@@ -237,6 +221,15 @@ watch(
   box-shadow: 0 18px 32px rgba(40, 105, 255, 0.28);
 }
 
+.brand-logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 16px;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 18px 32px rgba(40, 105, 255, 0.18);
+}
+
 .brand-mark-core {
   width: 18px;
   height: 18px;
@@ -247,83 +240,94 @@ watch(
 
 .brand-copy {
   min-width: 0;
+  flex: 1;
 }
 
 .brand-title {
-  font-size: 18px;
+  overflow: hidden;
+  font-size: 17px;
   font-weight: 700;
   letter-spacing: 0.02em;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .brand-subtitle {
-  margin-top: 4px;
-  font-size: 12px;
+  margin-top: 3px;
+  overflow: hidden;
+  font-size: 11px;
   letter-spacing: 0.08em;
+  text-overflow: ellipsis;
   text-transform: uppercase;
+  white-space: nowrap;
   opacity: 0.72;
 }
 
 .sidebar-menu {
   flex: 1;
-  padding: 12px 8px 8px;
+  padding: 8px 4px 4px;
   background: transparent;
+  --sidebar-menu-text: rgba(238, 244, 255, 0.82);
+  --sidebar-menu-text-strong: #ffffff;
+  --sidebar-menu-hover-bg: rgba(255, 255, 255, 0.06);
+  --sidebar-menu-selected-bg: linear-gradient(90deg, rgba(59, 126, 255, 0.32), rgba(87, 163, 255, 0.18));
+  --sidebar-menu-selected-border: rgba(117, 163, 255, 0.28);
+  --sidebar-menu-divider: rgba(255, 255, 255, 0.08);
+  --sidebar-submenu-shell: rgba(255, 255, 255, 0.045);
+  --sidebar-submenu-shell-strong: rgba(255, 255, 255, 0.06);
 }
 
 .sidebar-menu :deep(.arco-menu-inner) {
   background: transparent;
 }
 
+.sidebar-menu :deep(.arco-menu-inner > .arco-menu-item),
+.sidebar-menu :deep(.arco-menu-inner > .arco-menu-inline) {
+  position: relative;
+}
+
+.sidebar-menu :deep(.arco-menu-inner > .arco-menu-item:not(:first-child)::before),
+.sidebar-menu :deep(.arco-menu-inner > .arco-menu-inline:not(:first-child)::before) {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: 10px;
+  right: 10px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--sidebar-menu-divider), transparent);
+}
+
 .sidebar-menu :deep(.arco-menu-item),
 .sidebar-menu :deep(.arco-menu-inline-header) {
-  height: 46px;
-  margin-bottom: 6px;
-  border-radius: 14px;
+  height: 40px;
+  margin-bottom: 2px;
+  border-radius: 10px;
+  font-size: 14px;
   font-weight: 700;
-  transition: background-color 180ms ease, color 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  color: var(--sidebar-menu-text);
+  background: transparent;
+  border: 1px solid transparent;
+  box-shadow: none;
+  transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
 }
 
-.sidebar-menu :deep(.arco-menu-item) {
-  color: #eef4ff;
-}
-
-.sidebar-menu :deep(.arco-menu-item:hover) {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.sidebar-menu :deep(.arco-menu-inner > .arco-menu-item) {
-  color: #2a3850;
-  background: rgba(255, 255, 255, 0.96);
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 0 10px 18px rgba(8, 17, 38, 0.08);
-}
-
-.sidebar-menu :deep(.arco-menu-inner > .arco-menu-item:hover) {
-  color: #17233c;
-  background: #ffffff;
-  border-color: rgba(36, 91, 219, 0.18);
-  box-shadow: 0 14px 24px rgba(8, 17, 38, 0.12);
-}
-
-.sidebar-menu :deep(.arco-menu-inline-header),
+.sidebar-menu :deep(.arco-menu-item:hover),
 .sidebar-menu :deep(.arco-menu-inline-header:hover) {
-  color: #2a3850;
-  background: rgba(255, 255, 255, 0.96);
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 0 10px 18px rgba(8, 17, 38, 0.08);
-}
-
-.sidebar-menu :deep(.arco-menu-inline-header:hover) {
-  border-color: rgba(36, 91, 219, 0.18);
-  box-shadow: 0 14px 24px rgba(8, 17, 38, 0.12);
-}
-
-.sidebar-menu :deep(.arco-menu-inline-header.arco-menu-selected),
-.sidebar-menu :deep(.arco-menu-inline-header.arco-menu-selected:hover) {
-  color: #ffffff;
-  background: linear-gradient(90deg, rgba(59, 126, 255, 0.96), rgba(87, 163, 255, 0.9));
+  color: var(--sidebar-menu-text-strong);
+  background: var(--sidebar-menu-hover-bg);
   border-color: transparent;
-  box-shadow: 0 14px 28px rgba(37, 94, 221, 0.26);
+}
+
+.sidebar-menu :deep(.arco-menu-inner > .arco-menu-item.arco-menu-selected),
+.sidebar-menu :deep(.arco-menu-item.arco-menu-selected),
+.sidebar-menu :deep(.arco-menu-inline-header.arco-menu-selected),
+.sidebar-menu :deep(.arco-menu-inner > .arco-menu-item.arco-menu-selected:hover),
+.sidebar-menu :deep(.arco-menu-item.arco-menu-selected:hover),
+.sidebar-menu :deep(.arco-menu-inline-header.arco-menu-selected:hover) {
+  color: var(--sidebar-menu-text-strong);
+  background: var(--sidebar-menu-selected-bg);
+  border-color: var(--sidebar-menu-selected-border);
 }
 
 .sidebar-menu :deep(.arco-menu-inline-header .arco-icon),
@@ -333,7 +337,7 @@ watch(
 }
 
 .sidebar-menu :deep(.arco-menu-inline-header .arco-icon-down) {
-  color: #516076;
+  color: rgba(238, 244, 255, 0.56);
 }
 
 .sidebar-menu :deep(.arco-menu-inline-header.arco-menu-selected .arco-icon-down) {
@@ -348,38 +352,44 @@ watch(
 }
 
 .sidebar-menu :deep(.arco-menu-inline-content) {
-  margin-top: 6px;
-  padding-left: 12px;
-  margin-left: 2px;
-  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  margin: 4px 0 8px;
+  padding: 4px;
+  background: var(--sidebar-submenu-shell);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
-.sidebar-menu :deep(.arco-menu-inline-content .arco-menu-item) {
-  color: #2a3850;
-  background: rgba(255, 255, 255, 0.96);
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 0 10px 18px rgba(8, 17, 38, 0.08);
+.sidebar-menu :deep(.arco-menu-inline-content .arco-menu-item),
+.sidebar-menu :deep(.arco-menu-inline-content .arco-menu-inline-header) {
+  height: 36px;
+  margin-bottom: 0;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sidebar-menu :deep(.arco-menu-inline-content .arco-menu-inline-content) {
+  margin: 2px 0 4px;
+  background: var(--sidebar-submenu-shell-strong);
+  border-color: rgba(255, 255, 255, 0.05);
 }
 
 .sidebar-menu :deep(.arco-menu-inline-content .arco-menu-item:hover) {
-  color: #17233c;
-  background: #ffffff;
-  border-color: rgba(36, 91, 219, 0.18);
+  color: var(--sidebar-menu-text-strong);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .sidebar-menu :deep(.arco-menu-inline-content .arco-menu-selected),
 .sidebar-menu :deep(.arco-menu-inline-content .arco-menu-selected:hover) {
-  color: #ffffff;
-  background: linear-gradient(90deg, rgba(59, 126, 255, 0.96), rgba(87, 163, 255, 0.9));
+  color: var(--sidebar-menu-text-strong);
+  background: rgba(59, 126, 255, 0.18);
   border-color: transparent;
-  box-shadow: 0 14px 28px rgba(37, 94, 221, 0.26);
 }
 
 .sidebar-menu :deep(.arco-menu-selected),
 .sidebar-menu :deep(.arco-menu-selected:hover) {
-  color: #fff;
-  background: linear-gradient(90deg, rgba(59, 126, 255, 0.92), rgba(87, 163, 255, 0.82));
-  box-shadow: 0 14px 28px rgba(37, 94, 221, 0.28);
+  color: var(--sidebar-menu-text-strong);
 }
 
 .sidebar-menu :deep(.arco-menu-pop-header),

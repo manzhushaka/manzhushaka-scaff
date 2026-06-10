@@ -43,6 +43,7 @@ export interface RoleVO {
   dataScope: 'SELF' | 'DEPT' | 'DEPT_AND_CHILD' | 'ALL' | null;
   status: number;
   createTime: string | null;
+  menuIds?: number[];
 }
 
 export interface RoleForm {
@@ -50,6 +51,7 @@ export interface RoleForm {
   roleName: string;
   dataScope: 'SELF' | 'DEPT' | 'DEPT_AND_CHILD' | 'ALL';
   status: number;
+  menuIds: number[];
 }
 
 export interface RoleQuery {
@@ -182,6 +184,108 @@ export interface ConfigQuery {
   configName?: string;
   configKey?: string;
   status?: number;
+}
+
+export interface PlatformConfigVO {
+  platformName: string;
+  platformSubtitle: string;
+  logoUrl: string;
+}
+
+export interface ImportExportTaskVO {
+  id: number;
+  taskNo: string;
+  taskType: 'EXPORT' | 'IMPORT' | string;
+  bizType: string;
+  bizLabel: string;
+  taskName: string;
+  taskStatus: 'PENDING' | 'PROCESSING' | 'SUCCESS' | 'FAIL' | string;
+  taskMessage: string | null;
+  sourceFileName: string | null;
+  resultFileName: string | null;
+  totalCount: number | null;
+  successCount: number | null;
+  failCount: number | null;
+  createBy: string | null;
+  createTime: string | null;
+  finishedTime: string | null;
+}
+
+export interface ImportExportTaskQuery {
+  pageNum: number;
+  pageSize: number;
+  taskType?: string;
+  bizType?: string;
+  taskName?: string;
+  taskStatus?: string;
+}
+
+export interface ExportTaskCreateForm {
+  bizType: string;
+  taskName?: string;
+}
+
+export interface DownloadUrlVO {
+  url: string;
+}
+
+export interface PlatformJobVO {
+  id: number;
+  jobName: string;
+  handlerName: string;
+  handlerLabel: string;
+  cronExpression: string;
+  status: number;
+  jobParam: string | null;
+  remark: string | null;
+  lastRunStatus: string | null;
+  lastTriggerTime: string | null;
+  nextTriggerTime: string | null;
+  createTime: string | null;
+}
+
+export interface PlatformJobForm {
+  jobName: string;
+  handlerName: string;
+  cronExpression: string;
+  status: number;
+  jobParam?: string;
+  remark?: string;
+}
+
+export interface PlatformJobQuery {
+  pageNum: number;
+  pageSize: number;
+  jobName?: string;
+  handlerName?: string;
+  status?: number;
+  lastRunStatus?: string;
+}
+
+export interface PlatformJobLogVO {
+  id: number;
+  jobId: number;
+  jobNameSnapshot: string;
+  handlerNameSnapshot: string;
+  triggerType: string;
+  runStatus: string;
+  executorHost: string | null;
+  errorMsg: string | null;
+  costMs: number | null;
+  startTime: string | null;
+  endTime: string | null;
+  createTime: string | null;
+}
+
+export interface PlatformJobLogDetailVO extends PlatformJobLogVO {
+  logContent: string | null;
+}
+
+export interface PlatformJobLogQuery {
+  pageNum: number;
+  pageSize: number;
+  runStatus?: string;
+  triggerType?: string;
 }
 
 export interface LoginLogVO {
@@ -342,6 +446,56 @@ export interface LoginLogRow {
   ip: string;
   userAgent: string;
   message: string;
+  createTimeText: string;
+}
+
+export interface ImportExportTaskRow {
+  id: number;
+  taskNo: string;
+  taskType: string;
+  bizLabel: string;
+  taskName: string;
+  taskStatusText: string;
+  taskStatusValue: string;
+  taskMessage: string;
+  sourceFileName: string;
+  resultFileName: string;
+  countSummary: string;
+  createBy: string;
+  createTimeText: string;
+  finishedTimeText: string;
+}
+
+export interface PlatformJobRow {
+  id: number;
+  jobName: string;
+  handlerName: string;
+  handlerLabel: string;
+  cronExpression: string;
+  statusText: string;
+  statusValue: number;
+  lastRunStatusText: string;
+  lastRunStatusValue: string;
+  lastTriggerTimeText: string;
+  nextTriggerTimeText: string;
+  createTimeText: string;
+  remark: string;
+}
+
+export interface PlatformJobLogRow {
+  id: number;
+  jobId: number;
+  jobNameSnapshot: string;
+  handlerNameSnapshot: string;
+  triggerTypeText: string;
+  triggerTypeValue: string;
+  runStatusText: string;
+  runStatusValue: string;
+  executorHost: string;
+  errorMsg: string;
+  costMsText: string;
+  startTimeText: string;
+  endTimeText: string;
   createTimeText: string;
 }
 

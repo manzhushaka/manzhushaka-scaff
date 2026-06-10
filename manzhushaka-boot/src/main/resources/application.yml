@@ -3,6 +3,16 @@ spring:
     name: manzhushaka-admin
   profiles:
     active: ${ACTIVE:dev}
+  quartz:
+    scheduler-name: manzhushaka-quartz
+    job-store-type: memory
+    properties:
+      org:
+        quartz:
+          scheduler:
+            skipUpdateCheck: true
+          threadPool:
+            threadCount: 5
 
 server:
   port: 8080

@@ -6,6 +6,10 @@ import type {
   DictItemVO,
   DictTypeRow,
   DictTypeVO,
+  PlatformJobLogRow,
+  PlatformJobLogVO,
+  PlatformJobRow,
+  PlatformJobVO,
   LoginLogRow,
   LoginLogVO,
   MenuRow,
@@ -56,6 +60,18 @@ export const opSuccessOptions = [
   { label: '失败', value: 'false' },
 ];
 
+export const platformJobRunStatusOptions = [
+  { label: '成功', value: 'SUCCESS' },
+  { label: '失败', value: 'FAIL' },
+  { label: '执行中', value: 'RUNNING' },
+  { label: '已跳过', value: 'SKIPPED' },
+];
+
+export const platformJobTriggerTypeOptions = [
+  { label: '定时触发', value: 'SCHEDULE' },
+  { label: '手动触发', value: 'MANUAL' },
+];
+
 export function toStatusText(status: number | null | undefined) {
   return status === 1 ? '启用' : '停用';
 }
@@ -66,6 +82,14 @@ export function toVisibleText(visible: number | null | undefined) {
 
 export function toLoginStatusText(status: string | null | undefined) {
   return status === 'SUCCESS' ? '成功' : status === 'FAIL' ? '失败' : '--';
+}
+
+export function toPlatformJobRunStatusText(status: string | null | undefined) {
+  return platformJobRunStatusOptions.find((item) => item.value === status)?.label ?? '--';
+}
+
+export function toPlatformJobTriggerTypeText(triggerType: string | null | undefined) {
+  return platformJobTriggerTypeOptions.find((item) => item.value === triggerType)?.label ?? '--';
 }
 
 export function toDataScopeText(value: RoleVO['dataScope']) {
@@ -203,6 +227,43 @@ export function mapOpLogRow(log: OpLogVO): OpLogRow {
     requestMethod: log.requestMethod ?? '--',
     requestUri: log.requestUri ?? '--',
     errorMsg: log.errorMsg ?? '--',
+    createTimeText: formatDateTime(log.createTime),
+  };
+}
+
+export function mapPlatformJobRow(job: PlatformJobVO): PlatformJobRow {
+  return {
+    id: job.id,
+    jobName: job.jobName,
+    handlerName: job.handlerName,
+    handlerLabel: job.handlerLabel || job.handlerName,
+    cronExpression: job.cronExpression,
+    statusText: toStatusText(job.status),
+    statusValue: job.status ?? 0,
+    lastRunStatusText: toPlatformJobRunStatusText(job.lastRunStatus),
+    lastRunStatusValue: job.lastRunStatus ?? '',
+    lastTriggerTimeText: formatDateTime(job.lastTriggerTime),
+    nextTriggerTimeText: formatDateTime(job.nextTriggerTime),
+    createTimeText: formatDateTime(job.createTime),
+    remark: job.remark ?? '--',
+  };
+}
+
+export function mapPlatformJobLogRow(log: PlatformJobLogVO): PlatformJobLogRow {
+  return {
+    id: log.id,
+    jobId: log.jobId,
+    jobNameSnapshot: log.jobNameSnapshot,
+    handlerNameSnapshot: log.handlerNameSnapshot,
+    triggerTypeText: toPlatformJobTriggerTypeText(log.triggerType),
+    triggerTypeValue: log.triggerType ?? '',
+    runStatusText: toPlatformJobRunStatusText(log.runStatus),
+    runStatusValue: log.runStatus ?? '',
+    executorHost: log.executorHost ?? '--',
+    errorMsg: log.errorMsg ?? '--',
+    costMsText: log.costMs == null ? '--' : `${log.costMs} ms`,
+    startTimeText: formatDateTime(log.startTime),
+    endTimeText: formatDateTime(log.endTime),
     createTimeText: formatDateTime(log.createTime),
   };
 }

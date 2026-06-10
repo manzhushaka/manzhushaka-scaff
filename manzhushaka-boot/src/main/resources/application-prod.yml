@@ -12,3 +12,12 @@ spring:
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
+
+storage:
+  bos:
+    endpoint: ${BOS_ENDPOINT:}
+    bucket: ${BOS_BUCKET:}
+    access-key-id: ${BOS_ACCESS_KEY_ID:}
+    secret-access-key: ${BOS_SECRET_ACCESS_KEY:}
+    base-path: ${BOS_BASE_PATH:import-export}
+    download-expire-seconds: ${BOS_DOWNLOAD_EXPIRE_SECONDS:900}

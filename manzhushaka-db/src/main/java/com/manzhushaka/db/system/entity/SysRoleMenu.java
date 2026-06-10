@@ -1,6 +1,8 @@
 package com.manzhushaka.db.system.entity;
 
-public class SysRoleMenu {
+import com.manzhushaka.db.meta.BaseEntity;
+
+public class SysRoleMenu extends BaseEntity {
     private Long roleId;
     private Long menuId;
 

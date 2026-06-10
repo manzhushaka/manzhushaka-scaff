@@ -14,24 +14,25 @@
     </PageHeaderCard>
 
     <div class="page-card table-card">
-      <a-table :data="rows" :loading="loading" row-key="id" :pagination="false" :default-expand-all-rows="true">
-        <a-table-column data-index="deptName" title="部门名称" />
-        <a-table-column data-index="sort" title="排序" :width="100" />
-        <a-table-column data-index="statusText" title="状态" :width="110">
-          <template #cell="{ record }">
-            <a-tag :color="record.statusValue === 1 ? 'green' : 'red'">{{ record.statusText }}</a-tag>
-          </template>
-        </a-table-column>
-        <a-table-column title="操作" :width="220">
-          <template #cell="{ record }">
-            <a-space>
-              <a-button size="mini" v-permission="'system:dept:update'" @click="openEdit(record.id)">编辑</a-button>
-              <a-popconfirm content="确认删除该部门吗？" @ok="handleDelete(record.id)">
-                <a-button size="mini" status="danger" v-permission="'system:dept:delete'">删除</a-button>
-              </a-popconfirm>
-            </a-space>
-          </template>
-        </a-table-column>
+      <a-table
+        :data="rows"
+        :loading="loading"
+        row-key="id"
+        :pagination="false"
+        :default-expand-all-rows="true"
+        :columns="columns"
+      >
+        <template #statusCell="{ record }">
+          <a-tag :color="record.statusValue === 1 ? 'green' : 'red'">{{ record.statusText }}</a-tag>
+        </template>
+        <template #actionsCell="{ record }">
+          <a-space>
+            <a-button size="mini" v-permission="'system:dept:update'" @click="openEdit(record.id)">编辑</a-button>
+            <a-popconfirm content="确认删除该部门吗？" @ok="handleDelete(record.id)">
+              <a-button size="mini" status="danger" v-permission="'system:dept:delete'">删除</a-button>
+            </a-popconfirm>
+          </a-space>
+        </template>
       </a-table>
     </div>
 
@@ -56,7 +57,7 @@
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
-import { Message } from '@arco-design/web-vue';
+import { Message, type TableColumnData } from '@arco-design/web-vue';
 import PageHeaderCard from '@/components/PageHeaderCard.vue';
 import { systemApi } from '@/api/system';
 import type { DeptForm, DeptRow, SelectOption } from '@/types/system';
@@ -69,6 +70,29 @@ const editingId = ref<number | null>(null);
 const rows = ref<DeptRow[]>([]);
 const parentOptions = ref<SelectOption[]>([]);
 const parentIdValue = ref<string | number | undefined>();
+const columns: TableColumnData[] = [
+  {
+    dataIndex: 'deptName',
+    title: '部门名称',
+  },
+  {
+    dataIndex: 'sort',
+    title: '排序',
+    width: 100,
+  },
+  {
+    dataIndex: 'statusText',
+    title: '状态',
+    width: 110,
+    slotName: 'statusCell',
+  },
+  {
+    dataIndex: 'actions',
+    title: '操作',
+    width: 220,
+    slotName: 'actionsCell',
+  },
+];
 
 const form = reactive<DeptForm>({
   parentId: null,

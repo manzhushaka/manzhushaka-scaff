@@ -3,6 +3,8 @@ package com.manzhushaka.system.dto.role;
 import com.manzhushaka.common.enums.DataScopeType;
 import jakarta.validation.constraints.NotBlank;
 
+import java.util.List;
+
 public class RoleForm {
     @NotBlank(message = "角色编码不能为空")
     private String roleCode;
@@ -10,6 +12,7 @@ public class RoleForm {
     private String roleName;
     private DataScopeType dataScope;
     private Integer status;
+    private List<Long> menuIds;
 
     public String getRoleCode() {
         return roleCode;
@@ -41,5 +44,13 @@ public class RoleForm {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public List<Long> getMenuIds() {
+        return menuIds;
+    }
+
+    public void setMenuIds(List<Long> menuIds) {
+        this.menuIds = menuIds;
     }
 }

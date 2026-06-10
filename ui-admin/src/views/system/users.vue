@@ -21,36 +21,48 @@
       </a-space>
     </PageHeaderCard>
 
-    <div class="page-card table-card">
-      <a-table
-        :data="rows"
-        :loading="loading"
-        row-key="id"
-        :pagination="pagination"
-        @page-change="handlePageChange"
-      >
-        <a-table-column data-index="username" title="用户名">
-          <template #cell="{ record }">
+    <div class="content-grid">
+      <div class="page-card dept-tree-card">
+        <div class="dept-tree-header">
+          <div>
+            <div class="section-title">部门树</div>
+            <div class="dept-tree-tip">当前筛选：{{ activeDeptName }}</div>
+          </div>
+          <a-button type="text" size="mini" @click="clearDeptFilter">全部</a-button>
+        </div>
+        <a-empty v-if="!deptTreeData.length" description="暂无部门数据" />
+        <a-tree
+          v-else
+          block-node
+          :data="deptTreeData"
+          :default-expand-all="true"
+          :selected-keys="selectedDeptKeys"
+          @select="handleDeptSelect"
+        />
+      </div>
+
+      <div class="page-card table-card">
+        <a-table
+          :data="rows"
+          :loading="loading"
+          row-key="id"
+          :pagination="pagination"
+          :columns="columns"
+          @page-change="handlePageChange"
+        >
+          <template #usernameCell="{ record }">
             <div class="primary-cell">
               <div class="primary-cell-title">{{ record.username }}</div>
               <div class="primary-cell-sub">{{ record.nickname }}</div>
             </div>
           </template>
-        </a-table-column>
-        <a-table-column data-index="deptName" title="部门" />
-        <a-table-column data-index="roleCodesText" title="角色编码">
-          <template #cell="{ record }">
+          <template #roleCodesCell="{ record }">
             <span class="code-text">{{ record.roleCodesText }}</span>
           </template>
-        </a-table-column>
-        <a-table-column data-index="statusText" title="状态" :width="110">
-          <template #cell="{ record }">
+          <template #statusCell="{ record }">
             <a-tag :color="record.statusValue === 1 ? 'green' : 'red'">{{ record.statusText }}</a-tag>
           </template>
-        </a-table-column>
-        <a-table-column data-index="createTimeText" title="创建时间" :width="180" />
-        <a-table-column title="操作" :width="220">
-          <template #cell="{ record }">
+          <template #actionsCell="{ record }">
             <a-space>
               <a-button size="mini" v-permission="'system:user:update'" @click="openEdit(record.id)">编辑</a-button>
               <a-popconfirm content="确认删除该用户吗？" @ok="handleDelete(record.id)">
@@ -58,8 +70,8 @@
               </a-popconfirm>
             </a-space>
           </template>
-        </a-table-column>
-      </a-table>
+        </a-table>
+      </div>
     </div>
 
     <a-modal v-model:visible="visible" :title="editingId ? '编辑用户' : '新增用户'" @before-ok="submitForm">
@@ -86,11 +98,12 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue';
-import { Message } from '@arco-design/web-vue';
+import { Message, type TableColumnData } from '@arco-design/web-vue';
 import PageHeaderCard from '@/components/PageHeaderCard.vue';
 import { systemApi } from '@/api/system';
 import type { SelectOption, UserForm, UserRow } from '@/types/system';
 import { mapUserRow, statusOptions } from './shared';
+import { buildUserDeptTreeData, buildUserListQuery, type UserDeptTreeNode } from './users-support';
 
 const loading = ref(false);
 const visible = ref(false);
@@ -102,7 +115,9 @@ const total = ref(0);
 const editingId = ref<number | null>(null);
 const rows = ref<UserRow[]>([]);
 const deptOptions = ref<SelectOption[]>([]);
+const deptTreeData = ref<UserDeptTreeNode[]>([]);
 const deptIdValue = ref<string | number | undefined>();
+const selectedDeptKeys = ref<Array<string | number>>([]);
 
 const form = reactive<UserForm & { password: string }>({
   username: '',
@@ -123,6 +138,51 @@ const pagination = computed(() => ({
   total: total.value,
   showTotal: true,
 }));
+const columns: TableColumnData[] = [
+  {
+    dataIndex: 'username',
+    title: '用户名',
+    slotName: 'usernameCell',
+  },
+  {
+    dataIndex: 'deptName',
+    title: '部门',
+  },
+  {
+    dataIndex: 'roleCodesText',
+    title: '角色编码',
+    slotName: 'roleCodesCell',
+  },
+  {
+    dataIndex: 'statusText',
+    title: '状态',
+    width: 110,
+    slotName: 'statusCell',
+  },
+  {
+    dataIndex: 'createTimeText',
+    title: '创建时间',
+    width: 180,
+  },
+  {
+    dataIndex: 'actions',
+    title: '操作',
+    width: 220,
+    slotName: 'actionsCell',
+  },
+];
+
+const activeDeptId = computed(() => {
+  const [deptId] = selectedDeptKeys.value;
+  return deptId == null ? undefined : Number(deptId);
+});
+
+const activeDeptName = computed(() => {
+  if (activeDeptId.value == null) {
+    return '全部部门';
+  }
+  return findDeptName(deptTreeData.value, activeDeptId.value) ?? `部门 #${activeDeptId.value}`;
+});
 
 function resetForm() {
   form.username = '';
@@ -138,16 +198,23 @@ async function loadDeptOptions() {
   deptOptions.value = await systemApi.listDeptOptions();
 }
 
+async function loadDeptTree() {
+  const response = await systemApi.listDeptTree({ status: 1 });
+  deptTreeData.value = buildUserDeptTreeData(response);
+}
+
 async function fetchRows() {
   loading.value = true;
   try {
-    const response = await systemApi.listUsers({
-      pageNum: current.value,
-      pageSize: pageSize.value,
-      username: keyword.value || undefined,
-      nickname: keyword.value || undefined,
-      status: statusFilter.value,
-    });
+    const response = await systemApi.listUsers(
+      buildUserListQuery({
+        pageNum: current.value,
+        pageSize: pageSize.value,
+        keyword: keyword.value.trim(),
+        status: statusFilter.value,
+        deptId: activeDeptId.value,
+      }),
+    );
     rows.value = response.records.map(mapUserRow);
     total.value = response.total;
   } finally {
@@ -162,6 +229,21 @@ function handleSearch() {
 
 function handlePageChange(page: number) {
   current.value = page;
+  fetchRows();
+}
+
+function handleDeptSelect(selectedKeys: Array<string | number>) {
+  selectedDeptKeys.value = selectedKeys;
+  current.value = 1;
+  fetchRows();
+}
+
+function clearDeptFilter() {
+  if (!selectedDeptKeys.value.length) {
+    return;
+  }
+  selectedDeptKeys.value = [];
+  current.value = 1;
   fetchRows();
 }
 
@@ -223,14 +305,71 @@ async function handleDelete(id: number) {
   await fetchRows();
 }
 
-loadDeptOptions();
-fetchRows();
+function findDeptName(nodes: UserDeptTreeNode[], deptId: number): string | null {
+  for (const node of nodes) {
+    if (Number(node.key) === deptId) {
+      return node.title;
+    }
+    if (node.children?.length) {
+      const childName = findDeptName(node.children, deptId);
+      if (childName) {
+        return childName;
+      }
+    }
+  }
+  return null;
+}
+
+async function init() {
+  await Promise.all([loadDeptOptions(), loadDeptTree()]);
+  await fetchRows();
+}
+
+void init();
 </script>
 
 <style scoped>
 .system-page {
   display: grid;
   gap: 18px;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.dept-tree-card {
+  padding: 18px;
+}
+
+.dept-tree-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.dept-tree-header .section-title {
+  margin-bottom: 4px;
+}
+
+.dept-tree-tip {
+  color: #74839a;
+  font-size: 12px;
+}
+
+.dept-tree-card :deep(.arco-tree-node-title) {
+  border-radius: 10px;
+}
+
+.dept-tree-card :deep(.arco-tree-node-selected .arco-tree-node-title) {
+  color: #173f9b;
+  font-weight: 700;
+  background: rgba(36, 91, 219, 0.12);
 }
 
 .primary-cell-title {
@@ -242,5 +381,11 @@ fetchRows();
   margin-top: 4px;
   color: #74839a;
   font-size: 12px;
+}
+
+@media (max-width: 1024px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

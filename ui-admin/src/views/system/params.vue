@@ -27,33 +27,26 @@
         :loading="loading"
         row-key="id"
         :pagination="pagination"
+        :columns="columns"
         @page-change="handlePageChange"
       >
-        <a-table-column data-index="configName" title="参数">
-          <template #cell="{ record }">
-            <div class="primary-cell">
-              <div class="primary-cell-title">{{ record.configName }}</div>
-              <div class="primary-cell-sub code-text">{{ record.configKey }}</div>
-            </div>
-          </template>
-        </a-table-column>
-        <a-table-column data-index="configValue" title="参数值" />
-        <a-table-column data-index="statusText" title="状态" :width="110">
-          <template #cell="{ record }">
-            <a-tag :color="record.statusValue === 1 ? 'green' : 'red'">{{ record.statusText }}</a-tag>
-          </template>
-        </a-table-column>
-        <a-table-column data-index="createTimeText" title="创建时间" :width="180" />
-        <a-table-column title="操作" :width="220">
-          <template #cell="{ record }">
-            <a-space>
-              <a-button size="mini" v-permission="'system:config:update'" @click="openEdit(record.id)">编辑</a-button>
-              <a-popconfirm content="确认删除该参数吗？" @ok="handleDelete(record.id)">
-                <a-button size="mini" status="danger" v-permission="'system:config:delete'">删除</a-button>
-              </a-popconfirm>
-            </a-space>
-          </template>
-        </a-table-column>
+        <template #configCell="{ record }">
+          <div class="primary-cell">
+            <div class="primary-cell-title">{{ record.configName }}</div>
+            <div class="primary-cell-sub code-text">{{ record.configKey }}</div>
+          </div>
+        </template>
+        <template #statusCell="{ record }">
+          <a-tag :color="record.statusValue === 1 ? 'green' : 'red'">{{ record.statusText }}</a-tag>
+        </template>
+        <template #actionsCell="{ record }">
+          <a-space>
+            <a-button size="mini" v-permission="'system:config:update'" @click="openEdit(record.id)">编辑</a-button>
+            <a-popconfirm content="确认删除该参数吗？" @ok="handleDelete(record.id)">
+              <a-button size="mini" status="danger" v-permission="'system:config:delete'">删除</a-button>
+            </a-popconfirm>
+          </a-space>
+        </template>
       </a-table>
     </div>
 
@@ -78,7 +71,7 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue';
-import { Message } from '@arco-design/web-vue';
+import { Message, type TableColumnData } from '@arco-design/web-vue';
 import PageHeaderCard from '@/components/PageHeaderCard.vue';
 import { systemApi } from '@/api/system';
 import type { ConfigForm, ConfigRow } from '@/types/system';
@@ -93,6 +86,34 @@ const pageSize = ref(10);
 const total = ref(0);
 const editingId = ref<number | null>(null);
 const rows = ref<ConfigRow[]>([]);
+const columns: TableColumnData[] = [
+  {
+    dataIndex: 'configName',
+    title: '参数',
+    slotName: 'configCell',
+  },
+  {
+    dataIndex: 'configValue',
+    title: '参数值',
+  },
+  {
+    dataIndex: 'statusText',
+    title: '状态',
+    width: 110,
+    slotName: 'statusCell',
+  },
+  {
+    dataIndex: 'createTimeText',
+    title: '创建时间',
+    width: 180,
+  },
+  {
+    dataIndex: 'actions',
+    title: '操作',
+    width: 220,
+    slotName: 'actionsCell',
+  },
+];
 
 const form = reactive<Required<ConfigForm>>({
   configName: '',
@@ -140,12 +161,12 @@ async function fetchRows() {
 
 function handleSearch() {
   current.value = 1;
-  fetchRows();
+  void fetchRows();
 }
 
 function handlePageChange(page: number) {
   current.value = page;
-  fetchRows();
+  void fetchRows();
 }
 
 function openCreate() {
@@ -199,7 +220,7 @@ async function handleDelete(id: number) {
   await fetchRows();
 }
 
-fetchRows();
+void fetchRows();
 </script>
 
 <style scoped>

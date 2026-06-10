@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.manzhushaka.common.exception.BizException;
 import com.manzhushaka.db.system.entity.SysRole;
+import com.manzhushaka.db.system.entity.SysRoleMenu;
 import com.manzhushaka.db.system.mapper.SysRoleMapper;
+import com.manzhushaka.db.system.mapper.SysRoleMenuMapper;
 import com.manzhushaka.system.dto.role.RoleForm;
 import com.manzhushaka.system.dto.role.RoleQuery;
 import com.manzhushaka.system.service.RoleService;
@@ -23,9 +25,11 @@ import java.util.List;
 public class RoleServiceImpl implements RoleService {
 
     private final SysRoleMapper roleMapper;
+    private final SysRoleMenuMapper roleMenuMapper;
 
-    public RoleServiceImpl(SysRoleMapper roleMapper) {
+    public RoleServiceImpl(SysRoleMapper roleMapper, SysRoleMenuMapper roleMenuMapper) {
         this.roleMapper = roleMapper;
+        this.roleMenuMapper = roleMenuMapper;
     }
 
     @Override
@@ -51,7 +55,10 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public RoleVO getById(Long id) {
-        return toRoleVO(getRoleOrThrow(id));
+        SysRole role = getRoleOrThrow(id);
+        RoleVO detail = toRoleVO(role);
+        detail.setMenuIds(listRoleMenuIds(role.getId()));
+        return detail;
     }
 
     @Override
@@ -61,6 +68,7 @@ public class RoleServiceImpl implements RoleService {
         applyForm(entity, form);
         entity.setDeleted(0);
         roleMapper.insert(entity);
+        syncRoleMenus(entity.getId(), form.getMenuIds());
         return entity.getId();
     }
 
@@ -70,6 +78,7 @@ public class RoleServiceImpl implements RoleService {
         SysRole entity = getRoleOrThrow(id);
         applyForm(entity, form);
         roleMapper.updateById(entity);
+        syncRoleMenus(id, form.getMenuIds());
     }
 
     @Override
@@ -93,6 +102,32 @@ public class RoleServiceImpl implements RoleService {
         entity.setRoleName(form.getRoleName());
         entity.setDataScope(form.getDataScope());
         entity.setStatus(form.getStatus() == null ? 1 : form.getStatus());
+    }
+
+    private List<Long> listRoleMenuIds(Long roleId) {
+        return roleMenuMapper.selectList(new LambdaQueryWrapper<SysRoleMenu>()
+                .eq(SysRoleMenu::getRoleId, roleId))
+            .stream()
+            .map(SysRoleMenu::getMenuId)
+            .filter(menuId -> menuId != null)
+            .sorted()
+            .toList();
+    }
+
+    private void syncRoleMenus(Long roleId, List<Long> menuIds) {
+        roleMenuMapper.delete(new LambdaQueryWrapper<SysRoleMenu>().eq(SysRoleMenu::getRoleId, roleId));
+        if (menuIds == null || menuIds.isEmpty()) {
+            return;
+        }
+        menuIds.stream()
+            .filter(menuId -> menuId != null && menuId > 0)
+            .distinct()
+            .forEach(menuId -> {
+                SysRoleMenu relation = new SysRoleMenu();
+                relation.setRoleId(roleId);
+                relation.setMenuId(menuId);
+                roleMenuMapper.insert(relation);
+            });
     }
 
     private RoleVO toRoleVO(SysRole role) {

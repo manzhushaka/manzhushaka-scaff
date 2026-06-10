@@ -27,33 +27,23 @@
         :loading="loading"
         row-key="id"
         :pagination="pagination"
+        :columns="columns"
         @page-change="handlePageChange"
       >
-        <a-table-column data-index="module" title="模块">
-          <template #cell="{ record }">
-            <div class="primary-cell">
-              <div class="primary-cell-title">{{ record.module }}</div>
-              <div class="primary-cell-sub">{{ record.action }}</div>
-            </div>
-          </template>
-        </a-table-column>
-        <a-table-column data-index="operatorName" title="操作人" />
-        <a-table-column data-index="successText" title="结果" :width="110">
-          <template #cell="{ record }">
-            <a-tag :color="record.successValue === true ? 'green' : record.successValue === false ? 'red' : 'gray'">
-              {{ record.successText }}
-            </a-tag>
-          </template>
-        </a-table-column>
-        <a-table-column data-index="costMsText" title="耗时" :width="110" />
-        <a-table-column data-index="requestMethod" title="请求方法" :width="110" />
-        <a-table-column data-index="requestUri" title="请求路径">
-          <template #cell="{ record }">
-            <span class="code-text">{{ record.requestUri }}</span>
-          </template>
-        </a-table-column>
-        <a-table-column data-index="errorMsg" title="错误信息" />
-        <a-table-column data-index="createTimeText" title="时间" :width="180" />
+        <template #moduleCell="{ record }">
+          <div class="primary-cell">
+            <div class="primary-cell-title">{{ record.module }}</div>
+            <div class="primary-cell-sub">{{ record.action }}</div>
+          </div>
+        </template>
+        <template #successCell="{ record }">
+          <a-tag :color="record.successValue === true ? 'green' : record.successValue === false ? 'red' : 'gray'">
+            {{ record.successText }}
+          </a-tag>
+        </template>
+        <template #requestUriCell="{ record }">
+          <span class="code-text">{{ record.requestUri }}</span>
+        </template>
       </a-table>
     </div>
   </div>
@@ -61,6 +51,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import type { TableColumnData } from '@arco-design/web-vue';
 import PageHeaderCard from '@/components/PageHeaderCard.vue';
 import { systemApi } from '@/api/system';
 import type { OpLogRow } from '@/types/system';
@@ -73,6 +64,47 @@ const current = ref(1);
 const pageSize = ref(10);
 const total = ref(0);
 const rows = ref<OpLogRow[]>([]);
+const columns: TableColumnData[] = [
+  {
+    dataIndex: 'module',
+    title: '模块',
+    slotName: 'moduleCell',
+  },
+  {
+    dataIndex: 'operatorName',
+    title: '操作人',
+  },
+  {
+    dataIndex: 'successText',
+    title: '结果',
+    width: 110,
+    slotName: 'successCell',
+  },
+  {
+    dataIndex: 'costMsText',
+    title: '耗时',
+    width: 110,
+  },
+  {
+    dataIndex: 'requestMethod',
+    title: '请求方法',
+    width: 110,
+  },
+  {
+    dataIndex: 'requestUri',
+    title: '请求路径',
+    slotName: 'requestUriCell',
+  },
+  {
+    dataIndex: 'errorMsg',
+    title: '错误信息',
+  },
+  {
+    dataIndex: 'createTimeText',
+    title: '时间',
+    width: 180,
+  },
+];
 
 const pagination = computed(() => ({
   current: current.value,
