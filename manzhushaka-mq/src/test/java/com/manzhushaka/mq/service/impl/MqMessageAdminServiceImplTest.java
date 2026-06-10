@@ -1,5 +1,8 @@
 package com.manzhushaka.mq.service.impl;
 
+import com.baomidou.mybatisplus.core.MybatisConfiguration;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.manzhushaka.common.enums.MqMessageStatus;
 import com.manzhushaka.common.exception.BizException;
@@ -8,6 +11,7 @@ import com.manzhushaka.db.system.mapper.SysMqMessageMapper;
 import com.manzhushaka.mq.core.MqEvent;
 import com.manzhushaka.mq.core.RedisStreamPublisher;
 import com.manzhushaka.mq.properties.MqProperties;
+import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -15,7 +19,9 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -114,6 +120,33 @@ class MqMessageAdminServiceImplTest {
         assertEquals(1, failedMessage.getRetryCount());
         assertEquals("redis down", failedMessage.getLastError());
         assertNull(failedMessage.getProcessingDeadlineAt());
+    }
+
+    @Test
+    void shouldRejectTimedOutProcessingRetryWhenClaimUsesStaleSnapshot() {
+        SysMqMessageMapper mqMessageMapper = mock(SysMqMessageMapper.class);
+        RedisStreamPublisher redisStreamPublisher = mock(RedisStreamPublisher.class);
+        MqMessageAdminServiceImpl service = buildService(mqMessageMapper, redisStreamPublisher);
+        SysMqMessage message = buildMessage(MqMessageStatus.PROCESSING.name());
+        LocalDateTime oldConsumeStartedAt = LocalDateTime.now().minusSeconds(600);
+        LocalDateTime oldProcessingDeadlineAt = LocalDateTime.now().minusSeconds(300);
+        message.setConsumeStartedAt(oldConsumeStartedAt);
+        message.setProcessingDeadlineAt(oldProcessingDeadlineAt);
+        when(mqMessageMapper.selectById(100L)).thenReturn(message);
+        ArgumentCaptor<LambdaUpdateWrapper> updateWrapperCaptor = ArgumentCaptor.forClass(LambdaUpdateWrapper.class);
+        when(mqMessageMapper.update(any(), updateWrapperCaptor.capture())).thenReturn(0);
+
+        BizException exception = assertThrows(BizException.class, () -> service.retry(100L));
+
+        assertEquals(409, exception.getCode());
+        verify(redisStreamPublisher, never()).publish(any(), any());
+        TableInfoHelper.initTableInfo(new MapperBuilderAssistant(new MybatisConfiguration(), ""), SysMqMessage.class);
+        LambdaUpdateWrapper<?> wrapper = assertInstanceOf(LambdaUpdateWrapper.class, updateWrapperCaptor.getValue());
+        String sqlSegment = wrapper.getSqlSegment();
+        assertTrue(sqlSegment.contains("consume_started_at"), sqlSegment);
+        assertTrue(sqlSegment.contains("processing_deadline_at"), sqlSegment);
+        assertTrue(wrapper.getParamNameValuePairs().containsValue(oldProcessingDeadlineAt));
+        assertTrue(wrapper.getParamNameValuePairs().containsValue(oldConsumeStartedAt));
     }
 
     private MqMessageAdminServiceImpl buildService(SysMqMessageMapper mqMessageMapper, RedisStreamPublisher redisStreamPublisher) {

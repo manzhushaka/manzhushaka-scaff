@@ -68,9 +68,15 @@ public class MqMessageAdminServiceImpl implements MqMessageAdminService {
         updating.setConsumeStartedAt(now);
         updating.setConsumedAt(null);
         updating.setUpdateTime(now);
-        int updated = mqMessageMapper.update(updating, new LambdaUpdateWrapper<SysMqMessage>()
+        LambdaUpdateWrapper<SysMqMessage> updateWrapper = new LambdaUpdateWrapper<SysMqMessage>()
             .eq(SysMqMessage::getId, message.getId())
-            .eq(SysMqMessage::getStatus, message.getStatus()));
+            .eq(SysMqMessage::getStatus, message.getStatus());
+        if (MqMessageStatus.PROCESSING.name().equals(message.getStatus())) {
+            updateWrapper
+                .eq(SysMqMessage::getConsumeStartedAt, message.getConsumeStartedAt())
+                .eq(SysMqMessage::getProcessingDeadlineAt, message.getProcessingDeadlineAt());
+        }
+        int updated = mqMessageMapper.update(updating, updateWrapper);
         if (updated != 1) {
             throw new BizException(409, "消息正在重试中，请刷新后重试");
         }
