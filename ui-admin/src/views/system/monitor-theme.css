@@ -8,6 +8,11 @@
   --monitor-teal: #0f8a5f;
   --monitor-amber: #b86a12;
   --monitor-red: #c33f3f;
+  --page-header-toolbar-gap: 10px;
+  --page-header-toolbar-padding-block: 8px;
+  --page-header-toolbar-padding-inline: 16px;
+  --page-header-toolbar-actions-min-height: 42px;
+  --page-header-toolbar-row-gap: 8px;
   display: grid;
   gap: 18px;
 }
@@ -221,8 +226,7 @@
   line-height: 1.7;
 }
 
-.metric-grid,
-.ops-summary-grid {
+.metric-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 18px;
@@ -243,7 +247,6 @@
 }
 
 .metric-card,
-.ops-summary-card,
 .section-card,
 .domain-card {
   display: grid;
@@ -252,7 +255,6 @@
 }
 
 .metric-card::before,
-.ops-summary-card::before,
 .domain-card::before {
   content: '';
   position: absolute;
@@ -262,25 +264,21 @@
 }
 
 .metric-card--healthy::before,
-.ops-summary-card--healthy::before,
 .domain-card--healthy::before {
   background: linear-gradient(180deg, rgba(15, 138, 95, 0.07), transparent 40%);
 }
 
 .metric-card--attention::before,
-.ops-summary-card--attention::before,
 .domain-card--attention::before {
   background: linear-gradient(180deg, rgba(184, 106, 18, 0.08), transparent 40%);
 }
 
 .metric-card--danger::before,
-.ops-summary-card--danger::before,
 .domain-card--danger::before {
   background: linear-gradient(180deg, rgba(195, 63, 63, 0.08), transparent 40%);
 }
 
 .metric-card--neutral::before,
-.ops-summary-card--neutral::before,
 .domain-card--neutral::before {
   background: linear-gradient(180deg, rgba(36, 91, 219, 0.06), transparent 40%);
 }
@@ -341,25 +339,17 @@
 }
 
 .metric-value,
-.ops-summary-card__value,
 .domain-card__value,
-.mini-kpi__value,
-.stat-value {
+.mini-kpi__value {
   color: var(--monitor-ink);
   font-size: 30px;
   font-weight: 800;
   line-height: 1.05;
 }
 
-.section-grid,
-.tab-grid,
 .diagnostic-grid {
   display: grid;
   gap: 18px;
-}
-
-.section-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .diagnostic-grid {
@@ -373,15 +363,10 @@
   gap: 16px;
 }
 
-.compact-stat-grid,
 .domain-card__stats,
 .ops-summary-grid--inline {
   display: grid;
   gap: 14px;
-}
-
-.compact-stat-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .domain-card__stats {
@@ -392,31 +377,46 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.mini-kpi,
-.stat-item {
+.mini-kpi {
   padding: 14px 16px;
   border-radius: 16px;
   border: 1px solid rgba(36, 91, 219, 0.08);
   background: #f8fbff;
 }
 
-.stat-item--guide {
-  background:
-    linear-gradient(135deg, rgba(255, 250, 242, 0.96), rgba(248, 250, 255, 0.96));
-}
-
-.stat-value {
-  margin-top: 8px;
-  font-size: 20px;
-}
-
-.stat-value--body {
-  font-size: 17px;
-  line-height: 1.6;
-}
-
 .ops-table {
   margin-top: 10px;
+}
+
+.diagnostic-panel {
+  gap: 0;
+}
+
+.diagnostic-tabs {
+  margin-top: -4px;
+}
+
+.diagnostic-tabs :deep(.arco-tabs-nav::before) {
+  background: rgba(24, 46, 85, 0.08);
+}
+
+.diagnostic-tabs :deep(.arco-tabs-tab) {
+  padding: 0 0 14px;
+  margin-right: 26px;
+  color: #60718d;
+  font-weight: 600;
+}
+
+.diagnostic-tabs :deep(.arco-tabs-tab-active) {
+  color: var(--monitor-ink);
+}
+
+.diagnostic-tabs :deep(.arco-tabs-content) {
+  padding-top: 18px;
+}
+
+.diagnostic-section-header {
+  margin-bottom: 2px;
 }
 
 .log-meta {
@@ -443,16 +443,13 @@
 
 @media (max-width: 1280px) {
   .metric-grid,
-  .ops-summary-grid,
   .service-command__rail,
   .service-chip-grid,
-  .compact-stat-grid,
   .ops-summary-grid--inline {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .diagnostic-grid,
-  .section-grid,
   .overview-domain-grid,
   .overview-domain-grid--triple {
     grid-template-columns: 1fr;
@@ -463,10 +460,8 @@
   .hero-shell,
   .hero-overview,
   .metric-grid,
-  .ops-summary-grid,
   .service-command__rail,
   .service-chip-grid,
-  .compact-stat-grid,
   .domain-card__stats,
   .ops-summary-grid--inline {
     grid-template-columns: 1fr;
@@ -477,5 +472,9 @@
   .section-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .diagnostic-tabs :deep(.arco-tabs-tab) {
+    margin-right: 18px;
   }
 }

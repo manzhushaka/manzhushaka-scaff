@@ -199,6 +199,8 @@ watch(
 
 <style scoped>
 .layout-shell {
+  --top-rail-height: 42px;
+  --top-rail-shell-padding: 8px;
   min-height: 100dvh;
   padding: 0 18px 0 0;
 }
@@ -448,7 +450,7 @@ watch(
   justify-content: space-between;
   gap: 16px;
   height: auto;
-  padding: 16px 24px;
+  padding: var(--top-rail-shell-padding) 24px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(247, 250, 255, 0.88));
   border: 1px solid rgba(15, 23, 42, 0.06);
   border-radius: 26px;
@@ -460,8 +462,12 @@ watch(
   display: flex;
   align-items: center;
   min-width: 0;
-  min-height: 38px;
+  min-height: var(--top-rail-height);
   padding-left: 2px;
+}
+
+.header-actions {
+  min-height: var(--top-rail-height);
 }
 
 .header-breadcrumb {
@@ -485,7 +491,8 @@ watch(
   align-items: center;
   gap: 12px;
   min-width: 0;
-  padding: 8px 12px 8px 8px;
+  min-height: var(--top-rail-height);
+  padding: 0 12px 0 8px;
   background: rgba(255, 255, 255, 0.86);
   border: 1px solid rgba(36, 91, 219, 0.1);
   border-radius: 999px;
@@ -505,31 +512,42 @@ watch(
 .profile-avatar {
   display: grid;
   place-items: center;
-  width: 38px;
-  height: 38px;
-  color: #fff;
-  font-size: 15px;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  color: #1c57d6;
+  font-size: 13px;
   font-weight: 700;
-  background: linear-gradient(180deg, #2d74ff 0%, #1949b8 100%);
-  border-radius: 50%;
-  box-shadow: 0 12px 22px rgba(36, 91, 219, 0.22);
+  background: linear-gradient(180deg, rgba(90, 145, 255, 0.18), rgba(42, 104, 255, 0.12));
+  border: 1px solid rgba(42, 104, 255, 0.16);
+  border-radius: 10px;
 }
 
 .profile-copy {
   min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .profile-name {
   color: #1a2740;
   font-size: 13px;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .profile-role {
-  margin-top: 2px;
-  color: #7a88a0;
-  font-size: 11px;
-  letter-spacing: 0.06em;
+  padding: 3px 8px;
+  color: #4d6488;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  background: rgba(42, 104, 255, 0.08);
+  border: 1px solid rgba(42, 104, 255, 0.12);
+  border-radius: 999px;
 }
 
 .profile-chip__arrow {
@@ -549,7 +567,7 @@ watch(
 
 .visited-tabs-shell {
   margin-bottom: 18px;
-  padding: 8px;
+  padding: var(--top-rail-shell-padding);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(247, 250, 255, 0.9));
   border: 1px solid rgba(15, 23, 42, 0.05);
   border-radius: 24px;
@@ -573,7 +591,7 @@ watch(
   align-items: center;
   gap: 10px;
   flex: 0 0 auto;
-  min-height: 42px;
+  min-height: var(--top-rail-height);
   padding: 0 16px;
   color: #4c5d78;
   font-size: 14px;
@@ -638,12 +656,15 @@ watch(
 
   .layout-header {
     flex-wrap: wrap;
-    padding: 14px 18px;
+    padding-right: 18px;
+    padding-left: 18px;
   }
 }
 
 @media (max-width: 768px) {
   .layout-shell {
+    --top-rail-height: 40px;
+    --top-rail-shell-padding: 6px;
     padding: 0;
   }
 
@@ -664,15 +685,28 @@ watch(
     padding-top: 14px;
   }
 
-  .visited-tab {
-    min-height: 40px;
-    padding: 0 14px;
-    font-size: 13px;
-  }
-
   .header-actions {
     flex-wrap: wrap;
     gap: 12px;
+  }
+
+  .profile-copy {
+    gap: 8px;
+  }
+
+  .profile-name {
+    font-size: 12px;
+  }
+
+  .profile-role {
+    padding-right: 7px;
+    padding-left: 7px;
+    font-size: 9px;
+  }
+
+  .visited-tab {
+    padding: 0 14px;
+    font-size: 13px;
   }
 }
 </style>

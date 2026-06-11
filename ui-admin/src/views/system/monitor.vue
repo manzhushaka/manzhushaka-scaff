@@ -52,33 +52,6 @@
           </div>
         </a-card>
 
-        <div class="metric-grid">
-          <a-card
-            v-for="item in hardwareMetricCards"
-            :key="item.key"
-            class="page-card metric-card"
-            :class="`metric-card--${item.tone}`"
-            :bordered="false"
-          >
-            <div class="metric-head">
-              <div class="metric-heading">
-                <div class="metric-icon" :class="`metric-icon--${item.tone}`">
-                  <component :is="item.icon" />
-                </div>
-                <div>
-                  <div class="metric-title">{{ item.title }}</div>
-                  <div class="metric-subtitle">{{ item.subtitle }}</div>
-                </div>
-              </div>
-              <a-tag bordered size="small" :color="item.tagColor">{{ item.tagText }}</a-tag>
-            </div>
-
-            <div class="metric-value">{{ item.value }}</div>
-            <a-progress :percent="item.percent" :status="item.progressStatus" :stroke-width="10" :show-text="false" />
-            <div class="metric-note">{{ item.note }}</div>
-          </a-card>
-        </div>
-
         <a-card class="page-card section-card" :bordered="false">
           <div class="section-header">
             <div>
@@ -115,55 +88,6 @@
           </div>
         </a-card>
 
-        <div class="ops-summary-grid">
-          <a-card
-            v-for="item in hardwareSpotlightItems"
-            :key="item.key"
-            class="page-card ops-summary-card"
-            :class="`ops-summary-card--${item.tone}`"
-            :bordered="false"
-          >
-            <div class="ops-summary-card__label">{{ item.label }}</div>
-            <div class="ops-summary-card__value">{{ item.value }}</div>
-            <div class="ops-summary-card__note">{{ item.note }}</div>
-          </a-card>
-        </div>
-
-        <div class="section-grid">
-          <a-card class="page-card section-card" :bordered="false">
-            <div class="section-header">
-              <div>
-                <div class="section-title">资源底座</div>
-                <div class="section-description">只放宿主机基础事实，方便先确认这台机器是不是已经处在紧张状态。</div>
-              </div>
-            </div>
-
-            <div class="compact-stat-grid">
-              <div v-for="item in hardwareBaseStats" :key="item.label" class="stat-item">
-                <div class="stat-label">{{ item.label }}</div>
-                <div class="stat-value">{{ item.value }}</div>
-                <div class="stat-hint">{{ item.hint }}</div>
-              </div>
-            </div>
-          </a-card>
-
-          <a-card class="page-card section-card" :bordered="false">
-            <div class="section-header">
-              <div>
-                <div class="section-title">值班提示</div>
-                <div class="section-description">硬件页只负责先判断机器层面的问题，不在这里展开 Redis、任务和消息链路。</div>
-              </div>
-            </div>
-
-            <div class="compact-stat-grid">
-              <div v-for="item in hardwareGuideItems" :key="item.label" class="stat-item stat-item--guide">
-                <div class="stat-label">{{ item.label }}</div>
-                <div class="stat-value stat-value--body">{{ item.value }}</div>
-                <div class="stat-hint">{{ item.hint }}</div>
-              </div>
-            </div>
-          </a-card>
-        </div>
       </div>
     </a-spin>
   </div>
@@ -179,11 +103,7 @@ const {
   hardwareHealth,
   hardwareOverviewItems,
   hardwareStatusItems,
-  hardwareMetricCards,
   hardwareRuntimeCards,
-  hardwareSpotlightItems,
-  hardwareBaseStats,
-  hardwareGuideItems,
   refreshMonitor,
   openRoute,
 } = useHardwareMonitorViewModel();

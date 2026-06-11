@@ -41,11 +41,7 @@ const shouldRender = computed(() => showHeading.value || hasActions.value);
 </script>
 
 <style scoped>
-.page-header-card {
-  margin-bottom: 18px;
-}
-
-.page-header-card :deep(.arco-card-body) {
+.page-header-card.page-card.arco-card :deep(.arco-card-body) {
   padding: 0;
 }
 
@@ -59,8 +55,10 @@ const shouldRender = computed(() => showHeading.value || hasActions.value);
 
 .page-header-card__inner--toolbar {
   align-items: center;
-  gap: 14px;
-  padding: 16px 18px;
+  gap: var(--page-header-toolbar-gap, 14px);
+  padding:
+    var(--page-header-toolbar-padding-block, 16px)
+    var(--page-header-toolbar-padding-inline, 18px);
 }
 
 .header-content {
@@ -103,12 +101,12 @@ const shouldRender = computed(() => showHeading.value || hasActions.value);
 .page-header-card__inner--toolbar .header-actions,
 .header-actions--stretch {
   width: 100%;
-  min-height: 0;
+  min-height: var(--page-header-toolbar-actions-min-height, 0);
   justify-content: flex-start;
 }
 
 .page-header-card__inner--toolbar :deep(.arco-space) {
-  row-gap: 12px;
+  row-gap: var(--page-header-toolbar-row-gap, 12px);
 }
 
 @media (max-width: 768px) {

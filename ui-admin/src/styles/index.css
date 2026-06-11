@@ -60,18 +60,19 @@ a {
 }
 
 .page-card {
+  --page-card-radius: var(--radius-lg);
   position: relative;
   overflow: hidden;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 251, 255, 0.94));
   border: 1px solid var(--line-soft);
-  border-radius: var(--radius-lg);
+  border-radius: var(--page-card-radius);
   box-shadow: var(--shadow-md);
 }
 
 .page-card.arco-card {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 251, 255, 0.94));
   border: 1px solid var(--line-soft);
-  border-radius: var(--radius-lg);
+  border-radius: var(--page-card-radius);
   box-shadow: var(--shadow-md);
 }
 
@@ -97,12 +98,16 @@ a {
   padding: 18px;
 }
 
-.table-card .arco-table {
-  border-radius: 18px;
+.page-card .arco-table {
+  border-radius: var(--page-card-radius);
   overflow: hidden;
 }
 
-.table-card .arco-table-th {
+.page-card .arco-table-container {
+  border-radius: inherit;
+}
+
+.page-card .arco-table-th {
   height: 48px;
   color: var(--text-body);
   font-size: 12px;
@@ -110,21 +115,21 @@ a {
   background: #f7f9fd;
 }
 
-.table-card .arco-table-td {
+.page-card .arco-table-td {
   height: 58px;
   color: var(--text-strong);
   border-bottom-color: rgba(15, 23, 42, 0.06);
 }
 
-.table-card .arco-table-tr:hover .arco-table-td {
+.page-card .arco-table-tr:hover .arco-table-td {
   background: rgba(36, 91, 219, 0.035);
 }
 
-.table-card .arco-pagination {
+.page-card .arco-pagination {
   margin-top: 18px;
 }
 
-.table-card .arco-pagination-item {
+.page-card .arco-pagination-item {
   border-radius: 10px;
 }
 
@@ -199,7 +204,7 @@ a {
 
 @media (max-width: 1024px) {
   .page-card {
-    border-radius: 20px;
+    --page-card-radius: 20px;
   }
 
   .table-card {

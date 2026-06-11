@@ -13,6 +13,7 @@ import type {
   MonitorSlowSqlVO,
   ServerMonitorVO,
 } from '@/types/system';
+import { formatCurrentDateTime } from '@/utils/date-time';
 
 export type MonitorTone = 'healthy' | 'attention' | 'danger' | 'neutral';
 type ProgressStatus = 'normal' | 'success' | 'warning' | 'danger';
@@ -41,20 +42,6 @@ export interface MetricCardItem {
   tagColor: string;
   tagText: string;
   icon: Component;
-}
-
-export interface SummaryCardItem {
-  key: string;
-  label: string;
-  value: string;
-  note: string;
-  tone: MonitorTone;
-}
-
-export interface StatItem {
-  label: string;
-  value: string;
-  hint: string;
 }
 
 export interface ServiceDomainCardStat {
@@ -151,53 +138,6 @@ export function useHardwareMonitorViewModel() {
     },
   ]);
 
-  const hardwareMetricCards = computed<MetricCardItem[]>(() => [
-    createMetricCard({
-      key: 'system-cpu',
-      title: '系统 CPU',
-      subtitle: '宿主机整体算力占用',
-      value: formatPercent(runtime.monitor.value?.system.systemCpuUsage),
-      note: `${formatInteger(runtime.monitor.value?.system.availableProcessors)} 核可用`,
-      percent: normalizePercent(runtime.monitor.value?.system.systemCpuUsage),
-      tone: runtime.systemCpuTone.value,
-      tagText: getToneText(runtime.systemCpuTone.value),
-      icon: IconThunderbolt,
-    }),
-    createMetricCard({
-      key: 'physical-memory',
-      title: '物理内存已用',
-      subtitle: '宿主机内存水位',
-      value: formatPercent(runtime.physicalMemoryUsagePercent.value),
-      note: `${formatBytes(runtime.usedPhysicalMemory.value)} / ${formatBytes(runtime.monitor.value?.system.totalPhysicalMemory)}`,
-      percent: normalizePercent(runtime.physicalMemoryUsagePercent.value),
-      tone: runtime.physicalMemoryTone.value,
-      tagText: getToneText(runtime.physicalMemoryTone.value),
-      icon: IconStorage,
-    }),
-    createMetricCard({
-      key: 'free-memory',
-      title: '空闲物理内存',
-      subtitle: '剩余可调度空间',
-      value: formatBytes(runtime.monitor.value?.system.freePhysicalMemory),
-      note: `空闲占比 ${formatPercent(runtime.memoryFreePercent.value)}`,
-      percent: normalizePercent(runtime.memoryFreePercent.value),
-      tone: runtime.memoryFreePercentTone.value,
-      tagText: getToneText(runtime.memoryFreePercentTone.value),
-      icon: IconClockCircle,
-    }),
-    createMetricCard({
-      key: 'resource-headroom',
-      title: '资源余量',
-      subtitle: 'CPU / 内存联合视角',
-      value: formatPercent(runtime.resourceHeadroomPercent.value),
-      note: '数值越高，说明宿主机越从容；数值偏低时建议先排查部署密度和抢占源。',
-      percent: normalizePercent(runtime.resourceHeadroomPercent.value),
-      tone: runtime.resourceHeadroomTone.value,
-      tagText: getToneText(runtime.resourceHeadroomTone.value),
-      icon: IconCode,
-    }),
-  ]);
-
   const hardwareRuntimeCards = computed<MetricCardItem[]>(() => [
     createMetricCard({
       key: 'process-cpu',
@@ -245,57 +185,6 @@ export function useHardwareMonitorViewModel() {
     }),
   ]);
 
-  const hardwareSpotlightItems = computed<SummaryCardItem[]>(() => [
-    {
-      key: 'cpu-headroom',
-      label: 'CPU 余量',
-      value: formatPercent(runtime.cpuHeadroomPercent.value),
-      note: runtime.systemCpuTone.value === 'danger' ? '系统 CPU 已接近高压区间。' : '用于判断是否还有扩容前的缓冲空间。',
-      tone: runtime.cpuHeadroomTone.value,
-    },
-    {
-      key: 'memory-headroom',
-      label: '内存余量',
-      value: formatPercent(runtime.memoryFreePercent.value),
-      note: runtime.physicalMemoryTone.value === 'danger' ? '物理内存水位偏高，建议核对宿主机竞争。' : '更适合判断宿主机是否会挤压到其他实例。',
-      tone: runtime.memoryFreePercentTone.value,
-    },
-    {
-      key: 'resource-score',
-      label: '资源得分',
-      value: formatPercent(runtime.resourceBalanceScore.value),
-      note: '把 CPU 和内存两个维度折算成一个更易读的平衡分。',
-      tone: runtime.resourceHeadroomTone.value,
-    },
-    {
-      key: 'available-cores',
-      label: '逻辑核数',
-      value: formatInteger(runtime.monitor.value?.system.availableProcessors),
-      note: '适合与部署规模一起看，判断是不是宿主机规格偏小。',
-      tone: 'neutral',
-    },
-  ]);
-
-  const hardwareBaseStats = computed<StatItem[]>(() => [
-    { label: '宿主系统', value: runtime.monitor.value?.osName || '--', hint: '用于区分当前实例所在的宿主机环境。' },
-    { label: '架构', value: runtime.monitor.value?.osArch || '--', hint: '当部署跨架构时，能帮助排查差异。' },
-    { label: 'Java 版本', value: runtime.monitor.value?.javaVersion || '--', hint: '用于定位运行时差异与参数兼容性。' },
-    { label: 'JVM', value: runtime.monitor.value?.jvm.vmName || '--', hint: '帮助区分当前运行时实现和采样表现。' },
-    { label: '逻辑核数', value: formatInteger(runtime.monitor.value?.system.availableProcessors), hint: '观察算力规格是否足够支撑当前部署密度。' },
-    { label: '总物理内存', value: formatBytes(runtime.monitor.value?.system.totalPhysicalMemory), hint: '宿主机可分配的总内存基线。' },
-    { label: '已用物理内存', value: formatBytes(runtime.usedPhysicalMemory.value), hint: '更接近宿主机竞争态，不是单实例视角。' },
-    { label: '空闲物理内存', value: formatBytes(runtime.monitor.value?.system.freePhysicalMemory), hint: '适合判断还能否容纳更多进程或任务。' },
-    { label: 'CPU 占用', value: formatPercent(runtime.monitor.value?.system.systemCpuUsage), hint: '宿主机整体 CPU 使用率。' },
-    { label: '内存水位', value: formatPercent(runtime.physicalMemoryUsagePercent.value), hint: '宿主机整体物理内存使用率。' },
-  ]);
-
-  const hardwareGuideItems = computed<StatItem[]>(() => [
-    { label: '先看 CPU', value: getHardwareGuide(runtime.systemCpuTone.value, 'CPU 压力偏高，先确认是不是宿主机被其他实例抢占。'), hint: '关注区间 55% / 告警区间 80%。' },
-    { label: '再看内存', value: getHardwareGuide(runtime.physicalMemoryTone.value, '内存水位偏高时，优先排查宿主机总体竞争而不是单实例堆。'), hint: '关注区间 70% / 告警区间 88%。' },
-    { label: '余量判断', value: getHardwareGuide(runtime.resourceHeadroomTone.value, '当资源余量持续走低时，再进入服务页确认是不是本应用压上去的。'), hint: '这个分值越高越从容。' },
-    { label: '排查顺序', value: '宿主机先行', hint: '硬件页用于先判断“机器吃紧没有”，服务页再判断“是不是我们自己的服务吃掉了资源”。' },
-  ]);
-
   return {
     loading: runtime.loading,
     lastUpdatedText: runtime.lastUpdatedText,
@@ -303,11 +192,7 @@ export function useHardwareMonitorViewModel() {
     hardwareHealth,
     hardwareOverviewItems,
     hardwareStatusItems,
-    hardwareMetricCards,
     hardwareRuntimeCards,
-    hardwareSpotlightItems,
-    hardwareBaseStats,
-    hardwareGuideItems,
     refreshMonitor: runtime.refreshMonitor,
     openRoute: runtime.openRoute,
   };
@@ -434,29 +319,6 @@ export function useServiceMonitorViewModel() {
     },
   ]);
 
-  const serviceActionStats = computed<StatItem[]>(() => [
-    {
-      label: '慢 SQL 最近采样',
-      value: formatInteger(runtime.monitor.value?.slowSql.recentCount),
-      hint: `最新耗时 ${formatCost(runtime.monitor.value?.slowSql.latestCostMs)}，阈值 ${formatCost(runtime.monitor.value?.slowSql.thresholdMs)}。`,
-    },
-    {
-      label: '日志缓冲条数',
-      value: formatInteger(runtime.monitor.value?.logTail.entryCount),
-      hint: `容量 ${formatInteger(runtime.monitor.value?.logTail.capacity)}，最后一条 ${runtime.monitor.value?.logTail.lastEntryAt || '--'}`,
-    },
-    {
-      label: '消息超时数',
-      value: formatInteger(runtime.monitor.value?.messageBacklog.timedOutCount),
-      hint: runtime.monitor.value?.messageBacklog.oldestPendingEventId || '当前没有超时消息。',
-    },
-    {
-      label: '任务失败样本',
-      value: runtime.monitor.value?.jobHealth.recentFailures[0]?.jobName || '--',
-      hint: '适合直接联动任务页对照执行日志。',
-    },
-  ]);
-
   return {
     loading: runtime.loading,
     lastUpdatedText: runtime.lastUpdatedText,
@@ -465,7 +327,6 @@ export function useServiceMonitorViewModel() {
     serviceOverviewItems,
     serviceStatusItems,
     serviceDomainCards,
-    serviceActionStats,
     refreshMonitor: runtime.refreshMonitor,
     openRoute: runtime.openRoute,
   };
@@ -534,6 +395,85 @@ export function useMonitorDiagnostics() {
 }
 
 /**
+ * 构建慢 SQL 独立页面的数据模型。
+ *
+ * @returns 慢 SQL 页面展示与刷新所需的状态
+ */
+export function useMonitorSlowSqlPage() {
+  const runtime = useMonitorRuntime();
+  const diagnostics = useMonitorDiagnostics();
+
+  /**
+   * 同步刷新运行监控摘要与慢 SQL 明细。
+   *
+   * @param showSuccess 是否显示刷新成功提示
+   * @returns 刷新完成后的 Promise
+   */
+  async function refreshAll(showSuccess = false) {
+    await Promise.all([
+      runtime.refreshMonitor(false),
+      diagnostics.fetchSlowSql(false),
+    ]);
+    if (showSuccess) {
+      Message.success('慢 SQL 页面已刷新');
+    }
+  }
+
+  void diagnostics.fetchSlowSql();
+
+  return {
+    loading: runtime.loading,
+    lastUpdatedText: runtime.lastUpdatedText,
+    monitor: runtime.monitor,
+    openRoute: runtime.openRoute,
+    refreshAll,
+    slowSqlLoading: diagnostics.slowSqlLoading,
+    slowSqlRows: diagnostics.slowSqlRows,
+  };
+}
+
+/**
+ * 构建在线日志独立页面的数据模型。
+ *
+ * @returns 在线日志页面展示与刷新所需的状态
+ */
+export function useMonitorLiveLogPage() {
+  const runtime = useMonitorRuntime();
+  const diagnostics = useMonitorDiagnostics();
+
+  /**
+   * 同步刷新运行监控摘要与在线日志明细。
+   *
+   * @param showSuccess 是否显示刷新成功提示
+   * @returns 刷新完成后的 Promise
+   */
+  async function refreshAll(showSuccess = false) {
+    await Promise.all([
+      runtime.refreshMonitor(false),
+      diagnostics.fetchLogTail(false),
+    ]);
+    if (showSuccess) {
+      Message.success('在线日志页面已刷新');
+    }
+  }
+
+  void diagnostics.fetchLogTail();
+
+  return {
+    loading: runtime.loading,
+    lastUpdatedText: runtime.lastUpdatedText,
+    monitor: runtime.monitor,
+    openRoute: runtime.openRoute,
+    refreshAll,
+    logLoading: diagnostics.logLoading,
+    logLineLimit: diagnostics.logLineLimit,
+    logTail: diagnostics.logTail,
+    logTailText: diagnostics.logTailText,
+    fetchLogTail: diagnostics.fetchLogTail,
+  };
+}
+
+/**
  * 构建两类监控页面共用的基础运行态。
  *
  * @returns 共享的监控实体、派生指标和跳转方法
@@ -593,18 +533,12 @@ function useMonitorRuntime() {
     return (monitor.value.jvm.nonHeapUsed / nonHeapCapacity.value) * 100;
   });
 
-  const cpuHeadroomPercent = computed(() => toHeadroomPercent(monitor.value?.system.systemCpuUsage));
   const resourceHeadroomPercent = computed(() => {
-    if (cpuHeadroomPercent.value == null || memoryFreePercent.value == null) {
+    const cpuHeadroomPercent = toHeadroomPercent(monitor.value?.system.systemCpuUsage);
+    if (cpuHeadroomPercent == null || memoryFreePercent.value == null) {
       return null;
     }
-    return Math.min(cpuHeadroomPercent.value, memoryFreePercent.value);
-  });
-  const resourceBalanceScore = computed(() => {
-    if (cpuHeadroomPercent.value == null || memoryFreePercent.value == null) {
-      return null;
-    }
-    return (cpuHeadroomPercent.value * 0.45) + (memoryFreePercent.value * 0.55);
+    return Math.min(cpuHeadroomPercent, memoryFreePercent.value);
   });
 
   const systemCpuTone = computed(() => getLoadTone(monitor.value?.system.systemCpuUsage, 55, 80));
@@ -613,7 +547,6 @@ function useMonitorRuntime() {
   const heapTone = computed(() => getLoadTone(heapUsagePercent.value, 72, 90));
   const nonHeapTone = computed(() => getLoadTone(nonHeapUsagePercent.value, 78, 92));
   const threadTone = computed(() => getLoadTone(monitor.value?.jvm.liveThreadCount, 140, 220));
-  const cpuHeadroomTone = computed(() => getInverseLoadTone(cpuHeadroomPercent.value, 20, 45));
   const memoryFreePercentTone = computed(() => getInverseLoadTone(memoryFreePercent.value, 12, 30));
   const resourceHeadroomTone = computed(() => getInverseLoadTone(resourceHeadroomPercent.value, 14, 32));
 
@@ -627,7 +560,7 @@ function useMonitorRuntime() {
     loading.value = true;
     try {
       monitor.value = await systemApi.getServerMonitor();
-      lastUpdatedText.value = new Date().toLocaleString('zh-CN', { hour12: false });
+      lastUpdatedText.value = formatCurrentDateTime();
       if (showSuccess) {
         Message.success('运行监控已刷新');
       }
@@ -662,16 +595,13 @@ function useMonitorRuntime() {
     heapUsagePercent,
     nonHeapCapacity,
     nonHeapUsagePercent,
-    cpuHeadroomPercent,
     resourceHeadroomPercent,
-    resourceBalanceScore,
     systemCpuTone,
     processCpuTone,
     physicalMemoryTone,
     heapTone,
     nonHeapTone,
     threadTone,
-    cpuHeadroomTone,
     memoryFreePercentTone,
     resourceHeadroomTone,
     refreshMonitor,
@@ -809,23 +739,6 @@ function getToneText(tone: MonitorTone) {
     return '平稳';
   }
   return '待定';
-}
-
-/**
- * 为硬件页输出更易读的守夜提示文案。
- *
- * @param tone 当前监控色阶
- * @param warningText 需要提示时的说明
- * @returns 适合直接展示的状态说明
- */
-function getHardwareGuide(tone: MonitorTone, warningText: string) {
-  if (tone === 'danger' || tone === 'attention') {
-    return warningText;
-  }
-  if (tone === 'healthy') {
-    return '当前指标仍在舒适区间，可以保持观察。';
-  }
-  return '等待最新采集数据返回。';
 }
 
 /**
