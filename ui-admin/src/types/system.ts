@@ -240,7 +240,64 @@ export interface ServerMonitorRedisVO {
   usedMemory: number | null;
   usedMemoryPeak: number | null;
   dbSize: number | null;
+  keyspaceHits: number | null;
+  keyspaceMisses: number | null;
+  hitRate: number | null;
+  expiredKeys: number | null;
+  evictedKeys: number | null;
   errorMessage: string | null;
+}
+
+export interface ServerMonitorJobFailureItemVO {
+  jobId: number | null;
+  jobName: string | null;
+  runStatus: string | null;
+  errorMsg: string | null;
+  startTime: string | null;
+}
+
+export interface ServerMonitorJobHealthVO {
+  totalJobs: number | null;
+  enabledJobs: number | null;
+  pausedJobs: number | null;
+  recentSuccessCount: number | null;
+  recentFailCount: number | null;
+  recentSuccessRate: number | null;
+  recentFailures: ServerMonitorJobFailureItemVO[];
+}
+
+export interface ServerMonitorStreamBacklogItemVO {
+  streamKey: string | null;
+  pendingCount: number | null;
+  failCount: number | null;
+}
+
+export interface ServerMonitorMessageBacklogVO {
+  pendingCount: number | null;
+  processingCount: number | null;
+  failCount: number | null;
+  initCount: number | null;
+  publishedCount: number | null;
+  timedOutCount: number | null;
+  oldestPendingEventId: string | null;
+  oldestPendingCreateTime: string | null;
+  streams: ServerMonitorStreamBacklogItemVO[];
+}
+
+export interface ServerMonitorSlowSqlSummaryVO {
+  available: boolean | null;
+  recentCount: number | null;
+  latestCostMs: number | null;
+  latestStatementId: string | null;
+  latestExecuteTime: string | null;
+  thresholdMs: number | null;
+}
+
+export interface ServerMonitorLogTailSummaryVO {
+  available: boolean | null;
+  entryCount: number | null;
+  capacity: number | null;
+  lastEntryAt: string | null;
 }
 
 export interface ServerMonitorVO {
@@ -254,6 +311,25 @@ export interface ServerMonitorVO {
   system: ServerMonitorSystemVO;
   jvm: ServerMonitorJvmVO;
   redis: ServerMonitorRedisVO;
+  jobHealth: ServerMonitorJobHealthVO;
+  messageBacklog: ServerMonitorMessageBacklogVO;
+  slowSql: ServerMonitorSlowSqlSummaryVO;
+  logTail: ServerMonitorLogTailSummaryVO;
+}
+
+export interface MonitorSlowSqlVO {
+  statementId: string | null;
+  sql: string | null;
+  costMs: number | null;
+  resultSize: number | null;
+  executeTime: string | null;
+}
+
+export interface MonitorLogTailVO {
+  available: boolean | null;
+  generatedAt: string | null;
+  lastEntryAt: string | null;
+  lines: string[];
 }
 
 export interface ImportExportTaskVO {

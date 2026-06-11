@@ -146,7 +146,46 @@
 | --- | --- | --- | --- |
 | `@OpLog` | `manzhushaka-common` | 声明操作日志元数据，由 `OpLogAspect` 统一采集模块、动作、业务类型，并控制是否记录请求/响应快照 | 已用于认证登录、登出等接口 |
 | `@DataScope` | `manzhushaka-common` | 声明数据权限规则，由 `DataScopeAspect` 按当前登录用户生成 SQL 数据范围片段 | 框架能力已就绪，可直接用于列表查询类业务 |
+| `@SensitiveField` | `manzhushaka-common` | 标记接口出参中需要脱敏展示的字段，序列化为 JSON 时按策略自动脱敏，避免将敏感明文直接返回前端 | 已支持 `FULL`、`MOBILE`、`CUSTOM` 三种策略，可直接用于各类 `VO` 字段 |
 | `@SaIgnore` | `Sa-Token` | 标记匿名访问接口，跳过登录鉴权 | 已用于验证码等匿名入口 |
+
+### `@SensitiveField` 使用说明
+
+当后端字段需要返回给前端展示，但不允许以前端可见明文形式暴露时，建议在对应 `VO` 字段上使用 `@SensitiveField` 注解，由后端统一输出脱敏结果，不要把明文值直接返回给前端后再由前端自行裁剪。
+
+当前支持的脱敏策略：
+
+- `SensitiveType.FULL`：全量脱敏，输出固定占位内容。
+- `SensitiveType.MOBILE`：手机号脱敏，默认保留前 `3` 位和后 `4` 位。
+- `SensitiveType.CUSTOM`：自定义前后保留位数，适用于银行卡号、证件号等场景。
+
+示例：
+
+```java
+import com.manzhushaka.common.annotation.SensitiveField;
+import com.manzhushaka.common.enums.SensitiveType;
+
+public class UserProfileVO {
+    @SensitiveField(SensitiveType.MOBILE)
+    private String mobile;
+
+    @SensitiveField(SensitiveType.FULL)
+    private String accessToken;
+
+    @SensitiveField(value = SensitiveType.CUSTOM, prefixKeep = 4, suffixKeep = 3)
+    private String bankCard;
+}
+```
+
+序列化后的典型效果：
+
+```json
+{
+  "mobile": "138****5678",
+  "accessToken": "***",
+  "bankCard": "6222************123"
+}
+```
 
 ## 前端功能模块
 

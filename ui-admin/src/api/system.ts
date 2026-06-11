@@ -13,6 +13,8 @@ import type {
   CacheEntryDetailVO,
   CacheEntryQuery,
   CacheEntryVO,
+  MonitorLogTailVO,
+  MonitorSlowSqlVO,
   ServerMonitorVO,
   PlatformJobForm,
   PlatformJobLogDetailVO,
@@ -270,6 +272,12 @@ export const systemApi = {
   },
   getServerMonitor() {
     return get<ServerMonitorVO>('/system/monitor/server');
+  },
+  listMonitorSlowSql(limit = 20) {
+    return get<MonitorSlowSqlVO[]>('/system/monitor/slow-sql', { limit });
+  },
+  getMonitorLogTail(limit = 80) {
+    return get<MonitorLogTailVO>('/system/monitor/logs/tail', { limit });
   },
   listPlatformJobs(params: PlatformJobQuery) {
     return get<PageResult<PlatformJobVO>>('/system/jobs', params);

@@ -279,19 +279,53 @@ let mockMenuStore: MockMenuItemRecord[] = [
   },
   {
     id: 28,
-    parentId: 10,
-    menuType: 'MENU',
+    parentId: 0,
+    menuType: 'DIR',
     menuName: '运行监控',
     routeName: 'SystemMonitor',
-    routePath: '/system/monitor',
-    component: 'system/monitor',
+    routePath: '/monitor',
+    component: '',
     icon: 'icon-dashboard',
-    perms: 'system:monitor:view',
+    perms: '',
     sort: 4,
     visible: 1,
     keepAlive: 0,
     status: 1,
-    remark: '系统运行监控菜单',
+    remark: '运行监控目录',
+    createTime: formatNow(),
+  },
+  {
+    id: 35,
+    parentId: 28,
+    menuType: 'MENU',
+    menuName: '硬件监控',
+    routeName: 'SystemMonitorHardware',
+    routePath: '/monitor/hardware',
+    component: 'system/monitor-hardware',
+    icon: '',
+    perms: 'system:monitor:view',
+    sort: 1,
+    visible: 1,
+    keepAlive: 0,
+    status: 1,
+    remark: '硬件监控菜单',
+    createTime: formatNow(),
+  },
+  {
+    id: 36,
+    parentId: 28,
+    menuType: 'MENU',
+    menuName: '服务监控',
+    routeName: 'SystemMonitorServices',
+    routePath: '/monitor/services',
+    component: 'system/monitor-services',
+    icon: '',
+    perms: 'system:monitor:view',
+    sort: 2,
+    visible: 1,
+    keepAlive: 0,
+    status: 1,
+    remark: '服务监控菜单',
     createTime: formatNow(),
   },
   {
@@ -360,6 +394,40 @@ let mockMenuStore: MockMenuItemRecord[] = [
     keepAlive: 0,
     status: 1,
     remark: '运行监控刷新按钮',
+    createTime: formatNow(),
+  },
+  {
+    id: 33,
+    parentId: 10,
+    menuType: 'MENU',
+    menuName: '定时任务',
+    routeName: 'SystemJobs',
+    routePath: '/system/jobs',
+    component: 'system/jobs',
+    icon: '',
+    perms: 'system:job:list',
+    sort: 7,
+    visible: 1,
+    keepAlive: 0,
+    status: 1,
+    remark: '定时任务菜单',
+    createTime: formatNow(),
+  },
+  {
+    id: 34,
+    parentId: 33,
+    menuType: 'BUTTON',
+    menuName: '任务查询',
+    routeName: 'SystemJobQuery',
+    routePath: '',
+    component: '',
+    icon: '',
+    perms: 'system:job:query',
+    sort: 1,
+    visible: 0,
+    keepAlive: 0,
+    status: 1,
+    remark: '任务查询按钮',
     createTime: formatNow(),
   },
   {
@@ -535,6 +603,7 @@ let mockMenuStore: MockMenuItemRecord[] = [
 ];
 
 const permissions = [
+  'system:monitor:view',
   'system:user:add',
   'system:user:update',
   'system:user:delete',
@@ -622,10 +691,10 @@ function listMockMenuVOs(keyword = '') {
     .map(toMenuVO);
 }
 
-function resolveMenuRedirect(node: MenuItem): string {
+function resolveMenuRedirect(node: MenuItem): string | undefined {
   const firstVisibleChild = (node.children ?? []).find((child) => child.type !== 'BUTTON');
   if (!firstVisibleChild) {
-    return node.path;
+    return undefined;
   }
   return resolveMenuRedirect(firstVisibleChild);
 }
@@ -668,7 +737,12 @@ function buildMockMenuTree(): MenuItem[] {
         delete node.children;
         continue;
       }
-      node.redirect = resolveMenuRedirect(node);
+      const redirect = resolveMenuRedirect(node);
+      if (redirect) {
+        node.redirect = redirect;
+      } else {
+        delete node.redirect;
+      }
       walk(node.children);
     }
   };
@@ -879,6 +953,29 @@ const mockCacheEntries: MockCacheEntryRecord[] = [
   },
 ];
 
+const mockSlowSqlRecords = [
+  {
+    statementId: 'com.manzhushaka.db.system.mapper.UserMapper.selectPage',
+    sql: 'SELECT id, username, nickname, status FROM sys_user WHERE status = ? ORDER BY id DESC LIMIT ?',
+    costMs: 188,
+    resultSize: 20,
+    executeTime: '2026-06-11 11:45:02',
+  },
+  {
+    statementId: 'com.manzhushaka.db.system.mapper.SysMqMessageMapper.selectPage',
+    sql: 'SELECT * FROM sys_mq_message WHERE status IN (?, ?) ORDER BY create_time DESC LIMIT ?',
+    costMs: 133,
+    resultSize: 10,
+    executeTime: '2026-06-11 11:44:48',
+  },
+];
+
+const mockLogTailLines = [
+  '2026-06-11 11:46:11.213 [http-nio-8080-exec-1] INFO com.manzhushaka.system.controller.ServerMonitorController - monitor refresh requested',
+  '2026-06-11 11:46:12.003 [http-nio-8080-exec-1] WARN com.manzhushaka.mq.consumer.OpLogStreamConsumer - stream backlog rising for stream:system:user',
+  '2026-06-11 11:46:13.118 [http-nio-8080-exec-2] INFO com.manzhushaka.system.service.impl.PlatformJobDispatchServiceImpl - job 平台心跳 executed successfully',
+];
+
 function paginateRecords<T>(records: T[], pageNum: number, pageSize: number) {
   const start = (pageNum - 1) * pageSize;
   return {
@@ -1009,8 +1106,73 @@ function createMockServerMonitor() {
       usedMemory: 1048576,
       usedMemoryPeak: 2097152,
       dbSize: 64,
+      keyspaceHits: 12890,
+      keyspaceMisses: 1120,
+      hitRate: 92.01,
+      expiredKeys: 860,
+      evictedKeys: 3,
       errorMessage: null,
     },
+    jobHealth: {
+      totalJobs: 6,
+      enabledJobs: 4,
+      pausedJobs: 2,
+      recentSuccessCount: 18,
+      recentFailCount: 2,
+      recentSuccessRate: 90,
+      recentFailures: [
+        {
+          jobId: 500002,
+          jobName: '消息补偿任务',
+          runStatus: 'FAIL',
+          errorMsg: '连接 Redis Stream 超时',
+          startTime: '2026-06-11 11:31:22',
+        },
+      ],
+    },
+    messageBacklog: {
+      pendingCount: 3,
+      processingCount: 1,
+      failCount: 1,
+      initCount: 1,
+      publishedCount: 1,
+      timedOutCount: 1,
+      oldestPendingEventId: '1749555555000-0',
+      oldestPendingCreateTime: '2026-06-10 09:10:11',
+      streams: [
+        { streamKey: 'stream:system:user', pendingCount: 2, failCount: 0 },
+        { streamKey: 'stream:notify:sms', pendingCount: 0, failCount: 1 },
+      ],
+    },
+    slowSql: {
+      available: true,
+      recentCount: mockSlowSqlRecords.length,
+      latestCostMs: mockSlowSqlRecords[0].costMs,
+      latestStatementId: mockSlowSqlRecords[0].statementId,
+      latestExecuteTime: mockSlowSqlRecords[0].executeTime,
+      thresholdMs: 120,
+    },
+    logTail: {
+      available: true,
+      entryCount: mockLogTailLines.length,
+      capacity: 200,
+      lastEntryAt: '2026-06-11 11:46:13',
+    },
+  });
+}
+
+function listMockSlowSqlRecords(params: Record<string, string | number | undefined>) {
+  const limit = Number(params.limit ?? 20);
+  return delay(mockSlowSqlRecords.slice(0, limit));
+}
+
+function getMockMonitorLogTail(params: Record<string, string | number | undefined>) {
+  const limit = Number(params.limit ?? 80);
+  return delay({
+    available: true,
+    generatedAt: '2026-06-11 11:46:15',
+    lastEntryAt: '2026-06-11 11:46:13',
+    lines: mockLogTailLines.slice(Math.max(mockLogTailLines.length - limit, 0)),
   });
 }
 
@@ -1209,6 +1371,12 @@ export async function dispatchMockRequest(config: {
   }
   if (url === '/system/monitor/server' && method === 'get') {
     return ok(await createMockServerMonitor());
+  }
+  if (url === '/system/monitor/slow-sql' && method === 'get') {
+    return ok(await listMockSlowSqlRecords(params ?? {}));
+  }
+  if (url === '/system/monitor/logs/tail' && method === 'get') {
+    return ok(await getMockMonitorLogTail(params ?? {}));
   }
   if (url === '/system/cache/entries' && method === 'get') {
     return ok(await listMockCacheEntries(params ?? {}));
