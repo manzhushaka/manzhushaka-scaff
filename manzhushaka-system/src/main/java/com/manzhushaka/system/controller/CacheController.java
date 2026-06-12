@@ -1,5 +1,6 @@
 package com.manzhushaka.system.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.manzhushaka.common.model.ApiResponse;
 import com.manzhushaka.system.dto.cache.CacheEntryQuery;
 import com.manzhushaka.system.service.CacheQueryService;
@@ -23,11 +24,13 @@ public class CacheController {
     }
 
     @GetMapping("/entries")
+    @SaCheckPermission("system:cache:query")
     public ApiResponse<List<CacheEntryVO>> listEntries(CacheEntryQuery query) {
         return ApiResponse.success(cacheQueryService.listEntries(query));
     }
 
     @GetMapping("/entries/detail")
+    @SaCheckPermission("system:cache:detail")
     public ApiResponse<CacheEntryDetailVO> getEntryDetail(@RequestParam("key") String key) {
         return ApiResponse.success(cacheQueryService.getEntryDetail(key));
     }

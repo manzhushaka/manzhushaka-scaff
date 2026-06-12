@@ -27,6 +27,7 @@ import com.manzhushaka.system.vo.job.PlatformJobVO;
 import org.quartz.CronExpression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
@@ -109,6 +110,7 @@ public class PlatformJobServiceImpl implements PlatformJobService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void delete(Long id) {
         requireJob(id);
         platformJobScheduler.delete(id);

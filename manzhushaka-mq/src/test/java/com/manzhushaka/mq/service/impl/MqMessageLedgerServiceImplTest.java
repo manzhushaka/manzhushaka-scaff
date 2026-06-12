@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -59,6 +60,32 @@ class MqMessageLedgerServiceImplTest {
         IllegalStateException exception = assertThrows(IllegalStateException.class, () -> service.markFailed("missing-event", "oops"));
 
         assertEquals("MQ 消息台账不存在: missing-event", exception.getMessage());
+    }
+
+    @Test
+    void recycleTimedOutProcessingMessagesShouldResetStatusToPublished() {
+        SysMqMessageMapper mqMessageMapper = mock(SysMqMessageMapper.class);
+        MqMessageLedgerServiceImpl service = new MqMessageLedgerServiceImpl(mqMessageMapper, new ObjectMapper());
+        SysMqMessage message = buildProcessingMessage();
+        message.setStatus(MqMessageStatus.PROCESSING.name());
+        message.setPublishedAt(LocalDateTime.of(2026, 6, 12, 9, 0));
+        message.setConsumeStartedAt(LocalDateTime.of(2026, 6, 12, 9, 5));
+        message.setConsumerGroup("oplog-group");
+        message.setConsumerName("consumer-a");
+        message.setLastError("handler failed");
+        when(mqMessageMapper.selectList(any())).thenReturn(java.util.List.of(message));
+
+        int recycledCount = service.recycleTimedOutProcessingMessages(LocalDateTime.of(2026, 6, 12, 10, 0));
+
+        ArgumentCaptor<SysMqMessage> captor = ArgumentCaptor.forClass(SysMqMessage.class);
+        verify(mqMessageMapper).updateById(captor.capture());
+        assertEquals(1, recycledCount);
+        assertEquals(MqMessageStatus.PUBLISHED.name(), captor.getValue().getStatus());
+        assertNull(captor.getValue().getProcessingDeadlineAt());
+        assertNull(captor.getValue().getConsumeStartedAt());
+        assertNull(captor.getValue().getConsumerGroup());
+        assertNull(captor.getValue().getConsumerName());
+        assertTrue(captor.getValue().getLastError().contains("超时"), captor.getValue().getLastError());
     }
 
     private SysMqMessage buildProcessingMessage() {

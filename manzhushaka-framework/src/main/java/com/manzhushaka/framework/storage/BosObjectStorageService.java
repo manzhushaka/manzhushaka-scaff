@@ -8,6 +8,7 @@ import com.baidubce.services.bos.model.GeneratePresignedUrlRequest;
 import com.baidubce.services.bos.model.ObjectMetadata;
 import com.baidubce.services.bos.model.ResponseHeaderOverrides;
 import com.manzhushaka.common.exception.BizException;
+import jakarta.annotation.PreDestroy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -18,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 public class BosObjectStorageService implements ObjectStorageService {
 
     private final BosStorageProperties properties;
+    private volatile BosClient client;
 
     public BosObjectStorageService(BosStorageProperties properties) {
         this.properties = properties;
@@ -26,62 +28,74 @@ public class BosObjectStorageService implements ObjectStorageService {
     @Override
     public void putObject(String objectKey, byte[] content, String contentType) {
         validateConfiguration();
-        if (!StringUtils.hasText(objectKey)) {
-            throw new BizException(400, "对象存储路径不能为空");
-        }
+        String normalizedObjectKey = normalizeObjectKey(objectKey);
         byte[] payload = content == null ? new byte[0] : content;
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(payload.length);
         metadata.setContentType(StringUtils.hasText(contentType) ? contentType : "application/octet-stream");
-        BosClient client = createClient();
         try {
-            client.putObject(properties.getBucket(), objectKey, payload, metadata);
+            getClient().putObject(properties.getBucket(), normalizedObjectKey, payload, metadata);
         } catch (Exception exception) {
             throw new BizException(500, "上传 BOS 文件失败: " + exception.getMessage());
-        } finally {
-            client.shutdown();
         }
     }
 
     @Override
     public byte[] getObjectContent(String objectKey) {
         validateConfiguration();
-        BosClient client = createClient();
+        String normalizedObjectKey = normalizeObjectKey(objectKey);
         try {
-            return client.getObjectContent(properties.getBucket(), objectKey);
+            return getClient().getObjectContent(properties.getBucket(), normalizedObjectKey);
         } catch (Exception exception) {
             throw new BizException(500, "读取 BOS 文件失败: " + exception.getMessage());
-        } finally {
-            client.shutdown();
         }
     }
 
     @Override
     public String generateDownloadUrl(String objectKey, String downloadFileName) {
         validateConfiguration();
-        GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(properties.getBucket(), objectKey, HttpMethodName.GET);
+        String normalizedObjectKey = normalizeObjectKey(objectKey);
+        GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(
+            properties.getBucket(),
+            normalizedObjectKey,
+            HttpMethodName.GET
+        );
         request.setExpiration(Math.max(properties.getDownloadExpireSeconds(), 60));
         ResponseHeaderOverrides headers = new ResponseHeaderOverrides();
         headers.setContentDisposition(buildContentDisposition(downloadFileName));
         request.setResponseHeaders(headers);
 
-        BosClient client = createClient();
         try {
-            return client.generatePresignedUrl(request).toString();
+            return getClient().generatePresignedUrl(request).toString();
         } catch (Exception exception) {
             throw new BizException(500, "生成 BOS 下载链接失败: " + exception.getMessage());
-        } finally {
-            client.shutdown();
         }
     }
 
-    private BosClient createClient() {
-        BosClientConfiguration configuration = new BosClientConfiguration()
-            .withEndpoint(properties.getEndpoint())
-            .withCredentials(new DefaultBceCredentials(properties.getAccessKeyId(), properties.getSecretAccessKey()));
-        return new BosClient(configuration);
+    /**
+     * 获取复用的 BOS 客户端实例。
+     *
+     * @return BOS 客户端
+     */
+    private BosClient getClient() {
+        BosClient localClient = client;
+        if (localClient != null) {
+            return localClient;
+        }
+        synchronized (this) {
+            if (client == null) {
+                BosClientConfiguration configuration = new BosClientConfiguration()
+                    .withEndpoint(properties.getEndpoint())
+                    .withCredentials(new DefaultBceCredentials(properties.getAccessKeyId(), properties.getSecretAccessKey()));
+                client = new BosClient(configuration);
+            }
+            return client;
+        }
     }
 
+    /**
+     * 校验对象存储配置是否完整。
+     */
     private void validateConfiguration() {
         if (!StringUtils.hasText(properties.getEndpoint())
             || !StringUtils.hasText(properties.getBucket())
@@ -91,9 +105,64 @@ public class BosObjectStorageService implements ObjectStorageService {
         }
     }
 
+    /**
+     * 规范化并校验对象路径必须落在受控前缀下。
+     *
+     * @param objectKey 原始对象路径
+     * @return 规范化后的对象路径
+     */
+    private String normalizeObjectKey(String objectKey) {
+        if (!StringUtils.hasText(objectKey)) {
+            throw new BizException(400, "对象存储路径不能为空");
+        }
+        String normalized = objectKey.trim();
+        while (normalized.startsWith("/")) {
+            normalized = normalized.substring(1);
+        }
+        String basePath = normalizeBasePath();
+        if (!normalized.equals(basePath) && !normalized.startsWith(basePath + "/")) {
+            throw new BizException(403, "无权访问该对象");
+        }
+        return normalized;
+    }
+
+    /**
+     * 获取标准化后的受控根路径。
+     *
+     * @return BOS 根路径
+     */
+    private String normalizeBasePath() {
+        String basePath = StringUtils.hasText(properties.getBasePath()) ? properties.getBasePath().trim() : "import-export";
+        while (basePath.startsWith("/")) {
+            basePath = basePath.substring(1);
+        }
+        while (basePath.endsWith("/")) {
+            basePath = basePath.substring(0, basePath.length() - 1);
+        }
+        return basePath;
+    }
+
+    /**
+     * 构建下载响应头中的文件名。
+     *
+     * @param fileName 下载文件名
+     * @return Content-Disposition 响应头值
+     */
     private String buildContentDisposition(String fileName) {
         String normalized = StringUtils.hasText(fileName) ? fileName.trim() : "download.bin";
         String encoded = URLEncoder.encode(normalized, StandardCharsets.UTF_8).replace("+", "%20");
         return "attachment; filename=\"download.bin\"; filename*=UTF-8''" + encoded;
+    }
+
+    /**
+     * 关闭复用的 BOS 客户端。
+     */
+    @PreDestroy
+    public void shutdown() {
+        BosClient localClient = client;
+        if (localClient != null) {
+            localClient.shutdown();
+            client = null;
+        }
     }
 }

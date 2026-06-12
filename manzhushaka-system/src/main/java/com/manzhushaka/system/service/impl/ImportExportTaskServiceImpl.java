@@ -11,6 +11,7 @@ import com.manzhushaka.system.service.ImportExportTaskService;
 import com.manzhushaka.system.service.impexp.ExportTaskTemplateRegistry;
 import com.manzhushaka.system.service.impexp.ImportExportTaskSupport;
 import com.manzhushaka.system.service.impexp.ImportTaskTemplateRegistry;
+import com.manzhushaka.system.service.support.SystemAccessSupport;
 import com.manzhushaka.system.service.support.SystemMappingSupport;
 import com.manzhushaka.system.service.support.SystemPageSupport;
 import com.manzhushaka.system.vo.LabelValueOption;
@@ -29,17 +30,20 @@ public class ImportExportTaskServiceImpl implements ImportExportTaskService {
     private final ExportTaskTemplateRegistry exportTaskTemplateRegistry;
     private final ImportTaskTemplateRegistry importTaskTemplateRegistry;
     private final ObjectStorageService storageService;
+    private final SystemAccessSupport accessSupport;
 
     public ImportExportTaskServiceImpl(
         SysImportExportTaskMapper taskMapper,
         ExportTaskTemplateRegistry exportTaskTemplateRegistry,
         ImportTaskTemplateRegistry importTaskTemplateRegistry,
-        ObjectStorageService storageService
+        ObjectStorageService storageService,
+        SystemAccessSupport accessSupport
     ) {
         this.taskMapper = taskMapper;
         this.exportTaskTemplateRegistry = exportTaskTemplateRegistry;
         this.importTaskTemplateRegistry = importTaskTemplateRegistry;
         this.storageService = storageService;
+        this.accessSupport = accessSupport;
     }
 
     @Override
@@ -50,6 +54,7 @@ public class ImportExportTaskServiceImpl implements ImportExportTaskService {
             .like(StringUtils.hasText(query.getTaskName()), SysImportExportTask::getTaskName, query.getTaskName())
             .eq(StringUtils.hasText(query.getTaskStatus()), SysImportExportTask::getTaskStatus, query.getTaskStatus())
             .orderByDesc(SysImportExportTask::getId);
+        applyTaskVisibility(wrapper);
         Page<SysImportExportTask> page = taskMapper.selectPage(SystemPageSupport.buildPage(query), wrapper);
         return SystemMappingSupport.toPageResult(page, this::toVO);
     }
@@ -71,6 +76,7 @@ public class ImportExportTaskServiceImpl implements ImportExportTaskService {
         if (task == null) {
             throw new BizException(404, "任务不存在");
         }
+        accessSupport.assertTaskAccessible(task);
         if (ImportExportTaskSupport.FILE_ROLE_SOURCE.equals(fileRole)) {
             if (!StringUtils.hasText(task.getSourceObjectKey())) {
                 throw new BizException(400, "当前任务没有源文件可下载");
@@ -84,6 +90,18 @@ public class ImportExportTaskServiceImpl implements ImportExportTaskService {
             return new DownloadUrlVO(storageService.generateDownloadUrl(task.getResultObjectKey(), task.getResultFileName()));
         }
         throw new BizException(400, "不支持的文件类型");
+    }
+
+    /**
+     * 按当前用户身份收敛导入导出任务的可见范围。
+     *
+     * @param wrapper 任务查询条件
+     */
+    private void applyTaskVisibility(LambdaQueryWrapper<SysImportExportTask> wrapper) {
+        if (accessSupport.hasAllDataScope()) {
+            return;
+        }
+        wrapper.eq(SysImportExportTask::getCreateBy, accessSupport.requireCurrentUser().getUsername());
     }
 
     private ImportExportTaskVO toVO(SysImportExportTask task) {

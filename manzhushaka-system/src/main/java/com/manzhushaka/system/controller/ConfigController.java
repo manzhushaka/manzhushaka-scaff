@@ -1,5 +1,6 @@
 package com.manzhushaka.system.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.manzhushaka.common.model.ApiResponse;
 import com.manzhushaka.system.dto.config.ConfigForm;
 import com.manzhushaka.system.dto.config.ConfigQuery;
@@ -27,27 +28,32 @@ public class ConfigController {
     }
 
     @GetMapping
+    @SaCheckPermission("system:config:list")
     public ApiResponse<PageResult<ConfigVO>> page(ConfigQuery query) {
         return ApiResponse.success(configService.page(query));
     }
 
     @GetMapping("/{id}")
+    @SaCheckPermission("system:config:query")
     public ApiResponse<ConfigVO> getById(@PathVariable Long id) {
         return ApiResponse.success(configService.getById(id));
     }
 
     @PostMapping
+    @SaCheckPermission("system:config:add")
     public ApiResponse<Long> create(@Valid @RequestBody ConfigForm form) {
         return ApiResponse.success(configService.create(form));
     }
 
     @PutMapping("/{id}")
+    @SaCheckPermission("system:config:update")
     public ApiResponse<Void> update(@PathVariable Long id, @Valid @RequestBody ConfigForm form) {
         configService.update(id, form);
         return ApiResponse.success(null);
     }
 
     @DeleteMapping("/{id}")
+    @SaCheckPermission("system:config:delete")
     public ApiResponse<Void> delete(@PathVariable Long id) {
         configService.delete(id);
         return ApiResponse.success(null);

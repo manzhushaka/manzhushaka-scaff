@@ -1,5 +1,6 @@
 package com.manzhushaka.system.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.manzhushaka.common.model.ApiResponse;
 import com.manzhushaka.system.dto.job.PlatformJobForm;
 import com.manzhushaka.system.dto.job.PlatformJobLogQuery;
@@ -33,61 +34,72 @@ public class PlatformJobController {
     }
 
     @GetMapping
+    @SaCheckPermission("system:job:list")
     public ApiResponse<PageResult<PlatformJobVO>> page(PlatformJobQuery query) {
         return ApiResponse.success(platformJobService.page(query));
     }
 
     @GetMapping("/{id}")
+    @SaCheckPermission("system:job:query")
     public ApiResponse<PlatformJobVO> getById(@PathVariable Long id) {
         return ApiResponse.success(platformJobService.getById(id));
     }
 
     @PostMapping
+    @SaCheckPermission("system:job:add")
     public ApiResponse<Long> create(@Valid @RequestBody PlatformJobForm form) {
         return ApiResponse.success(platformJobService.create(form));
     }
 
     @PutMapping("/{id}")
+    @SaCheckPermission("system:job:update")
     public ApiResponse<Void> update(@PathVariable Long id, @Valid @RequestBody PlatformJobForm form) {
         platformJobService.update(id, form);
         return ApiResponse.success(null);
     }
 
     @DeleteMapping("/{id}")
+    @SaCheckPermission("system:job:delete")
     public ApiResponse<Void> delete(@PathVariable Long id) {
         platformJobService.delete(id);
         return ApiResponse.success(null);
     }
 
     @PostMapping("/{id}/pause")
+    @SaCheckPermission("system:job:pause")
     public ApiResponse<Void> pause(@PathVariable Long id) {
         platformJobService.pause(id);
         return ApiResponse.success(null);
     }
 
     @PostMapping("/{id}/resume")
+    @SaCheckPermission("system:job:resume")
     public ApiResponse<Void> resume(@PathVariable Long id) {
         platformJobService.resume(id);
         return ApiResponse.success(null);
     }
 
     @PostMapping("/{id}/trigger")
+    @SaCheckPermission("system:job:trigger")
     public ApiResponse<Void> trigger(@PathVariable Long id) {
         platformJobService.trigger(id);
         return ApiResponse.success(null);
     }
 
     @GetMapping("/handlers/options")
+    @SaCheckPermission(value = {"system:job:list", "system:job:add", "system:job:update"}, mode = cn.dev33.satoken.annotation.SaMode.OR)
     public ApiResponse<List<LabelValueOption>> handlerOptions() {
         return ApiResponse.success(platformJobService.handlerOptions());
     }
 
     @GetMapping("/{id}/logs")
+    @SaCheckPermission("system:job:log")
     public ApiResponse<PageResult<PlatformJobLogVO>> pageLogs(@PathVariable Long id, PlatformJobLogQuery query) {
         return ApiResponse.success(platformJobService.pageLogs(id, query));
     }
 
     @GetMapping("/logs/{logId}")
+    @SaCheckPermission("system:job:log")
     public ApiResponse<PlatformJobLogDetailVO> getLogDetail(@PathVariable Long logId) {
         return ApiResponse.success(platformJobService.getLogDetail(logId));
     }

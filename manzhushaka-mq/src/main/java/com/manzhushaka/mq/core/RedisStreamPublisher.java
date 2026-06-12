@@ -10,6 +10,8 @@ import java.util.Map;
 
 @Component
 public class RedisStreamPublisher {
+    private static final long STREAM_MAX_LENGTH = 100000L;
+
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
 
@@ -21,6 +23,7 @@ public class RedisStreamPublisher {
     public void publish(String streamKey, MqEvent<?> event) {
         try {
             redisTemplate.opsForStream().add(MapRecord.create(streamKey, buildRecordValue(event)));
+            redisTemplate.opsForStream().trim(streamKey, STREAM_MAX_LENGTH, true);
         } catch (JsonProcessingException exception) {
             throw new IllegalStateException("序列化 MQ 事件失败", exception);
         }

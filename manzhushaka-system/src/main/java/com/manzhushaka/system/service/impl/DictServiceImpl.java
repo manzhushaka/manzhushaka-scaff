@@ -108,10 +108,10 @@ public class DictServiceImpl implements DictService {
     @Override
     @Transactional
     public void deleteType(Long id) {
-        dictItemMapper.delete(new LambdaQueryWrapper<SysDictItem>().eq(SysDictItem::getDictTypeId, id));
         if (dictTypeMapper.deleteById(id) == 0) {
             throw new BizException(404, "字典类型不存在");
         }
+        dictItemMapper.delete(new LambdaQueryWrapper<SysDictItem>().eq(SysDictItem::getDictTypeId, id));
     }
 
     @Override

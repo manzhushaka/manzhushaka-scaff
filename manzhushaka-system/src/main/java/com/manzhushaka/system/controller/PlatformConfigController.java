@@ -1,5 +1,6 @@
 package com.manzhushaka.system.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.manzhushaka.common.model.ApiResponse;
 import com.manzhushaka.system.service.impl.PlatformConfigService;
 import com.manzhushaka.system.vo.config.PlatformConfigVO;
@@ -20,11 +21,13 @@ public class PlatformConfigController {
     }
 
     @GetMapping
+    @SaCheckPermission("system:config:query")
     public ApiResponse<PlatformConfigVO> getPlatformConfig() {
         return ApiResponse.success(platformConfigService.getPlatformConfig());
     }
 
     @PutMapping
+    @SaCheckPermission("system:config:update")
     public ApiResponse<Void> savePlatformConfig(@RequestBody PlatformConfigVO payload) {
         platformConfigService.savePlatformConfig(payload);
         return ApiResponse.success(null);

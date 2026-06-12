@@ -19,6 +19,15 @@ public class MqMessageConsumeExecutor {
         this.mqProperties = mqProperties;
     }
 
+    /**
+     * 执行消息消费并在成功后确认消息。
+     *
+     * @param record 消息记录
+     * @param consumerGroup 消费组
+     * @param consumerName 消费者名称
+     * @param handler 消费处理器
+     * @param acknowledge 消息确认回调
+     */
     public void execute(
         MapRecord<String, Object, Object> record,
         String consumerGroup,
@@ -45,13 +54,18 @@ public class MqMessageConsumeExecutor {
             handler.handle(record);
         } catch (Exception exception) {
             ledgerService.markFailed(eventId, exception.getMessage());
-            acknowledge.accept(record.getId());
             return;
         }
         ledgerService.markSuccess(eventId);
         acknowledge.accept(record.getId());
     }
 
+    /**
+     * 从消息体中解析事件 ID。
+     *
+     * @param record 消息记录
+     * @return 事件 ID；不存在时返回 null
+     */
     private String parseEventId(MapRecord<String, Object, Object> record) {
         Object eventId = record.getValue().get("eventId");
         if (eventId == null || String.valueOf(eventId).isBlank()) {

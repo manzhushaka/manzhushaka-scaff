@@ -38,17 +38,16 @@ function mountDynamicRoutes() {
 router.beforeEach(async (to, _from, next) => {
   const authStore = useAuthStore();
 
-  if (!authStore.token && !WHITE_LIST.includes(to.path)) {
-    next('/login');
+  if (WHITE_LIST.includes(to.path)) {
+    if (authStore.sessionReady && authStore.initialized && to.path === '/login') {
+      next('/');
+      return;
+    }
+    next();
     return;
   }
 
-  if (authStore.token && to.path === '/login') {
-    next('/');
-    return;
-  }
-
-  if (authStore.token && !authStore.initialized) {
+  if (!authStore.initialized) {
     try {
       await authStore.bootstrap();
       if (!routesMounted) {
@@ -57,12 +56,25 @@ router.beforeEach(async (to, _from, next) => {
       next({ ...to, replace: true });
       return;
     } catch (_error) {
-      authStore.logout();
+      void authStore.logout();
       resetDynamicRoutes();
-      Message.error(SESSION_EXPIRED_MESSAGE);
+      if (!WHITE_LIST.includes(to.path)) {
+        Message.error(SESSION_EXPIRED_MESSAGE);
+      }
       next('/login');
       return;
     }
+  }
+
+  if (!routesMounted) {
+    mountDynamicRoutes();
+    next({ ...to, replace: true });
+    return;
+  }
+
+  if (to.path === '/login') {
+    next('/');
+    return;
   }
 
   next();

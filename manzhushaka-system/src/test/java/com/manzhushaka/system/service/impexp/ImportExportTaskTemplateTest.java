@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.manzhushaka.common.context.LoginUser;
+import com.manzhushaka.common.exception.BizException;
 import com.manzhushaka.db.system.entity.SysImportExportTask;
 import com.manzhushaka.db.system.mapper.SysImportExportTaskMapper;
 import com.manzhushaka.framework.storage.ObjectStorageService;
@@ -14,6 +15,7 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -150,6 +152,34 @@ class ImportExportTaskTemplateTest {
         ));
     }
 
+    @Test
+    void importTaskShouldRejectOversizedOrUnsupportedFiles() {
+        SysImportExportTaskMapper taskMapper = mock(SysImportExportTaskMapper.class);
+        ObjectStorageService storageService = mock(ObjectStorageService.class);
+        ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
+        DemoImportTemplate template = new DemoImportTemplate(taskMapper, storageService, objectMapper);
+
+        DemoImportCommand unsupportedType = new DemoImportCommand(
+            "VIP 用户导入",
+            "VIP",
+            "users.exe",
+            "application/octet-stream",
+            "x".getBytes(StandardCharsets.UTF_8)
+        );
+        BizException unsupportedTypeException = assertThrows(BizException.class, () -> template.submit(unsupportedType, null));
+        assertEquals("仅支持上传 csv、xls、xlsx 格式文件", unsupportedTypeException.getMessage());
+
+        DemoImportCommand oversized = new DemoImportCommand(
+            "VIP 用户导入",
+            "VIP",
+            "users.csv",
+            "text/csv",
+            new byte[51 * 1024 * 1024]
+        );
+        BizException oversizedException = assertThrows(BizException.class, () -> template.submit(oversized, null));
+        assertEquals("导入文件大小不能超过 50MB", oversizedException.getMessage());
+    }
+
     private static SysImportExportTask copyTask(SysImportExportTask source) {
         if (source == null) {
             return null;
@@ -245,6 +275,11 @@ class ImportExportTaskTemplateTest {
         @Override
         protected String defaultTaskName() {
             return "客户导入";
+        }
+
+        @Override
+        protected void validateSubmit(DemoImportCommand command) {
+            super.validateSubmit(command);
         }
 
         @Override

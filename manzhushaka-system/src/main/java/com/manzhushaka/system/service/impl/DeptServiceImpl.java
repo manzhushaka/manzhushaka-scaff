@@ -3,7 +3,9 @@ package com.manzhushaka.system.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.manzhushaka.common.exception.BizException;
 import com.manzhushaka.db.system.entity.SysDept;
+import com.manzhushaka.db.system.entity.SysUser;
 import com.manzhushaka.db.system.mapper.SysDeptMapper;
+import com.manzhushaka.db.system.mapper.SysUserMapper;
 import com.manzhushaka.system.dto.dept.DeptForm;
 import com.manzhushaka.system.dto.dept.DeptQuery;
 import com.manzhushaka.system.service.DeptService;
@@ -23,9 +25,11 @@ import java.util.Map;
 public class DeptServiceImpl implements DeptService {
 
     private final SysDeptMapper deptMapper;
+    private final SysUserMapper userMapper;
 
-    public DeptServiceImpl(SysDeptMapper deptMapper) {
+    public DeptServiceImpl(SysDeptMapper deptMapper, SysUserMapper userMapper) {
         this.deptMapper = deptMapper;
+        this.userMapper = userMapper;
     }
 
     @Override
@@ -72,11 +76,19 @@ public class DeptServiceImpl implements DeptService {
     @Override
     @Transactional
     public void delete(Long id) {
+        assertNoChildDept(id);
+        assertNoActiveUser(id);
         if (deptMapper.deleteById(id) == 0) {
             throw new BizException(404, "部门不存在");
         }
     }
 
+    /**
+     * 获取部门，不存在时抛出异常。
+     *
+     * @param id 部门 ID
+     * @return 部门实体
+     */
     private SysDept getDeptOrThrow(Long id) {
         SysDept dept = deptMapper.selectById(id);
         if (dept == null) {
@@ -85,6 +97,12 @@ public class DeptServiceImpl implements DeptService {
         return dept;
     }
 
+    /**
+     * 将表单值写入部门实体。
+     *
+     * @param entity 部门实体
+     * @param form 表单数据
+     */
     private void applyForm(SysDept entity, DeptForm form) {
         entity.setParentId(form.getParentId() == null ? 0L : form.getParentId());
         entity.setDeptName(form.getDeptName());
@@ -92,6 +110,12 @@ public class DeptServiceImpl implements DeptService {
         entity.setStatus(form.getStatus() == null ? 1 : form.getStatus());
     }
 
+    /**
+     * 根据父部门构建祖级路径。
+     *
+     * @param parentId 父部门 ID
+     * @return 祖级路径
+     */
     private String buildAncestorPath(Long parentId) {
         if (parentId == null || parentId == 0L) {
             return ",";
@@ -110,6 +134,38 @@ public class DeptServiceImpl implements DeptService {
         return ancestorPath + parent.getId() + ",";
     }
 
+    /**
+     * 断言指定部门下不存在子部门。
+     *
+     * @param id 部门 ID
+     */
+    private void assertNoChildDept(Long id) {
+        Long childCount = deptMapper.selectCount(new LambdaQueryWrapper<SysDept>().eq(SysDept::getParentId, id));
+        if (childCount != null && childCount > 0) {
+            throw new BizException(400, "请先删除子部门");
+        }
+    }
+
+    /**
+     * 断言指定部门下不存在未删除用户。
+     *
+     * @param id 部门 ID
+     */
+    private void assertNoActiveUser(Long id) {
+        Long userCount = userMapper.selectCount(new LambdaQueryWrapper<SysUser>()
+            .eq(SysUser::getDeptId, id)
+            .eq(SysUser::getDeleted, 0));
+        if (userCount != null && userCount > 0) {
+            throw new BizException(400, "请先迁移或删除部门下的用户");
+        }
+    }
+
+    /**
+     * 将部门实体转换为树节点。
+     *
+     * @param dept 部门实体
+     * @return 树节点
+     */
     private DeptTreeVO toDeptTreeVO(SysDept dept) {
         DeptTreeVO vo = new DeptTreeVO();
         vo.setId(dept.getId());
@@ -121,6 +177,12 @@ public class DeptServiceImpl implements DeptService {
         return vo;
     }
 
+    /**
+     * 将平铺部门列表组装为树形结构。
+     *
+     * @param flatList 平铺节点列表
+     * @return 树形节点列表
+     */
     private List<DeptTreeVO> buildTree(List<DeptTreeVO> flatList) {
         Map<Long, DeptTreeVO> nodeMap = new LinkedHashMap<>();
         for (DeptTreeVO node : flatList) {
@@ -143,6 +205,11 @@ public class DeptServiceImpl implements DeptService {
         return roots;
     }
 
+    /**
+     * 递归按排序字段整理树节点顺序。
+     *
+     * @param nodes 树节点列表
+     */
     private void sortTree(List<DeptTreeVO> nodes) {
         nodes.sort(Comparator.comparing(DeptTreeVO::getSort).thenComparing(DeptTreeVO::getId));
         for (DeptTreeVO node : nodes) {

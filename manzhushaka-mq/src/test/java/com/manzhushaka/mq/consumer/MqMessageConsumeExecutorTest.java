@@ -47,7 +47,7 @@ class MqMessageConsumeExecutorTest {
     }
 
     @Test
-    void executeShouldMarkFailedAndAcknowledgeWhenHandlerThrowsException() throws Exception {
+    void executeShouldMarkFailedWithoutAcknowledgingWhenHandlerThrowsException() throws Exception {
         MqMessageLedgerService ledgerService = mock(MqMessageLedgerService.class);
         MqProperties mqProperties = new MqProperties();
         mqProperties.setProcessingTimeoutSeconds(300);
@@ -62,13 +62,13 @@ class MqMessageConsumeExecutorTest {
 
         executor.execute(record, "oplog-group", "consumer-a", handler, acknowledge);
 
-        InOrder inOrder = inOrder(ledgerService, handler, acknowledge);
+        InOrder inOrder = inOrder(ledgerService, handler);
         inOrder.verify(ledgerService).isSuccess("event-001");
         inOrder.verify(ledgerService).markProcessing("event-001", "oplog-group", "consumer-a", 300);
         inOrder.verify(handler).handle(record);
         inOrder.verify(ledgerService).markFailed("event-001", "handler failed");
-        inOrder.verify(acknowledge).accept(record.getId());
         verify(ledgerService, never()).markSuccess("event-001");
+        verify(acknowledge, never()).accept(record.getId());
     }
 
     @Test

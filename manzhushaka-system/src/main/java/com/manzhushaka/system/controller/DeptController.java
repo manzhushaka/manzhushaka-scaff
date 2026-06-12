@@ -1,5 +1,6 @@
 package com.manzhushaka.system.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.manzhushaka.common.model.ApiResponse;
 import com.manzhushaka.system.dto.dept.DeptForm;
 import com.manzhushaka.system.dto.dept.DeptQuery;
@@ -29,32 +30,38 @@ public class DeptController {
     }
 
     @GetMapping("/tree")
+    @SaCheckPermission("system:dept:list")
     public ApiResponse<List<DeptTreeVO>> tree(DeptQuery query) {
         return ApiResponse.success(deptService.tree(query));
     }
 
     @GetMapping("/options")
+    @SaCheckPermission(value = {"system:dept:list", "system:user:add", "system:user:update"}, mode = cn.dev33.satoken.annotation.SaMode.OR)
     public ApiResponse<List<LabelValueOption>> options() {
         return ApiResponse.success(deptService.options());
     }
 
     @GetMapping("/{id}")
+    @SaCheckPermission("system:dept:query")
     public ApiResponse<DeptTreeVO> getById(@PathVariable("id") Long id) {
         return ApiResponse.success(deptService.getById(id));
     }
 
     @PostMapping
+    @SaCheckPermission("system:dept:add")
     public ApiResponse<Long> create(@Valid @RequestBody DeptForm form) {
         return ApiResponse.success(deptService.create(form));
     }
 
     @PutMapping("/{id}")
+    @SaCheckPermission("system:dept:update")
     public ApiResponse<Void> update(@PathVariable("id") Long id, @Valid @RequestBody DeptForm form) {
         deptService.update(id, form);
         return ApiResponse.success(null);
     }
 
     @DeleteMapping("/{id}")
+    @SaCheckPermission("system:dept:delete")
     public ApiResponse<Void> delete(@PathVariable("id") Long id) {
         deptService.delete(id);
         return ApiResponse.success(null);

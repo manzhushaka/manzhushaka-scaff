@@ -158,8 +158,8 @@ function syncVisitedTab() {
   });
 }
 
-function handleLogout() {
-  authStore.logout();
+async function handleLogout() {
+  await authStore.logout();
   tabsStore.reset();
   resetDynamicRoutes();
   router.replace('/login');

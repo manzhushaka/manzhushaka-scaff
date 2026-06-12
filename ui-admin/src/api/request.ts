@@ -1,20 +1,12 @@
 import axios from 'axios';
 import { Message } from '@arco-design/web-vue';
-import { getToken } from '@/utils/storage';
 import { dispatchMockRequest } from './mock';
 import { normalizeRequestError, shouldNotifyRequestError, unwrapResponse, type ApiEnvelope, type RequestOptions } from './request-client';
 
 const service = axios.create({
   baseURL: '/api',
   timeout: 8000,
-});
-
-service.interceptors.request.use((config) => {
-  const token = getToken();
-  if (token) {
-    config.headers.Authorization = token;
-  }
-  return config;
+  withCredentials: true,
 });
 
 service.interceptors.request.use(async (config) => {

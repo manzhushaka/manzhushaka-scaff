@@ -18,7 +18,10 @@ export function createAuthApi(client: RequestClient = request) {
       return client.get<CaptchaPayload>('/auth/captcha');
     },
     login(payload: LoginPayload) {
-      return client.post<{ token: string; userInfo: UserProfile }>('/auth/login', payload);
+      return client.post<{ userInfo: UserProfile }>('/auth/login', payload);
+    },
+    logout() {
+      return client.post<void>('/auth/logout');
     },
     fetchProfile() {
       return client.get<UserProfile>('/auth/me', AUTH_BOOTSTRAP_REQUEST_OPTIONS);
@@ -44,6 +47,10 @@ export function login(payload: LoginPayload) {
 
 export function fetchProfile() {
   return authApi.fetchProfile();
+}
+
+export function logout() {
+  return authApi.logout();
 }
 
 export function fetchMenus() {

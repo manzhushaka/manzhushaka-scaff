@@ -331,7 +331,7 @@ INSERT INTO `sys_role` (`id`, `role_name`, `role_code`, `data_scope`, `sort`, `s
 (101, '普通运维', 'OPS', 'DEPT_AND_CHILD', 2, 1, '示例角色，覆盖部门及子部门数据权限', 'system', NOW(), 'system', NOW());
 
 INSERT INTO `sys_user` (`id`, `dept_id`, `username`, `nickname`, `password`, `real_name`, `mobile`, `email`, `status`, `deleted`, `last_login_ip`, `last_login_time`, `remark`, `create_by`, `create_time`, `update_by`, `update_time`) VALUES
-(100, 100, 'admin', '系统管理员', 'Admin@123456', '系统管理员', '13812345678', 'admin@manzhushaka.com', 1, 0, NULL, NULL, '初始化超级管理员账号', 'system', NOW(), 'system', NOW());
+(100, 100, 'admin', '系统管理员', '$2a$10$plRNSuEiukJ2bFq2syyYDe7Sg9rh6HpheZX.jEMq5/ikES.L7Qd82', '系统管理员', '13812345678', 'admin@manzhushaka.com', 1, 0, NULL, NULL, '初始化超级管理员账号，首次登录后请立即修改密码', 'system', NOW(), 'system', NOW());
 
 INSERT INTO `sys_user_role` (`id`, `user_id`, `role_id`, `create_by`, `create_time`, `update_by`, `update_time`) VALUES
 (100, 100, 100, 'system', NOW(), 'system', NOW());
@@ -495,7 +495,7 @@ INSERT INTO `sys_config` (`id`, `config_name`, `config_key`, `config_value`, `st
 (100, '系统名称', 'sys.platform.name', 'manzhushaka 管理台', 1, 'system', NOW(), 'system', NOW()),
 (101, '系统副标题', 'sys.platform.subtitle', 'PLATFORM CONSOLE', 1, 'system', NOW(), 'system', NOW()),
 (102, '平台 Logo', 'sys.platform.logo-url', '', 1, 'system', NOW(), 'system', NOW()),
-(103, '默认密码', 'sys.user.default-password', 'Admin@123456', 1, 'system', NOW(), 'system', NOW()),
+(103, '默认密码', 'sys.user.default-password', '', 1, 'system', NOW(), 'system', NOW()),
 (104, '前端标题', 'sys.ui.title', 'Manzhushaka Admin', 1, 'system', NOW(), 'system', NOW());
 
 SET FOREIGN_KEY_CHECKS = 1;

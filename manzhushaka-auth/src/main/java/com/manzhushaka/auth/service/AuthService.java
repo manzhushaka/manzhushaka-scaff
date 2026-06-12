@@ -17,6 +17,7 @@ import com.manzhushaka.db.system.mapper.SysMenuMapper;
 import com.manzhushaka.db.system.mapper.SysUserMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -36,7 +37,7 @@ public class AuthService {
     private final SysMenuMapper sysMenuMapper;
     private final SysLoginLogMapper sysLoginLogMapper;
     private final AuthCaptchaService authCaptchaService;
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public AuthService(
         SysUserMapper sysUserMapper,
@@ -53,23 +54,29 @@ public class AuthService {
     }
 
     public LoginResponse login(LoginRequest request) {
+        String loginPrincipal = buildLoginPrincipal(request.getUsername());
+        authCaptchaService.assertLoginAllowed(loginPrincipal);
         try {
             authCaptchaService.validate(request.getCaptchaKey(), request.getCaptchaCode());
         } catch (BizException exception) {
+            authCaptchaService.recordLoginFailure(loginPrincipal);
             writeLoginLog(request.getUsername(), "FAIL", exception.getMessage());
             throw exception;
         }
         SysUser user = sysUserMapper.selectByUsername(request.getUsername());
         if (user == null) {
+            authCaptchaService.recordLoginFailure(loginPrincipal);
             writeLoginLog(request.getUsername(), "FAIL", "用户名或密码错误");
             throw new BizException(401, "用户名或密码错误");
         }
         if (!Integer.valueOf(1).equals(user.getStatus())) {
+            authCaptchaService.recordLoginFailure(loginPrincipal);
             writeLoginLog(request.getUsername(), "FAIL", "账号已停用");
             throw new BizException(403, "账号已停用");
         }
-        boolean matched = request.getPassword().equals(user.getPassword()) || passwordEncoder.matches(request.getPassword(), user.getPassword());
+        boolean matched = passwordEncoder.matches(request.getPassword(), user.getPassword());
         if (!matched) {
+            authCaptchaService.recordLoginFailure(loginPrincipal);
             writeLoginLog(request.getUsername(), "FAIL", "用户名或密码错误");
             throw new BizException(401, "用户名或密码错误");
         }
@@ -77,12 +84,25 @@ public class AuthService {
         StpUtil.login(user.getId());
         LoginUser loginUser = loadLoginUser(user.getId());
         StpUtil.getSession().set("loginUser", loginUser);
+        authCaptchaService.clearLoginFailures(loginPrincipal);
         writeLoginLog(request.getUsername(), "SUCCESS", "登录成功");
 
         LoginResponse response = new LoginResponse();
-        response.setToken(StpUtil.getTokenValue());
         response.setUserInfo(toUserInfo(loginUser, user.getNickname(), resolveDeptName(user.getDeptId())));
         return response;
+    }
+
+    /**
+     * 对用户密码进行 BCrypt 哈希，供系统模块与初始化流程复用。
+     *
+     * @param rawPassword 明文密码
+     * @return BCrypt 哈希后的密码串
+     */
+    public String encodePassword(String rawPassword) {
+        if (!StringUtils.hasText(rawPassword)) {
+            throw new BizException(400, "密码不能为空");
+        }
+        return passwordEncoder.encode(rawPassword.trim());
     }
 
     public void logout() {
@@ -120,6 +140,19 @@ public class AuthService {
         loginUser.setPermCodes(sysUserMapper.selectPermCodes(userId));
         loginUser.setDataScopes(sysUserMapper.selectDataScopes(userId).stream().map(this::toScope).toList());
         return loginUser;
+    }
+
+    /**
+     * 生成登录限流主体，优先绑定用户名与来源 IP。
+     *
+     * @param username 登录用户名
+     * @return 登录限流主体
+     */
+    private String buildLoginPrincipal(String username) {
+        HttpServletRequest request = currentRequest();
+        String remoteAddr = request == null ? "" : request.getRemoteAddr();
+        String normalizedUsername = StringUtils.hasText(username) ? username.trim() : "anonymous";
+        return normalizedUsername + "@" + remoteAddr;
     }
 
     private SysUser currentUserEntity() {

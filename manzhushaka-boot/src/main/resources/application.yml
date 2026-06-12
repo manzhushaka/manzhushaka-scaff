@@ -20,8 +20,14 @@ server:
 sa-token:
   token-name: Authorization
   timeout: 2592000
-  is-read-cookie: false
+  is-read-cookie: true
+  is-read-header: false
+  is-write-header: false
   is-share: false
+  cookie:
+    path: /
+    http-only: true
+    same-site: Lax
 
 mybatis-plus:
   mapper-locations: classpath*:mapper/**/*.xml
@@ -42,3 +48,6 @@ management:
     web:
       exposure:
         include: health,info,metrics
+  endpoint:
+    health:
+      show-details: never

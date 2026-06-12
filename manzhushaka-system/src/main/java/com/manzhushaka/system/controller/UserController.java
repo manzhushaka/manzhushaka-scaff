@@ -1,5 +1,6 @@
 package com.manzhushaka.system.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.manzhushaka.common.model.ApiResponse;
 import com.manzhushaka.system.dto.user.UserForm;
 import com.manzhushaka.system.dto.user.UserQuery;
@@ -27,27 +28,32 @@ public class UserController {
     }
 
     @GetMapping
+    @SaCheckPermission("system:user:list")
     public ApiResponse<PageResult<UserVO>> page(UserQuery query) {
         return ApiResponse.success(userService.page(query));
     }
 
     @GetMapping("/{id}")
+    @SaCheckPermission("system:user:query")
     public ApiResponse<UserVO> getById(@PathVariable Long id) {
         return ApiResponse.success(userService.getById(id));
     }
 
     @PostMapping
+    @SaCheckPermission("system:user:add")
     public ApiResponse<Long> create(@Valid @RequestBody UserForm form) {
         return ApiResponse.success(userService.create(form));
     }
 
     @PutMapping("/{id}")
+    @SaCheckPermission("system:user:update")
     public ApiResponse<Void> update(@PathVariable Long id, @Valid @RequestBody UserForm form) {
         userService.update(id, form);
         return ApiResponse.success(null);
     }
 
     @DeleteMapping("/{id}")
+    @SaCheckPermission("system:user:delete")
     public ApiResponse<Void> delete(@PathVariable Long id) {
         userService.delete(id);
         return ApiResponse.success(null);

@@ -36,6 +36,7 @@ public class AuthController {
         return ApiResponse.success(authCaptchaService.createCaptcha());
     }
 
+    @SaIgnore
     @PostMapping("/login")
     @OpLog(module = "认证", action = "登录", businessType = BusinessType.LOGIN, recordRequest = false)
     public ApiResponse<LoginResponse> login(@Valid @RequestBody LoginRequest request) {

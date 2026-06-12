@@ -1,9 +1,8 @@
 import axios from 'axios';
 import { Message } from '@arco-design/web-vue';
-import { getToken } from '@/utils/storage';
 import { dispatchMockRequest } from './mock';
 import request from './request';
-import { buildSystemAuthHeader, unwrapSystemResponse } from './system-client';
+import { unwrapSystemResponse } from './system-client';
 import type {
   ConfigForm,
   ConfigQuery,
@@ -68,14 +67,7 @@ import {
 const systemRequest = axios.create({
   baseURL: '/api',
   timeout: 8000,
-});
-
-systemRequest.interceptors.request.use((config) => {
-  const token = buildSystemAuthHeader(getToken());
-  if (token) {
-    config.headers.Authorization = token;
-  }
-  return config;
+  withCredentials: true,
 });
 
 systemRequest.interceptors.request.use(async (config) => {
@@ -501,13 +493,13 @@ export async function getEntityList(key: string, keyword = '') {
 }
 
 export async function addEntity(_key: string, _payload: Record<string, unknown>) {
-  return {} as EntityRecord;
+  throw new Error('当前页面暂未接入通用写操作，请使用对应业务页面处理');
 }
 
 export async function editEntity(_key: string, _id: number, _payload: Record<string, unknown>) {
-  return {} as EntityRecord;
+  throw new Error('当前页面暂未接入通用写操作，请使用对应业务页面处理');
 }
 
 export async function deleteEntity(_key: string, _id: number) {
-  return true;
+  throw new Error('当前页面暂未接入通用写操作，请使用对应业务页面处理');
 }

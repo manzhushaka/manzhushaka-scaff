@@ -1,13 +1,11 @@
-const TOKEN_KEY = 'manzhushaka_admin_token';
-
 export function getToken() {
-  return localStorage.getItem(TOKEN_KEY);
+  return null;
 }
 
-export function setToken(token: string) {
-  localStorage.setItem(TOKEN_KEY, token);
+export function setToken(_token: string) {
+  return undefined;
 }
 
 export function clearToken() {
-  localStorage.removeItem(TOKEN_KEY);
+  return undefined;
 }

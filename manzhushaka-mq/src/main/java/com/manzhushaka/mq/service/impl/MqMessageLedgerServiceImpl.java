@@ -90,6 +90,28 @@ public class MqMessageLedgerServiceImpl implements MqMessageLedgerService {
         });
     }
 
+    @Override
+    @Transactional
+    public int recycleTimedOutProcessingMessages(LocalDateTime now) {
+        LocalDateTime referenceTime = now == null ? LocalDateTime.now() : now;
+        java.util.List<SysMqMessage> timedOutMessages = mqMessageMapper.selectList(new LambdaQueryWrapper<SysMqMessage>()
+            .eq(SysMqMessage::getStatus, MqMessageStatus.PROCESSING.name())
+            .isNotNull(SysMqMessage::getProcessingDeadlineAt)
+            .le(SysMqMessage::getProcessingDeadlineAt, referenceTime));
+        for (SysMqMessage message : timedOutMessages) {
+            message.setStatus(MqMessageStatus.PUBLISHED.name());
+            message.setProcessingDeadlineAt(null);
+            message.setConsumeStartedAt(null);
+            message.setConsumerGroup(null);
+            message.setConsumerName(null);
+            message.setConsumedAt(null);
+            message.setLastError(truncateError("消息处理超时，已回退为待消费状态"));
+            message.setUpdateTime(referenceTime);
+            mqMessageMapper.updateById(message);
+        }
+        return timedOutMessages.size();
+    }
+
     private void updateStatus(String eventId, MqMessageStatus status, java.util.function.Consumer<SysMqMessage> customizer) {
         SysMqMessage entity = getByEventId(eventId);
         if (entity == null) {

@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.manzhushaka</groupId>
         <artifactId>manzhushaka</artifactId>
-        <version>0.0.1</version>
+        <version>0.0.3</version>
     </parent>
 
     <artifactId>manzhushaka-framework</artifactId>

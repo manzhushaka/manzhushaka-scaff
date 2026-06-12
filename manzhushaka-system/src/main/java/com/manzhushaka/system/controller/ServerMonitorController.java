@@ -1,5 +1,6 @@
 package com.manzhushaka.system.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.manzhushaka.common.model.ApiResponse;
 import com.manzhushaka.system.service.impl.ServerMonitorService;
 import com.manzhushaka.system.vo.monitor.MonitorLogTailVO;
@@ -28,6 +29,7 @@ public class ServerMonitorController {
      * @return 运行监控总览
      */
     @GetMapping("/server")
+    @SaCheckPermission("system:monitor:view")
     public ApiResponse<ServerMonitorVO> getServerMonitor() {
         return ApiResponse.success(serverMonitorService.getServerMonitor());
     }
@@ -39,6 +41,7 @@ public class ServerMonitorController {
      * @return 最近慢 SQL 列表
      */
     @GetMapping("/slow-sql")
+    @SaCheckPermission("system:monitor:view")
     public ApiResponse<List<MonitorSlowSqlVO>> listSlowSql(@RequestParam(value = "limit", required = false) Integer limit) {
         return ApiResponse.success(serverMonitorService.listSlowSqlRecords(limit));
     }
@@ -50,6 +53,7 @@ public class ServerMonitorController {
      * @return 在线日志 tail
      */
     @GetMapping("/logs/tail")
+    @SaCheckPermission("system:monitor:view")
     public ApiResponse<MonitorLogTailVO> getLogTail(@RequestParam(value = "limit", required = false) Integer limit) {
         return ApiResponse.success(serverMonitorService.getLogTail(limit));
     }

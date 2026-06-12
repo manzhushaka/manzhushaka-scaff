@@ -1,5 +1,6 @@
 package com.manzhushaka.system.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.manzhushaka.common.model.ApiResponse;
 import com.manzhushaka.mq.service.MqMessageAdminService;
 import com.manzhushaka.system.dto.log.LoginLogQuery;
@@ -29,21 +30,25 @@ public class LogQueryController {
     }
 
     @GetMapping("/login")
+    @SaCheckPermission("system:log:view")
     public ApiResponse<PageResult<LoginLogVO>> pageLoginLogs(LoginLogQuery query) {
         return ApiResponse.success(logQueryService.pageLoginLogs(query));
     }
 
     @GetMapping("/op")
+    @SaCheckPermission("system:log:view")
     public ApiResponse<PageResult<OpLogVO>> pageOpLogs(OpLogQuery query) {
         return ApiResponse.success(logQueryService.pageOpLogs(query));
     }
 
     @GetMapping("/mq-messages")
+    @SaCheckPermission("system:mq-message:query")
     public ApiResponse<PageResult<MqMessageVO>> pageMqMessages(MqMessageQuery query) {
         return ApiResponse.success(logQueryService.pageMqMessages(query));
     }
 
     @PostMapping("/mq-messages/{id}/retry")
+    @SaCheckPermission("system:mq-message:retry")
     public ApiResponse<Void> retryMqMessage(@PathVariable("id") Long id) {
         mqMessageAdminService.retry(id);
         return ApiResponse.success(null);

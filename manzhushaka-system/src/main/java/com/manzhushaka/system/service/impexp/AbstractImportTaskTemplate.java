@@ -12,6 +12,7 @@ import org.springframework.util.StringUtils;
  * 业务模块通过继承该模板定义导入场景，再由各自的业务入口提交任务。
  */
 public abstract class AbstractImportTaskTemplate<C extends ImportTaskSubmitCommand> extends BaseImportExportTaskTemplate {
+    private static final long MAX_IMPORT_FILE_SIZE = 50L * 1024 * 1024;
 
     private final Class<C> commandType;
 
@@ -85,7 +86,29 @@ public abstract class AbstractImportTaskTemplate<C extends ImportTaskSubmitComma
         return defaultTaskName();
     }
 
+    /**
+     * 校验导入任务提交参数的基础约束。
+     *
+     * @param command 导入任务提交参数
+     */
     protected void validateSubmit(C command) {
+        if (!StringUtils.hasText(command.getFileName()) || !isSupportedImportFile(command.getFileName())) {
+            throw new BizException(400, "仅支持上传 csv、xls、xlsx 格式文件");
+        }
+        if (command.getContent().length > MAX_IMPORT_FILE_SIZE) {
+            throw new BizException(400, "导入文件大小不能超过 50MB");
+        }
+    }
+
+    /**
+     * 判断是否为允许的导入文件格式。
+     *
+     * @param fileName 文件名
+     * @return true 表示允许上传
+     */
+    private boolean isSupportedImportFile(String fileName) {
+        String normalized = fileName.trim().toLowerCase();
+        return normalized.endsWith(".csv") || normalized.endsWith(".xls") || normalized.endsWith(".xlsx");
     }
 
     protected abstract TaskExecutionResult executeImport(SysImportExportTask task, C command, TaskSourceFile sourceFile)

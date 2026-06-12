@@ -26,7 +26,12 @@ export function normalizeErrorMessage(message: string | undefined) {
   if (!normalized) {
     return '请求失败，请稍后重试';
   }
-  if (/^token\s*无效(?:\s*[:：].*)?$/i.test(normalized) || normalized.includes('登录已过期') || normalized.includes('未登录')) {
+  if (
+    /^token\s*无效(?:\s*[:：].*)?$/i.test(normalized)
+    || normalized.includes('登录已过期')
+    || normalized.includes('登录状态已失效')
+    || normalized.includes('未登录')
+  ) {
     return SESSION_EXPIRED_MESSAGE;
   }
   return normalized;

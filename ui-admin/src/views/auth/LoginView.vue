@@ -93,7 +93,7 @@
             </a-button>
           </a-space>
 
-          <a-alert class="login-hint" type="info" :show-icon="false">
+          <a-alert v-if="showDemoHint" class="login-hint" type="info" :show-icon="false">
             默认演示账号：admin，默认密码：Admin@123456，验证码可点击图片刷新。
           </a-alert>
         </a-card>
@@ -121,9 +121,10 @@ const loading = ref(false);
 const captchaLoading = ref(false);
 const captchaImage = ref('');
 const currentYear = new Date().getFullYear();
+const showDemoHint = import.meta.env.DEV;
 const form = reactive({
-  username: 'admin',
-  password: 'Admin@123456',
+  username: '',
+  password: '',
   captchaKey: '',
   captchaCode: '',
   remember: true,

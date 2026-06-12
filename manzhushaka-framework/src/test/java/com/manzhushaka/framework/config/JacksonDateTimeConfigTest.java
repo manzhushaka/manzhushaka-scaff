@@ -1,5 +1,6 @@
 package com.manzhushaka.framework.config;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
@@ -25,6 +26,21 @@ class JacksonDateTimeConfigTest {
         String actual = objectMapper.writeValueAsString(new DateTimePayload(LocalDateTime.of(2026, 6, 9, 0, 28, 46)));
 
         assertEquals("{\"createTime\":\"2026-06-09 00:28:46\"}", actual);
+    }
+
+    /**
+     * 验证全局 Jackson 配置会拒绝未声明字段，避免静默吞掉异常输入。
+     */
+    @Test
+    void shouldFailOnUnknownProperties() {
+        JacksonDateTimeConfig config = new JacksonDateTimeConfig();
+        Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder();
+        config.jacksonObjectMapperCustomizer().customize(builder);
+        ObjectMapper objectMapper = builder.build();
+
+        org.junit.jupiter.api.Assertions.assertTrue(
+            objectMapper.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+        );
     }
 
     /**
