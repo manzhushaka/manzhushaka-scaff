@@ -9,11 +9,19 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
+/**
+ * 定义 ApplicationLogBuffer。
+ */
 @Component
 public class ApplicationLogBuffer {
     private static final int DEFAULT_CAPACITY = 200;
 
     private final int capacity;
+    /**
+     * 执行 method 逻辑。
+     *
+     * @return 处理结果
+     */
     private final Deque<BufferedLogLine> lines = new ArrayDeque<>();
 
     /**
@@ -94,6 +102,13 @@ public class ApplicationLogBuffer {
         return Math.min(limit, capacity);
     }
 
+    /**
+     * 执行 Buffered Log Line 逻辑。
+     *
+     * @param time time 参数
+     * @param line line 参数
+     * @return 处理结果
+     */
     private record BufferedLogLine(LocalDateTime time, String line) {
     }
 }

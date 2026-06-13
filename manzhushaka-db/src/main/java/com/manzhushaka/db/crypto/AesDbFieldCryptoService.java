@@ -9,19 +9,38 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Base64;
 
+/**
+ * 定义 AesDbFieldCryptoService。
+ */
 public class AesDbFieldCryptoService implements DbFieldCryptoService {
     private static final String TRANSFORMATION = "AES/GCM/NoPadding";
     private static final String ALGORITHM = "AES";
     private static final int GCM_TAG_LENGTH_BITS = 128;
     private static final int IV_LENGTH = 12;
+    /**
+     * 执行 Secure Random 逻辑。
+     *
+     * @return 处理结果
+     */
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     private final String key;
 
+    /**
+     * 创建 AesDbFieldCryptoService 实例。
+     *
+     * @param key 键名
+     */
     public AesDbFieldCryptoService(String key) {
         this.key = key;
     }
 
+    /**
+     * 执行 encrypt 逻辑。
+     *
+     * @param plaintext plaintext 参数
+     * @return 处理结果
+     */
     @Override
     public String encrypt(String plaintext) {
         if (plaintext == null) {
@@ -43,6 +62,12 @@ public class AesDbFieldCryptoService implements DbFieldCryptoService {
         }
     }
 
+    /**
+     * 执行 decrypt 逻辑。
+     *
+     * @param ciphertext ciphertext 参数
+     * @return 处理结果
+     */
     @Override
     public String decrypt(String ciphertext) {
         if (ciphertext == null) {
@@ -69,6 +94,11 @@ public class AesDbFieldCryptoService implements DbFieldCryptoService {
         }
     }
 
+    /**
+     * 构建 resolve Key Spec 结果。
+     *
+     * @return 处理结果
+     */
     private SecretKeySpec resolveKeySpec() {
         if (key == null || key.isBlank()) {
             throw new IllegalStateException("数据库字段加密密钥未配置，请设置 manzhushaka.db.crypto.key");
@@ -83,6 +113,12 @@ public class AesDbFieldCryptoService implements DbFieldCryptoService {
         return new SecretKeySpec(keyBytes, ALGORITHM);
     }
 
+    /**
+     * 构建 decode Base64 Key 结果。
+     *
+     * @param keyValue keyValue 参数
+     * @return 处理结果
+     */
     private byte[] decodeBase64Key(String keyValue) {
         try {
             byte[] decoded = Base64.getDecoder().decode(keyValue);
@@ -92,6 +128,12 @@ public class AesDbFieldCryptoService implements DbFieldCryptoService {
         }
     }
 
+    /**
+     * 判断是否 validKeyLength。
+     *
+     * @param length length 参数
+     * @return 字段值
+     */
     private boolean isValidKeyLength(int length) {
         return length == 16 || length == 24 || length == 32;
     }

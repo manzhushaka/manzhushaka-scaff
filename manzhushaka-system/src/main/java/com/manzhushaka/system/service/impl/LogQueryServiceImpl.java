@@ -25,6 +25,9 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 
+/**
+ * 实现 LogQueryServiceImpl 业务服务。
+ */
 @Service
 public class LogQueryServiceImpl implements LogQueryService {
 
@@ -45,6 +48,12 @@ public class LogQueryServiceImpl implements LogQueryService {
         this.mqProperties = mqProperties;
     }
 
+    /**
+     * 查询 page Login Logs 结果。
+     *
+     * @param query 查询条件
+     * @return 查询结果
+     */
     @Override
     public PageResult<LoginLogVO> pageLoginLogs(LoginLogQuery query) {
         LambdaQueryWrapper<SysLoginLog> wrapper = new LambdaQueryWrapper<SysLoginLog>()
@@ -55,6 +64,12 @@ public class LogQueryServiceImpl implements LogQueryService {
         return SystemMappingSupport.toPageResult(page, this::toLoginLogVO);
     }
 
+    /**
+     * 查询 page Op Logs 结果。
+     *
+     * @param query 查询条件
+     * @return 查询结果
+     */
     @Override
     public PageResult<OpLogVO> pageOpLogs(OpLogQuery query) {
         LambdaQueryWrapper<SysOpLog> wrapper = new LambdaQueryWrapper<SysOpLog>()
@@ -67,6 +82,12 @@ public class LogQueryServiceImpl implements LogQueryService {
         return SystemMappingSupport.toPageResult(page, this::toOpLogVO);
     }
 
+    /**
+     * 查询 page Mq Messages 结果。
+     *
+     * @param query 查询条件
+     * @return 查询结果
+     */
     @Override
     public PageResult<MqMessageVO> pageMqMessages(MqMessageQuery query) {
         LambdaQueryWrapper<SysMqMessage> wrapper = new LambdaQueryWrapper<SysMqMessage>();
@@ -95,6 +116,12 @@ public class LogQueryServiceImpl implements LogQueryService {
         return SystemMappingSupport.toPageResult(page, this::toMqMessageVO);
     }
 
+    /**
+     * 执行 uses Shared Keyword 逻辑。
+     *
+     * @param query 查询条件
+     * @return 处理结果
+     */
     private boolean usesSharedKeyword(MqMessageQuery query) {
         if (!StringUtils.hasText(query.getStreamKey())) {
             return false;
@@ -104,6 +131,12 @@ public class LogQueryServiceImpl implements LogQueryService {
             && query.getStreamKey().equals(query.getTraceId());
     }
 
+    /**
+     * 构建 to Login Log VO 结果。
+     *
+     * @param entity 实体对象
+     * @return 处理结果
+     */
     private LoginLogVO toLoginLogVO(SysLoginLog entity) {
         LoginLogVO vo = new LoginLogVO();
         vo.setId(entity.getId());
@@ -116,6 +149,12 @@ public class LogQueryServiceImpl implements LogQueryService {
         return vo;
     }
 
+    /**
+     * 构建 to Op Log VO 结果。
+     *
+     * @param entity 实体对象
+     * @return 处理结果
+     */
     private OpLogVO toOpLogVO(SysOpLog entity) {
         OpLogVO vo = new OpLogVO();
         vo.setId(entity.getId());
@@ -136,6 +175,12 @@ public class LogQueryServiceImpl implements LogQueryService {
         return vo;
     }
 
+    /**
+     * 构建 to Mq Message VO 结果。
+     *
+     * @param entity 实体对象
+     * @return 处理结果
+     */
     private MqMessageVO toMqMessageVO(SysMqMessage entity) {
         MqMessageVO vo = new MqMessageVO();
         vo.setId(entity.getId());
@@ -158,6 +203,13 @@ public class LogQueryServiceImpl implements LogQueryService {
         return vo;
     }
 
+    /**
+     * 判断是否 processingTimedOut。
+     *
+     * @param entity 实体对象
+     * @param now now 参数
+     * @return 字段值
+     */
     private boolean isProcessingTimedOut(SysMqMessage entity, LocalDateTime now) {
         MqMessageStatus status = resolveStatus(entity.getStatus());
         if (status == null) {
@@ -175,6 +227,12 @@ public class LogQueryServiceImpl implements LogQueryService {
         };
     }
 
+    /**
+     * 解析消息状态。
+     *
+     * @param status status 参数
+     * @return 处理结果
+     */
     private MqMessageStatus resolveStatus(String status) {
         try {
             return MqMessageStatus.valueOf(status);

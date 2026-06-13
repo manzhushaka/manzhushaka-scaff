@@ -15,6 +15,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
+/**
+ * 实现 MqMessageAdminServiceImpl 业务服务。
+ */
 @Service
 public class MqMessageAdminServiceImpl implements MqMessageAdminService {
 
@@ -35,6 +38,11 @@ public class MqMessageAdminServiceImpl implements MqMessageAdminService {
         this.mqProperties = mqProperties;
     }
 
+    /**
+     * 处理 retry 流程。
+     *
+     * @param id 主键 ID
+     */
     @Override
     public void retry(Long id) {
         SysMqMessage message = mqMessageMapper.selectById(id);
@@ -57,6 +65,11 @@ public class MqMessageAdminServiceImpl implements MqMessageAdminService {
         mqMessageMapper.updateById(message);
     }
 
+    /**
+     * 执行 claim Retry 逻辑。
+     *
+     * @param message message 参数
+     */
     private void claimRetry(SysMqMessage message) {
         LocalDateTime now = LocalDateTime.now();
         SysMqMessage updating = new SysMqMessage();
@@ -90,11 +103,24 @@ public class MqMessageAdminServiceImpl implements MqMessageAdminService {
         message.setUpdateTime(now);
     }
 
+    /**
+     * 执行 allows Retry 逻辑。
+     *
+     * @param message message 参数
+     * @param now now 参数
+     * @return 处理结果
+     */
     private boolean allowsRetry(SysMqMessage message, LocalDateTime now) {
         MqMessageStatus status = resolveStatus(message.getStatus());
         return status.allowsManualRetry(isTimedOut(message, now));
     }
 
+    /**
+     * 执行 rebuild Event 逻辑。
+     *
+     * @param message message 参数
+     * @return 处理结果
+     */
     private MqEvent<Object> rebuildEvent(SysMqMessage message) {
         if (message.getPayloadSnapshot() == null || message.getPayloadSnapshot().isBlank()) {
             throw new BizException(400, "消息快照不存在，无法重试");
@@ -115,6 +141,12 @@ public class MqMessageAdminServiceImpl implements MqMessageAdminService {
         }
     }
 
+    /**
+     * 更新 mark Republished 数据。
+     *
+     * @param message message 参数
+     * @param retryCount retryCount 参数
+     */
     private void markRepublished(SysMqMessage message, int retryCount) {
         LocalDateTime now = LocalDateTime.now();
         message.setStatus(MqMessageStatus.PUBLISHED.name());
@@ -129,6 +161,12 @@ public class MqMessageAdminServiceImpl implements MqMessageAdminService {
         message.setUpdateTime(now);
     }
 
+    /**
+     * 更新 mark Retry Failed 数据。
+     *
+     * @param message message 参数
+     * @param errorMessage errorMessage 参数
+     */
     private void markRetryFailed(SysMqMessage message, String errorMessage) {
         LocalDateTime now = LocalDateTime.now();
         message.setStatus(MqMessageStatus.FAIL.name());
@@ -141,6 +179,12 @@ public class MqMessageAdminServiceImpl implements MqMessageAdminService {
         message.setUpdateTime(now);
     }
 
+    /**
+     * 解析消息状态。
+     *
+     * @param status status 参数
+     * @return 处理结果
+     */
     private MqMessageStatus resolveStatus(String status) {
         try {
             return MqMessageStatus.valueOf(status);
@@ -149,10 +193,24 @@ public class MqMessageAdminServiceImpl implements MqMessageAdminService {
         }
     }
 
+    /**
+     * 判断是否 processingTimedOut。
+     *
+     * @param message message 参数
+     * @param now now 参数
+     * @return 字段值
+     */
     private boolean isProcessingTimedOut(SysMqMessage message, LocalDateTime now) {
         return message.getProcessingDeadlineAt() != null && !message.getProcessingDeadlineAt().isAfter(now);
     }
 
+    /**
+     * 判断是否 publishedTimedOut。
+     *
+     * @param message message 参数
+     * @param now now 参数
+     * @return 字段值
+     */
     private boolean isPublishedTimedOut(SysMqMessage message, LocalDateTime now) {
         if (message.getConsumeStartedAt() != null || message.getPublishedAt() == null) {
             return false;
@@ -160,6 +218,13 @@ public class MqMessageAdminServiceImpl implements MqMessageAdminService {
         return !message.getPublishedAt().plusSeconds(mqProperties.getProcessingTimeoutSeconds()).isAfter(now);
     }
 
+    /**
+     * 判断是否 timedOut。
+     *
+     * @param message message 参数
+     * @param now now 参数
+     * @return 字段值
+     */
     private boolean isTimedOut(SysMqMessage message, LocalDateTime now) {
         MqMessageStatus status = resolveStatus(message.getStatus());
         return switch (status) {
@@ -169,6 +234,12 @@ public class MqMessageAdminServiceImpl implements MqMessageAdminService {
         };
     }
 
+    /**
+     * 截断错误信息。
+     *
+     * @param errorMessage errorMessage 参数
+     * @return 处理结果
+     */
     private String truncateError(String errorMessage) {
         String message = (errorMessage == null || errorMessage.isBlank()) ? "unknown error" : errorMessage;
         return message.length() > 1000 ? message.substring(0, 1000) : message;

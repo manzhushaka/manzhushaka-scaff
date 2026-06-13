@@ -9,6 +9,9 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 
+/**
+ * 定义 SlowSqlMonitorStore。
+ */
 public class SlowSqlMonitorStore {
     private static final int DEFAULT_CAPACITY = 100;
     private static final long DEFAULT_THRESHOLD_MS = 500L;
@@ -16,6 +19,11 @@ public class SlowSqlMonitorStore {
 
     private final int capacity;
     private final long thresholdMs;
+    /**
+     * 执行 method 逻辑。
+     *
+     * @return 处理结果
+     */
     private final Deque<SlowSqlRecord> records = new ArrayDeque<>();
 
     /**

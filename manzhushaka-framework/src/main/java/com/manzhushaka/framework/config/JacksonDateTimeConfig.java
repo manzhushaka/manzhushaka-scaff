@@ -17,6 +17,12 @@ import java.time.format.DateTimeFormatter;
 @Configuration
 public class JacksonDateTimeConfig {
 
+    /**
+     * 执行 of Pattern 逻辑。
+     *
+     * @param HH:mm:ss" HH:mm:ss" 参数
+     * @return 处理结果
+     */
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     /**

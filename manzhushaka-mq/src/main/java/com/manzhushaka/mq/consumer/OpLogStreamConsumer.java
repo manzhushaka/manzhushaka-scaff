@@ -24,8 +24,17 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
+/**
+ * 定义 OpLogStreamConsumer。
+ */
 @Component
 public class OpLogStreamConsumer {
+    /**
+     * 返回 logger。
+     *
+     * @param OpLogStreamConsumer.class OpLogStreamConsumer.class 参数
+     * @return 字段值
+     */
     private static final Logger log = LoggerFactory.getLogger(OpLogStreamConsumer.class);
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
@@ -50,8 +59,16 @@ public class OpLogStreamConsumer {
         this.mqProperties = mqProperties;
     }
 
+    /**
+     * 定义 StreamBootstrap。
+     */
     @Component
     class StreamBootstrap implements ApplicationRunner {
+        /**
+         * 执行 run 操作。
+         *
+         * @param args args 参数
+         */
         @Override
         public void run(org.springframework.boot.ApplicationArguments args) {
             try {

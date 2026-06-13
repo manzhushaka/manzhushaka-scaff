@@ -13,6 +13,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * 定义 UserImportTaskTemplate。
+ */
 @Component
 public class UserImportTaskTemplate extends AbstractImportTaskTemplate<UserImportTaskTemplate.Command> {
 
@@ -25,21 +28,41 @@ public class UserImportTaskTemplate extends AbstractImportTaskTemplate<UserImpor
         super(taskMapper, storageService, objectMapper, Command.class, properties.getBasePath());
     }
 
+    /**
+     * 执行 biz Type 逻辑。
+     *
+     * @return 处理结果
+     */
     @Override
     public String bizType() {
         return "SYS_USER_IMPORT";
     }
 
+    /**
+     * 执行 biz Label 逻辑。
+     *
+     * @return 处理结果
+     */
     @Override
     public String bizLabel() {
         return "系统用户导入校验示例";
     }
 
+    /**
+     * 执行 default Task Name 逻辑。
+     *
+     * @return 处理结果
+     */
     @Override
     protected String defaultTaskName() {
         return "系统用户导入校验示例";
     }
 
+    /**
+     * 校验 validate Submit 条件。
+     *
+     * @param command command 参数
+     */
     @Override
     protected void validateSubmit(Command command) {
         if (!StringUtils.hasText(command.getFileName())) {
@@ -50,6 +73,14 @@ public class UserImportTaskTemplate extends AbstractImportTaskTemplate<UserImpor
         }
     }
 
+    /**
+     * 执行 execute Import 操作。
+     *
+     * @param task task 参数
+     * @param command command 参数
+     * @param sourceFile sourceFile 参数
+     * @return 处理结果
+     */
     @Override
     protected TaskExecutionResult executeImport(SysImportExportTask task, Command command, TaskSourceFile sourceFile) {
         String csv = new String(sourceFile.content(), StandardCharsets.UTF_8);
@@ -95,6 +126,16 @@ public class UserImportTaskTemplate extends AbstractImportTaskTemplate<UserImpor
         );
     }
 
+    /**
+     * 校验 validate Row 条件。
+     *
+     * @param usernames usernames 参数
+     * @param username 用户名
+     * @param nickname nickname 参数
+     * @param deptId 部门 ID
+     * @param status status 参数
+     * @return 处理结果
+     */
     private String validateRow(Set<String> usernames, String username, String nickname, String deptId, String status) {
         if (!StringUtils.hasText(username)) {
             return "用户名不能为空";

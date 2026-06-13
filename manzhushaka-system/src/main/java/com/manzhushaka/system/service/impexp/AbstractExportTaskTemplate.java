@@ -36,6 +36,13 @@ public abstract class AbstractExportTaskTemplate<C extends ExportTaskSubmitComma
         this.commandType = commandType;
     }
 
+    /**
+     * 创建 submit 数据。
+     *
+     * @param command command 参数
+     * @param operator operator 参数
+     * @return 创建结果
+     */
     public final Long submit(C command, LoginUser operator) {
         if (command == null) {
             throw new BizException(400, "导出任务参数不能为空");
@@ -55,6 +62,11 @@ public abstract class AbstractExportTaskTemplate<C extends ExportTaskSubmitComma
         return task.getId();
     }
 
+    /**
+     * 执行任务处理。
+     *
+     * @param taskId 任务 ID
+     */
     public final void execute(Long taskId) {
         SysImportExportTask task = loadTask(taskId);
         if (task == null) {
@@ -68,6 +80,12 @@ public abstract class AbstractExportTaskTemplate<C extends ExportTaskSubmitComma
         }
     }
 
+    /**
+     * 构建 resolve Task Name 结果。
+     *
+     * @param command command 参数
+     * @return 处理结果
+     */
     protected String resolveTaskName(C command) {
         if (StringUtils.hasText(command.getTaskName())) {
             return command.getTaskName().trim();
@@ -75,8 +93,20 @@ public abstract class AbstractExportTaskTemplate<C extends ExportTaskSubmitComma
         return defaultTaskName();
     }
 
+    /**
+     * 校验 validate Submit 条件。
+     *
+     * @param command command 参数
+     */
     protected void validateSubmit(C command) {
     }
 
+    /**
+     * 执行 execute Export 操作。
+     *
+     * @param task task 参数
+     * @param command command 参数
+     * @return 处理结果
+     */
     protected abstract TaskExecutionResult executeExport(SysImportExportTask task, C command) throws Exception;
 }

@@ -1,5 +1,8 @@
 package com.manzhushaka.system.service.impexp;
 
+/**
+ * 承载 TaskExecutionResult 数据。
+ */
 public record TaskExecutionResult(
     int totalCount,
     int successCount,

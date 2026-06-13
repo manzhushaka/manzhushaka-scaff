@@ -15,16 +15,31 @@ import org.springframework.util.StringUtils;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * 定义 BosObjectStorageService。
+ */
 @Service
 public class BosObjectStorageService implements ObjectStorageService {
 
     private final BosStorageProperties properties;
     private volatile BosClient client;
 
+    /**
+     * 创建 BosObjectStorageService 实例。
+     *
+     * @param properties properties 参数
+     */
     public BosObjectStorageService(BosStorageProperties properties) {
         this.properties = properties;
     }
 
+    /**
+     * 执行 put Object 逻辑。
+     *
+     * @param objectKey objectKey 参数
+     * @param content content 参数
+     * @param contentType contentType 参数
+     */
     @Override
     public void putObject(String objectKey, byte[] content, String contentType) {
         validateConfiguration();
@@ -40,6 +55,12 @@ public class BosObjectStorageService implements ObjectStorageService {
         }
     }
 
+    /**
+     * 返回 objectContent。
+     *
+     * @param objectKey objectKey 参数
+     * @return 字段值
+     */
     @Override
     public byte[] getObjectContent(String objectKey) {
         validateConfiguration();
@@ -51,6 +72,13 @@ public class BosObjectStorageService implements ObjectStorageService {
         }
     }
 
+    /**
+     * 生成下载地址。
+     *
+     * @param objectKey objectKey 参数
+     * @param downloadFileName downloadFileName 参数
+     * @return 创建结果
+     */
     @Override
     public String generateDownloadUrl(String objectKey, String downloadFileName) {
         validateConfiguration();
@@ -82,6 +110,12 @@ public class BosObjectStorageService implements ObjectStorageService {
         if (localClient != null) {
             return localClient;
         }
+        /**
+         * 更新 synchronized 数据。
+         *
+         * @param this this 参数
+         * @return 处理结果
+         */
         synchronized (this) {
             if (client == null) {
                 BosClientConfiguration configuration = new BosClientConfiguration()

@@ -2,6 +2,9 @@ package com.manzhushaka.db.monitor;
 
 import java.time.LocalDateTime;
 
+/**
+ * 定义 SlowSqlRecord。
+ */
 public class SlowSqlRecord {
     private String statementId;
     private String sql;

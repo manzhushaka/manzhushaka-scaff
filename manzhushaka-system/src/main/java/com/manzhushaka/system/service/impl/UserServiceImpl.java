@@ -26,12 +26,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 实现 UserServiceImpl 业务服务。
+ */
 @Service
 public class UserServiceImpl implements UserService {
 
     private final SysUserMapper userMapper;
     private final SysDeptMapper deptMapper;
     private final SystemAccessSupport accessSupport;
+    /**
+     * 执行 BCrypt Password Encoder 逻辑。
+     *
+     * @return 处理结果
+     */
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public UserServiceImpl(
@@ -44,6 +52,12 @@ public class UserServiceImpl implements UserService {
         this.accessSupport = accessSupport;
     }
 
+    /**
+     * 分页查询列表。
+     *
+     * @param query 查询条件
+     * @return 查询结果
+     */
     @Override
     public PageResult<UserVO> page(UserQuery query) {
         accessSupport.assertDeptAccessible(query.getDeptId());
@@ -60,6 +74,12 @@ public class UserServiceImpl implements UserService {
         return SystemMappingSupport.toPageResult(page, user -> toUserVO(user, deptNameMap));
     }
 
+    /**
+     * 根据 ID 查询详情。
+     *
+     * @param id 主键 ID
+     * @return 字段值
+     */
     @Override
     public UserVO getById(Long id) {
         SysUser user = getUserOrThrow(id);
@@ -67,6 +87,12 @@ public class UserServiceImpl implements UserService {
         return toUserVO(user, loadDeptNameMap(List.of(user)));
     }
 
+    /**
+     * 创建数据。
+     *
+     * @param form 表单参数
+     * @return 创建结果
+     */
     @Override
     @Transactional
     public Long create(UserForm form) {
@@ -78,6 +104,12 @@ public class UserServiceImpl implements UserService {
         return entity.getId();
     }
 
+    /**
+     * 更新数据。
+     *
+     * @param id 主键 ID
+     * @param form 表单参数
+     */
     @Override
     @Transactional
     public void update(Long id, UserForm form) {
@@ -88,6 +120,11 @@ public class UserServiceImpl implements UserService {
         userMapper.updateById(entity);
     }
 
+    /**
+     * 删除数据。
+     *
+     * @param id 主键 ID
+     */
     @Override
     @Transactional
     public void delete(Long id) {
@@ -97,6 +134,12 @@ public class UserServiceImpl implements UserService {
         userMapper.updateById(entity);
     }
 
+    /**
+     * 返回 userOrThrow。
+     *
+     * @param id 主键 ID
+     * @return 字段值
+     */
     private SysUser getUserOrThrow(Long id) {
         SysUser user = userMapper.selectById(id);
         if (user == null || Integer.valueOf(1).equals(user.getDeleted())) {
@@ -105,6 +148,12 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    /**
+     * 更新 apply Form 数据。
+     *
+     * @param entity 实体对象
+     * @param form 表单参数
+     */
     private void applyForm(SysUser entity, UserForm form) {
         entity.setUsername(form.getUsername());
         if (StringUtils.hasText(form.getPassword())) {
@@ -172,6 +221,12 @@ public class UserServiceImpl implements UserService {
         accessSupport.assertDeptAccessible(user.getDeptId());
     }
 
+    /**
+     * 查询 load Dept Name Map 结果。
+     *
+     * @param users users 参数
+     * @return 查询结果
+     */
     private Map<Long, String> loadDeptNameMap(List<SysUser> users) {
         List<Long> deptIds = users.stream().map(SysUser::getDeptId).filter(id -> id != null && id > 0).distinct().toList();
         if (deptIds.isEmpty()) {
@@ -185,6 +240,13 @@ public class UserServiceImpl implements UserService {
         return deptNameMap;
     }
 
+    /**
+     * 转换为用户响应对象。
+     *
+     * @param user user 参数
+     * @param deptNameMap deptNameMap 参数
+     * @return 处理结果
+     */
     private UserVO toUserVO(SysUser user, Map<Long, String> deptNameMap) {
         UserVO vo = new UserVO();
         vo.setId(user.getId());

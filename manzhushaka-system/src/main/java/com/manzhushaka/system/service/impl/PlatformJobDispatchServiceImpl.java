@@ -20,9 +20,22 @@ import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * 实现 PlatformJobDispatchServiceImpl 业务服务。
+ */
 @Service
 public class PlatformJobDispatchServiceImpl implements PlatformJobDispatchService {
+    /**
+     * 执行 new Key Set 逻辑。
+     *
+     * @return 处理结果
+     */
     private static final Set<Long> RUNNING_JOB_IDS = ConcurrentHashMap.newKeySet();
+    /**
+     * 执行 system Default 逻辑。
+     *
+     * @return 处理结果
+     */
     private static final ZoneId SYSTEM_ZONE = ZoneId.systemDefault();
     private final SysJobMapper jobMapper;
     private final SysJobLogMapper jobLogMapper;
@@ -38,6 +51,13 @@ public class PlatformJobDispatchServiceImpl implements PlatformJobDispatchServic
         this.handlerRegistry = handlerRegistry;
     }
 
+    /**
+     * 分发任务。
+     *
+     * @param jobId jobId 标识
+     * @param triggerType triggerType 参数
+     * @param jobParamOverride jobParamOverride 参数
+     */
     @Override
     public void dispatch(Long jobId, String triggerType, String jobParamOverride) {
         SysJob job = jobMapper.selectById(jobId);
@@ -78,6 +98,14 @@ public class PlatformJobDispatchServiceImpl implements PlatformJobDispatchServic
         }
     }
 
+    /**
+     * 构建 build Running Log 结果。
+     *
+     * @param job job 参数
+     * @param triggerType triggerType 参数
+     * @param startTime startTime 参数
+     * @return 处理结果
+     */
     private SysJobLog buildRunningLog(SysJob job, String triggerType, LocalDateTime startTime) {
         SysJobLog log = new SysJobLog();
         log.setJobId(job.getId());
@@ -93,6 +121,14 @@ public class PlatformJobDispatchServiceImpl implements PlatformJobDispatchServic
         return log;
     }
 
+    /**
+     * 执行 complete Log 逻辑。
+     *
+     * @param job job 参数
+     * @param logEntity logEntity 参数
+     * @param startTime startTime 参数
+     * @param throwable 异常对象
+     */
     private void completeLog(SysJob job, SysJobLog logEntity, LocalDateTime startTime, Throwable throwable) {
         LocalDateTime endTime = LocalDateTime.now();
         SysJobLog updateLog = new SysJobLog();
@@ -114,6 +150,13 @@ public class PlatformJobDispatchServiceImpl implements PlatformJobDispatchServic
         jobMapper.updateById(updateJob);
     }
 
+    /**
+     * 更新 write Skipped Log 数据。
+     *
+     * @param job job 参数
+     * @param triggerType triggerType 参数
+     * @param message message 参数
+     */
     private void writeSkippedLog(SysJob job, String triggerType, String message) {
         LocalDateTime now = LocalDateTime.now();
         SysJobLog log = new SysJobLog();
@@ -141,6 +184,13 @@ public class PlatformJobDispatchServiceImpl implements PlatformJobDispatchServic
         jobMapper.updateById(updateJob);
     }
 
+    /**
+     * 执行 next Trigger Time 逻辑。
+     *
+     * @param job job 参数
+     * @param referenceTime referenceTime 参数
+     * @return 处理结果
+     */
     private LocalDateTime nextTriggerTime(SysJob job, LocalDateTime referenceTime) {
         try {
             CronExpression cronExpression = new CronExpression(job.getCronExpression());
@@ -151,6 +201,11 @@ public class PlatformJobDispatchServiceImpl implements PlatformJobDispatchServic
         }
     }
 
+    /**
+     * 构建 resolve Executor Host 结果。
+     *
+     * @return 处理结果
+     */
     private String resolveExecutorHost() {
         try {
             return InetAddress.getLocalHost().getHostName();
@@ -159,6 +214,12 @@ public class PlatformJobDispatchServiceImpl implements PlatformJobDispatchServic
         }
     }
 
+    /**
+     * 执行 summarize Throwable 逻辑。
+     *
+     * @param throwable 异常对象
+     * @return 处理结果
+     */
     private String summarizeThrowable(Throwable throwable) {
         return throwable.getClass().getSimpleName() + ": " + throwable.getMessage();
     }

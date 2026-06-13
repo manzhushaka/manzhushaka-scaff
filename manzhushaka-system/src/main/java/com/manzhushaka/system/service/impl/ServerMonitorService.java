@@ -41,8 +41,17 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 
+/**
+ * 实现 ServerMonitorService 业务服务。
+ */
 @Service
 public class ServerMonitorService {
+    /**
+     * 执行 of Pattern 逻辑。
+     *
+     * @param HH:mm:ss" HH:mm:ss" 参数
+     * @return 处理结果
+     */
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final int DEFAULT_SLOW_SQL_LIMIT = 20;
     private static final int DEFAULT_LOG_LINE_LIMIT = 80;
@@ -56,8 +65,23 @@ public class ServerMonitorService {
     private final SlowSqlMonitorStore slowSqlMonitorStore;
     private final ApplicationLogBuffer applicationLogBuffer;
     private final MqProperties mqProperties;
+    /**
+     * 返回 runtimeMXBean。
+     *
+     * @return 字段值
+     */
     private final RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+    /**
+     * 返回 memoryMXBean。
+     *
+     * @return 字段值
+     */
     private final MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
+    /**
+     * 返回 threadMXBean。
+     *
+     * @return 字段值
+     */
     private final ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
     private final com.sun.management.OperatingSystemMXBean operatingSystemMXBean =
         ManagementFactory.getPlatformMXBean(com.sun.management.OperatingSystemMXBean.class);

@@ -17,9 +17,17 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 
+/**
+ * 配置 SaTokenConfig 相关组件。
+ */
 @Configuration
 public class SaTokenConfig implements WebMvcConfigurer {
 
+    /**
+     * 创建 add Interceptors 数据。
+     *
+     * @param registry registry 参数
+     */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new SaInterceptor(handler -> SaRouter.match("/**")
@@ -52,6 +60,14 @@ public class SaTokenConfig implements WebMvcConfigurer {
     }
 
     static class LoginUserInterceptor implements org.springframework.web.servlet.HandlerInterceptor {
+        /**
+         * 执行 pre Handle 逻辑。
+         *
+         * @param request 请求参数
+         * @param response 响应数据
+         * @param handler handler 参数
+         * @return 处理结果
+         */
         @Override
         public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
             Object loginUser = StpUtil.isLogin() ? StpUtil.getSession().get("loginUser") : null;
@@ -61,6 +77,14 @@ public class SaTokenConfig implements WebMvcConfigurer {
             return true;
         }
 
+        /**
+         * 执行 after Completion 逻辑。
+         *
+         * @param request 请求参数
+         * @param response 响应数据
+         * @param handler handler 参数
+         * @param ex ex 参数
+         */
         @Override
         public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
             LoginUserContext.clear();

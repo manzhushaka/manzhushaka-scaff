@@ -3,11 +3,19 @@ package com.manzhushaka.system.service.impexp;
 import com.manzhushaka.common.context.LoginUser;
 import org.springframework.stereotype.Component;
 
+/**
+ * 定义 ImportExportTaskManager。
+ */
 @Component
 public class ImportExportTaskManager {
 
     private final ImportExportTaskAsyncExecutor asyncExecutor;
 
+    /**
+     * 创建 ImportExportTaskManager 实例。
+     *
+     * @param asyncExecutor asyncExecutor 参数
+     */
     public ImportExportTaskManager(ImportExportTaskAsyncExecutor asyncExecutor) {
         this.asyncExecutor = asyncExecutor;
     }

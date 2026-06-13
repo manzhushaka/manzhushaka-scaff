@@ -8,12 +8,21 @@ import org.springframework.stereotype.Component;
 
 import java.util.function.Consumer;
 
+/**
+ * 定义 MqMessageConsumeExecutor。
+ */
 @Component
 public class MqMessageConsumeExecutor {
 
     private final MqMessageLedgerService ledgerService;
     private final MqProperties mqProperties;
 
+    /**
+     * 创建 MqMessageConsumeExecutor 实例。
+     *
+     * @param ledgerService ledgerService 参数
+     * @param mqProperties mqProperties 参数
+     */
     public MqMessageConsumeExecutor(MqMessageLedgerService ledgerService, MqProperties mqProperties) {
         this.ledgerService = ledgerService;
         this.mqProperties = mqProperties;
@@ -74,6 +83,9 @@ public class MqMessageConsumeExecutor {
         return String.valueOf(eventId);
     }
 
+    /**
+     * 定义 MessageHandler。
+     */
     @FunctionalInterface
     public interface MessageHandler {
         void handle(MapRecord<String, Object, Object> record) throws Exception;

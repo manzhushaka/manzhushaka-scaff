@@ -23,6 +23,9 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 
+/**
+ * 实现 ImportExportTaskServiceImpl 业务服务。
+ */
 @Service
 public class ImportExportTaskServiceImpl implements ImportExportTaskService {
 
@@ -46,6 +49,12 @@ public class ImportExportTaskServiceImpl implements ImportExportTaskService {
         this.accessSupport = accessSupport;
     }
 
+    /**
+     * 分页查询列表。
+     *
+     * @param query 查询条件
+     * @return 查询结果
+     */
     @Override
     public PageResult<ImportExportTaskVO> page(ImportExportTaskQuery query) {
         LambdaQueryWrapper<SysImportExportTask> wrapper = new LambdaQueryWrapper<SysImportExportTask>()
@@ -59,6 +68,12 @@ public class ImportExportTaskServiceImpl implements ImportExportTaskService {
         return SystemMappingSupport.toPageResult(page, this::toVO);
     }
 
+    /**
+     * 执行 scene Options 逻辑。
+     *
+     * @param taskType taskType 参数
+     * @return 处理结果
+     */
     @Override
     public List<LabelValueOption> sceneOptions(String taskType) {
         if (ImportExportTaskSupport.TASK_TYPE_EXPORT.equals(taskType)) {
@@ -70,6 +85,13 @@ public class ImportExportTaskServiceImpl implements ImportExportTaskService {
         throw new BizException(400, "不支持的任务类型");
     }
 
+    /**
+     * 生成下载地址。
+     *
+     * @param id 主键 ID
+     * @param fileRole fileRole 参数
+     * @return 创建结果
+     */
     @Override
     public DownloadUrlVO generateDownloadUrl(Long id, String fileRole) {
         SysImportExportTask task = taskMapper.selectById(id);
@@ -104,6 +126,12 @@ public class ImportExportTaskServiceImpl implements ImportExportTaskService {
         wrapper.eq(SysImportExportTask::getCreateBy, accessSupport.requireCurrentUser().getUsername());
     }
 
+    /**
+     * 构建 to VO 结果。
+     *
+     * @param task task 参数
+     * @return 处理结果
+     */
     private ImportExportTaskVO toVO(SysImportExportTask task) {
         ImportExportTaskVO vo = new ImportExportTaskVO();
         vo.setId(task.getId());

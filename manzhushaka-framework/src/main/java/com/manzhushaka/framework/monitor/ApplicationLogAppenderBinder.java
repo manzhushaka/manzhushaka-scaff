@@ -14,9 +14,18 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * 定义 ApplicationLogAppenderBinder。
+ */
 @Component
 public class ApplicationLogAppenderBinder {
     private static final String APPENDER_NAME = "manzhushakaApplicationLogBuffer";
+    /**
+     * 执行 of Pattern 逻辑。
+     *
+     * @param HH:mm:ss.SSS" HH:mm:ss.SSS" 参数
+     * @return 处理结果
+     */
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
 
     private final ApplicationLogBuffer logBuffer;

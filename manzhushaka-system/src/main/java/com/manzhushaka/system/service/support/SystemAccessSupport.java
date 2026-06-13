@@ -22,6 +22,11 @@ public class SystemAccessSupport {
 
     private final SysDeptMapper deptMapper;
 
+    /**
+     * 创建 SystemAccessSupport 实例。
+     *
+     * @param deptMapper deptMapper 参数
+     */
     public SystemAccessSupport(SysDeptMapper deptMapper) {
         this.deptMapper = deptMapper;
     }
@@ -126,6 +131,12 @@ public class SystemAccessSupport {
         }
     }
 
+    /**
+     * 构建 resolve Scope Type 结果。
+     *
+     * @param loginUser loginUser 参数
+     * @return 处理结果
+     */
     private DataScopeType resolveScopeType(LoginUser loginUser) {
         return loginUser.getDataScopes()
             .stream()

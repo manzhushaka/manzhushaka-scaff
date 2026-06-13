@@ -17,7 +17,7 @@
           style="width: 140px"
           @change="handleSearch"
         />
-        <a-button v-permission="'system:login-log:query'" @click="fetchRows">刷新</a-button>
+        <a-button v-permission="'system:log:view'" @click="fetchRows">刷新</a-button>
       </a-space>
     </PageHeaderCard>
 

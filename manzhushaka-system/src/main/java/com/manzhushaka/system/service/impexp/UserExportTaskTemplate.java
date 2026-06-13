@@ -13,6 +13,9 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+/**
+ * 定义 UserExportTaskTemplate。
+ */
 @Component
 public class UserExportTaskTemplate extends AbstractExportTaskTemplate<UserExportTaskTemplate.Command> {
 
@@ -29,21 +32,43 @@ public class UserExportTaskTemplate extends AbstractExportTaskTemplate<UserExpor
         this.userMapper = userMapper;
     }
 
+    /**
+     * 执行 biz Type 逻辑。
+     *
+     * @return 处理结果
+     */
     @Override
     public String bizType() {
         return "SYS_USER_EXPORT";
     }
 
+    /**
+     * 执行 biz Label 逻辑。
+     *
+     * @return 处理结果
+     */
     @Override
     public String bizLabel() {
         return "系统用户导出示例";
     }
 
+    /**
+     * 执行 default Task Name 逻辑。
+     *
+     * @return 处理结果
+     */
     @Override
     protected String defaultTaskName() {
         return "系统用户导出示例";
     }
 
+    /**
+     * 执行 execute Export 操作。
+     *
+     * @param task task 参数
+     * @param command command 参数
+     * @return 处理结果
+     */
     @Override
     protected TaskExecutionResult executeExport(SysImportExportTask task, Command command) {
         List<SysUser> users = userMapper.selectList(new LambdaQueryWrapper<SysUser>()
@@ -67,6 +92,12 @@ public class UserExportTaskTemplate extends AbstractExportTaskTemplate<UserExpor
         );
     }
 
+    /**
+     * 执行 csv 逻辑。
+     *
+     * @param value 字段值
+     * @return 处理结果
+     */
     private String csv(String value) {
         if (value == null) {
             return "";

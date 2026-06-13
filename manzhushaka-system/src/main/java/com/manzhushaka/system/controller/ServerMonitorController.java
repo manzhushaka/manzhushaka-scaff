@@ -13,12 +13,20 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * 提供 ServerMonitorController 相关的 Web 接口。
+ */
 @RestController
 @RequestMapping({"/system/monitor", "/api/system/monitor"})
 public class ServerMonitorController {
 
     private final ServerMonitorService serverMonitorService;
 
+    /**
+     * 创建 ServerMonitorController 实例。
+     *
+     * @param serverMonitorService serverMonitorService 参数
+     */
     public ServerMonitorController(ServerMonitorService serverMonitorService) {
         this.serverMonitorService = serverMonitorService;
     }

@@ -18,17 +18,31 @@ import java.sql.Connection;
 import java.util.Arrays;
 import java.util.Comparator;
 
+/**
+ * 配置 DatabasePatchRunner 相关组件。
+ */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class DatabasePatchRunner implements ApplicationRunner {
     static final String DEFAULT_LOCATION_PATTERN = "classpath*:db/patch/*_patch.sql";
 
+    /**
+     * 返回 logger。
+     *
+     * @param DatabasePatchRunner.class DatabasePatchRunner.class 参数
+     * @return 字段值
+     */
     private static final Logger log = LoggerFactory.getLogger(DatabasePatchRunner.class);
 
     private final DataSource dataSource;
     private final PathMatchingResourcePatternResolver resourceResolver;
     private final String locationPattern;
 
+    /**
+     * 创建 DatabasePatchRunner 实例。
+     *
+     * @param dataSource dataSource 参数
+     */
     @Autowired
     public DatabasePatchRunner(DataSource dataSource) {
         this(dataSource, new PathMatchingResourcePatternResolver(), DEFAULT_LOCATION_PATTERN);
@@ -44,11 +58,19 @@ public class DatabasePatchRunner implements ApplicationRunner {
         this.locationPattern = locationPattern;
     }
 
+    /**
+     * 执行 run 操作。
+     *
+     * @param args args 参数
+     */
     @Override
     public void run(ApplicationArguments args) throws Exception {
         applyPatches();
     }
 
+    /**
+     * 更新 apply Patches 数据。
+     */
     void applyPatches() throws Exception {
         Resource[] resources = resourceResolver.getResources(locationPattern);
         if (resources.length == 0) {

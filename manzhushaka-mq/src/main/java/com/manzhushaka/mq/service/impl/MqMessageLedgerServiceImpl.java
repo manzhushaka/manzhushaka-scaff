@@ -13,17 +13,32 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
+/**
+ * 实现 MqMessageLedgerServiceImpl 业务服务。
+ */
 @Service
 public class MqMessageLedgerServiceImpl implements MqMessageLedgerService {
 
     private final SysMqMessageMapper mqMessageMapper;
     private final ObjectMapper objectMapper;
 
+    /**
+     * 创建 MqMessageLedgerServiceImpl 实例。
+     *
+     * @param mqMessageMapper mqMessageMapper 参数
+     * @param mqObjectMapper mqObjectMapper 参数
+     */
     public MqMessageLedgerServiceImpl(SysMqMessageMapper mqMessageMapper, ObjectMapper mqObjectMapper) {
         this.mqMessageMapper = mqMessageMapper;
         this.objectMapper = mqObjectMapper;
     }
 
+    /**
+     * 创建 create Init Record 数据。
+     *
+     * @param streamKey streamKey 参数
+     * @param event event 参数
+     */
     @Override
     @Transactional
     public void createInitRecord(String streamKey, MqEvent<?> event) {
@@ -43,12 +58,23 @@ public class MqMessageLedgerServiceImpl implements MqMessageLedgerService {
         mqMessageMapper.insert(entity);
     }
 
+    /**
+     * 判断是否 success。
+     *
+     * @param eventId eventId 标识
+     * @return 字段值
+     */
     @Override
     public boolean isSuccess(String eventId) {
         SysMqMessage entity = getByEventId(eventId);
         return entity != null && MqMessageStatus.SUCCESS.name().equals(entity.getStatus());
     }
 
+    /**
+     * 更新 mark Published 数据。
+     *
+     * @param eventId eventId 标识
+     */
     @Override
     @Transactional
     public void markPublished(String eventId) {
@@ -58,6 +84,14 @@ public class MqMessageLedgerServiceImpl implements MqMessageLedgerService {
         });
     }
 
+    /**
+     * 更新 mark Processing 数据。
+     *
+     * @param eventId eventId 标识
+     * @param consumerGroup consumerGroup 参数
+     * @param consumerName consumerName 参数
+     * @param processingTimeoutSeconds processingTimeoutSeconds 参数
+     */
     @Override
     @Transactional
     public void markProcessing(String eventId, String consumerGroup, String consumerName, int processingTimeoutSeconds) {
@@ -71,6 +105,11 @@ public class MqMessageLedgerServiceImpl implements MqMessageLedgerService {
         });
     }
 
+    /**
+     * 更新 mark Success 数据。
+     *
+     * @param eventId eventId 标识
+     */
     @Override
     @Transactional
     public void markSuccess(String eventId) {
@@ -81,6 +120,12 @@ public class MqMessageLedgerServiceImpl implements MqMessageLedgerService {
         });
     }
 
+    /**
+     * 更新 mark Failed 数据。
+     *
+     * @param eventId eventId 标识
+     * @param errorMessage errorMessage 参数
+     */
     @Override
     @Transactional
     public void markFailed(String eventId, String errorMessage) {
@@ -90,6 +135,12 @@ public class MqMessageLedgerServiceImpl implements MqMessageLedgerService {
         });
     }
 
+    /**
+     * 清理 recycle Timed Out Processing Messages 数据。
+     *
+     * @param now now 参数
+     * @return 处理结果
+     */
     @Override
     @Transactional
     public int recycleTimedOutProcessingMessages(LocalDateTime now) {
@@ -112,6 +163,13 @@ public class MqMessageLedgerServiceImpl implements MqMessageLedgerService {
         return timedOutMessages.size();
     }
 
+    /**
+     * 更新 update Status 数据。
+     *
+     * @param eventId eventId 标识
+     * @param status status 参数
+     * @param customizer customizer 参数
+     */
     private void updateStatus(String eventId, MqMessageStatus status, java.util.function.Consumer<SysMqMessage> customizer) {
         SysMqMessage entity = getByEventId(eventId);
         if (entity == null) {
@@ -123,12 +181,24 @@ public class MqMessageLedgerServiceImpl implements MqMessageLedgerService {
         mqMessageMapper.updateById(entity);
     }
 
+    /**
+     * 返回 byEventId。
+     *
+     * @param eventId eventId 标识
+     * @return 字段值
+     */
     private SysMqMessage getByEventId(String eventId) {
         return mqMessageMapper.selectOne(new LambdaQueryWrapper<SysMqMessage>()
             .eq(SysMqMessage::getEventId, eventId)
             .last("limit 1"));
     }
 
+    /**
+     * 更新 write Payload Snapshot 数据。
+     *
+     * @param event event 参数
+     * @return 处理结果
+     */
     private String writePayloadSnapshot(MqEvent<?> event) {
         try {
             return objectMapper.writeValueAsString(event.getPayload());
@@ -137,6 +207,12 @@ public class MqMessageLedgerServiceImpl implements MqMessageLedgerService {
         }
     }
 
+    /**
+     * 截断错误信息。
+     *
+     * @param errorMessage errorMessage 参数
+     * @return 处理结果
+     */
     private String truncateError(String errorMessage) {
         String message = (errorMessage == null || errorMessage.isBlank()) ? "unknown error" : errorMessage;
         return message.length() > 1000 ? message.substring(0, 1000) : message;

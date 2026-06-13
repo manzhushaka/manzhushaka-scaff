@@ -36,9 +36,23 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * 实现 PlatformJobServiceImpl 业务服务。
+ */
 @Service
 public class PlatformJobServiceImpl implements PlatformJobService {
+    /**
+     * 执行 of Pattern 逻辑。
+     *
+     * @param HH:mm:ss" HH:mm:ss" 参数
+     * @return 处理结果
+     */
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    /**
+     * 执行 system Default 逻辑。
+     *
+     * @return 处理结果
+     */
     private static final ZoneId SYSTEM_ZONE = ZoneId.systemDefault();
     private final SysJobMapper jobMapper;
     private final SysJobLogMapper jobLogMapper;
@@ -66,6 +80,12 @@ public class PlatformJobServiceImpl implements PlatformJobService {
         this(jobMapper, null, platformJobScheduler, handlerRegistry);
     }
 
+    /**
+     * 分页查询列表。
+     *
+     * @param query 查询条件
+     * @return 查询结果
+     */
     @Override
     public PageResult<PlatformJobVO> page(PlatformJobQuery query) {
         LambdaQueryWrapper<SysJob> wrapper = new LambdaQueryWrapper<SysJob>()
@@ -78,12 +98,24 @@ public class PlatformJobServiceImpl implements PlatformJobService {
         return SystemMappingSupport.toPageResult(page, this::toJobVO);
     }
 
+    /**
+     * 根据 ID 查询详情。
+     *
+     * @param id 主键 ID
+     * @return 字段值
+     */
     @Override
     public PlatformJobVO getById(Long id) {
         SysJob job = requireJob(id);
         return toJobVO(job);
     }
 
+    /**
+     * 创建数据。
+     *
+     * @param form 表单参数
+     * @return 创建结果
+     */
     @Override
     public Long create(PlatformJobForm form) {
         validateForm(form);
@@ -97,6 +129,12 @@ public class PlatformJobServiceImpl implements PlatformJobService {
         return entity.getId();
     }
 
+    /**
+     * 更新数据。
+     *
+     * @param id 主键 ID
+     * @param form 表单参数
+     */
     @Override
     public void update(Long id, PlatformJobForm form) {
         validateForm(form);
@@ -109,6 +147,11 @@ public class PlatformJobServiceImpl implements PlatformJobService {
         syncScheduler(existing);
     }
 
+    /**
+     * 删除数据。
+     *
+     * @param id 主键 ID
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(Long id) {
@@ -120,6 +163,11 @@ public class PlatformJobServiceImpl implements PlatformJobService {
         jobMapper.deleteById(id);
     }
 
+    /**
+     * 暂停任务。
+     *
+     * @param id 主键 ID
+     */
     @Override
     public void pause(Long id) {
         SysJob job = requireJob(id);
@@ -130,6 +178,11 @@ public class PlatformJobServiceImpl implements PlatformJobService {
         platformJobScheduler.pause(id);
     }
 
+    /**
+     * 恢复任务。
+     *
+     * @param id 主键 ID
+     */
     @Override
     public void resume(Long id) {
         SysJob job = requireJob(id);
@@ -140,12 +193,22 @@ public class PlatformJobServiceImpl implements PlatformJobService {
         platformJobScheduler.resume(id);
     }
 
+    /**
+     * 触发任务执行。
+     *
+     * @param id 主键 ID
+     */
     @Override
     public void trigger(Long id) {
         requireJob(id);
         platformJobScheduler.triggerNow(id);
     }
 
+    /**
+     * 处理 handler Options 流程。
+     *
+     * @return 处理结果
+     */
     @Override
     public List<LabelValueOption> handlerOptions() {
         return handlerRegistry.list().stream()
@@ -153,6 +216,13 @@ public class PlatformJobServiceImpl implements PlatformJobService {
             .toList();
     }
 
+    /**
+     * 查询 page Logs 结果。
+     *
+     * @param jobId jobId 标识
+     * @param query 查询条件
+     * @return 查询结果
+     */
     @Override
     public PageResult<PlatformJobLogVO> pageLogs(Long jobId, PlatformJobLogQuery query) {
         if (jobLogMapper == null) {
@@ -168,6 +238,12 @@ public class PlatformJobServiceImpl implements PlatformJobService {
         return SystemMappingSupport.toPageResult(page, this::toLogVO);
     }
 
+    /**
+     * 返回 logDetail。
+     *
+     * @param id 主键 ID
+     * @return 字段值
+     */
     @Override
     public PlatformJobLogDetailVO getLogDetail(Long id) {
         if (jobLogMapper == null) {
@@ -183,6 +259,11 @@ public class PlatformJobServiceImpl implements PlatformJobService {
         return detail;
     }
 
+    /**
+     * 查询 list All Definitions 结果。
+     *
+     * @return 查询结果
+     */
     @Override
     public List<PlatformJobDefinition> listAllDefinitions() {
         return jobMapper.selectList(new LambdaQueryWrapper<SysJob>().orderByAsc(SysJob::getId))
@@ -191,6 +272,11 @@ public class PlatformJobServiceImpl implements PlatformJobService {
             .toList();
     }
 
+    /**
+     * 校验表单参数。
+     *
+     * @param form 表单参数
+     */
     private void validateForm(PlatformJobForm form) {
         handlerRegistry.getRequired(form.getHandlerName());
         if (!CronExpression.isValidExpression(form.getCronExpression())) {
@@ -201,6 +287,12 @@ public class PlatformJobServiceImpl implements PlatformJobService {
         }
     }
 
+    /**
+     * 更新 fill Job Entity 数据。
+     *
+     * @param entity 实体对象
+     * @param form 表单参数
+     */
     private void fillJobEntity(SysJob entity, PlatformJobForm form) {
         entity.setJobName(form.getJobName().trim());
         entity.setHandlerName(form.getHandlerName().trim());
@@ -210,6 +302,11 @@ public class PlatformJobServiceImpl implements PlatformJobService {
         entity.setRemark(StringUtils.hasText(form.getRemark()) ? form.getRemark().trim() : null);
     }
 
+    /**
+     * 更新 sync Scheduler 数据。
+     *
+     * @param job job 参数
+     */
     private void syncScheduler(SysJob job) {
         platformJobScheduler.scheduleOrUpdate(toDefinition(job));
         if (job.getStatus() != null && job.getStatus() == 1) {
@@ -219,6 +316,12 @@ public class PlatformJobServiceImpl implements PlatformJobService {
         }
     }
 
+    /**
+     * 校验 require Job 条件。
+     *
+     * @param id 主键 ID
+     * @return 处理结果
+     */
     private SysJob requireJob(Long id) {
         SysJob job = jobMapper.selectById(id);
         if (job == null) {
@@ -227,6 +330,12 @@ public class PlatformJobServiceImpl implements PlatformJobService {
         return job;
     }
 
+    /**
+     * 构建 to Job VO 结果。
+     *
+     * @param job job 参数
+     * @return 处理结果
+     */
     private PlatformJobVO toJobVO(SysJob job) {
         PlatformJobVO vo = new PlatformJobVO();
         vo.setId(job.getId());
@@ -244,6 +353,12 @@ public class PlatformJobServiceImpl implements PlatformJobService {
         return vo;
     }
 
+    /**
+     * 构建 to Definition 结果。
+     *
+     * @param job job 参数
+     * @return 处理结果
+     */
     private PlatformJobDefinition toDefinition(SysJob job) {
         PlatformJobDefinition definition = new PlatformJobDefinition();
         definition.setJobId(job.getId());
@@ -253,12 +368,24 @@ public class PlatformJobServiceImpl implements PlatformJobService {
         return definition;
     }
 
+    /**
+     * 构建 to Log VO 结果。
+     *
+     * @param log log 参数
+     * @return 处理结果
+     */
     private PlatformJobLogVO toLogVO(SysJobLog log) {
         PlatformJobLogVO vo = new PlatformJobLogVO();
         copyLogSummary(log, vo);
         return vo;
     }
 
+    /**
+     * 构建 copy Log Summary 结果。
+     *
+     * @param log log 参数
+     * @param vo vo 参数
+     */
     private void copyLogSummary(SysJobLog log, PlatformJobLogVO vo) {
         vo.setId(log.getId());
         vo.setJobId(log.getJobId());
@@ -274,6 +401,12 @@ public class PlatformJobServiceImpl implements PlatformJobService {
         vo.setCreateTime(formatDateTime(log.getCreateTime()));
     }
 
+    /**
+     * 构建 resolve Handler Label 结果。
+     *
+     * @param handlerName handlerName 参数
+     * @return 处理结果
+     */
     private String resolveHandlerLabel(String handlerName) {
         for (PlatformJobHandler handler : handlerRegistry.list()) {
             if (handler.handlerName().equals(handlerName)) {
@@ -283,6 +416,12 @@ public class PlatformJobServiceImpl implements PlatformJobService {
         return handlerName;
     }
 
+    /**
+     * 执行 compute Next Trigger Time 逻辑。
+     *
+     * @param cronExpression cronExpression 参数
+     * @return 处理结果
+     */
     private LocalDateTime computeNextTriggerTime(String cronExpression) {
         try {
             CronExpression expression = new CronExpression(cronExpression);
@@ -293,11 +432,22 @@ public class PlatformJobServiceImpl implements PlatformJobService {
         }
     }
 
+    /**
+     * 查询 current Operator Name 结果。
+     *
+     * @return 查询结果
+     */
     private String currentOperatorName() {
         LoginUser loginUser = LoginUserContext.get();
         return loginUser == null ? "system" : loginUser.getUsername();
     }
 
+    /**
+     * 格式化日期时间。
+     *
+     * @param value 字段值
+     * @return 处理结果
+     */
     private String formatDateTime(LocalDateTime value) {
         return value == null ? null : value.format(DATE_TIME_FORMATTER);
     }

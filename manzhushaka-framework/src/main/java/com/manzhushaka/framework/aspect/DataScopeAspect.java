@@ -11,10 +11,20 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
+/**
+ * 处理 DataScopeAspect 切面逻辑。
+ */
 @Aspect
 @Component
 public class DataScopeAspect {
 
+    /**
+     * 处理 around 流程。
+     *
+     * @param joinPoint joinPoint 参数
+     * @param dataScope dataScope 参数
+     * @return 处理结果
+     */
     @Around("@annotation(dataScope)")
     public Object around(ProceedingJoinPoint joinPoint, DataScope dataScope) throws Throwable {
         LoginUser loginUser = LoginUserContext.get();

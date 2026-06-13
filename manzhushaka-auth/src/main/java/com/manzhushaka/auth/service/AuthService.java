@@ -30,6 +30,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 定义 AuthService。
+ */
 @Service
 public class AuthService {
     private final SysUserMapper sysUserMapper;
@@ -37,6 +40,11 @@ public class AuthService {
     private final SysMenuMapper sysMenuMapper;
     private final SysLoginLogMapper sysLoginLogMapper;
     private final AuthCaptchaService authCaptchaService;
+    /**
+     * 执行 BCrypt Password Encoder 逻辑。
+     *
+     * @return 处理结果
+     */
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public AuthService(
@@ -53,6 +61,12 @@ public class AuthService {
         this.authCaptchaService = authCaptchaService;
     }
 
+    /**
+     * 执行登录。
+     *
+     * @param request 请求参数
+     * @return 处理结果
+     */
     public LoginResponse login(LoginRequest request) {
         String loginPrincipal = buildLoginPrincipal(request.getUsername());
         authCaptchaService.assertLoginAllowed(loginPrincipal);
@@ -105,10 +119,18 @@ public class AuthService {
         return passwordEncoder.encode(rawPassword.trim());
     }
 
+    /**
+     * 执行登出。
+     */
     public void logout() {
         StpUtil.logout();
     }
 
+    /**
+     * 查询当前用户。
+     *
+     * @return 查询结果
+     */
     public LoginResponse.UserInfo currentUser() {
         SysUser user = currentUserEntity();
         if (user == null) {
@@ -117,16 +139,32 @@ public class AuthService {
         return toUserInfo(loadLoginUser(user.getId()), user.getNickname(), resolveDeptName(user.getDeptId()));
     }
 
+    /**
+     * 查询当前用户菜单。
+     *
+     * @return 查询结果
+     */
     public List<AuthMenuVO> currentMenus() {
         SysUser user = currentUserEntity();
         return buildMenuTree(sysMenuMapper.selectMenusByUserId(user.getId()));
     }
 
+    /**
+     * 查询当前用户权限。
+     *
+     * @return 查询结果
+     */
     public List<String> currentPermissions() {
         LoginUser loginUser = currentLoginUser();
         return loginUser.getPermCodes();
     }
 
+    /**
+     * 查询 load Login User 结果。
+     *
+     * @param userId 用户 ID
+     * @return 查询结果
+     */
     public LoginUser loadLoginUser(Long userId) {
         SysUser user = sysUserMapper.selectById(userId);
         if (user == null) {
@@ -155,6 +193,11 @@ public class AuthService {
         return normalizedUsername + "@" + remoteAddr;
     }
 
+    /**
+     * 查询 current User Entity 结果。
+     *
+     * @return 查询结果
+     */
     private SysUser currentUserEntity() {
         Long userId = currentUserId();
         SysUser user = sysUserMapper.selectById(userId);
@@ -164,6 +207,11 @@ public class AuthService {
         return user;
     }
 
+    /**
+     * 查询 current Login User 结果。
+     *
+     * @return 查询结果
+     */
     private LoginUser currentLoginUser() {
         Object loginUser = StpUtil.getSession().get("loginUser");
         if (loginUser instanceof LoginUser value) {
@@ -174,6 +222,11 @@ public class AuthService {
         return resolved;
     }
 
+    /**
+     * 查询 current User Id 结果。
+     *
+     * @return 查询结果
+     */
     private Long currentUserId() {
         Object loginId = StpUtil.getLoginIdDefaultNull();
         if (loginId == null) {
@@ -182,6 +235,12 @@ public class AuthService {
         return Long.parseLong(String.valueOf(loginId));
     }
 
+    /**
+     * 构建 resolve Dept Name 结果。
+     *
+     * @param deptId 部门 ID
+     * @return 处理结果
+     */
     private String resolveDeptName(Long deptId) {
         if (deptId == null || deptId <= 0) {
             return null;
@@ -190,6 +249,12 @@ public class AuthService {
         return dept == null ? null : dept.getDeptName();
     }
 
+    /**
+     * 构建菜单树。
+     *
+     * @param menus menus 参数
+     * @return 处理结果
+     */
     private List<AuthMenuVO> buildMenuTree(List<SysMenu> menus) {
         Map<Long, AuthMenuVO> menuMap = new LinkedHashMap<>();
         Map<Long, SysMenu> sourceMap = new LinkedHashMap<>();
@@ -227,6 +292,13 @@ public class AuthService {
         return roots;
     }
 
+    /**
+     * 更新 populate Resolved Routes 数据。
+     *
+     * @param nodes nodes 参数
+     * @param sourceMap sourceMap 参数
+     * @param parent parent 参数
+     */
     private void populateResolvedRoutes(List<AuthMenuVO> nodes, Map<Long, SysMenu> sourceMap, AuthMenuVO parent) {
         for (AuthMenuVO node : nodes) {
             SysMenu source = sourceMap.get(node.getId());
@@ -237,11 +309,23 @@ public class AuthService {
         }
     }
 
+    /**
+     * 更新 attach Resolved Route 数据。
+     *
+     * @param node node 参数
+     * @param source source 参数
+     * @param parent parent 参数
+     */
     private void attachResolvedRoute(AuthMenuVO node, SysMenu source, AuthMenuVO parent) {
         node.setPath(resolvePath(source, parent));
         node.setComponent(resolveComponent(source));
     }
 
+    /**
+     * 更新 fill Redirects 数据。
+     *
+     * @param nodes nodes 参数
+     */
     private void fillRedirects(List<AuthMenuVO> nodes) {
         for (AuthMenuVO node : nodes) {
             if (!node.getChildren().isEmpty()) {
@@ -257,6 +341,12 @@ public class AuthService {
         }
     }
 
+    /**
+     * 构建 resolve Redirect 结果。
+     *
+     * @param menu menu 参数
+     * @return 处理结果
+     */
     private String resolveRedirect(AuthMenuVO menu) {
         if (!menu.getChildren().isEmpty()) {
             AuthMenuVO firstVisibleChild = menu.getChildren().stream()
@@ -270,6 +360,13 @@ public class AuthService {
         return menu.getPath();
     }
 
+    /**
+     * 构建 resolve Path 结果。
+     *
+     * @param menu menu 参数
+     * @param parent parent 参数
+     * @return 处理结果
+     */
     private String resolvePath(SysMenu menu, AuthMenuVO parent) {
         if (!StringUtils.hasText(menu.getRoutePath())) {
             return "BUTTON".equals(menu.getMenuType()) ? "" : fallbackPath(menu, parent);
@@ -284,6 +381,12 @@ public class AuthService {
         return trimTrailingSlash(parent.getPath()) + "/" + routePath;
     }
 
+    /**
+     * 构建 resolve Component 结果。
+     *
+     * @param menu menu 参数
+     * @return 处理结果
+     */
     private String resolveComponent(SysMenu menu) {
         if (!StringUtils.hasText(menu.getComponent())) {
             return null;
@@ -291,6 +394,13 @@ public class AuthService {
         return menu.getComponent().trim();
     }
 
+    /**
+     * 执行 fallback Path 逻辑。
+     *
+     * @param menu menu 参数
+     * @param parent parent 参数
+     * @return 处理结果
+     */
     private String fallbackPath(SysMenu menu, AuthMenuVO parent) {
         if (parent == null || !StringUtils.hasText(parent.getPath())) {
             return "/" + menu.getId();
@@ -298,6 +408,12 @@ public class AuthService {
         return trimTrailingSlash(parent.getPath()) + "/" + menu.getId();
     }
 
+    /**
+     * 执行 trim Trailing Slash 逻辑。
+     *
+     * @param value 字段值
+     * @return 处理结果
+     */
     private String trimTrailingSlash(String value) {
         if (!StringUtils.hasText(value) || "/".equals(value)) {
             return value;
@@ -305,6 +421,13 @@ public class AuthService {
         return value.endsWith("/") ? value.substring(0, value.length() - 1) : value;
     }
 
+    /**
+     * 更新 write Login Log 数据。
+     *
+     * @param username 用户名
+     * @param loginStatus loginStatus 参数
+     * @param message message 参数
+     */
     private void writeLoginLog(String username, String loginStatus, String message) {
         SysLoginLog loginLog = new SysLoginLog();
         loginLog.setUsername(username);
@@ -319,11 +442,22 @@ public class AuthService {
         sysLoginLogMapper.insert(loginLog);
     }
 
+    /**
+     * 查询 current Request 结果。
+     *
+     * @return 查询结果
+     */
     private HttpServletRequest currentRequest() {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         return attributes == null ? null : attributes.getRequest();
     }
 
+    /**
+     * 构建 to Scope 结果。
+     *
+     * @param value 字段值
+     * @return 处理结果
+     */
     private DataScopeType toScope(String value) {
         if (value == null) {
             return DataScopeType.SELF;
@@ -340,6 +474,14 @@ public class AuthService {
         }
     }
 
+    /**
+     * 构建 to User Info 结果。
+     *
+     * @param loginUser loginUser 参数
+     * @param nickname nickname 参数
+     * @param deptName deptName 参数
+     * @return 处理结果
+     */
     private LoginResponse.UserInfo toUserInfo(LoginUser loginUser, String nickname, String deptName) {
         LoginResponse.UserInfo userInfo = new LoginResponse.UserInfo();
         userInfo.setUserId(loginUser.getUserId());

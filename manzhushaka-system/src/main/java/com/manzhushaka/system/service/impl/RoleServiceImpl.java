@@ -21,17 +21,32 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 
+/**
+ * 实现 RoleServiceImpl 业务服务。
+ */
 @Service
 public class RoleServiceImpl implements RoleService {
 
     private final SysRoleMapper roleMapper;
     private final SysRoleMenuMapper roleMenuMapper;
 
+    /**
+     * 创建 RoleServiceImpl 实例。
+     *
+     * @param roleMapper roleMapper 参数
+     * @param roleMenuMapper roleMenuMapper 参数
+     */
     public RoleServiceImpl(SysRoleMapper roleMapper, SysRoleMenuMapper roleMenuMapper) {
         this.roleMapper = roleMapper;
         this.roleMenuMapper = roleMenuMapper;
     }
 
+    /**
+     * 分页查询列表。
+     *
+     * @param query 查询条件
+     * @return 查询结果
+     */
     @Override
     public PageResult<RoleVO> page(RoleQuery query) {
         LambdaQueryWrapper<SysRole> wrapper = new LambdaQueryWrapper<SysRole>()
@@ -44,6 +59,11 @@ public class RoleServiceImpl implements RoleService {
         return SystemMappingSupport.toPageResult(page, this::toRoleVO);
     }
 
+    /**
+     * 查询下拉选项。
+     *
+     * @return 查询结果
+     */
     @Override
     public List<LabelValueOption> options() {
         List<SysRole> roles = roleMapper.selectList(new LambdaQueryWrapper<SysRole>()
@@ -53,6 +73,12 @@ public class RoleServiceImpl implements RoleService {
         return SystemMappingSupport.mapList(roles, role -> new LabelValueOption(role.getRoleName(), String.valueOf(role.getId())));
     }
 
+    /**
+     * 根据 ID 查询详情。
+     *
+     * @param id 主键 ID
+     * @return 字段值
+     */
     @Override
     public RoleVO getById(Long id) {
         SysRole role = getRoleOrThrow(id);
@@ -61,6 +87,12 @@ public class RoleServiceImpl implements RoleService {
         return detail;
     }
 
+    /**
+     * 创建数据。
+     *
+     * @param form 表单参数
+     * @return 创建结果
+     */
     @Override
     @Transactional
     public Long create(RoleForm form) {
@@ -72,6 +104,12 @@ public class RoleServiceImpl implements RoleService {
         return entity.getId();
     }
 
+    /**
+     * 更新数据。
+     *
+     * @param id 主键 ID
+     * @param form 表单参数
+     */
     @Override
     @Transactional
     public void update(Long id, RoleForm form) {
@@ -81,6 +119,11 @@ public class RoleServiceImpl implements RoleService {
         syncRoleMenus(id, form.getMenuIds());
     }
 
+    /**
+     * 删除数据。
+     *
+     * @param id 主键 ID
+     */
     @Override
     @Transactional
     public void delete(Long id) {
@@ -89,6 +132,12 @@ public class RoleServiceImpl implements RoleService {
         roleMapper.updateById(entity);
     }
 
+    /**
+     * 返回 roleOrThrow。
+     *
+     * @param id 主键 ID
+     * @return 字段值
+     */
     private SysRole getRoleOrThrow(Long id) {
         SysRole role = roleMapper.selectById(id);
         if (role == null || Integer.valueOf(1).equals(role.getDeleted())) {
@@ -97,6 +146,12 @@ public class RoleServiceImpl implements RoleService {
         return role;
     }
 
+    /**
+     * 更新 apply Form 数据。
+     *
+     * @param entity 实体对象
+     * @param form 表单参数
+     */
     private void applyForm(SysRole entity, RoleForm form) {
         entity.setRoleCode(form.getRoleCode());
         entity.setRoleName(form.getRoleName());
@@ -104,6 +159,12 @@ public class RoleServiceImpl implements RoleService {
         entity.setStatus(form.getStatus() == null ? 1 : form.getStatus());
     }
 
+    /**
+     * 查询 list Role Menu Ids 结果。
+     *
+     * @param roleId 角色 ID
+     * @return 查询结果
+     */
     private List<Long> listRoleMenuIds(Long roleId) {
         return roleMenuMapper.selectList(new LambdaQueryWrapper<SysRoleMenu>()
                 .eq(SysRoleMenu::getRoleId, roleId))
@@ -114,6 +175,12 @@ public class RoleServiceImpl implements RoleService {
             .toList();
     }
 
+    /**
+     * 更新 sync Role Menus 数据。
+     *
+     * @param roleId 角色 ID
+     * @param menuIds menuIds 标识
+     */
     private void syncRoleMenus(Long roleId, List<Long> menuIds) {
         roleMenuMapper.delete(new LambdaQueryWrapper<SysRoleMenu>().eq(SysRoleMenu::getRoleId, roleId));
         if (menuIds == null || menuIds.isEmpty()) {
@@ -130,6 +197,12 @@ public class RoleServiceImpl implements RoleService {
             });
     }
 
+    /**
+     * 构建 to Role VO 结果。
+     *
+     * @param role role 参数
+     * @return 处理结果
+     */
     private RoleVO toRoleVO(SysRole role) {
         RoleVO vo = new RoleVO();
         vo.setId(role.getId());

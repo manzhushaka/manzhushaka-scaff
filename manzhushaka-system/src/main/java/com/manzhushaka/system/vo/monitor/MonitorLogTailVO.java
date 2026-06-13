@@ -2,6 +2,9 @@ package com.manzhushaka.system.vo.monitor;
 
 import java.util.List;
 
+/**
+ * 承载 MonitorLogTailVO 响应数据。
+ */
 public class MonitorLogTailVO {
     private Boolean available;
     private String generatedAt;

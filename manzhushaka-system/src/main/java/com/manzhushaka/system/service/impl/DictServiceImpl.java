@@ -23,17 +23,32 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 
+/**
+ * 实现 DictServiceImpl 业务服务。
+ */
 @Service
 public class DictServiceImpl implements DictService {
 
     private final SysDictTypeMapper dictTypeMapper;
     private final SysDictItemMapper dictItemMapper;
 
+    /**
+     * 创建 DictServiceImpl 实例。
+     *
+     * @param dictTypeMapper dictTypeMapper 参数
+     * @param dictItemMapper dictItemMapper 参数
+     */
     public DictServiceImpl(SysDictTypeMapper dictTypeMapper, SysDictItemMapper dictItemMapper) {
         this.dictTypeMapper = dictTypeMapper;
         this.dictItemMapper = dictItemMapper;
     }
 
+    /**
+     * 查询 page Types 结果。
+     *
+     * @param query 查询条件
+     * @return 查询结果
+     */
     @Override
     public PageResult<DictTypeVO> pageTypes(DictTypeQuery query) {
         LambdaQueryWrapper<SysDictType> wrapper = new LambdaQueryWrapper<SysDictType>()
@@ -49,6 +64,12 @@ public class DictServiceImpl implements DictService {
         });
     }
 
+    /**
+     * 返回 typeById。
+     *
+     * @param id 主键 ID
+     * @return 字段值
+     */
     @Override
     public DictTypeVO getTypeById(Long id) {
         SysDictType type = getTypeOrThrow(id);
@@ -57,6 +78,12 @@ public class DictServiceImpl implements DictService {
         return vo;
     }
 
+    /**
+     * 查询 list Items By Type Id 结果。
+     *
+     * @param dictTypeId dictTypeId 标识
+     * @return 查询结果
+     */
     @Override
     public List<DictItemVO> listItemsByTypeId(Long dictTypeId) {
         List<SysDictItem> items = dictItemMapper.selectList(new LambdaQueryWrapper<SysDictItem>()
@@ -65,6 +92,12 @@ public class DictServiceImpl implements DictService {
         return items.stream().map(this::toDictItemVO).toList();
     }
 
+    /**
+     * 查询 list Items By Type Code 结果。
+     *
+     * @param dictCode dictCode 参数
+     * @return 查询结果
+     */
     @Override
     public List<DictItemVO> listItemsByTypeCode(String dictCode) {
         SysDictType type = dictTypeMapper.selectOne(new LambdaQueryWrapper<SysDictType>()
@@ -76,6 +109,11 @@ public class DictServiceImpl implements DictService {
         return listItemsByTypeId(type.getId());
     }
 
+    /**
+     * 执行 type Options 逻辑。
+     *
+     * @return 处理结果
+     */
     @Override
     public List<LabelValueOption> typeOptions() {
         List<SysDictType> types = dictTypeMapper.selectList(new LambdaQueryWrapper<SysDictType>()
@@ -84,6 +122,12 @@ public class DictServiceImpl implements DictService {
         return types.stream().map(type -> new LabelValueOption(type.getDictName(), String.valueOf(type.getId()))).toList();
     }
 
+    /**
+     * 创建 create Type 数据。
+     *
+     * @param form 表单参数
+     * @return 创建结果
+     */
     @Override
     @Transactional
     public Long createType(DictTypeForm form) {
@@ -95,6 +139,12 @@ public class DictServiceImpl implements DictService {
         return entity.getId();
     }
 
+    /**
+     * 更新 update Type 数据。
+     *
+     * @param id 主键 ID
+     * @param form 表单参数
+     */
     @Override
     @Transactional
     public void updateType(Long id, DictTypeForm form) {
@@ -105,6 +155,11 @@ public class DictServiceImpl implements DictService {
         dictTypeMapper.updateById(entity);
     }
 
+    /**
+     * 清理 delete Type 数据。
+     *
+     * @param id 主键 ID
+     */
     @Override
     @Transactional
     public void deleteType(Long id) {
@@ -114,6 +169,12 @@ public class DictServiceImpl implements DictService {
         dictItemMapper.delete(new LambdaQueryWrapper<SysDictItem>().eq(SysDictItem::getDictTypeId, id));
     }
 
+    /**
+     * 创建 create Item 数据。
+     *
+     * @param form 表单参数
+     * @return 创建结果
+     */
     @Override
     @Transactional
     public Long createItem(DictItemForm form) {
@@ -124,6 +185,12 @@ public class DictServiceImpl implements DictService {
         return entity.getId();
     }
 
+    /**
+     * 更新 update Item 数据。
+     *
+     * @param id 主键 ID
+     * @param form 表单参数
+     */
     @Override
     @Transactional
     public void updateItem(Long id, DictItemForm form) {
@@ -133,6 +200,11 @@ public class DictServiceImpl implements DictService {
         dictItemMapper.updateById(entity);
     }
 
+    /**
+     * 清理 delete Item 数据。
+     *
+     * @param id 主键 ID
+     */
     @Override
     @Transactional
     public void deleteItem(Long id) {
@@ -141,6 +213,12 @@ public class DictServiceImpl implements DictService {
         }
     }
 
+    /**
+     * 更新 apply Item Form 数据。
+     *
+     * @param entity 实体对象
+     * @param form 表单参数
+     */
     private void applyItemForm(SysDictItem entity, DictItemForm form) {
         entity.setDictTypeId(form.getDictTypeId());
         entity.setItemLabel(form.getItemLabel());
@@ -149,6 +227,12 @@ public class DictServiceImpl implements DictService {
         entity.setStatus(form.getStatus() == null ? 1 : form.getStatus());
     }
 
+    /**
+     * 返回 typeOrThrow。
+     *
+     * @param id 主键 ID
+     * @return 字段值
+     */
     private SysDictType getTypeOrThrow(Long id) {
         SysDictType type = dictTypeMapper.selectById(id);
         if (type == null) {
@@ -157,6 +241,12 @@ public class DictServiceImpl implements DictService {
         return type;
     }
 
+    /**
+     * 返回 itemOrThrow。
+     *
+     * @param id 主键 ID
+     * @return 字段值
+     */
     private SysDictItem getItemOrThrow(Long id) {
         SysDictItem item = dictItemMapper.selectById(id);
         if (item == null) {
@@ -165,6 +255,12 @@ public class DictServiceImpl implements DictService {
         return item;
     }
 
+    /**
+     * 构建 to Dict Type VO 结果。
+     *
+     * @param type type 参数
+     * @return 处理结果
+     */
     private DictTypeVO toDictTypeVO(SysDictType type) {
         DictTypeVO vo = new DictTypeVO();
         vo.setId(type.getId());
@@ -175,6 +271,12 @@ public class DictServiceImpl implements DictService {
         return vo;
     }
 
+    /**
+     * 构建 to Dict Item VO 结果。
+     *
+     * @param item item 参数
+     * @return 处理结果
+     */
     private DictItemVO toDictItemVO(SysDictItem item) {
         DictItemVO vo = new DictItemVO();
         vo.setId(item.getId());

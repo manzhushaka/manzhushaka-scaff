@@ -21,17 +21,32 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 实现 DeptServiceImpl 业务服务。
+ */
 @Service
 public class DeptServiceImpl implements DeptService {
 
     private final SysDeptMapper deptMapper;
     private final SysUserMapper userMapper;
 
+    /**
+     * 创建 DeptServiceImpl 实例。
+     *
+     * @param deptMapper deptMapper 参数
+     * @param userMapper userMapper 参数
+     */
     public DeptServiceImpl(SysDeptMapper deptMapper, SysUserMapper userMapper) {
         this.deptMapper = deptMapper;
         this.userMapper = userMapper;
     }
 
+    /**
+     * 执行 tree 逻辑。
+     *
+     * @param query 查询条件
+     * @return 处理结果
+     */
     @Override
     public List<DeptTreeVO> tree(DeptQuery query) {
         List<SysDept> depts = deptMapper.selectList(new LambdaQueryWrapper<SysDept>()
@@ -41,6 +56,11 @@ public class DeptServiceImpl implements DeptService {
         return buildTree(depts.stream().map(this::toDeptTreeVO).toList());
     }
 
+    /**
+     * 查询下拉选项。
+     *
+     * @return 查询结果
+     */
     @Override
     public List<LabelValueOption> options() {
         List<SysDept> depts = deptMapper.selectList(new LambdaQueryWrapper<SysDept>()
@@ -49,11 +69,23 @@ public class DeptServiceImpl implements DeptService {
         return depts.stream().map(dept -> new LabelValueOption(dept.getDeptName(), String.valueOf(dept.getId()))).toList();
     }
 
+    /**
+     * 根据 ID 查询详情。
+     *
+     * @param id 主键 ID
+     * @return 字段值
+     */
     @Override
     public DeptTreeVO getById(Long id) {
         return toDeptTreeVO(getDeptOrThrow(id));
     }
 
+    /**
+     * 创建数据。
+     *
+     * @param form 表单参数
+     * @return 创建结果
+     */
     @Override
     @Transactional
     public Long create(DeptForm form) {
@@ -64,6 +96,12 @@ public class DeptServiceImpl implements DeptService {
         return entity.getId();
     }
 
+    /**
+     * 更新数据。
+     *
+     * @param id 主键 ID
+     * @param form 表单参数
+     */
     @Override
     @Transactional
     public void update(Long id, DeptForm form) {
@@ -73,6 +111,11 @@ public class DeptServiceImpl implements DeptService {
         deptMapper.updateById(entity);
     }
 
+    /**
+     * 删除数据。
+     *
+     * @param id 主键 ID
+     */
     @Override
     @Transactional
     public void delete(Long id) {

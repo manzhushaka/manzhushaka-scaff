@@ -24,6 +24,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * 实现 CacheQueryServiceImpl 业务服务。
+ */
 @Service
 public class CacheQueryServiceImpl implements CacheQueryService {
 
@@ -35,10 +38,21 @@ public class CacheQueryServiceImpl implements CacheQueryService {
 
     private final StringRedisTemplate redisTemplate;
 
+    /**
+     * 创建 CacheQueryServiceImpl 实例。
+     *
+     * @param redisTemplate redisTemplate 参数
+     */
     public CacheQueryServiceImpl(StringRedisTemplate redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
+    /**
+     * 查询 list Entries 结果。
+     *
+     * @param query 查询条件
+     * @return 查询结果
+     */
     @Override
     public List<CacheEntryVO> listEntries(CacheEntryQuery query) {
         String keyword = query == null ? null : query.getKeyword();
@@ -57,6 +71,12 @@ public class CacheQueryServiceImpl implements CacheQueryService {
         return results;
     }
 
+    /**
+     * 返回 entryDetail。
+     *
+     * @param key 键名
+     * @return 字段值
+     */
     @Override
     public CacheEntryDetailVO getEntryDetail(String key) {
         if (!StringUtils.hasText(key)) {
@@ -68,6 +88,12 @@ public class CacheQueryServiceImpl implements CacheQueryService {
         return buildDetail(key);
     }
 
+    /**
+     * 构建 normalize Limit 结果。
+     *
+     * @param limit limit 参数
+     * @return 处理结果
+     */
     private int normalizeLimit(Integer limit) {
         if (limit == null || limit <= 0) {
             return DEFAULT_LIMIT;
@@ -75,6 +101,13 @@ public class CacheQueryServiceImpl implements CacheQueryService {
         return Math.min(limit, MAX_LIMIT);
     }
 
+    /**
+     * 执行 scan Keys 逻辑。
+     *
+     * @param pattern pattern 参数
+     * @param limit limit 参数
+     * @return 处理结果
+     */
     private List<String> scanKeys(String pattern, int limit) {
         return redisTemplate.execute((RedisCallback<List<String>>) connection -> {
             List<String> keys = new ArrayList<>();
@@ -94,6 +127,12 @@ public class CacheQueryServiceImpl implements CacheQueryService {
         });
     }
 
+    /**
+     * 构建 build Summary 结果。
+     *
+     * @param key 键名
+     * @return 处理结果
+     */
     private CacheEntryVO buildSummary(String key) {
         DataType type = redisTemplate.type(key);
         if (type == null || type == DataType.NONE) {
@@ -105,6 +144,12 @@ public class CacheQueryServiceImpl implements CacheQueryService {
         return entry;
     }
 
+    /**
+     * 构建 build Detail 结果。
+     *
+     * @param key 键名
+     * @return 处理结果
+     */
     private CacheEntryDetailVO buildDetail(String key) {
         DataType type = redisTemplate.type(key);
         if (type == null || type == DataType.NONE) {
@@ -118,6 +163,13 @@ public class CacheQueryServiceImpl implements CacheQueryService {
         return detail;
     }
 
+    /**
+     * 更新 fill Base Fields 数据。
+     *
+     * @param target target 参数
+     * @param key 键名
+     * @param type type 参数
+     */
     private void fillBaseFields(CacheEntryVO target, String key, DataType type) {
         Long ttlSeconds = redisTemplate.getExpire(key, TimeUnit.SECONDS);
         target.setKey(key);
@@ -126,6 +178,12 @@ public class CacheQueryServiceImpl implements CacheQueryService {
         target.setExpireAt(resolveExpireAt(ttlSeconds));
     }
 
+    /**
+     * 构建 resolve Expire At 结果。
+     *
+     * @param ttlSeconds ttlSeconds 参数
+     * @return 处理结果
+     */
     private LocalDateTime resolveExpireAt(Long ttlSeconds) {
         if (ttlSeconds == null || ttlSeconds < 0) {
             return null;
@@ -133,6 +191,12 @@ public class CacheQueryServiceImpl implements CacheQueryService {
         return LocalDateTime.now().plusSeconds(ttlSeconds);
     }
 
+    /**
+     * 构建 build Pattern 结果。
+     *
+     * @param keyword keyword 参数
+     * @return 处理结果
+     */
     private String buildPattern(String keyword) {
         String normalized = keyword.trim();
         if (normalized.contains("*") || normalized.contains("?") || normalized.contains("[")) {
@@ -141,6 +205,13 @@ public class CacheQueryServiceImpl implements CacheQueryService {
         return "*" + normalized + "*";
     }
 
+    /**
+     * 构建 build Preview 结果。
+     *
+     * @param key 键名
+     * @param type type 参数
+     * @return 处理结果
+     */
     private String buildPreview(String key, DataType type) {
         return switch (type) {
             case STRING -> truncate(asText(redisTemplate.opsForValue().get(key)));
@@ -152,30 +223,62 @@ public class CacheQueryServiceImpl implements CacheQueryService {
         };
     }
 
+    /**
+     * 构建 build Hash Preview 结果。
+     *
+     * @param key 键名
+     * @return 处理结果
+     */
     private String buildHashPreview(String key) {
         Map<String, String> sample = readHashEntries(key, COLLECTION_PREVIEW_LIMIT);
         Long size = redisTemplate.opsForHash().size(key);
         return "Hash(" + defaultLong(size) + ") " + joinPreviewPairs(sample);
     }
 
+    /**
+     * 构建 build List Preview 结果。
+     *
+     * @param key 键名
+     * @return 处理结果
+     */
     private String buildListPreview(String key) {
         List<String> sample = defaultList(redisTemplate.opsForList().range(key, 0, COLLECTION_PREVIEW_LIMIT - 1));
         Long size = redisTemplate.opsForList().size(key);
         return "List(" + defaultLong(size) + ") " + sample;
     }
 
+    /**
+     * 构建 build Set Preview 结果。
+     *
+     * @param key 键名
+     * @return 处理结果
+     */
     private String buildSetPreview(String key) {
         List<String> sample = readSetMembers(key, COLLECTION_PREVIEW_LIMIT);
         Long size = redisTemplate.opsForSet().size(key);
         return "Set(" + defaultLong(size) + ") " + sample;
     }
 
+    /**
+     * 构建 build Zset Preview 结果。
+     *
+     * @param key 键名
+     * @return 处理结果
+     */
     private String buildZsetPreview(String key) {
         List<Map<String, Object>> sample = readZsetMembers(key, COLLECTION_PREVIEW_LIMIT);
         Long size = redisTemplate.opsForZSet().zCard(key);
         return "ZSet(" + defaultLong(size) + ") " + sample;
     }
 
+    /**
+     * 执行 read Value 逻辑。
+     *
+     * @param key 键名
+     * @param type type 参数
+     * @param limit limit 参数
+     * @return 处理结果
+     */
     private Object readValue(String key, DataType type, int limit) {
         return switch (type) {
             case STRING -> asText(redisTemplate.opsForValue().get(key));
@@ -187,6 +290,13 @@ public class CacheQueryServiceImpl implements CacheQueryService {
         };
     }
 
+    /**
+     * 执行 read Hash Entries 逻辑。
+     *
+     * @param key 键名
+     * @param limit limit 参数
+     * @return 处理结果
+     */
     private Map<String, String> readHashEntries(String key, int limit) {
         LinkedHashMap<String, String> result = new LinkedHashMap<>();
         ScanOptions options = ScanOptions.scanOptions().count(limit).build();
@@ -201,6 +311,13 @@ public class CacheQueryServiceImpl implements CacheQueryService {
         return result;
     }
 
+    /**
+     * 执行 read Set Members 逻辑。
+     *
+     * @param key 键名
+     * @param limit limit 参数
+     * @return 处理结果
+     */
     private List<String> readSetMembers(String key, int limit) {
         List<String> result = new ArrayList<>();
         ScanOptions options = ScanOptions.scanOptions().count(limit).build();
@@ -215,6 +332,13 @@ public class CacheQueryServiceImpl implements CacheQueryService {
         return result;
     }
 
+    /**
+     * 执行 read Zset Members 逻辑。
+     *
+     * @param key 键名
+     * @param limit limit 参数
+     * @return 处理结果
+     */
     private List<Map<String, Object>> readZsetMembers(String key, int limit) {
         List<Map<String, Object>> result = new ArrayList<>();
         ScanOptions options = ScanOptions.scanOptions().count(limit).build();
@@ -232,14 +356,32 @@ public class CacheQueryServiceImpl implements CacheQueryService {
         return result;
     }
 
+    /**
+     * 执行 default List 逻辑。
+     *
+     * @param values values 参数
+     * @return 处理结果
+     */
     private List<String> defaultList(List<String> values) {
         return values == null ? List.of() : values;
     }
 
+    /**
+     * 执行 default Long 逻辑。
+     *
+     * @param value 字段值
+     * @return 处理结果
+     */
     private long defaultLong(Long value) {
         return value == null ? 0L : value;
     }
 
+    /**
+     * 执行 join Preview Pairs 逻辑。
+     *
+     * @param sample sample 参数
+     * @return 处理结果
+     */
     private String joinPreviewPairs(Map<String, String> sample) {
         if (sample.isEmpty()) {
             return "{}";
@@ -251,10 +393,22 @@ public class CacheQueryServiceImpl implements CacheQueryService {
         return parts.toString();
     }
 
+    /**
+     * 执行 as Text 逻辑。
+     *
+     * @param value 字段值
+     * @return 处理结果
+     */
     private String asText(Object value) {
         return Objects.toString(value, "");
     }
 
+    /**
+     * 构建 truncate 结果。
+     *
+     * @param value 字段值
+     * @return 处理结果
+     */
     private String truncate(String value) {
         if (!StringUtils.hasText(value)) {
             return "--";

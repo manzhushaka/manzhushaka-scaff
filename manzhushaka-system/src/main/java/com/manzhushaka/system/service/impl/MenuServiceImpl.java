@@ -22,15 +22,29 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 实现 MenuServiceImpl 业务服务。
+ */
 @Service
 public class MenuServiceImpl implements MenuService {
 
     private final SysMenuMapper menuMapper;
 
+    /**
+     * 创建 MenuServiceImpl 实例。
+     *
+     * @param menuMapper menuMapper 参数
+     */
     public MenuServiceImpl(SysMenuMapper menuMapper) {
         this.menuMapper = menuMapper;
     }
 
+    /**
+     * 查询列表。
+     *
+     * @param query 查询条件
+     * @return 查询结果
+     */
     @Override
     public List<MenuVO> list(MenuQuery query) {
         return menuMapper.selectList(buildQueryWrapper(query)).stream()
@@ -38,6 +52,12 @@ public class MenuServiceImpl implements MenuService {
             .toList();
     }
 
+    /**
+     * 执行 tree 逻辑。
+     *
+     * @param query 查询条件
+     * @return 处理结果
+     */
     @Override
     public List<MenuTreeNode> tree(MenuQuery query) {
         List<MenuTreeNode> flatMenus = menuMapper.selectList(buildQueryWrapper(query)).stream()
@@ -46,12 +66,23 @@ public class MenuServiceImpl implements MenuService {
         return MenuTreeBuilder.build(flatMenus);
     }
 
+    /**
+     * 执行 routes By User Id 逻辑。
+     *
+     * @param userId 用户 ID
+     * @return 处理结果
+     */
     @Override
     public List<MenuRouteVO> routesByUserId(Long userId) {
         List<SysMenu> menus = menuMapper.selectMenusByUserId(userId);
         return buildRouteTree(menus);
     }
 
+    /**
+     * 查询下拉选项。
+     *
+     * @return 查询结果
+     */
     @Override
     public List<LabelValueOption> options() {
         List<SysMenu> menus = menuMapper.selectList(new LambdaQueryWrapper<SysMenu>()
@@ -60,11 +91,23 @@ public class MenuServiceImpl implements MenuService {
         return menus.stream().map(menu -> new LabelValueOption(menu.getMenuName(), String.valueOf(menu.getId()))).toList();
     }
 
+    /**
+     * 根据 ID 查询详情。
+     *
+     * @param id 主键 ID
+     * @return 字段值
+     */
     @Override
     public MenuVO getById(Long id) {
         return toMenuVO(getMenuOrThrow(id));
     }
 
+    /**
+     * 创建数据。
+     *
+     * @param form 表单参数
+     * @return 创建结果
+     */
     @Override
     @Transactional
     public Long create(MenuForm form) {
@@ -74,6 +117,12 @@ public class MenuServiceImpl implements MenuService {
         return entity.getId();
     }
 
+    /**
+     * 更新数据。
+     *
+     * @param id 主键 ID
+     * @param form 表单参数
+     */
     @Override
     @Transactional
     public void update(Long id, MenuForm form) {
@@ -82,6 +131,11 @@ public class MenuServiceImpl implements MenuService {
         menuMapper.updateById(entity);
     }
 
+    /**
+     * 删除数据。
+     *
+     * @param id 主键 ID
+     */
     @Override
     @Transactional
     public void delete(Long id) {
@@ -90,6 +144,12 @@ public class MenuServiceImpl implements MenuService {
         }
     }
 
+    /**
+     * 构建查询条件。
+     *
+     * @param query 查询条件
+     * @return 处理结果
+     */
     private LambdaQueryWrapper<SysMenu> buildQueryWrapper(MenuQuery query) {
         return new LambdaQueryWrapper<SysMenu>()
             .like(StringUtils.hasText(query.getMenuName()), SysMenu::getMenuName, query.getMenuName())
@@ -98,6 +158,12 @@ public class MenuServiceImpl implements MenuService {
             .orderByAsc(SysMenu::getSort, SysMenu::getId);
     }
 
+    /**
+     * 返回 menuOrThrow。
+     *
+     * @param id 主键 ID
+     * @return 字段值
+     */
     private SysMenu getMenuOrThrow(Long id) {
         SysMenu menu = menuMapper.selectById(id);
         if (menu == null) {
@@ -106,6 +172,12 @@ public class MenuServiceImpl implements MenuService {
         return menu;
     }
 
+    /**
+     * 更新 apply Form 数据。
+     *
+     * @param entity 实体对象
+     * @param form 表单参数
+     */
     private void applyForm(SysMenu entity, MenuForm form) {
         entity.setParentId(form.getParentId() == null ? 0L : form.getParentId());
         entity.setMenuType(form.getMenuType());
@@ -121,6 +193,12 @@ public class MenuServiceImpl implements MenuService {
         entity.setStatus(form.getStatus() == null ? 1 : form.getStatus());
     }
 
+    /**
+     * 转换为菜单响应对象。
+     *
+     * @param menu menu 参数
+     * @return 处理结果
+     */
     private MenuVO toMenuVO(SysMenu menu) {
         MenuVO vo = new MenuVO();
         vo.setId(menu.getId());
@@ -140,6 +218,12 @@ public class MenuServiceImpl implements MenuService {
         return vo;
     }
 
+    /**
+     * 构建路由树。
+     *
+     * @param menus menus 参数
+     * @return 处理结果
+     */
     private List<MenuRouteVO> buildRouteTree(List<SysMenu> menus) {
         Map<Long, MenuRouteVO> routeMap = new LinkedHashMap<>();
         Map<Long, Long> parentMap = new LinkedHashMap<>();
@@ -169,6 +253,12 @@ public class MenuServiceImpl implements MenuService {
         return roots;
     }
 
+    /**
+     * 执行 default Sort 逻辑。
+     *
+     * @param sort sort 参数
+     * @return 处理结果
+     */
     private int defaultSort(Integer sort) {
         return sort == null ? 0 : sort;
     }

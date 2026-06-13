@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
 
+/**
+ * 配置 MybatisPlusConfig 相关组件。
+ */
 @Configuration
 public class MybatisPlusConfig {
 

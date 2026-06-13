@@ -11,20 +11,52 @@ import org.springframework.util.StringUtils;
 import java.time.Duration;
 import java.util.UUID;
 
+/**
+ * 定义 AuthCaptchaService。
+ */
 @Service
 public class AuthCaptchaService {
     private static final String CAPTCHA_KEY_PREFIX = "auth:captcha:";
     private static final String CAPTCHA_RATE_LIMIT_PREFIX = "auth:captcha:limit:";
     private static final String LOGIN_FAILURE_PREFIX = "auth:login:failure:";
+    /**
+     * 执行 of Minutes 逻辑。
+     *
+     * @param 5 5 参数
+     * @return 处理结果
+     */
     private static final Duration CAPTCHA_TTL = Duration.ofMinutes(5);
+    /**
+     * 执行 of Minutes 逻辑。
+     *
+     * @param 1 1 参数
+     * @return 处理结果
+     */
     private static final Duration CAPTCHA_RATE_LIMIT_WINDOW = Duration.ofMinutes(1);
+    /**
+     * 执行 of Minutes 逻辑。
+     *
+     * @param 5 5 参数
+     * @return 处理结果
+     */
     private static final Duration LOGIN_FAILURE_WINDOW = Duration.ofMinutes(5);
+    /**
+     * 执行 of Minutes 逻辑。
+     *
+     * @param 15 15 参数
+     * @return 处理结果
+     */
     private static final Duration LOGIN_LOCK_DURATION = Duration.ofMinutes(15);
     private static final int CAPTCHA_RATE_LIMIT = 10;
     private static final int LOGIN_FAILURE_LIMIT = 5;
 
     private final StringRedisTemplate redisTemplate;
 
+    /**
+     * 创建 AuthCaptchaService 实例。
+     *
+     * @param redisTemplate redisTemplate 参数
+     */
     public AuthCaptchaService(StringRedisTemplate redisTemplate) {
         this.redisTemplate = redisTemplate;
     }

@@ -7,13 +7,42 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * 提供 SensitiveDataSanitizer 工具能力。
+ */
 public final class SensitiveDataSanitizer {
+    /**
+     * 执行 of 逻辑。
+     *
+     * @param "password" "password" 参数
+     * @param "token" "token" 参数
+     * @param "authorization" "authorization" 参数
+     * @param "accessToken" "accessToken" 参数
+     * @return 处理结果
+     */
     private static final Set<String> FULL_MASK_KEYS = Set.of("password", "token", "authorization", "accessToken");
+    /**
+     * 执行 of 逻辑。
+     *
+     * @param "mobile" "mobile" 参数
+     * @param "phone" "phone" 参数
+     * @param "telephone" "telephone" 参数
+     * @return 处理结果
+     */
     private static final Set<String> MOBILE_KEYS = Set.of("mobile", "phone", "telephone");
 
+    /**
+     * 创建 SensitiveDataSanitizer 实例。
+     */
     private SensitiveDataSanitizer() {
     }
 
+    /**
+     * 执行 mask 逻辑。
+     *
+     * @param value 字段值
+     * @return 处理结果
+     */
     public static Object mask(Object value) {
         if (value == null) {
             return null;
@@ -40,6 +69,13 @@ public final class SensitiveDataSanitizer {
         return value;
     }
 
+    /**
+     * 执行 mask By Key 逻辑。
+     *
+     * @param key 键名
+     * @param rawValue rawValue 参数
+     * @return 处理结果
+     */
     private static Object maskByKey(String key, Object rawValue) {
         if (FULL_MASK_KEYS.contains(key)) {
             return "***";

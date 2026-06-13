@@ -3,6 +3,9 @@ package com.manzhushaka.system.service.impexp;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+/**
+ * 定义 ImportExportTaskAsyncExecutor。
+ */
 @Component
 public class ImportExportTaskAsyncExecutor {
 
@@ -17,6 +20,13 @@ public class ImportExportTaskAsyncExecutor {
         this.importTaskTemplateRegistry = importTaskTemplateRegistry;
     }
 
+    /**
+     * 分发任务。
+     *
+     * @param taskType taskType 参数
+     * @param bizType bizType 参数
+     * @param taskId 任务 ID
+     */
     @Async
     public void dispatch(String taskType, String bizType, Long taskId) {
         if (ImportExportTaskSupport.TASK_TYPE_EXPORT.equals(taskType)) {

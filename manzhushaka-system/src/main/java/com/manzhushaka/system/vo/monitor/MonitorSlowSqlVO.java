@@ -1,5 +1,8 @@
 package com.manzhushaka.system.vo.monitor;
 
+/**
+ * 承载 MonitorSlowSqlVO 响应数据。
+ */
 public class MonitorSlowSqlVO {
     private String statementId;
     private String sql;

@@ -20,17 +20,33 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * 处理 OpLogAspect 切面逻辑。
+ */
 @Aspect
 @Component
 public class OpLogAspect {
     private final ObjectMapper objectMapper;
     private final ObjectProvider<OpLogPublisher> publisherProvider;
 
+    /**
+     * 创建 OpLogAspect 实例。
+     *
+     * @param objectMapper objectMapper 参数
+     * @param publisherProvider publisherProvider 参数
+     */
     public OpLogAspect(ObjectMapper objectMapper, ObjectProvider<OpLogPublisher> publisherProvider) {
         this.objectMapper = objectMapper;
         this.publisherProvider = publisherProvider;
     }
 
+    /**
+     * 处理 around 流程。
+     *
+     * @param joinPoint joinPoint 参数
+     * @param opLog opLog 参数
+     * @return 处理结果
+     */
     @Around("@annotation(opLog)")
     public Object around(ProceedingJoinPoint joinPoint, OpLog opLog) throws Throwable {
         long startTime = System.currentTimeMillis();
@@ -50,6 +66,16 @@ public class OpLogAspect {
         }
     }
 
+    /**
+     * 构建 build Record 结果。
+     *
+     * @param joinPoint joinPoint 参数
+     * @param opLog opLog 参数
+     * @param result result 参数
+     * @param throwable 异常对象
+     * @param costMs costMs 参数
+     * @return 处理结果
+     */
     private OpLogRecord buildRecord(ProceedingJoinPoint joinPoint, OpLog opLog, Object result, Throwable throwable, long costMs) {
         HttpServletRequest request = currentRequest();
         LoginUser loginUser = LoginUserContext.get();
@@ -72,15 +98,32 @@ public class OpLogAspect {
         return record;
     }
 
+    /**
+     * 查询 current Request 结果。
+     *
+     * @return 查询结果
+     */
     private HttpServletRequest currentRequest() {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         return attributes == null ? null : attributes.getRequest();
     }
 
+    /**
+     * 执行 summarize Throwable 逻辑。
+     *
+     * @param throwable 异常对象
+     * @return 处理结果
+     */
     private String summarizeThrowable(Throwable throwable) {
         return throwable.getClass().getSimpleName() + ": " + throwable.getMessage();
     }
 
+    /**
+     * 构建 to Json Safe 结果。
+     *
+     * @param value 字段值
+     * @return 处理结果
+     */
     private String toJsonSafe(Object value) {
         try {
             return value == null ? null : objectMapper.writeValueAsString(value);

@@ -18,6 +18,9 @@ import java.util.concurrent.TimeUnit;
     @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, org.apache.ibatis.session.RowBounds.class, org.apache.ibatis.session.ResultHandler.class}),
     @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, org.apache.ibatis.session.RowBounds.class, org.apache.ibatis.session.ResultHandler.class, org.apache.ibatis.cache.CacheKey.class, BoundSql.class})
 })
+/**
+ * 定义 SlowSqlMonitorInterceptor。
+ */
 public class SlowSqlMonitorInterceptor implements Interceptor {
 
     private final SlowSqlMonitorStore store;

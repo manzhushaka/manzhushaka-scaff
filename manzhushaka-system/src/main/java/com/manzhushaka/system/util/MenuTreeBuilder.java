@@ -8,11 +8,23 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 提供 MenuTreeBuilder 工具能力。
+ */
 public final class MenuTreeBuilder {
 
+    /**
+     * 创建 MenuTreeBuilder 实例。
+     */
     private MenuTreeBuilder() {
     }
 
+    /**
+     * 构建 build 结果。
+     *
+     * @param flatMenus flatMenus 参数
+     * @return 处理结果
+     */
     public static List<MenuTreeNode> build(List<MenuTreeNode> flatMenus) {
         Map<Long, MenuTreeNode> nodeMap = new LinkedHashMap<>();
         for (MenuTreeNode menu : flatMenus.stream().sorted(Comparator.comparing(MenuTreeNode::getSort)).toList()) {

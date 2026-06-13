@@ -2,6 +2,9 @@ package com.manzhushaka.system.vo.monitor;
 
 import java.util.List;
 
+/**
+ * 承载 ServerMonitorVO 响应数据。
+ */
 public class ServerMonitorVO {
     private String applicationName;
     private String activeProfile;
@@ -858,58 +861,128 @@ public class ServerMonitorVO {
         private Double recentSuccessRate;
         private List<JobFailureItem> recentFailures;
 
+        /**
+         * 返回 totalJobs。
+         *
+         * @return 字段值
+         */
         public Long getTotalJobs() {
             return totalJobs;
         }
 
+        /**
+         * 设置 totalJobs。
+         *
+         * @param totalJobs totalJobs 参数
+         */
         public void setTotalJobs(Long totalJobs) {
             this.totalJobs = totalJobs;
         }
 
+        /**
+         * 返回 enabledJobs。
+         *
+         * @return 字段值
+         */
         public Long getEnabledJobs() {
             return enabledJobs;
         }
 
+        /**
+         * 设置 enabledJobs。
+         *
+         * @param enabledJobs enabledJobs 参数
+         */
         public void setEnabledJobs(Long enabledJobs) {
             this.enabledJobs = enabledJobs;
         }
 
+        /**
+         * 返回 pausedJobs。
+         *
+         * @return 字段值
+         */
         public Long getPausedJobs() {
             return pausedJobs;
         }
 
+        /**
+         * 设置 pausedJobs。
+         *
+         * @param pausedJobs pausedJobs 参数
+         */
         public void setPausedJobs(Long pausedJobs) {
             this.pausedJobs = pausedJobs;
         }
 
+        /**
+         * 返回 recentSuccessCount。
+         *
+         * @return 字段值
+         */
         public Long getRecentSuccessCount() {
             return recentSuccessCount;
         }
 
+        /**
+         * 设置 recentSuccessCount。
+         *
+         * @param recentSuccessCount recentSuccessCount 参数
+         */
         public void setRecentSuccessCount(Long recentSuccessCount) {
             this.recentSuccessCount = recentSuccessCount;
         }
 
+        /**
+         * 返回 recentFailCount。
+         *
+         * @return 字段值
+         */
         public Long getRecentFailCount() {
             return recentFailCount;
         }
 
+        /**
+         * 设置 recentFailCount。
+         *
+         * @param recentFailCount recentFailCount 参数
+         */
         public void setRecentFailCount(Long recentFailCount) {
             this.recentFailCount = recentFailCount;
         }
 
+        /**
+         * 返回 recentSuccessRate。
+         *
+         * @return 字段值
+         */
         public Double getRecentSuccessRate() {
             return recentSuccessRate;
         }
 
+        /**
+         * 设置 recentSuccessRate。
+         *
+         * @param recentSuccessRate recentSuccessRate 参数
+         */
         public void setRecentSuccessRate(Double recentSuccessRate) {
             this.recentSuccessRate = recentSuccessRate;
         }
 
+        /**
+         * 返回 recentFailures。
+         *
+         * @return 字段值
+         */
         public List<JobFailureItem> getRecentFailures() {
             return recentFailures;
         }
 
+        /**
+         * 设置 recentFailures。
+         *
+         * @param recentFailures recentFailures 参数
+         */
         public void setRecentFailures(List<JobFailureItem> recentFailures) {
             this.recentFailures = recentFailures;
         }
@@ -922,42 +995,92 @@ public class ServerMonitorVO {
         private String errorMsg;
         private String startTime;
 
+        /**
+         * 返回 jobId。
+         *
+         * @return 字段值
+         */
         public Long getJobId() {
             return jobId;
         }
 
+        /**
+         * 设置 jobId。
+         *
+         * @param jobId jobId 标识
+         */
         public void setJobId(Long jobId) {
             this.jobId = jobId;
         }
 
+        /**
+         * 返回 jobName。
+         *
+         * @return 字段值
+         */
         public String getJobName() {
             return jobName;
         }
 
+        /**
+         * 设置 jobName。
+         *
+         * @param jobName jobName 参数
+         */
         public void setJobName(String jobName) {
             this.jobName = jobName;
         }
 
+        /**
+         * 返回 runStatus。
+         *
+         * @return 字段值
+         */
         public String getRunStatus() {
             return runStatus;
         }
 
+        /**
+         * 设置 runStatus。
+         *
+         * @param runStatus runStatus 参数
+         */
         public void setRunStatus(String runStatus) {
             this.runStatus = runStatus;
         }
 
+        /**
+         * 返回 errorMsg。
+         *
+         * @return 字段值
+         */
         public String getErrorMsg() {
             return errorMsg;
         }
 
+        /**
+         * 设置 errorMsg。
+         *
+         * @param errorMsg errorMsg 参数
+         */
         public void setErrorMsg(String errorMsg) {
             this.errorMsg = errorMsg;
         }
 
+        /**
+         * 返回 startTime。
+         *
+         * @return 字段值
+         */
         public String getStartTime() {
             return startTime;
         }
 
+        /**
+         * 设置 startTime。
+         *
+         * @param startTime startTime 参数
+         */
         public void setStartTime(String startTime) {
             this.startTime = startTime;
         }
@@ -974,74 +1097,164 @@ public class ServerMonitorVO {
         private String oldestPendingCreateTime;
         private List<StreamBacklogItem> streams;
 
+        /**
+         * 返回 pendingCount。
+         *
+         * @return 字段值
+         */
         public Long getPendingCount() {
             return pendingCount;
         }
 
+        /**
+         * 设置 pendingCount。
+         *
+         * @param pendingCount pendingCount 参数
+         */
         public void setPendingCount(Long pendingCount) {
             this.pendingCount = pendingCount;
         }
 
+        /**
+         * 返回 processingCount。
+         *
+         * @return 字段值
+         */
         public Long getProcessingCount() {
             return processingCount;
         }
 
+        /**
+         * 设置 processingCount。
+         *
+         * @param processingCount processingCount 参数
+         */
         public void setProcessingCount(Long processingCount) {
             this.processingCount = processingCount;
         }
 
+        /**
+         * 返回 failCount。
+         *
+         * @return 字段值
+         */
         public Long getFailCount() {
             return failCount;
         }
 
+        /**
+         * 设置 failCount。
+         *
+         * @param failCount failCount 参数
+         */
         public void setFailCount(Long failCount) {
             this.failCount = failCount;
         }
 
+        /**
+         * 返回 initCount。
+         *
+         * @return 字段值
+         */
         public Long getInitCount() {
             return initCount;
         }
 
+        /**
+         * 设置 initCount。
+         *
+         * @param initCount initCount 参数
+         */
         public void setInitCount(Long initCount) {
             this.initCount = initCount;
         }
 
+        /**
+         * 返回 publishedCount。
+         *
+         * @return 字段值
+         */
         public Long getPublishedCount() {
             return publishedCount;
         }
 
+        /**
+         * 设置 publishedCount。
+         *
+         * @param publishedCount publishedCount 参数
+         */
         public void setPublishedCount(Long publishedCount) {
             this.publishedCount = publishedCount;
         }
 
+        /**
+         * 返回 timedOutCount。
+         *
+         * @return 字段值
+         */
         public Long getTimedOutCount() {
             return timedOutCount;
         }
 
+        /**
+         * 设置 timedOutCount。
+         *
+         * @param timedOutCount timedOutCount 参数
+         */
         public void setTimedOutCount(Long timedOutCount) {
             this.timedOutCount = timedOutCount;
         }
 
+        /**
+         * 返回 oldestPendingEventId。
+         *
+         * @return 字段值
+         */
         public String getOldestPendingEventId() {
             return oldestPendingEventId;
         }
 
+        /**
+         * 设置 oldestPendingEventId。
+         *
+         * @param oldestPendingEventId oldestPendingEventId 标识
+         */
         public void setOldestPendingEventId(String oldestPendingEventId) {
             this.oldestPendingEventId = oldestPendingEventId;
         }
 
+        /**
+         * 返回 oldestPendingCreateTime。
+         *
+         * @return 字段值
+         */
         public String getOldestPendingCreateTime() {
             return oldestPendingCreateTime;
         }
 
+        /**
+         * 设置 oldestPendingCreateTime。
+         *
+         * @param oldestPendingCreateTime oldestPendingCreateTime 参数
+         */
         public void setOldestPendingCreateTime(String oldestPendingCreateTime) {
             this.oldestPendingCreateTime = oldestPendingCreateTime;
         }
 
+        /**
+         * 返回 streams。
+         *
+         * @return 字段值
+         */
         public List<StreamBacklogItem> getStreams() {
             return streams;
         }
 
+        /**
+         * 设置 streams。
+         *
+         * @param streams streams 参数
+         */
         public void setStreams(List<StreamBacklogItem> streams) {
             this.streams = streams;
         }
@@ -1052,26 +1265,56 @@ public class ServerMonitorVO {
         private Long pendingCount;
         private Long failCount;
 
+        /**
+         * 返回 streamKey。
+         *
+         * @return 字段值
+         */
         public String getStreamKey() {
             return streamKey;
         }
 
+        /**
+         * 设置 streamKey。
+         *
+         * @param streamKey streamKey 参数
+         */
         public void setStreamKey(String streamKey) {
             this.streamKey = streamKey;
         }
 
+        /**
+         * 返回 pendingCount。
+         *
+         * @return 字段值
+         */
         public Long getPendingCount() {
             return pendingCount;
         }
 
+        /**
+         * 设置 pendingCount。
+         *
+         * @param pendingCount pendingCount 参数
+         */
         public void setPendingCount(Long pendingCount) {
             this.pendingCount = pendingCount;
         }
 
+        /**
+         * 返回 failCount。
+         *
+         * @return 字段值
+         */
         public Long getFailCount() {
             return failCount;
         }
 
+        /**
+         * 设置 failCount。
+         *
+         * @param failCount failCount 参数
+         */
         public void setFailCount(Long failCount) {
             this.failCount = failCount;
         }
@@ -1085,50 +1328,110 @@ public class ServerMonitorVO {
         private String latestExecuteTime;
         private Long thresholdMs;
 
+        /**
+         * 返回 available。
+         *
+         * @return 字段值
+         */
         public Boolean getAvailable() {
             return available;
         }
 
+        /**
+         * 设置 available。
+         *
+         * @param available available 参数
+         */
         public void setAvailable(Boolean available) {
             this.available = available;
         }
 
+        /**
+         * 返回 recentCount。
+         *
+         * @return 字段值
+         */
         public Integer getRecentCount() {
             return recentCount;
         }
 
+        /**
+         * 设置 recentCount。
+         *
+         * @param recentCount recentCount 参数
+         */
         public void setRecentCount(Integer recentCount) {
             this.recentCount = recentCount;
         }
 
+        /**
+         * 返回 latestCostMs。
+         *
+         * @return 字段值
+         */
         public Long getLatestCostMs() {
             return latestCostMs;
         }
 
+        /**
+         * 设置 latestCostMs。
+         *
+         * @param latestCostMs latestCostMs 参数
+         */
         public void setLatestCostMs(Long latestCostMs) {
             this.latestCostMs = latestCostMs;
         }
 
+        /**
+         * 返回 latestStatementId。
+         *
+         * @return 字段值
+         */
         public String getLatestStatementId() {
             return latestStatementId;
         }
 
+        /**
+         * 设置 latestStatementId。
+         *
+         * @param latestStatementId latestStatementId 标识
+         */
         public void setLatestStatementId(String latestStatementId) {
             this.latestStatementId = latestStatementId;
         }
 
+        /**
+         * 返回 latestExecuteTime。
+         *
+         * @return 字段值
+         */
         public String getLatestExecuteTime() {
             return latestExecuteTime;
         }
 
+        /**
+         * 设置 latestExecuteTime。
+         *
+         * @param latestExecuteTime latestExecuteTime 参数
+         */
         public void setLatestExecuteTime(String latestExecuteTime) {
             this.latestExecuteTime = latestExecuteTime;
         }
 
+        /**
+         * 返回 thresholdMs。
+         *
+         * @return 字段值
+         */
         public Long getThresholdMs() {
             return thresholdMs;
         }
 
+        /**
+         * 设置 thresholdMs。
+         *
+         * @param thresholdMs thresholdMs 参数
+         */
         public void setThresholdMs(Long thresholdMs) {
             this.thresholdMs = thresholdMs;
         }
@@ -1140,34 +1443,74 @@ public class ServerMonitorVO {
         private Integer capacity;
         private String lastEntryAt;
 
+        /**
+         * 返回 available。
+         *
+         * @return 字段值
+         */
         public Boolean getAvailable() {
             return available;
         }
 
+        /**
+         * 设置 available。
+         *
+         * @param available available 参数
+         */
         public void setAvailable(Boolean available) {
             this.available = available;
         }
 
+        /**
+         * 返回 entryCount。
+         *
+         * @return 字段值
+         */
         public Integer getEntryCount() {
             return entryCount;
         }
 
+        /**
+         * 设置 entryCount。
+         *
+         * @param entryCount entryCount 参数
+         */
         public void setEntryCount(Integer entryCount) {
             this.entryCount = entryCount;
         }
 
+        /**
+         * 返回 capacity。
+         *
+         * @return 字段值
+         */
         public Integer getCapacity() {
             return capacity;
         }
 
+        /**
+         * 设置 capacity。
+         *
+         * @param capacity capacity 参数
+         */
         public void setCapacity(Integer capacity) {
             this.capacity = capacity;
         }
 
+        /**
+         * 返回 lastEntryAt。
+         *
+         * @return 字段值
+         */
         public String getLastEntryAt() {
             return lastEntryAt;
         }
 
+        /**
+         * 设置 lastEntryAt。
+         *
+         * @param lastEntryAt lastEntryAt 参数
+         */
         public void setLastEntryAt(String lastEntryAt) {
             this.lastEntryAt = lastEntryAt;
         }

@@ -1,8 +1,4 @@
-import axios from 'axios';
-import { Message } from '@arco-design/web-vue';
-import { dispatchMockRequest } from './mock';
 import request from './request';
-import { unwrapSystemResponse } from './system-client';
 import type {
   ConfigForm,
   ConfigQuery,
@@ -64,70 +60,20 @@ import {
   toVisibleText,
 } from '@/views/system/shared';
 
-const systemRequest = axios.create({
-  baseURL: '/api',
-  timeout: 8000,
-  withCredentials: true,
-});
-
-systemRequest.interceptors.request.use(async (config) => {
-  const useMock = import.meta.env.VITE_USE_MOCK === 'true';
-  if (!useMock) {
-    return config;
-  }
-
-  const result = await dispatchMockRequest({
-    url: config.url,
-    method: config.method,
-    params: config.params as Record<string, string | number | undefined> | undefined,
-    data: config.data as Record<string, string | number> | string | undefined,
-  });
-
-  config.adapter = async () => ({
-    data: result,
-    status: 200,
-    statusText: 'OK',
-    headers: {},
-    config,
-    request: {},
-  });
-
-  return config;
-});
-
-systemRequest.interceptors.response.use(
-  (response) => {
-    try {
-      return unwrapSystemResponse(response.data);
-    } catch (error) {
-      const normalized = error instanceof Error ? error : new Error('请求失败，请稍后重试');
-      Message.error(normalized.message);
-      return Promise.reject(normalized);
-    }
-  },
-  (error) => {
-    const normalized = error instanceof Error
-      ? error
-      : new Error(error?.response?.data?.message ?? '请求失败，请稍后重试');
-    Message.error(normalized.message);
-    return Promise.reject(normalized);
-  },
-);
-
 function get<T>(url: string, params?: object) {
-  return systemRequest.get<T, T>(url, { params });
+  return request.get<T>(url, { params });
 }
 
 function post<T>(url: string, data?: unknown) {
-  return systemRequest.post<T, T>(url, data);
+  return request.post<T>(url, data);
 }
 
 function put<T>(url: string, data?: unknown) {
-  return systemRequest.put<T, T>(url, data);
+  return request.put<T>(url, data);
 }
 
 function del<T>(url: string) {
-  return systemRequest.delete<T, T>(url);
+  return request.delete<T>(url);
 }
 
 export const systemApi = {

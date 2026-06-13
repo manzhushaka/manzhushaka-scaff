@@ -16,15 +16,29 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+/**
+ * 实现 ConfigServiceImpl 业务服务。
+ */
 @Service
 public class ConfigServiceImpl implements ConfigService {
 
     private final SysConfigMapper configMapper;
 
+    /**
+     * 创建 ConfigServiceImpl 实例。
+     *
+     * @param configMapper configMapper 参数
+     */
     public ConfigServiceImpl(SysConfigMapper configMapper) {
         this.configMapper = configMapper;
     }
 
+    /**
+     * 分页查询列表。
+     *
+     * @param query 查询条件
+     * @return 查询结果
+     */
     @Override
     public PageResult<ConfigVO> page(ConfigQuery query) {
         LambdaQueryWrapper<SysConfig> wrapper = new LambdaQueryWrapper<SysConfig>()
@@ -36,11 +50,23 @@ public class ConfigServiceImpl implements ConfigService {
         return SystemMappingSupport.toPageResult(page, this::toConfigVO);
     }
 
+    /**
+     * 根据 ID 查询详情。
+     *
+     * @param id 主键 ID
+     * @return 字段值
+     */
     @Override
     public ConfigVO getById(Long id) {
         return toConfigVO(getConfigOrThrow(id));
     }
 
+    /**
+     * 创建数据。
+     *
+     * @param form 表单参数
+     * @return 创建结果
+     */
     @Override
     @Transactional
     public Long create(ConfigForm form) {
@@ -50,6 +76,12 @@ public class ConfigServiceImpl implements ConfigService {
         return entity.getId();
     }
 
+    /**
+     * 更新数据。
+     *
+     * @param id 主键 ID
+     * @param form 表单参数
+     */
     @Override
     @Transactional
     public void update(Long id, ConfigForm form) {
@@ -58,6 +90,11 @@ public class ConfigServiceImpl implements ConfigService {
         configMapper.updateById(entity);
     }
 
+    /**
+     * 删除数据。
+     *
+     * @param id 主键 ID
+     */
     @Override
     @Transactional
     public void delete(Long id) {
@@ -66,6 +103,12 @@ public class ConfigServiceImpl implements ConfigService {
         }
     }
 
+    /**
+     * 返回 configOrThrow。
+     *
+     * @param id 主键 ID
+     * @return 字段值
+     */
     private SysConfig getConfigOrThrow(Long id) {
         SysConfig config = configMapper.selectById(id);
         if (config == null) {
@@ -74,6 +117,12 @@ public class ConfigServiceImpl implements ConfigService {
         return config;
     }
 
+    /**
+     * 更新 apply Form 数据。
+     *
+     * @param entity 实体对象
+     * @param form 表单参数
+     */
     private void applyForm(SysConfig entity, ConfigForm form) {
         entity.setConfigName(form.getConfigName());
         entity.setConfigKey(form.getConfigKey());
@@ -81,6 +130,12 @@ public class ConfigServiceImpl implements ConfigService {
         entity.setStatus(form.getStatus() == null ? 1 : form.getStatus());
     }
 
+    /**
+     * 构建 to Config VO 结果。
+     *
+     * @param config config 参数
+     * @return 处理结果
+     */
     private ConfigVO toConfigVO(SysConfig config) {
         ConfigVO vo = new ConfigVO();
         vo.setId(config.getId());

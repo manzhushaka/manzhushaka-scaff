@@ -11,6 +11,9 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 
+/**
+ * 定义 BaseImportExportTaskTemplate。
+ */
 abstract class BaseImportExportTaskTemplate {
 
     protected final SysImportExportTaskMapper taskMapper;
@@ -38,36 +41,89 @@ abstract class BaseImportExportTaskTemplate {
         this.storageBasePath = StringUtils.hasText(storageBasePath) ? trimSlashes(storageBasePath) : "import-export";
     }
 
+    /**
+     * 执行 biz Type 逻辑。
+     *
+     * @return 处理结果
+     */
     public abstract String bizType();
 
+    /**
+     * 执行 biz Label 逻辑。
+     *
+     * @return 处理结果
+     */
     public abstract String bizLabel();
 
+    /**
+     * 执行 default Task Name 逻辑。
+     *
+     * @return 处理结果
+     */
     protected abstract String defaultTaskName();
 
+    /**
+     * 构建 build Source Object Key 结果。
+     *
+     * @param taskNo taskNo 参数
+     * @param fileName fileName 参数
+     * @return 处理结果
+     */
     protected String buildSourceObjectKey(String taskNo, String fileName) {
         return storageBasePath + "/import/" + taskNo + "/source/" + normalizeFileName(fileName);
     }
 
+    /**
+     * 构建 build Result Object Key 结果。
+     *
+     * @param taskType taskType 参数
+     * @param taskNo taskNo 参数
+     * @param fileName fileName 参数
+     * @return 处理结果
+     */
     protected String buildResultObjectKey(String taskType, String taskNo, String fileName) {
         return storageBasePath + "/" + taskType.toLowerCase() + "/" + taskNo + "/result/" + normalizeFileName(fileName);
     }
 
+    /**
+     * 更新 apply Operator 数据。
+     *
+     * @param task task 参数
+     * @param operator operator 参数
+     */
     protected void applyOperator(SysImportExportTask task, LoginUser operator) {
         String username = operator == null || !StringUtils.hasText(operator.getUsername()) ? "system" : operator.getUsername().trim();
         task.setCreateBy(username);
         task.setUpdateBy(username);
     }
 
+    /**
+     * 查询 load Task 结果。
+     *
+     * @param taskId 任务 ID
+     * @return 查询结果
+     */
     protected SysImportExportTask loadTask(Long taskId) {
         return taskMapper.selectById(taskId);
     }
 
+    /**
+     * 更新 mark Processing 数据。
+     *
+     * @param task task 参数
+     */
     protected void markProcessing(SysImportExportTask task) {
         task.setTaskStatus(ImportExportTaskSupport.TASK_STATUS_PROCESSING);
         task.setTaskMessage("任务处理中");
         taskMapper.updateById(task);
     }
 
+    /**
+     * 更新 mark Success 数据。
+     *
+     * @param task task 参数
+     * @param result result 参数
+     */
     protected void markSuccess(SysImportExportTask task, TaskExecutionResult result) {
         task.setTaskStatus(ImportExportTaskSupport.TASK_STATUS_SUCCESS);
         task.setTaskMessage(result.message());
@@ -86,6 +142,12 @@ abstract class BaseImportExportTaskTemplate {
         taskMapper.updateById(task);
     }
 
+    /**
+     * 更新 mark Fail 数据。
+     *
+     * @param task task 参数
+     * @param exception 异常对象
+     */
     protected void markFail(SysImportExportTask task, Exception exception) {
         task.setTaskStatus(ImportExportTaskSupport.TASK_STATUS_FAIL);
         task.setTaskMessage(limitMessage(exception.getMessage()));
@@ -93,12 +155,23 @@ abstract class BaseImportExportTaskTemplate {
         taskMapper.updateById(task);
     }
 
+    /**
+     * 校验 ensure Biz Type 条件。
+     *
+     * @param requestBizType requestBizType 参数
+     */
     protected void ensureBizType(String requestBizType) {
         if (!bizType().equals(requestBizType)) {
             throw new IllegalArgumentException("任务场景不匹配");
         }
     }
 
+    /**
+     * 更新 write Task Param 数据。
+     *
+     * @param value 字段值
+     * @return 处理结果
+     */
     protected String writeTaskParam(Object value) {
         if (value == null) {
             return null;
@@ -110,6 +183,13 @@ abstract class BaseImportExportTaskTemplate {
         }
     }
 
+    /**
+     * 执行 read Task Param 逻辑。
+     *
+     * @param taskParam taskParam 参数
+     * @param valueType valueType 参数
+     * @return 处理结果
+     */
     protected <T> T readTaskParam(String taskParam, Class<T> valueType) {
         if (!StringUtils.hasText(taskParam) || valueType == null) {
             return null;
@@ -121,12 +201,24 @@ abstract class BaseImportExportTaskTemplate {
         }
     }
 
+    /**
+     * 构建 normalize File Name 结果。
+     *
+     * @param fileName fileName 参数
+     * @return 处理结果
+     */
     private String normalizeFileName(String fileName) {
         String normalized = StringUtils.hasText(fileName) ? fileName.trim() : "file.bin";
         normalized = normalized.replace('\\', '-').replace('/', '-');
         return normalized;
     }
 
+    /**
+     * 执行 limit Message 逻辑。
+     *
+     * @param message message 参数
+     * @return 处理结果
+     */
     private String limitMessage(String message) {
         if (!StringUtils.hasText(message)) {
             return "任务执行失败";
@@ -134,6 +226,12 @@ abstract class BaseImportExportTaskTemplate {
         return message.length() > 500 ? message.substring(0, 500) : message;
     }
 
+    /**
+     * 执行 trim Slashes 逻辑。
+     *
+     * @param value 字段值
+     * @return 处理结果
+     */
     private String trimSlashes(String value) {
         String normalized = value.trim();
         while (normalized.startsWith("/")) {
