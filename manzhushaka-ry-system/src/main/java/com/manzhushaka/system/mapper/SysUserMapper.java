@@ -3,7 +3,7 @@ package com.manzhushaka.system.mapper;
 import java.util.Date;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
-import com.manzhushaka.common.core.domain.entity.SysUser;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
 
 /**
  * 用户表 数据层

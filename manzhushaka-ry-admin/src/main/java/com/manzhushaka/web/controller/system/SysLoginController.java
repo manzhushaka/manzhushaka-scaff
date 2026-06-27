@@ -10,9 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.manzhushaka.common.constant.Constants;
 import com.manzhushaka.common.core.domain.AjaxResult;
-import com.manzhushaka.common.core.domain.entity.SysMenu;
 import com.manzhushaka.common.core.domain.entity.SysUser;
-import com.manzhushaka.common.core.domain.model.LoginBody;
 import com.manzhushaka.common.core.domain.model.LoginUser;
 import com.manzhushaka.common.core.text.Convert;
 import com.manzhushaka.common.utils.DateUtils;
@@ -20,9 +18,12 @@ import com.manzhushaka.common.utils.SecurityUtils;
 import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.framework.web.service.SysLoginService;
 import com.manzhushaka.framework.web.service.SysPermissionService;
+import com.manzhushaka.framework.web.command.LoginCommand;
 import com.manzhushaka.framework.web.service.TokenService;
 import com.manzhushaka.system.service.ISysConfigService;
 import com.manzhushaka.system.service.ISysMenuService;
+import com.manzhushaka.web.converter.system.AuthAdminConverter;
+import com.manzhushaka.web.dto.system.LoginRequest;
 
 /**
  * 登录验证
@@ -54,12 +55,13 @@ public class SysLoginController
      * @return 结果
      */
     @PostMapping("/login")
-    public AjaxResult login(@RequestBody LoginBody loginBody)
+    public AjaxResult login(@RequestBody LoginRequest request)
     {
         AjaxResult ajax = AjaxResult.success();
+        LoginCommand command = AuthAdminConverter.toLoginCommand(request);
         // 生成令牌
-        String token = loginService.login(loginBody.getUsername(), loginBody.getPassword(), loginBody.getCode(),
-                loginBody.getUuid());
+        String token = loginService.login(command.username(), command.password(), command.code(),
+                command.uuid());
         ajax.put(Constants.TOKEN, token);
         return ajax;
     }
@@ -102,7 +104,7 @@ public class SysLoginController
     public AjaxResult getRouters()
     {
         Long userId = SecurityUtils.getUserId();
-        List<SysMenu> menus = menuService.selectMenuTreeByUserId(userId);
+        List<com.manzhushaka.system.infrastructure.persistence.entity.SysMenu> menus = menuService.selectMenuTreeByUserId(userId);
         return AjaxResult.success(menuService.buildMenus(menus));
     }
 

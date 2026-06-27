@@ -17,7 +17,7 @@ import com.manzhushaka.common.annotation.Log;
 import com.manzhushaka.common.constant.UserConstants;
 import com.manzhushaka.common.core.controller.BaseController;
 import com.manzhushaka.common.core.domain.AjaxResult;
-import com.manzhushaka.common.core.domain.entity.SysMenu;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysMenu;
 import com.manzhushaka.common.enums.BusinessType;
 import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.system.service.ISysMenuService;

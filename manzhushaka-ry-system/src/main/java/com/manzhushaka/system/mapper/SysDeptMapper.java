@@ -2,7 +2,7 @@ package com.manzhushaka.system.mapper;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
-import com.manzhushaka.common.core.domain.entity.SysDept;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysDept;
 
 /**
  * 部门管理 数据层

@@ -1,8 +1,8 @@
 package com.manzhushaka.system.service;
 
 import java.util.List;
-import com.manzhushaka.common.core.domain.TreeSelect;
-import com.manzhushaka.common.core.domain.entity.SysDept;
+import com.manzhushaka.system.infrastructure.persistence.TreeSelect;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysDept;
 
 /**
  * 部门管理 服务层

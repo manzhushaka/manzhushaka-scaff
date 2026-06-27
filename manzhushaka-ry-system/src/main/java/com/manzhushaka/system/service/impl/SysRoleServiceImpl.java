@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.manzhushaka.common.annotation.DataScope;
 import com.manzhushaka.common.constant.UserConstants;
-import com.manzhushaka.common.core.domain.entity.SysRole;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysRole;
 import com.manzhushaka.common.exception.ServiceException;
 import com.manzhushaka.common.utils.SecurityUtils;
 import com.manzhushaka.common.utils.StringUtils;

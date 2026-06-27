@@ -1,7 +1,7 @@
 package com.manzhushaka.system.mapper;
 
 import java.util.List;
-import com.manzhushaka.common.core.domain.entity.SysRole;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysRole;
 
 /**
  * 角色表 数据层

@@ -11,10 +11,9 @@ import com.manzhushaka.common.utils.http.UserAgentUtils;
 import com.manzhushaka.common.utils.ip.AddressUtils;
 import com.manzhushaka.common.utils.ip.IpUtils;
 import com.manzhushaka.common.utils.spring.SpringUtils;
-import com.manzhushaka.system.domain.SysLogininfor;
-import com.manzhushaka.system.domain.SysOperLog;
-import com.manzhushaka.system.service.ISysLogininforService;
-import com.manzhushaka.system.service.ISysOperLogService;
+import com.manzhushaka.framework.web.command.LoginAuditRecord;
+import com.manzhushaka.framework.web.command.OperationAuditRecord;
+import com.manzhushaka.system.application.service.SystemAuditAppService;
 
 /**
  * 异步工厂（产生任务用）
@@ -57,25 +56,9 @@ public class AsyncFactory
                 String os = UserAgentUtils.getOperatingSystem(userAgent);
                 // 获取客户端浏览器
                 String browser = UserAgentUtils.getBrowser(userAgent);
-                // 封装对象
-                SysLogininfor logininfor = new SysLogininfor();
-                logininfor.setUserName(username);
-                logininfor.setIpaddr(ip);
-                logininfor.setLoginLocation(address);
-                logininfor.setBrowser(browser);
-                logininfor.setOs(os);
-                logininfor.setMsg(message);
-                // 日志状态
-                if (StringUtils.equalsAny(status, Constants.LOGIN_SUCCESS, Constants.LOGOUT, Constants.REGISTER))
-                {
-                    logininfor.setStatus(Constants.SUCCESS);
-                }
-                else if (Constants.LOGIN_FAIL.equals(status))
-                {
-                    logininfor.setStatus(Constants.FAIL);
-                }
-                // 插入数据
-                SpringUtils.getBean(ISysLogininforService.class).insertLogininfor(logininfor);
+                // 通过应用服务记录登录审计
+                SpringUtils.getBean(SystemAuditAppService.class).recordLoginAudit(
+                        username, status, message, ip, os, browser, address);
             }
         };
     }
@@ -86,16 +69,19 @@ public class AsyncFactory
      * @param operLog 操作日志信息
      * @return 任务task
      */
-    public static TimerTask recordOper(final SysOperLog operLog)
+    public static TimerTask recordOper(final OperationAuditRecord operLog)
     {
         return new TimerTask()
         {
             @Override
             public void run()
             {
-                // 远程查询操作地点
-                operLog.setOperLocation(AddressUtils.getRealAddressByIP(operLog.getOperIp()));
-                SpringUtils.getBean(ISysOperLogService.class).insertOperlog(operLog);
+                SpringUtils.getBean(SystemAuditAppService.class).recordOperationAudit(
+                        operLog.operIp(), null, operLog.operName(), operLog.deptName(),
+                        operLog.method(), operLog.requestMethod(), operLog.operUrl(),
+                        operLog.operParam(), operLog.jsonResult(), operLog.status(),
+                        operLog.errorMsg(), operLog.businessType(), operLog.title(),
+                        operLog.operatorType(), operLog.costTime());
             }
         };
     }

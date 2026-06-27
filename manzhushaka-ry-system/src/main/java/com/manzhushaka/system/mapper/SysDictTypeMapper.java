@@ -1,7 +1,7 @@
 package com.manzhushaka.system.mapper;
 
 import java.util.List;
-import com.manzhushaka.common.core.domain.entity.SysDictType;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysDictType;
 
 /**
  * 字典表 数据层

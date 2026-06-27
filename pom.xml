@@ -246,6 +246,18 @@
                 <version>${manzhushaka.version}</version>
             </dependency>
 
+            <!-- ========================================================= -->
+            <!-- Spring Boot Test                                           -->
+            <!-- Spring Boot 测试框架，集成 JUnit、Mockito、AssertJ 等     -->
+            <!-- 子模块通过 scope=test 引入，无需重复指定版本。            -->
+            <!-- ========================================================= -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-test</artifactId>
+                <version>${spring-boot.version}</version>
+                <scope>test</scope>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

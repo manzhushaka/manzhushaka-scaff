@@ -1,8 +1,8 @@
 package com.manzhushaka.system.service;
 
 import java.util.List;
-import com.manzhushaka.common.core.domain.entity.SysDictData;
-import com.manzhushaka.common.core.domain.entity.SysDictType;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysDictData;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysDictType;
 
 /**
  * 字典 业务层
