@@ -3,8 +3,8 @@ package com.manzhushaka.system.service.impl;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.manzhushaka.common.core.domain.entity.SysDictData;
-import com.manzhushaka.common.utils.DictUtils;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysDictData;
+import com.manzhushaka.system.infrastructure.persistence.DictUtils;
 import com.manzhushaka.system.mapper.SysDictDataMapper;
 import com.manzhushaka.system.service.ISysDictDataService;
 

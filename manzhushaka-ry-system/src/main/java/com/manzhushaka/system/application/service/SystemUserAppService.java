@@ -1,7 +1,7 @@
 package com.manzhushaka.system.application.service;
 
 import java.util.List;
-import com.manzhushaka.common.core.domain.entity.SysUser;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
 import com.manzhushaka.system.application.command.ChangeUserStatusCommand;
 import com.manzhushaka.system.application.command.CreateUserCommand;
 import com.manzhushaka.system.application.command.ResetPwdCommand;

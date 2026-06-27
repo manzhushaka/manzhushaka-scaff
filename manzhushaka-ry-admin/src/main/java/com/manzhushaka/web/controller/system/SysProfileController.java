@@ -23,6 +23,7 @@ import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.common.utils.file.FileUploadUtils;
 import com.manzhushaka.common.utils.file.FileUtils;
 import com.manzhushaka.common.utils.file.MimeTypeUtils;
+import com.manzhushaka.framework.web.service.SysUserConverter;
 import com.manzhushaka.framework.web.service.TokenService;
 import com.manzhushaka.system.service.ISysUserService;
 
@@ -60,25 +61,31 @@ public class SysProfileController extends BaseController
      */
     @Log(title = "个人信息", businessType = BusinessType.UPDATE)
     @PutMapping
-    public AjaxResult updateProfile(@RequestBody SysUser user)
+    public AjaxResult updateProfile(@RequestBody com.manzhushaka.system.infrastructure.persistence.entity.SysUser user)
     {
         LoginUser loginUser = getLoginUser();
         SysUser currentUser = loginUser.getUser();
-        currentUser.setNickName(user.getNickName());
-        currentUser.setEmail(user.getEmail());
-        currentUser.setPhonenumber(user.getPhonenumber());
-        currentUser.setSex(user.getSex());
-        if (StringUtils.isNotEmpty(user.getPhonenumber()) && !userService.checkPhoneUnique(currentUser))
+        com.manzhushaka.system.infrastructure.persistence.entity.SysUser systemUser =
+                SysUserConverter.toSystem(currentUser);
+        systemUser.setNickName(user.getNickName());
+        systemUser.setEmail(user.getEmail());
+        systemUser.setPhonenumber(user.getPhonenumber());
+        systemUser.setSex(user.getSex());
+        if (StringUtils.isNotEmpty(user.getPhonenumber()) && !userService.checkPhoneUnique(systemUser))
         {
             return error("修改用户'" + loginUser.getUsername() + "'失败，手机号码已存在");
         }
-        if (StringUtils.isNotEmpty(user.getEmail()) && !userService.checkEmailUnique(currentUser))
+        if (StringUtils.isNotEmpty(user.getEmail()) && !userService.checkEmailUnique(systemUser))
         {
             return error("修改用户'" + loginUser.getUsername() + "'失败，邮箱账号已存在");
         }
-        if (userService.updateUserProfile(currentUser) > 0)
+        if (userService.updateUserProfile(systemUser) > 0)
         {
-            // 更新缓存用户信息
+            // 更新缓存用户信息（使用 common 版本 SysUser）
+            currentUser.setNickName(systemUser.getNickName());
+            currentUser.setEmail(systemUser.getEmail());
+            currentUser.setPhonenumber(systemUser.getPhonenumber());
+            currentUser.setSex(systemUser.getSex());
             tokenService.setLoginUser(loginUser);
             return success();
         }
@@ -96,7 +103,7 @@ public class SysProfileController extends BaseController
         String newPassword = params.get("newPassword");
         LoginUser loginUser = getLoginUser();
         Long userId = loginUser.getUserId();
-        SysUser user = userService.selectUserById(userId);
+        com.manzhushaka.system.infrastructure.persistence.entity.SysUser user = userService.selectUserById(userId);
         String password = user.getPassword();
         if (!SecurityUtils.matchesPassword(oldPassword, password))
         {

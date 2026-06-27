@@ -3,7 +3,7 @@ package com.manzhushaka.web.vo.system.user;
 import java.util.Date;
 import java.util.List;
 import com.manzhushaka.system.domain.SysPost;
-import com.manzhushaka.common.core.domain.entity.SysRole;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysRole;
 
 /**
  * 用户详情视图对象

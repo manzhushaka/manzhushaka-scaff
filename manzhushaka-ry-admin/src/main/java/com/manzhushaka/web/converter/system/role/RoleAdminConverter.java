@@ -3,7 +3,7 @@ package com.manzhushaka.web.converter.system.role;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import com.manzhushaka.common.core.domain.entity.SysRole;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysRole;
 import com.manzhushaka.system.application.command.CancelAuthUserCommand;
 import com.manzhushaka.system.application.command.ChangeRoleStatusCommand;
 import com.manzhushaka.system.application.command.CreateRoleCommand;

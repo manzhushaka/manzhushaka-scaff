@@ -2,8 +2,8 @@ package com.manzhushaka.system.service;
 
 import java.util.List;
 import java.util.Set;
-import com.manzhushaka.common.core.domain.TreeSelect;
-import com.manzhushaka.common.core.domain.entity.SysMenu;
+import com.manzhushaka.system.infrastructure.persistence.TreeSelect;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysMenu;
 import com.manzhushaka.system.domain.vo.RouterVo;
 
 /**

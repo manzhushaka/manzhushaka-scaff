@@ -2,7 +2,7 @@ package com.manzhushaka.system.service;
 
 import java.util.Date;
 import java.util.List;
-import com.manzhushaka.common.core.domain.entity.SysUser;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
 
 /**
  * 用户 业务层

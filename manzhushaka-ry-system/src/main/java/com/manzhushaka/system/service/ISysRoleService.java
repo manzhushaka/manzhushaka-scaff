@@ -2,7 +2,7 @@ package com.manzhushaka.system.service;
 
 import java.util.List;
 import java.util.Set;
-import com.manzhushaka.common.core.domain.entity.SysRole;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysRole;
 import com.manzhushaka.system.domain.SysUserRole;
 
 /**

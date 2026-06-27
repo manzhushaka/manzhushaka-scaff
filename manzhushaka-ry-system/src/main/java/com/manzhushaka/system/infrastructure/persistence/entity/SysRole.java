@@ -1,4 +1,4 @@
-package com.manzhushaka.common.core.domain.entity;
+package com.manzhushaka.system.infrastructure.persistence.entity;
 
 import java.util.Set;
 import jakarta.validation.constraints.NotBlank;

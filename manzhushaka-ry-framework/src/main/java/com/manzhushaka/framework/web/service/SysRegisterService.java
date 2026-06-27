@@ -68,9 +68,9 @@ public class SysRegisterService
         else if (password.length() < UserConstants.PASSWORD_MIN_LENGTH
                 || password.length() > UserConstants.PASSWORD_MAX_LENGTH)
         {
-            msg = "密码长度必须在5到20个字符之间";
+            msg = "密码长度必须在5到32个字符之间";
         }
-        else if (!userService.checkUserNameUnique(sysUser))
+        else if (!userService.checkUserNameUnique(SysUserConverter.toSystem(sysUser)))
         {
             msg = "保存用户'" + username + "'失败，注册账号已存在";
         }
@@ -79,7 +79,7 @@ public class SysRegisterService
             sysUser.setNickName(username);
             sysUser.setPwdUpdateDate(DateUtils.getNowDate());
             sysUser.setPassword(SecurityUtils.encryptPassword(password));
-            boolean regFlag = userService.registerUser(sysUser);
+            boolean regFlag = userService.registerUser(SysUserConverter.toSystem(sysUser));
             if (!regFlag)
             {
                 msg = "注册失败,请联系系统管理人员";
@@ -102,14 +102,14 @@ public class SysRegisterService
      */
     public void validateCaptcha(String username, String code, String uuid)
     {
-        String verifyKey = CacheConstants.CAPTCHA_CODE_KEY + StringUtils.nvl(uuid, "");
-        String captcha = redisCache.getCacheObject(verifyKey);
+        String verifyKey = CacheConstants.CAPTCHA_CODE_KEY + StringUtils.defaultString(uuid, "");
+        String capcha = redisCache.getCacheObject(verifyKey);
         redisCache.deleteObject(verifyKey);
-        if (captcha == null)
+        if (capcha == null)
         {
             throw new CaptchaExpireException();
         }
-        if (!code.equalsIgnoreCase(captcha))
+        if (!code.equalsIgnoreCase(capcha))
         {
             throw new CaptchaException();
         }

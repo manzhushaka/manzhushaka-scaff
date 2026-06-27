@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.manzhushaka.common.constant.Constants;
 import com.manzhushaka.common.core.domain.AjaxResult;
-import com.manzhushaka.common.core.domain.entity.SysMenu;
 import com.manzhushaka.common.core.domain.entity.SysUser;
 import com.manzhushaka.common.core.domain.model.LoginUser;
 import com.manzhushaka.common.core.text.Convert;
@@ -105,7 +104,7 @@ public class SysLoginController
     public AjaxResult getRouters()
     {
         Long userId = SecurityUtils.getUserId();
-        List<SysMenu> menus = menuService.selectMenuTreeByUserId(userId);
+        List<com.manzhushaka.system.infrastructure.persistence.entity.SysMenu> menus = menuService.selectMenuTreeByUserId(userId);
         return AjaxResult.success(menuService.buildMenus(menus));
     }
 

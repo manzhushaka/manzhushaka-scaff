@@ -1,4 +1,4 @@
-package com.manzhushaka.common.core.domain.entity;
+package com.manzhushaka.system.infrastructure.persistence.entity;
 
 import java.util.ArrayList;
 import java.util.List;
