@@ -31,7 +31,7 @@ import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.common.utils.ip.IpUtils;
 import com.manzhushaka.framework.manager.AsyncManager;
 import com.manzhushaka.framework.manager.factory.AsyncFactory;
-import com.manzhushaka.system.domain.SysOperLog;
+import com.manzhushaka.framework.web.command.OperationAuditRecord;
 
 /**
  * 操作日志记录处理
@@ -93,39 +93,54 @@ public class LogAspect
             LoginUser loginUser = SecurityUtils.getLoginUser();
 
             // *========数据库日志=========*//
-            SysOperLog operLog = new SysOperLog();
-            operLog.setStatus(BusinessStatus.SUCCESS.ordinal());
+            Integer status = BusinessStatus.SUCCESS.ordinal();
             // 请求的地址
             String ip = IpUtils.getIpAddr();
-            operLog.setOperIp(ip);
-            operLog.setOperUrl(StringUtils.substring(ServletUtils.getRequest().getRequestURI(), 0, 255));
+            String operUrl = StringUtils.substring(ServletUtils.getRequest().getRequestURI(), 0, 255);
+            String operName = null;
+            String deptName = null;
             if (loginUser != null)
             {
-                operLog.setOperName(loginUser.getUsername());
+                operName = loginUser.getUsername();
                 SysUser currentUser = loginUser.getUser();
                 if (StringUtils.isNotNull(currentUser) && StringUtils.isNotNull(currentUser.getDept()))
                 {
-                    operLog.setDeptName(currentUser.getDept().getDeptName());
+                    deptName = currentUser.getDept().getDeptName();
                 }
             }
 
+            String errorMsg = null;
             if (e != null)
             {
-                operLog.setStatus(BusinessStatus.FAIL.ordinal());
-                operLog.setErrorMsg(StringUtils.substring(Convert.toStr(e.getMessage(), ExceptionUtil.getExceptionMessage(e)), 0, 2000));
+                status = BusinessStatus.FAIL.ordinal();
+                errorMsg = StringUtils.substring(Convert.toStr(e.getMessage(), ExceptionUtil.getExceptionMessage(e)), 0, 2000);
             }
             // 设置方法名称
             String className = joinPoint.getTarget().getClass().getName();
             String methodName = joinPoint.getSignature().getName();
-            operLog.setMethod(className + "." + methodName + "()");
+            String method = className + "." + methodName + "()";
             // 设置请求方式
-            operLog.setRequestMethod(ServletUtils.getRequest().getMethod());
-            // 处理设置注解上的参数
-            getControllerMethodDescription(joinPoint, controllerLog, operLog, jsonResult);
+            String requestMethod = ServletUtils.getRequest().getMethod();
             // 设置消耗时间
-            operLog.setCostTime(System.currentTimeMillis() - TIME_THREADLOCAL.get());
+            Long costTime = System.currentTimeMillis() - TIME_THREADLOCAL.get();
+            // 构造操作审计记录（从注解获取的信息在 getControllerMethodDescription 中设置，使用 builder）
+            OperationAuditRecord.Builder builder = OperationAuditRecord.builder()
+                    .operIp(ip)
+                    .operUrl(operUrl)
+                    .operName(operName)
+                    .deptName(deptName)
+                    .status(status)
+                    .errorMsg(errorMsg)
+                    .method(method)
+                    .requestMethod(requestMethod)
+                    .businessType(controllerLog.businessType().ordinal())
+                    .title(controllerLog.title())
+                    .operatorType(controllerLog.operatorType().ordinal())
+                    .costTime(costTime);
+            // 处理设置注解上的参数
+            getControllerMethodDescription(joinPoint, controllerLog, builder, jsonResult);
             // 保存数据库
-            AsyncManager.me().execute(AsyncFactory.recordOper(operLog));
+            AsyncManager.me().execute(AsyncFactory.recordOper(builder.build()));
         }
         catch (Exception exp)
         {
@@ -143,48 +158,43 @@ public class LogAspect
      * 获取注解中对方法的描述信息 用于Controller层注解
      * 
      * @param log 日志
-     * @param operLog 操作日志
+     * @param builder 操作日志记录 builder
      * @throws Exception
      */
-    public void getControllerMethodDescription(JoinPoint joinPoint, Log log, SysOperLog operLog, Object jsonResult) throws Exception
+    public void getControllerMethodDescription(JoinPoint joinPoint, Log log, OperationAuditRecord.Builder builder, Object jsonResult) throws Exception
     {
-        // 设置action动作
-        operLog.setBusinessType(log.businessType().ordinal());
-        // 设置标题
-        operLog.setTitle(log.title());
-        // 设置操作人类别
-        operLog.setOperatorType(log.operatorType().ordinal());
         // 是否需要保存request，参数和值
         if (log.isSaveRequestData())
         {
             // 获取参数的信息，传入到数据库中。
-            setRequestValue(joinPoint, operLog, log.excludeParamNames());
+            setRequestValue(joinPoint, builder, log.excludeParamNames());
         }
         // 是否需要保存response，参数和值
         if (log.isSaveResponseData() && StringUtils.isNotNull(jsonResult))
         {
-            operLog.setJsonResult(StringUtils.substring(JSON.toJSONString(jsonResult), 0, 2000));
+            builder.jsonResult(StringUtils.substring(JSON.toJSONString(jsonResult), 0, 2000));
         }
     }
 
     /**
      * 获取请求的参数，放到log中
      * 
-     * @param operLog 操作日志
+     * @param builder 操作日志记录 builder
      * @throws Exception 异常
      */
-    private void setRequestValue(JoinPoint joinPoint, SysOperLog operLog, String[] excludeParamNames) throws Exception
+    private void setRequestValue(JoinPoint joinPoint, OperationAuditRecord.Builder builder, String[] excludeParamNames) throws Exception
     {
-        String requestMethod = operLog.getRequestMethod();
+        // 注意：requestMethod 还未在 builder 中设置，需要从当前请求获取
+        String requestMethod = ServletUtils.getRequest().getMethod();
         Map<?, ?> paramsMap = ServletUtils.getParamMap(ServletUtils.getRequest());
         if (StringUtils.isEmpty(paramsMap) && StringUtils.equalsAny(requestMethod, HttpMethod.PUT.name(), HttpMethod.POST.name(), HttpMethod.DELETE.name()))
         {
             String params = argsArrayToString(joinPoint.getArgs(), excludeParamNames);
-            operLog.setOperParam(params);
+            builder.operParam(params);
         }
         else
         {
-            operLog.setOperParam(StringUtils.substring(JSON.toJSONString(paramsMap, excludePropertyPreFilter(excludeParamNames)), 0, PARAM_MAX_LENGTH));
+            builder.operParam(StringUtils.substring(JSON.toJSONString(paramsMap, excludePropertyPreFilter(excludeParamNames)), 0, PARAM_MAX_LENGTH));
         }
     }
 
