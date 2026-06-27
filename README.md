@@ -158,3 +158,11 @@ npm run dev
 本项目基于若依开源生态进行二次开发，感谢 `RuoYi` 项目提供的基础能力与开源许可证支持。
 
 当前仓库沿用 `MIT` 许可证，详见 [LICENSE](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/LICENSE)。
+
+## 项目架构约束
+
+本次迁移遵循以下规则，所有新增和修改的代码必须遵守：
+
+- Controller 与 HTTP DTO/VO 统一放在 `manzhushaka-ry-admin`
+- 业务域各自持久化，不新增统一 `db` 模块
+- `common` 不承载业务实体
