@@ -18,8 +18,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 import com.alibaba.fastjson2.JSON;
 import com.manzhushaka.common.annotation.Log;
-import com.manzhushaka.common.core.domain.entity.SysUser;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
 import com.manzhushaka.common.core.domain.model.LoginUser;
+import com.manzhushaka.framework.web.service.SysUserConverter;
 import com.manzhushaka.common.core.text.Convert;
 import com.manzhushaka.common.enums.BusinessStatus;
 import com.manzhushaka.common.enums.HttpMethod;
@@ -102,7 +103,7 @@ public class LogAspect
             if (loginUser != null)
             {
                 operName = loginUser.getUsername();
-                SysUser currentUser = loginUser.getUser();
+                SysUser currentUser = SysUserConverter.toSystem(loginUser.getUser());
                 if (StringUtils.isNotNull(currentUser) && StringUtils.isNotNull(currentUser.getDept()))
                 {
                     deptName = currentUser.getDept().getDeptName();

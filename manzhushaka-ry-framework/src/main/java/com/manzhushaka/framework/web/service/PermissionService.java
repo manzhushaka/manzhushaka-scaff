@@ -4,7 +4,7 @@ import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import com.manzhushaka.common.constant.Constants;
-import com.manzhushaka.common.core.domain.entity.SysRole;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysRole;
 import com.manzhushaka.common.core.domain.model.LoginUser;
 import com.manzhushaka.common.utils.SecurityUtils;
 import com.manzhushaka.common.utils.StringUtils;
@@ -96,7 +96,7 @@ public class PermissionService
         {
             return false;
         }
-        for (SysRole sysRole : loginUser.getUser().getRoles())
+        for (com.manzhushaka.common.core.domain.entity.SysRole sysRole : loginUser.getUser().getRoles())
         {
             String roleKey = sysRole.getRoleKey();
             if (Constants.SUPER_ADMIN.equals(roleKey) || roleKey.equals(StringUtils.trim(role)))

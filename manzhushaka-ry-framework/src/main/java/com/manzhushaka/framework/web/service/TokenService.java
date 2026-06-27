@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import com.manzhushaka.common.constant.CacheConstants;
 import com.manzhushaka.common.constant.Constants;
 import com.manzhushaka.common.core.domain.model.LoginUser;
+import com.manzhushaka.framework.web.service.SysUserConverter;
 import com.manzhushaka.common.core.redis.RedisCache;
 import com.manzhushaka.common.utils.ServletUtils;
 import com.manzhushaka.common.utils.StringUtils;
@@ -262,7 +263,7 @@ public class TokenService
                 continue;
             }
             // 刷新权限缓存
-            loginUser.setPermissions(permissionService.getMenuPermission(loginUser.getUser()));
+            loginUser.setPermissions(permissionService.getMenuPermission(SysUserConverter.toSystem(loginUser.getUser())));
             refreshToken(loginUser);
             log.info("角色[{}]权限变更，已刷新在线用户[{}]的权限缓存", roleId, loginUser.getUsername());
         }

@@ -55,7 +55,7 @@ public class UserDetailsServiceImpl implements UserDetailsService
         }
 
         // SysPasswordService.validate() 需要 common 版本的 SysUser
-        passwordService.validate(SysUserConverter.toCommon(user));
+        passwordService.validate(user);
 
         return createLoginUser(user);
     }
@@ -66,6 +66,6 @@ public class UserDetailsServiceImpl implements UserDetailsService
         com.manzhushaka.common.core.domain.entity.SysUser commonUser =
                 SysUserConverter.toCommon(user);
         return new LoginUser(user.getUserId(), user.getDeptId(), commonUser,
-                permissionService.getMenuPermission(commonUser));
+                permissionService.getMenuPermission(user));
     }
 }

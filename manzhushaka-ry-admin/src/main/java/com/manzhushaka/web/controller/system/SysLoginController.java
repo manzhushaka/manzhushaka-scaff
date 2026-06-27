@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.manzhushaka.common.constant.Constants;
 import com.manzhushaka.common.core.domain.AjaxResult;
-import com.manzhushaka.common.core.domain.entity.SysUser;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
 import com.manzhushaka.common.core.domain.model.LoginUser;
 import com.manzhushaka.common.core.text.Convert;
 import com.manzhushaka.common.utils.DateUtils;
@@ -18,6 +18,7 @@ import com.manzhushaka.common.utils.SecurityUtils;
 import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.framework.web.service.SysLoginService;
 import com.manzhushaka.framework.web.service.SysPermissionService;
+import com.manzhushaka.framework.web.service.SysUserConverter;
 import com.manzhushaka.framework.web.command.LoginCommand;
 import com.manzhushaka.framework.web.service.TokenService;
 import com.manzhushaka.system.service.ISysConfigService;
@@ -75,7 +76,7 @@ public class SysLoginController
     public AjaxResult getInfo()
     {
         LoginUser loginUser = SecurityUtils.getLoginUser();
-        SysUser user = loginUser.getUser();
+        SysUser user = SysUserConverter.toSystem(loginUser.getUser());
         // 角色集合
         Set<String> roles = permissionService.getRolePermission(user);
         // 权限集合

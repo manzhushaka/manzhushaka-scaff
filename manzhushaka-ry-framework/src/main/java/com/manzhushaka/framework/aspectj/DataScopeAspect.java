@@ -10,9 +10,10 @@ import com.manzhushaka.common.annotation.DataScope;
 import com.manzhushaka.common.constant.Constants;
 import com.manzhushaka.common.constant.UserConstants;
 import com.manzhushaka.common.core.domain.BaseEntity;
-import com.manzhushaka.common.core.domain.entity.SysRole;
-import com.manzhushaka.common.core.domain.entity.SysUser;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysRole;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
 import com.manzhushaka.common.core.domain.model.LoginUser;
+import com.manzhushaka.framework.web.service.SysUserConverter;
 import com.manzhushaka.common.core.text.Convert;
 import com.manzhushaka.common.utils.SecurityUtils;
 import com.manzhushaka.common.utils.StringUtils;
@@ -45,7 +46,7 @@ public class DataScopeAspect
         LoginUser loginUser = SecurityUtils.getLoginUser();
         if (StringUtils.isNotNull(loginUser))
         {
-            SysUser currentUser = loginUser.getUser();
+            SysUser currentUser = SysUserConverter.toSystem(loginUser.getUser());
             // 如果是超级管理员，则不过滤数据
             if (StringUtils.isNotNull(currentUser) && !currentUser.isAdmin())
             {

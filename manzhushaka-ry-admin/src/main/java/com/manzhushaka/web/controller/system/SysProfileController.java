@@ -14,7 +14,7 @@ import com.manzhushaka.common.annotation.Log;
 import com.manzhushaka.common.config.ManzhushakaConfig;
 import com.manzhushaka.common.core.controller.BaseController;
 import com.manzhushaka.common.core.domain.AjaxResult;
-import com.manzhushaka.common.core.domain.entity.SysUser;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
 import com.manzhushaka.common.core.domain.model.LoginUser;
 import com.manzhushaka.common.enums.BusinessType;
 import com.manzhushaka.common.utils.DateUtils;
@@ -49,7 +49,7 @@ public class SysProfileController extends BaseController
     public AjaxResult profile()
     {
         LoginUser loginUser = getLoginUser();
-        SysUser user = loginUser.getUser();
+        SysUser user = SysUserConverter.toSystem(loginUser.getUser());
         AjaxResult ajax = AjaxResult.success(user);
         ajax.put("roleGroup", userService.selectUserRoleGroup(loginUser.getUsername()));
         ajax.put("postGroup", userService.selectUserPostGroup(loginUser.getUsername()));
@@ -64,9 +64,8 @@ public class SysProfileController extends BaseController
     public AjaxResult updateProfile(@RequestBody com.manzhushaka.system.infrastructure.persistence.entity.SysUser user)
     {
         LoginUser loginUser = getLoginUser();
-        SysUser currentUser = loginUser.getUser();
-        com.manzhushaka.system.infrastructure.persistence.entity.SysUser systemUser =
-                SysUserConverter.toSystem(currentUser);
+        SysUser currentUser = SysUserConverter.toSystem(loginUser.getUser());
+        com.manzhushaka.system.infrastructure.persistence.entity.SysUser systemUser = currentUser;
         systemUser.setNickName(user.getNickName());
         systemUser.setEmail(user.getEmail());
         systemUser.setPhonenumber(user.getPhonenumber());

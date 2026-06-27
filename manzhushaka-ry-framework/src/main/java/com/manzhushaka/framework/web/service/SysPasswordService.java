@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import com.manzhushaka.common.constant.CacheConstants;
-import com.manzhushaka.common.core.domain.entity.SysUser;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
 import com.manzhushaka.common.core.redis.RedisCache;
 import com.manzhushaka.common.exception.user.UserPasswordNotMatchException;
 import com.manzhushaka.common.exception.user.UserPasswordRetryLimitExceedException;

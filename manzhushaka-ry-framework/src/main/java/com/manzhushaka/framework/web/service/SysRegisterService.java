@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import com.manzhushaka.common.constant.CacheConstants;
 import com.manzhushaka.common.constant.Constants;
 import com.manzhushaka.common.constant.UserConstants;
-import com.manzhushaka.common.core.domain.entity.SysUser;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
 import com.manzhushaka.common.core.redis.RedisCache;
 import com.manzhushaka.common.exception.user.CaptchaException;
 import com.manzhushaka.common.exception.user.CaptchaExpireException;
@@ -70,7 +70,7 @@ public class SysRegisterService
         {
             msg = "密码长度必须在5到32个字符之间";
         }
-        else if (!userService.checkUserNameUnique(SysUserConverter.toSystem(sysUser)))
+        else if (!userService.checkUserNameUnique(sysUser))
         {
             msg = "保存用户'" + username + "'失败，注册账号已存在";
         }
@@ -79,7 +79,7 @@ public class SysRegisterService
             sysUser.setNickName(username);
             sysUser.setPwdUpdateDate(DateUtils.getNowDate());
             sysUser.setPassword(SecurityUtils.encryptPassword(password));
-            boolean regFlag = userService.registerUser(SysUserConverter.toSystem(sysUser));
+            boolean regFlag = userService.registerUser(sysUser);
             if (!regFlag)
             {
                 msg = "注册失败,请联系系统管理人员";
