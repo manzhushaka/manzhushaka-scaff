@@ -1,0 +1,61 @@
+# 数据源配置
+spring:
+    datasource:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.cj.jdbc.Driver
+        druid:
+            # 主库数据源
+            master:
+                url: ${JDBC_MASTER_URL:jdbc:mysql://localhost:3306/ry-vue?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8}
+                username: ${JDBC_MASTER_USERNAME:root}
+                password: ${JDBC_MASTER_PASSWORD:password}
+            # 从库数据源
+            slave:
+                # 从数据源开关/默认关闭
+                enabled: ${JDBC_SLAVE_ENABLED:false}
+                url: ${JDBC_SLAVE_URL:}
+                username: ${JDBC_SLAVE_USERNAME:}
+                password: ${JDBC_SLAVE_PASSWORD:}
+            # 初始连接数
+            initialSize: ${DRUID_INITIAL_SIZE:5}
+            # 最小连接池数量
+            minIdle: ${DRUID_MIN_IDLE:10}
+            # 最大连接池数量
+            maxActive: ${DRUID_MAX_ACTIVE:20}
+            # 配置获取连接等待超时的时间
+            maxWait: ${DRUID_MAX_WAIT:60000}
+            # 配置连接超时时间
+            connectTimeout: ${DRUID_CONNECT_TIMEOUT:30000}
+            # 配置网络超时时间
+            socketTimeout: ${DRUID_SOCKET_TIMEOUT:60000}
+            # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+            timeBetweenEvictionRunsMillis: ${DRUID_TBERM:60000}
+            # 配置一个连接在池中最小生存的时间，单位是毫秒
+            minEvictableIdleTimeMillis: ${DRUID_MIN_EVICTABLE:300000}
+            # 配置一个连接在池中最大生存的时间，单位是毫秒
+            maxEvictableIdleTimeMillis: ${DRUID_MAX_EVICTABLE:900000}
+            # 配置检测连接是否有效
+            validationQuery: ${DRUID_VALIDATION_QUERY:SELECT 1 FROM DUAL}
+            testWhileIdle: ${DRUID_TEST_WHILE_IDLE:true}
+            testOnBorrow: ${DRUID_TEST_ON_BORROW:false}
+            testOnReturn: ${DRUID_TEST_ON_RETURN:false}
+            webStatFilter:
+                enabled: ${DRUID_WEB_STAT_FILTER_ENABLED:true}
+            statViewServlet:
+                enabled: ${DRUID_STAT_VIEW_SERVLET_ENABLED:true}
+                # 设置白名单，不填则允许所有访问
+                allow: ${DRUID_STAT_VIEW_ALLOW:}
+                url-pattern: ${DRUID_STAT_VIEW_URL_PATTERN:/druid/*}
+                # 控制台管理用户名和密码
+                login-username: ${DRUID_STAT_VIEW_USERNAME:manzhushaka}
+                login-password: ${DRUID_STAT_VIEW_PASSWORD:123456}
+            filter:
+                stat:
+                    enabled: ${DRUID_FILTER_STAT_ENABLED:true}
+                    # 慢SQL记录
+                    log-slow-sql: ${DRUID_FILTER_STAT_LOG_SLOW_SQL:true}
+                    slow-sql-millis: ${DRUID_FILTER_STAT_SLOW_SQL_MILLIS:1000}
+                    merge-sql: ${DRUID_FILTER_STAT_MERGE_SQL:true}
+                wall:
+                    config:
+                        multi-statement-allow: ${DRUID_FILTER_WALL_MULTI_STATEMENT_ALLOW:true}

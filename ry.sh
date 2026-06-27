@@ -4,6 +4,7 @@ AppName=manzhushaka-ry-admin.jar
 
 # JVM参数
 JVM_OPTS="-Dname=$AppName  -Duser.timezone=Asia/Shanghai -Xms512m -Xmx1024m -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError -XX:+PrintGCDateStamps  -XX:+PrintGCDetails -XX:NewRatio=1 -XX:SurvivorRatio=30 -XX:+UseParallelGC -XX:+UseParallelOldGC"
+APP_ENV=${APP_ENV:-dev}
 APP_HOME=`pwd`
 LOG_PATH=$APP_HOME/logs/$AppName.log
 
@@ -26,7 +27,7 @@ function start()
 	if [ x"$PID" != x"" ]; then
 	    echo "$AppName is running..."
 	else
-		nohup java $JVM_OPTS -jar $AppName > /dev/null 2>&1 &
+		nohup java $JVM_OPTS -Dspring.profiles.active=$APP_ENV -jar $AppName > /dev/null 2>&1 &
 		echo "Start $AppName success..."
 	fi
 }
