@@ -13,7 +13,7 @@
 
 * 本仓库为前端技术栈 [Vue3](https://v3.cn.vuejs.org) + [Element Plus](https://element-plus.org/zh-CN) + [Vite](https://cn.vitejs.dev) 版本。
 * 配套后端代码仓库地址[RuoYi-Vue](https://gitee.com/y_project/RuoYi-Vue) 或 [RuoYi-Vue-fast](https://gitcode.com/yangzongzhuan/RuoYi-Vue-fast) 版本。
-* 阿里云折扣场：[点我进入](http://aly.ruoyi.vip)，腾讯云秒杀场：[点我进入](http://txy.ruoyi.vip)&nbsp;&nbsp;
+* 阿里云折扣场：[点我进入](http://aly.manzhushaka.vip)，腾讯云秒杀场：[点我进入](http://txy.manzhushaka.vip)&nbsp;&nbsp;
 
 # 版本对比
 
@@ -76,8 +76,8 @@ yarn dev
 - admin/admin123  
 - 陆陆续续收到一些打赏，为了更好的体验已用于演示服务器升级。谢谢各位小伙伴。
 
-演示地址：http://vue.ruoyi.vip  
-文档地址：http://doc.ruoyi.vip
+演示地址：http://vue.manzhushaka.vip  
+文档地址：http://doc.manzhushaka.vip
 
 ## 演示图
 

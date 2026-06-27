@@ -18,7 +18,7 @@
 * 权限认证使用Jwt，支持多终端认证系统。
 * 支持加载动态权限菜单，多方式轻松权限控制。
 * 高效率开发，使用代码生成器可以一键生成前后端代码。
-* 阿里云折扣场：[点我进入](http://aly.ruoyi.vip)，腾讯云秒杀场：[点我进入](http://txy.ruoyi.vip)&nbsp;&nbsp;
+* 阿里云折扣场：[点我进入](http://aly.manzhushaka.vip)，腾讯云秒杀场：[点我进入](http://txy.manzhushaka.vip)&nbsp;&nbsp;
 
 # 版本分支
 
@@ -69,8 +69,8 @@ RuoYi-Vue 前端项目提供 Vue 2.x / 3.x / JavaScript TypeScript 版本均可�
 - admin/admin123  
 - 陆陆续续收到一些打赏，为了更好的体验已用于演示服务器升级。谢谢各位小伙伴。
 
-演示地址：http://vue.ruoyi.vip  
-文档地址：http://doc.ruoyi.vip
+演示地址：http://vue.manzhushaka.vip  
+文档地址：http://doc.manzhushaka.vip
 
 ## 演示图
 

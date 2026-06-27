@@ -23,7 +23,7 @@
           <el-button
             icon="HomeFilled"
             plain
-            @click="goTarget('http://ruoyi.vip')"
+            @click="goTarget('http://manzhushaka.vip')"
             >访问主页</el-button
           >
         </p>
@@ -75,9 +75,9 @@
           <div class="body">
             <p>
               <i class="el-icon-s-promotion"></i> 官网：<el-link
-                href="http://www.ruoyi.vip"
+                href="http://www.manzhushaka.vip"
                 target="_blank"
-                >http://www.ruoyi.vip</el-link
+                >http://www.manzhushaka.vip</el-link
               >
             </p>
             <p>
