@@ -6,7 +6,6 @@ import com.manzhushaka.common.constant.CacheConstants;
 import com.manzhushaka.common.constant.Constants;
 import com.manzhushaka.common.constant.UserConstants;
 import com.manzhushaka.common.core.domain.entity.SysUser;
-import com.manzhushaka.common.core.domain.model.RegisterBody;
 import com.manzhushaka.common.core.redis.RedisCache;
 import com.manzhushaka.common.exception.user.CaptchaException;
 import com.manzhushaka.common.exception.user.CaptchaExpireException;
@@ -16,6 +15,7 @@ import com.manzhushaka.common.utils.SecurityUtils;
 import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.framework.manager.AsyncManager;
 import com.manzhushaka.framework.manager.factory.AsyncFactory;
+import com.manzhushaka.framework.web.command.RegisterCommand;
 import com.manzhushaka.system.service.ISysConfigService;
 import com.manzhushaka.system.service.ISysUserService;
 
@@ -39,9 +39,9 @@ public class SysRegisterService
     /**
      * 注册
      */
-    public String register(RegisterBody registerBody)
+    public String register(RegisterCommand command)
     {
-        String msg = "", username = registerBody.getUsername(), password = registerBody.getPassword();
+        String msg = "", username = command.username(), password = command.password();
         SysUser sysUser = new SysUser();
         sysUser.setUserName(username);
 
@@ -49,7 +49,7 @@ public class SysRegisterService
         boolean captchaEnabled = configService.selectCaptchaEnabled();
         if (captchaEnabled)
         {
-            validateCaptcha(username, registerBody.getCode(), registerBody.getUuid());
+            validateCaptcha(username, command.code(), command.uuid());
         }
 
         if (StringUtils.isEmpty(username))

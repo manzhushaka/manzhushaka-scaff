@@ -6,10 +6,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.manzhushaka.common.core.controller.BaseController;
 import com.manzhushaka.common.core.domain.AjaxResult;
-import com.manzhushaka.common.core.domain.model.RegisterBody;
 import com.manzhushaka.common.utils.StringUtils;
+import com.manzhushaka.framework.web.command.RegisterCommand;
 import com.manzhushaka.framework.web.service.SysRegisterService;
 import com.manzhushaka.system.service.ISysConfigService;
+import com.manzhushaka.web.converter.system.AuthAdminConverter;
+import com.manzhushaka.web.dto.system.RegisterRequest;
 
 /**
  * 注册验证
@@ -26,13 +28,14 @@ public class SysRegisterController extends BaseController
     private ISysConfigService configService;
 
     @PostMapping("/register")
-    public AjaxResult register(@RequestBody RegisterBody user)
+    public AjaxResult register(@RequestBody RegisterRequest request)
     {
         if (!("true".equals(configService.selectConfigByKey("sys.account.registerUser"))))
         {
             return error("当前系统没有开启注册功能！");
         }
-        String msg = registerService.register(user);
+        RegisterCommand command = AuthAdminConverter.toRegisterCommand(request);
+        String msg = registerService.register(command);
         return StringUtils.isEmpty(msg) ? success() : error(msg);
     }
 }
