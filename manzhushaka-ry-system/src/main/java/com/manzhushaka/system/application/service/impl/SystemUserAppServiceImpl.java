@@ -14,6 +14,7 @@ import com.manzhushaka.system.application.command.ResetPwdCommand;
 import com.manzhushaka.system.application.command.UpdateUserCommand;
 import com.manzhushaka.system.application.query.UserListQuery;
 import com.manzhushaka.system.application.service.SystemUserAppService;
+import com.manzhushaka.system.domain.repository.UserRepository;
 import com.manzhushaka.system.service.ISysDeptService;
 import com.manzhushaka.system.service.ISysPostService;
 import com.manzhushaka.system.service.ISysRoleService;
@@ -27,6 +28,9 @@ import com.manzhushaka.system.service.ISysUserService;
 @Service
 public class SystemUserAppServiceImpl implements SystemUserAppService
 {
+    @Autowired
+    private UserRepository userRepository;
+
     @Autowired
     private ISysUserService userService;
 
@@ -55,14 +59,14 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
         {
             user.getParams().put("endTime", query.endTime());
         }
-        return userService.selectUserList(user);
+        return userRepository.selectUserList(user);
     }
 
     @Override
     public SysUser getUserDetail(Long userId)
     {
         userService.checkUserDataScope(userId);
-        return userService.selectUserById(userId);
+        return userRepository.selectUserById(userId);
     }
 
     @Override
@@ -99,7 +103,7 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
             throw new RuntimeException("新增用户'" + user.getUserName() + "'失败，邮箱账号已存在");
         }
 
-        userService.insertUser(user);
+        userRepository.insertUser(user);
         return user.getUserId();
     }
 
@@ -137,14 +141,14 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
             throw new RuntimeException("修改用户'" + user.getUserName() + "'失败，邮箱账号已存在");
         }
 
-        userService.updateUser(user);
+        userRepository.updateUser(user);
     }
 
     @Override
     @Transactional
     public void deleteUser(Long[] userIds)
     {
-        userService.deleteUserByIds(userIds);
+        userRepository.deleteUserByIds(userIds);
     }
 
     @Override
@@ -156,7 +160,7 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
         user.setPassword(SecurityUtils.encryptPassword(command.password()));
         userService.checkUserAllowed(user);
         userService.checkUserDataScope(user.getUserId());
-        userService.resetPwd(user);
+        userRepository.resetUserPwd(user.getUserId(), user.getPassword());
     }
 
     @Override
@@ -168,7 +172,7 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
         user.setStatus(command.status());
         userService.checkUserAllowed(user);
         userService.checkUserDataScope(user.getUserId());
-        userService.updateUserStatus(user);
+        userRepository.updateUserStatus(user.getUserId(), user.getStatus());
     }
 
     @Override
@@ -177,7 +181,7 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
     {
         userService.checkUserDataScope(userId);
         roleService.checkRoleDataScope(roleIds);
-        userService.insertUserAuth(userId, roleIds);
+        userRepository.insertUserAuth(userId, roleIds);
     }
 
     @Override

@@ -13,7 +13,8 @@ import com.manzhushaka.system.application.command.DataScopeCommand;
 import com.manzhushaka.system.application.command.UpdateRoleCommand;
 import com.manzhushaka.system.application.query.RoleListQuery;
 import com.manzhushaka.system.application.service.SystemRoleAppService;
-import com.manzhushaka.system.domain.SysUserRole;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysUserRole;
+import com.manzhushaka.system.domain.repository.RoleRepository;
 import com.manzhushaka.system.service.ISysRoleService;
 import com.manzhushaka.system.service.ISysUserService;
 
@@ -25,6 +26,9 @@ import com.manzhushaka.system.service.ISysUserService;
 @Service
 public class SystemRoleAppServiceImpl implements SystemRoleAppService
 {
+    @Autowired
+    private RoleRepository roleRepository;
+
     @Autowired
     private ISysRoleService roleService;
 
@@ -46,14 +50,14 @@ public class SystemRoleAppServiceImpl implements SystemRoleAppService
         {
             role.getParams().put("endTime", query.endTime());
         }
-        return roleService.selectRoleList(role);
+        return roleRepository.selectRoleList(role);
     }
 
     @Override
     public SysRole getRoleDetail(Long roleId)
     {
         roleService.checkRoleDataScope(roleId);
-        return roleService.selectRoleById(roleId);
+        return roleRepository.selectRoleById(roleId);
     }
 
     @Override
@@ -80,7 +84,7 @@ public class SystemRoleAppServiceImpl implements SystemRoleAppService
             throw new RuntimeException("新增角色'" + role.getRoleName() + "'失败，角色权限已存在");
         }
 
-        roleService.insertRole(role);
+        roleRepository.insertRole(role);
         return role.getRoleId();
     }
 
@@ -111,7 +115,7 @@ public class SystemRoleAppServiceImpl implements SystemRoleAppService
             throw new RuntimeException("修改角色'" + role.getRoleName() + "'失败，角色权限已存在");
         }
 
-        roleService.updateRole(role);
+        roleRepository.updateRole(role);
     }
 
     @Override
@@ -125,7 +129,7 @@ public class SystemRoleAppServiceImpl implements SystemRoleAppService
 
         roleService.checkRoleAllowed(role);
         roleService.checkRoleDataScope(role.getRoleId());
-        roleService.authDataScope(role);
+        roleRepository.authDataScope(role);
     }
 
     @Override
@@ -138,20 +142,20 @@ public class SystemRoleAppServiceImpl implements SystemRoleAppService
 
         roleService.checkRoleAllowed(role);
         roleService.checkRoleDataScope(role.getRoleId());
-        roleService.updateRoleStatus(role);
+        roleRepository.updateRoleStatus(role);
     }
 
     @Override
     @Transactional
     public void deleteRole(Long[] roleIds)
     {
-        roleService.deleteRoleByIds(roleIds);
+        roleRepository.deleteRoleByIds(roleIds);
     }
 
     @Override
     public List<SysRole> selectRoleAll()
     {
-        return roleService.selectRoleAll();
+        return roleRepository.selectRoleAll();
     }
 
     @Override
@@ -179,14 +183,14 @@ public class SystemRoleAppServiceImpl implements SystemRoleAppService
         {
             userRole.setUserId(command.userIds()[0]);
         }
-        roleService.deleteAuthUser(userRole);
+        roleRepository.deleteAuthUser(userRole);
     }
 
     @Override
     @Transactional
     public void cancelAuthUserAll(Long roleId, Long[] userIds)
     {
-        roleService.deleteAuthUsers(roleId, userIds);
+        roleRepository.deleteAuthUsers(roleId, userIds);
     }
 
     @Override
@@ -194,6 +198,6 @@ public class SystemRoleAppServiceImpl implements SystemRoleAppService
     public void selectAuthUserAll(Long roleId, Long[] userIds)
     {
         roleService.checkRoleDataScope(roleId);
-        roleService.insertAuthUsers(roleId, userIds);
+        roleRepository.insertAuthUsers(roleId, userIds);
     }
 }
