@@ -3,7 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>ruoyi</artifactId>
+        <artifactId>manzhushaka-ry</artifactId>
         <groupId>com.manzhushaka</groupId>
         <version>3.9.2</version>
     </parent>
@@ -47,10 +47,6 @@
             <groupId>com.manzhushaka</groupId>
             <artifactId>manzhushaka-ry-quartz</artifactId>
         </dependency>
-
-        <!-- 代码生成-->
-        <dependency>
-            <groupId>com.manzhushaka</groupId>
 
     </dependencies>
 
