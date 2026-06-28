@@ -1,23 +1,25 @@
 <template>
-  <el-tooltip content="主题切换" effect="dark" placement="bottom">
-    <div class="theme-switcher">
-      <button
-        v-for="theme in themes"
-        :key="theme.id"
-        class="theme-swatch"
-        :class="{ active: settingsStore.brandTheme === theme.id }"
-        :aria-pressed="(settingsStore.brandTheme === theme.id).toString()"
-        :style="{ background: theme.gradient }"
-        @click="switchTheme(theme.id)"
-      >
-        <el-tooltip :content="theme.label" effect="dark" placement="top" :popper-options="{
-          modifiers: [{ name: 'offset', options: { offset: [0, 4] } }]
-        }">
-          <span class="theme-swatch-inner"></span>
-        </el-tooltip>
-      </button>
-    </div>
-  </el-tooltip>
+  <div class="theme-switcher">
+    <button
+      v-for="theme in themes"
+      :key="theme.id"
+      type="button"
+      class="theme-swatch"
+      :class="{ active: settingsStore.brandTheme === theme.id }"
+      :aria-label="theme.label"
+      :aria-pressed="(settingsStore.brandTheme === theme.id).toString()"
+      :style="{ background: theme.gradient }"
+      @click="switchTheme(theme.id)"
+      @keydown.enter="switchTheme(theme.id)"
+      @keydown.space.prevent="switchTheme(theme.id)"
+    >
+      <el-tooltip :content="theme.label" effect="dark" placement="top" :popper-options="{
+        modifiers: [{ name: 'offset', options: { offset: [0, 4] } }]
+      }">
+        <span class="theme-swatch-inner"></span>
+      </el-tooltip>
+    </button>
+  </div>
 </template>
 
 <script setup>
@@ -86,5 +88,17 @@ function switchTheme(themeId) {
   width: 100%;
   height: 100%;
   border-radius: inherit;
+}
+
+@media (max-width: 480px) {
+  .theme-switcher {
+    height: 32px;
+    padding: 3px;
+  }
+
+  .theme-swatch {
+    width: 22px;
+    height: 22px;
+  }
 }
 </style>

@@ -60,8 +60,23 @@
   --ui-danger: #ef4444;
   --ui-info: #64748b;
 
+  --ui-chart-1: #0ea5e9;
+  --ui-chart-2: #10b981;
+  --ui-chart-3: #f59e0b;
+  --ui-chart-4: #8b5cf6;
+  --ui-chart-5: #ec4899;
+
   --ui-shadow-panel: 0 12px 28px rgba(15, 59, 96, 0.10);
   --ui-shadow-popover: 0 18px 40px rgba(15, 59, 96, 0.14);
+
+  // color-mix() 静态回退色值
+  --ui-primary-light-3-static: #52c4f0;
+  --ui-primary-light-5-static: #8ed7f5;
+  --ui-primary-light-7-static: #c1e8fa;
+  --ui-border-lighter-static: #e1ecf2;
+  --ui-tag-bg-static: rgba(16, 185, 129, 0.14);
+  --ui-tag-border-static: rgba(16, 185, 129, 0.30);
+  --ui-tree-current-bg-static: rgba(14, 165, 233, 0.14);
 }
 
 // A 琥珀指挥舱 —— 深色控制台，琥珀主色
@@ -92,8 +107,23 @@
   --ui-danger: #f87171;
   --ui-info: #94a3b8;
 
+  --ui-chart-1: #ffb74d;
+  --ui-chart-2: #22c55e;
+  --ui-chart-3: #f59e0b;
+  --ui-chart-4: #a78bfa;
+  --ui-chart-5: #f472b6;
+
   --ui-shadow-panel: 0 16px 36px rgba(0, 0, 0, 0.30);
   --ui-shadow-popover: 0 22px 48px rgba(0, 0, 0, 0.42);
+
+  // color-mix() 静态回退色值
+  --ui-primary-light-3-static: #ffd496;
+  --ui-primary-light-5-static: #ffe6c2;
+  --ui-primary-light-7-static: #fff3e2;
+  --ui-border-lighter-static: rgba(255, 255, 255, 0.07);
+  --ui-tag-bg-static: rgba(34, 197, 94, 0.14);
+  --ui-tag-border-static: rgba(34, 197, 94, 0.30);
+  --ui-tree-current-bg-static: rgba(255, 183, 77, 0.14);
 }
 
 // C 米金账本台 —— 暖白基调，铜金点缀
@@ -124,8 +154,23 @@
   --ui-danger: #dc2626;
   --ui-info: #80664b;
 
+  --ui-chart-1: #c88b3a;
+  --ui-chart-2: #15803d;
+  --ui-chart-3: #b7791f;
+  --ui-chart-4: #7c5cbf;
+  --ui-chart-5: #b25f8a;
+
   --ui-shadow-panel: 0 12px 28px rgba(108, 78, 38, 0.12);
   --ui-shadow-popover: 0 18px 40px rgba(108, 78, 38, 0.18);
+
+  // color-mix() 静态回退色值
+  --ui-primary-light-3-static: #dcaa62;
+  --ui-primary-light-5-static: #e8c490;
+  --ui-primary-light-7-static: #f2ddc0;
+  --ui-border-lighter-static: #e9d9c3;
+  --ui-tag-bg-static: rgba(21, 128, 61, 0.14);
+  --ui-tag-border-static: rgba(21, 128, 61, 0.30);
+  --ui-tree-current-bg-static: rgba(200, 139, 58, 0.14);
 }
 
 // ------------------------------------------------------------
@@ -184,9 +229,20 @@
   background: var(--ui-bg-panel-soft);
 }
 
+.ui-filter-card .el-form-item {
+  margin-right: 12px;
+  margin-bottom: 10px;
+}
+
 // 操作工具条
 .ui-action-bar {
-  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 36px;
+  margin: 12px 0;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 .ui-action-bar + .ui-table-card {
   border-radius: 0 0 var(--ui-radius-panel) var(--ui-radius-panel);
@@ -195,14 +251,28 @@
 // 表格容器
 .ui-table-card {
   overflow: hidden;
-  :deep(.el-table) {
+
+  .el-table {
     border: none;
+    color: var(--ui-text-regular);
+    background: var(--ui-bg-panel);
   }
-  :deep(.el-table th.el-table__cell) {
+
+  .el-table th.el-table__cell {
+    height: 44px;
     background-color: var(--ui-bg-panel-soft) !important;
     color: var(--ui-text-regular);
+    font-size: 13px;
+    font-weight: 600;
   }
-  :deep(.el-table__inner-wrapper::before) {
+
+  .el-table td.el-table__cell {
+    height: var(--ui-table-row-height);
+    color: var(--ui-text-regular);
+    border-bottom: 1px solid var(--ui-border);
+  }
+
+  .el-table__inner-wrapper::before {
     display: none;
   }
 }
@@ -272,7 +342,11 @@
 
 // 树侧栏主题 token 化
 .tree-sidebar {
-  border-right: 1px solid var(--ui-border);
+  width: var(--tree-sidebar-width, 260px);
+  min-width: 220px;
+  max-width: 360px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-panel);
   background: var(--ui-bg-panel);
   .tree-header {
     border-bottom: 1px solid var(--ui-border);
@@ -297,14 +371,14 @@
       background: var(--ui-bg-panel-soft);
     }
   }
-  :deep(.el-tree-node__content) {
+  .el-tree-node__content {
     height: 34px;
     border-radius: var(--ui-radius-control);
     &:hover {
       background: var(--ui-primary-soft);
     }
   }
-  :deep(.el-tree-node.is-current > .el-tree-node__content) {
+  .el-tree-node.is-current > .el-tree-node__content {
     background: color-mix(in srgb, var(--ui-primary) 14%, transparent);
     color: var(--ui-primary);
     .node-icon {
@@ -364,7 +438,40 @@
 }
 
 // ------------------------------------------------------------
-// 5. 移动端响应式（max-width: 991px）
+// 图表色类
+// ------------------------------------------------------------
+.tone-primary  { --tone-bg: linear-gradient(135deg, var(--ui-chart-1) 0%, color-mix(in srgb, var(--ui-chart-1) 70%, #000 30%) 100%); --tone-color: var(--ui-chart-1); }
+.tone-success  { --tone-bg: linear-gradient(135deg, var(--ui-chart-2) 0%, color-mix(in srgb, var(--ui-chart-2) 70%, #000 30%) 100%); --tone-color: var(--ui-chart-2); }
+.tone-warning  { --tone-bg: linear-gradient(135deg, var(--ui-chart-3) 0%, color-mix(in srgb, var(--ui-chart-3) 70%, #000 30%) 100%); --tone-color: var(--ui-chart-3); }
+.tone-accent   { --tone-bg: linear-gradient(135deg, var(--ui-chart-4) 0%, color-mix(in srgb, var(--ui-chart-4) 70%, #000 30%) 100%); --tone-color: var(--ui-chart-4); }
+.tone-supplement { --tone-bg: linear-gradient(135deg, var(--ui-chart-5) 0%, color-mix(in srgb, var(--ui-chart-5) 70%, #000 30%) 100%); --tone-color: var(--ui-chart-5); }
+
+// ------------------------------------------------------------
+// 5. color-mix() 降级回退
+// ------------------------------------------------------------
+// color-mix() 支持率 96%+（2024），此降级处理覆盖剩余 4%
+// 当浏览器不支持 color-mix() 时，使用各主题预设的静态混合色值
+// ------------------------------------------------------------
+@supports not (color-mix(in srgb, red, blue)) {
+  [data-ui-theme] {
+    --el-color-primary-light-3: var(--ui-primary-light-3-static);
+    --el-color-primary-light-5: var(--ui-primary-light-5-static);
+    --el-color-primary-light-7: var(--ui-primary-light-7-static);
+    --el-border-color-lighter: var(--ui-border-lighter-static);
+  }
+
+  .el-tag--success {
+    --el-tag-bg-color: var(--ui-tag-bg-static);
+    --el-tag-border-color: var(--ui-tag-border-static);
+  }
+
+  .tree-sidebar .el-tree-node.is-current > .el-tree-node__content {
+    background: var(--ui-tree-current-bg-static);
+  }
+}
+
+// ------------------------------------------------------------
+// 6. 移动端响应式（max-width: 991px）
 // ------------------------------------------------------------
 @media (max-width: 991px) {
   :root {

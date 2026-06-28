@@ -1,6 +1,6 @@
 <template>
    <div class="app-container">
-      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
+      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px" class="ui-filter-card">
          <el-form-item label="参数名称" prop="configName">
             <el-input
                v-model="queryParams.configName"
@@ -45,7 +45,7 @@
          </el-form-item>
       </el-form>
 
-      <el-row :gutter="10" class="mb8">
+      <el-row :gutter="10" class="mb8 ui-action-bar">
          <el-col :span="1.5">
             <el-button
                type="primary"
@@ -96,6 +96,7 @@
          <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
       </el-row>
 
+      <div class="ui-table-card">
       <el-table v-loading="loading" :data="configList" @selection-change="handleSelectionChange">
          <el-table-column type="selection" width="55" align="center" />
          <el-table-column label="参数主键" align="center" prop="configId" />
@@ -120,6 +121,7 @@
             </template>
          </el-table-column>
       </el-table>
+      </div>
 
       <pagination
          v-show="total > 0"

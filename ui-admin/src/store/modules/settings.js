@@ -8,7 +8,21 @@ const toggleDark = useToggle(isDark)
 
 const { sideTheme, showSettings, navType, tagsView, tagsViewPersist, tagsIcon, tagsViewStyle, fixedHeader, sidebarLogo, dynamicTitle, footerVisible, footerContent } = defaultSettings
 
-const storageSetting = JSON.parse(localStorage.getItem('layout-setting')) || ''
+const BRAND_THEMES = ['cool-tower', 'amber-command', 'gold-ledger']
+
+function normalizeBrandTheme(theme) {
+  return BRAND_THEMES.includes(theme) ? theme : 'cool-tower'
+}
+
+function getStorageSetting() {
+  try {
+    return JSON.parse(localStorage.getItem('layout-setting')) || {}
+  } catch (error) {
+    return {}
+  }
+}
+
+const storageSetting = getStorageSetting()
 
 const useSettingsStore = defineStore(
   'settings',
@@ -29,7 +43,7 @@ const useSettingsStore = defineStore(
       footerVisible: storageSetting.footerVisible === undefined ? footerVisible : storageSetting.footerVisible,
       footerContent: footerContent,
       isDark: isDark.value,
-      brandTheme: storageSetting.brandTheme || 'cool-tower'
+      brandTheme: normalizeBrandTheme(storageSetting.brandTheme)
     }),
     actions: {
       // 修改布局设置
@@ -54,15 +68,12 @@ const useSettingsStore = defineStore(
       },
       // 设置品牌主题
       setBrandTheme(theme) {
-        this.brandTheme = theme
-        // 持久化到 localStorage
-        const storageSetting = JSON.parse(localStorage.getItem('layout-setting')) || ''
-        if (storageSetting) {
-          storageSetting.brandTheme = theme
-          localStorage.setItem('layout-setting', JSON.stringify(storageSetting))
-        } else {
-          localStorage.setItem('layout-setting', JSON.stringify({ brandTheme: theme }))
-        }
+        const nextTheme = normalizeBrandTheme(theme)
+        this.brandTheme = nextTheme
+
+        const storageSetting = getStorageSetting()
+        storageSetting.brandTheme = nextTheme
+        localStorage.setItem('layout-setting', JSON.stringify(storageSetting))
       }
     }
   })

@@ -1,6 +1,6 @@
 <template>
    <div class="app-container">
-      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
+      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px" class="ui-filter-card">
          <el-form-item label="登录地址" prop="ipaddr">
             <el-input
                v-model="queryParams.ipaddr"
@@ -51,7 +51,7 @@
          </el-form-item>
       </el-form>
 
-      <el-row :gutter="10" class="mb8">
+      <el-row :gutter="10" class="mb8 ui-action-bar">
          <el-col :span="1.5">
             <el-button
                type="danger"
@@ -93,6 +93,7 @@
          <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
       </el-row>
 
+      <div class="ui-table-card">
       <el-table ref="logininforRef" v-loading="loading" :data="logininforList" @selection-change="handleSelectionChange" :default-sort="defaultSort" @sort-change="handleSortChange">
          <el-table-column type="selection" width="55" align="center" />
          <el-table-column label="访问编号" align="center" prop="infoId" />
@@ -113,6 +114,7 @@
             </template>
          </el-table-column>
       </el-table>
+      </div>
 
       <pagination
          v-show="total > 0"

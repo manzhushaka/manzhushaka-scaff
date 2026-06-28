@@ -315,7 +315,7 @@
     overflow-y: auto;
 
     &::-webkit-scrollbar-track-piece {
-      background: #d3dce6;
+      background: var(--ui-bg-panel-soft);
     }
 
     &::-webkit-scrollbar {
@@ -323,7 +323,7 @@
     }
 
     &::-webkit-scrollbar-thumb {
-      background: #99a9bf;
+      background: var(--ui-border);
       border-radius: 20px;
     }
   }

@@ -14,7 +14,6 @@
         :class="{ 'active': isActive(tag), 'has-icon': tagsIcon }"
         :to="{ path: tag.path, query: tag.query, fullPath: tag.fullPath }"
         class="tags-view-item"
-        :style="tagActiveStyle(tag)"
         @click.middle="!isAffix(tag) ? closeSelectedTag(tag) : ''"
         @contextmenu.prevent="openMenu(tag, $event)"
       >
@@ -93,7 +92,6 @@ const settingsStore = useSettingsStore()
 
 const visitedViews = computed(() => useTagsViewStore().visitedViews)
 const routes = computed(() => usePermissionStore().routes)
-const theme = computed(() => useSettingsStore().theme)
 const tagsIcon = computed(() => useSettingsStore().tagsIcon)
 const tagsViewPersist = computed(() => useSettingsStore().tagsViewPersist)
 const tagsViewStyle = computed(() => useSettingsStore().tagsViewStyle)
@@ -139,14 +137,6 @@ function handleKeyDown(event) {
 
 function isActive(r) {
   return r.path === route.path
-}
-
-function tagActiveStyle(tag) {
-  if (!isActive(tag) || tagsViewStyle.value !== 'card') return {}
-  return {
-    'background-color': theme.value,
-    'border-color': theme.value
-  }
 }
 
 function isAffix(tag) {

@@ -1,6 +1,6 @@
 <template>
    <div class="app-container">
-      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
+      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" class="ui-filter-card">
          <el-form-item label="字典名称" prop="dictType">
             <el-select v-model="queryParams.dictType" style="width: 200px">
                <el-option
@@ -36,7 +36,7 @@
          </el-form-item>
       </el-form>
 
-      <el-row :gutter="10" class="mb8">
+      <el-row :gutter="10" class="mb8 ui-action-bar">
          <el-col :span="1.5">
             <el-button
                type="primary"
@@ -86,6 +86,7 @@
          <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
       </el-row>
 
+      <div class="ui-table-card">
       <el-table v-loading="loading" :data="dataList" @selection-change="handleSelectionChange">
          <el-table-column type="selection" width="55" align="center" />
          <el-table-column label="字典编码" align="center" prop="dictCode" />
@@ -115,6 +116,7 @@
             </template>
          </el-table-column>
       </el-table>
+      </div>
 
       <pagination
          v-show="total > 0"

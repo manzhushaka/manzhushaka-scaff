@@ -1,6 +1,6 @@
 <template>
    <div class="app-container">
-      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
+      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" class="ui-filter-card">
          <el-form-item label="岗位编码" prop="postCode">
             <el-input
                v-model="queryParams.postCode"
@@ -35,7 +35,7 @@
          </el-form-item>
       </el-form>
 
-      <el-row :gutter="10" class="mb8">
+      <el-row :gutter="10" class="mb8 ui-action-bar">
          <el-col :span="1.5">
             <el-button
                type="primary"
@@ -77,6 +77,7 @@
          <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
       </el-row>
 
+      <div class="ui-table-card">
       <el-table v-loading="loading" :data="postList" @selection-change="handleSelectionChange">
          <el-table-column type="selection" width="55" align="center" />
          <el-table-column label="岗位编号" align="center" prop="postId" />
@@ -100,6 +101,7 @@
             </template>
          </el-table-column>
       </el-table>
+      </div>
 
       <pagination
          v-show="total > 0"

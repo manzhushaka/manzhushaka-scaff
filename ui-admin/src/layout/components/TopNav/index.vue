@@ -6,7 +6,7 @@
     :ellipsis="false"
   >
     <template v-for="(item, index) in topMenus">
-      <el-menu-item :style="{'--theme': theme}" :index="item.path" :key="index" v-if="index < visibleNumber">
+      <el-menu-item :index="item.path" :key="index" v-if="index < visibleNumber">
         <svg-icon
         v-if="item.meta && item.meta.icon && item.meta.icon !== '#'"
         :icon-class="item.meta.icon"/>
@@ -15,7 +15,7 @@
     </template>
 
     <!-- 顶部菜单超出数量折叠 -->
-    <el-sub-menu :style="{'--theme': theme}" index="more" v-if="topMenus.length > visibleNumber">
+    <el-sub-menu index="more" v-if="topMenus.length > visibleNumber">
       <template #title>更多菜单</template>
       <template v-for="(item, index) in topMenus">
         <el-menu-item
@@ -52,8 +52,6 @@ const permissionStore = usePermissionStore()
 const route = useRoute()
 const router = useRouter()
 
-// 主题颜色
-const theme = computed(() => settingsStore.theme)
 // 所有的路由信息
 const routers = computed(() => permissionStore.topbarRouters)
 
@@ -180,14 +178,14 @@ onMounted(() => {
   float: left;
   height: 50px !important;
   line-height: 50px !important;
-  color: #303133 !important;
+  color: var(--ui-text-primary) !important;
   padding: 0 5px !important;
   margin: 0 10px !important;
 }
 
 .topmenu-container.el-menu--horizontal > .el-menu-item.is-active, .el-menu--horizontal > .el-sub-menu.is-active .el-submenu__title {
-  border-bottom: 2px solid #{'var(--theme)'} !important;
-  color: #303133;
+  border-bottom: 2px solid var(--ui-primary) !important;
+  color: var(--ui-text-primary);
 }
 
 /* sub-menu item */
@@ -195,14 +193,14 @@ onMounted(() => {
   float: left;
   height: 50px !important;
   line-height: 50px !important;
-  color: #303133 !important;
+  color: var(--ui-text-primary) !important;
   padding: 0 5px !important;
   margin: 0 10px !important;
 }
 
 /* 背景色隐藏 */
 .topmenu-container.el-menu--horizontal>.el-menu-item:not(.is-disabled):focus, .topmenu-container.el-menu--horizontal>.el-menu-item:not(.is-disabled):hover, .topmenu-container.el-menu--horizontal>.el-submenu .el-submenu__title:hover {
-  background-color: #ffffff;
+  background-color: var(--ui-bg-panel);
 }
 
 /* 图标右间距 */

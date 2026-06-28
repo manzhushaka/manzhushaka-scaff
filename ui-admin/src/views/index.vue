@@ -30,14 +30,14 @@
     <!-- 核心指标 -->
     <div class="kpi-grid">
       <div class="kpi-card" v-for="item in kpiList" :key="item.label">
-        <div class="kpi-icon-wrap" :style="{ background: item.iconBg }">
+        <div class="kpi-icon-wrap" :class="'tone-' + item.tone">
           <svg-icon :icon-class="item.icon" class="kpi-icon" />
         </div>
         <div class="kpi-body">
           <span class="kpi-value">{{ item.value }}</span>
           <span class="kpi-label">{{ item.label }}</span>
         </div>
-        <div class="kpi-trend" :style="{ color: item.trendColor }">
+        <div class="kpi-trend" :class="'tone-' + item.tone">
           {{ item.trend }}
         </div>
       </div>
@@ -88,7 +88,7 @@
           <div class="panel-body">
             <div class="dynamic-list">
               <div class="dynamic-item" v-for="(item, idx) in recentDynamics" :key="idx">
-                <div class="dynamic-dot" :style="{ background: item.dotColor }" />
+                <div class="dynamic-dot" :class="'tone-' + item.tone" />
                 <div class="dynamic-content">
                   <span class="dynamic-text">{{ item.text }}</span>
                   <span class="dynamic-time">{{ item.time }}</span>
@@ -116,7 +116,7 @@
                 :key="item.route"
                 @click="goRoute(item.route)"
               >
-                <div class="quick-icon" :style="{ background: item.iconBg }">
+                <div class="quick-icon" :class="'tone-' + item.tone">
                   <svg-icon :icon-class="item.icon" class="quick-svg" />
                 </div>
                 <span class="quick-label">{{ item.label }}</span>
@@ -149,10 +149,10 @@ else greeting = '晚上好'
 
 // ---------- 核心指标 ----------
 const kpiList = ref([
-  { label: '用户总数', value: '—', icon: 'user', iconBg: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)', trend: '', trendColor: '#10b981' },
-  { label: '角色总数', value: '—', icon: 'peoples', iconBg: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', trend: '', trendColor: '#10b981' },
-  { label: '通知公告', value: '—', icon: 'message', iconBg: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', trend: '', trendColor: '#f59e0b' },
-  { label: '服务状态', value: '正常', icon: 'server', iconBg: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)', trend: '运行中', trendColor: '#10b981' },
+  { label: '用户总数', value: '—', icon: 'user', tone: 'primary', trend: '' },
+  { label: '角色总数', value: '—', icon: 'peoples', tone: 'success', trend: '' },
+  { label: '通知公告', value: '—', icon: 'message', tone: 'warning', trend: '' },
+  { label: '服务状态', value: '正常', icon: 'server', tone: 'accent', trend: '运行中' },
 ])
 
 // ---------- 通知公告 ----------
@@ -185,21 +185,21 @@ function noticeTypeText(type) {
 
 // ---------- 最近动态 ----------
 const recentDynamics = ref([
-  { text: '欢迎使用满招科技后台管理系统', time: '—', dotColor: '#0ea5e9' },
-  { text: '系统运行正常，所有服务在线', time: '—', dotColor: '#10b981' },
-  { text: '建议定期修改密码以保障账户安全', time: '—', dotColor: '#f59e0b' },
+  { text: '欢迎使用满招科技后台管理系统', time: '—', tone: 'primary' },
+  { text: '系统运行正常，所有服务在线', time: '—', tone: 'success' },
+  { text: '建议定期修改密码以保障账户安全', time: '—', tone: 'warning' },
 ])
 
 // ---------- 快捷入口 ----------
 const quickLinks = [
-  { label: '用户管理', route: '/system/user', icon: 'user', iconBg: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' },
-  { label: '角色管理', route: '/system/role', icon: 'peoples', iconBg: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' },
-  { label: '菜单管理', route: '/system/menu', icon: 'tree-table', iconBg: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' },
-  { label: '通知公告', route: '/system/notice', icon: 'message', iconBg: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)' },
-  { label: '服务监控', route: '/monitor/server', icon: 'server', iconBg: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)' },
-  { label: '操作日志', route: '/monitor/operlog', icon: 'log', iconBg: 'linear-gradient(135deg, #14b8a6 0%, #0d9488 100%)' },
-  { label: '登录日志', route: '/monitor/logininfor', icon: 'logininfor', iconBg: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)' },
-  { label: '缓存监控', route: '/monitor/cache', icon: 'redis', iconBg: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)' },
+  { label: '用户管理', route: '/system/user', icon: 'user', tone: 'primary' },
+  { label: '角色管理', route: '/system/role', icon: 'peoples', tone: 'success' },
+  { label: '菜单管理', route: '/system/menu', icon: 'tree-table', tone: 'warning' },
+  { label: '通知公告', route: '/system/notice', icon: 'message', tone: 'accent' },
+  { label: '服务监控', route: '/monitor/server', icon: 'server', tone: 'supplement' },
+  { label: '操作日志', route: '/monitor/operlog', icon: 'log', tone: 'primary' },
+  { label: '登录日志', route: '/monitor/logininfor', icon: 'logininfor', tone: 'success' },
+  { label: '缓存监控', route: '/monitor/cache', icon: 'redis', tone: 'warning' },
 ]
 
 // ---------- 路由跳转 ----------
@@ -224,7 +224,7 @@ loadNotice()
   min-height: 160px;
   padding: 28px 28px;
   border-radius: var(--ui-radius-panel, 8px);
-  background: linear-gradient(135deg, #0f3b60 0%, #0ea5e9 100%);
+  background: linear-gradient(135deg, var(--ui-bg-sidebar) 0%, var(--ui-primary) 100%);
   overflow: hidden;
   margin-bottom: 18px;
 
@@ -359,6 +359,7 @@ loadNotice()
   height: 48px;
   border-radius: 10px;
   flex-shrink: 0;
+  background: var(--tone-bg);
 
   .kpi-icon {
     width: 22px;
@@ -397,6 +398,7 @@ loadNotice()
   white-space: nowrap;
   align-self: flex-start;
   margin-top: 4px;
+  color: var(--tone-color);
 }
 
 // ============================================================
@@ -535,6 +537,7 @@ loadNotice()
   border-radius: 50%;
   flex-shrink: 0;
   margin-top: 5px;
+  background: var(--tone-color);
 }
 
 .dynamic-content {
@@ -593,6 +596,7 @@ loadNotice()
   height: 36px;
   border-radius: 8px;
   flex-shrink: 0;
+  background: var(--tone-bg);
 
   .quick-svg {
     width: 18px;

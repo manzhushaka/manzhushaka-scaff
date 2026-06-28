@@ -97,15 +97,21 @@ function handleCurrentChange(val) {
 
 <style scoped>
 .pagination-container {
-  background: transparent;
+  min-height: 48px;
+  margin-top: 12px;
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  height: 48px;
-  margin-top: 12px;
   padding: 0 4px;
 }
 .pagination-container.hidden {
   display: none;
+}
+
+@media (max-width: 768px) {
+  .pagination-container {
+    justify-content: flex-start;
+    overflow-x: auto;
+  }
 }
 </style>

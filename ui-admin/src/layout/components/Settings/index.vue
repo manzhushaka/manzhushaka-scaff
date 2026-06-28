@@ -1,9 +1,9 @@
 <template>
   <el-drawer v-model="showSettings" :withHeader="false" :lock-scroll="false" direction="rtl" size="300px">
-    <div class="setting-drawer-title">
+    <div v-show="false" class="setting-drawer-title">
       <h3 class="drawer-title">菜单导航设置</h3>
     </div>
-    <div class="nav-wrap">
+    <div v-show="false" class="nav-wrap">
       <el-tooltip content="左侧菜单" placement="bottom">
         <div class="item left" @click="handleNavType(1)" :class="{ activeItem: navType == 1 }">
           <b></b><b></b>
@@ -21,10 +21,10 @@
         </div>
       </el-tooltip>
     </div>
-    <div class="setting-drawer-title">
+    <div v-show="false" class="setting-drawer-title">
       <h3 class="drawer-title">主题风格设置</h3>
     </div>
-    <div class="setting-drawer-block-checbox">
+    <div v-show="false" class="setting-drawer-block-checbox">
       <div class="setting-drawer-block-checbox-item" @click="handleTheme('theme-dark')">
         <img src="@/assets/images/dark.svg" alt="dark" />
         <div v-if="sideTheme === 'theme-dark'" class="setting-drawer-block-checbox-selectIcon" style="display: block;">
@@ -46,11 +46,18 @@
         </div>
       </div>
     </div>
-    <div class="drawer-item">
+    <div v-show="false" class="drawer-item">
       <span>主题颜色</span>
       <span class="comp-style">
         <el-color-picker v-model="theme" :predefine="predefineColors" @change="themeChange"/>
       </span>
+    </div>
+
+    <div class="setting-drawer-title">
+      <h3 class="drawer-title">主题选择</h3>
+    </div>
+    <div class="setting-drawer-block-checbox" style="margin-bottom: 20px;">
+      <ThemeSwitcher />
     </div>
     <el-divider />
 
@@ -127,7 +134,7 @@
 import useAppStore from '@/store/modules/app'
 import useSettingsStore from '@/store/modules/settings'
 import usePermissionStore from '@/store/modules/permission'
-import { handleThemeStyle } from '@/utils/theme'
+import ThemeSwitcher from '@/components/ThemeSwitcher/index.vue'
 
 const { proxy } = getCurrentInstance()
 const appStore = useAppStore()
@@ -135,11 +142,8 @@ const settingsStore = useSettingsStore()
 const permissionStore = usePermissionStore()
 const showSettings = ref(false)
 const navType = ref(settingsStore.navType)
-const theme = ref(settingsStore.theme)
-const sideTheme = ref(settingsStore.sideTheme)
 const tagsViewPersist = ref(settingsStore.tagsViewPersist)
 const storeSettings = computed(() => settingsStore)
-const predefineColors = ref(["#409EFF", "#ff4500", "#ff8c00", "#ffd700", "#90ee90", "#00ced1", "#1e90ff", "#c71585"])
 
 /** 是否需要dynamicTitle */
 function dynamicTitleChange() {
@@ -149,16 +153,6 @@ function dynamicTitleChange() {
 function tagsViewPersistChange(val) {
   settingsStore.tagsViewPersist = val
   tagsViewPersist.value = val
-}
-
-function themeChange(val) {
-  settingsStore.theme = val
-  handleThemeStyle(val)
-}
-
-function handleTheme(val) {
-  settingsStore.sideTheme = val
-  sideTheme.value = val
 }
 
 function handleNavType(val) {
@@ -201,7 +195,8 @@ function saveSetting() {
     "dynamicTitle": storeSettings.value.dynamicTitle,
     "footerVisible": storeSettings.value.footerVisible,
     "sideTheme": storeSettings.value.sideTheme,
-    "theme": storeSettings.value.theme
+    "theme": storeSettings.value.theme,
+    "brandTheme": storeSettings.value.brandTheme
   }
   localStorage.setItem("layout-setting", JSON.stringify(layoutSetting))
   setTimeout(proxy.$modal.closeLoading(), 1000)

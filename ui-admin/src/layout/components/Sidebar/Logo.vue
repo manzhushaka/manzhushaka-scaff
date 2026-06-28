@@ -15,8 +15,6 @@
 
 <script setup>
 import logo from '@/assets/logo/logo.png'
-import useSettingsStore from '@/store/modules/settings'
-import variables from '@/assets/styles/variables.module.scss'
 
 defineProps({
   collapse: {
@@ -26,30 +24,12 @@ defineProps({
 })
 
 const title = import.meta.env.VITE_APP_TITLE
-const settingsStore = useSettingsStore()
-const sideTheme = computed(() => settingsStore.sideTheme)
 
 // 获取Logo背景色
-const getLogoBackground = computed(() => {
-  if (settingsStore.isDark) {
-    return 'var(--sidebar-bg)'
-  }
-  if (settingsStore.navType == 3) {
-    return variables.menuLightBg
-  }
-  return sideTheme.value === 'theme-dark' ? variables.menuBg : variables.menuLightBg
-})
+const getLogoBackground = computed(() => 'var(--ui-bg-sidebar)')
 
 // 获取Logo文字颜色
-const getLogoTextColor = computed(() => {
-  if (settingsStore.isDark) {
-    return 'var(--sidebar-logo-text)'
-  }
-  if (settingsStore.navType == 3) {
-    return variables.menuLightText
-  }
-  return sideTheme.value === 'theme-dark' ? '#fff' : variables.menuLightText
-})
+const getLogoTextColor = computed(() => 'var(--ui-text-inverse)')
 </script>
 
 <style lang="scss" scoped>

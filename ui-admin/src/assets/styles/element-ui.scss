@@ -217,3 +217,51 @@
   min-height: var(--ui-form-control-height, 36px);
   border-radius: var(--ui-radius-control, 6px);
 }
+
+// ============================================================
+// 任务5：组件级参数覆盖增强
+// ============================================================
+
+.el-button {
+  min-height: 32px;
+  padding: 0 12px;
+  font-size: 13px;
+  border-radius: var(--ui-radius-control);
+}
+
+.el-button--primary {
+  --el-button-bg-color: var(--ui-primary);
+  --el-button-border-color: var(--ui-primary);
+  --el-button-hover-bg-color: var(--ui-primary-hover);
+  --el-button-hover-border-color: var(--ui-primary-hover);
+  --el-button-active-bg-color: var(--ui-primary-active);
+  --el-button-active-border-color: var(--ui-primary-active);
+}
+
+.el-input__wrapper,
+.el-select__wrapper {
+  min-height: var(--ui-form-control-height);
+  border-radius: var(--ui-radius-control);
+}
+
+.el-dialog {
+  max-height: calc(100vh - 96px);
+  border-radius: var(--ui-radius-popover);
+  box-shadow: var(--ui-shadow-popover);
+}
+
+.el-overlay {
+  background-color: rgba(15, 23, 42, 0.45);
+}
+
+[data-ui-theme='amber-command'] .el-overlay {
+  background-color: rgba(0, 0, 0, 0.62);
+}
+
+// RightToolbar 工具条右侧区域
+.top-right-btn {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
