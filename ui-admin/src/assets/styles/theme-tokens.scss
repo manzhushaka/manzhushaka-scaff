@@ -1,0 +1,203 @@
+// ============================================================
+// Theme Tokens — 全站视觉系统主题变量
+// ============================================================
+
+// ------------------------------------------------------------
+// 1. 全局基础变量（:root）
+// ------------------------------------------------------------
+:root {
+  --ui-layout-sidebar-width: 224px;
+  --ui-layout-sidebar-collapse-width: 64px;
+  --ui-layout-topbar-height: 60px;
+  --ui-layout-tags-height: 42px;
+  --ui-layout-content-padding: 18px;
+
+  --ui-radius-control: 6px;
+  --ui-radius-panel: 8px;
+  --ui-radius-popover: 8px;
+  --ui-table-row-height: 48px;
+  --ui-form-control-height: 36px;
+
+  --ui-transition-fast: 160ms ease;
+  --ui-transition-normal: 240ms ease;
+}
+
+// 根节点基础文本和背景
+[data-ui-theme] {
+  color: var(--ui-text-primary);
+  background: var(--ui-bg-page);
+}
+
+// ------------------------------------------------------------
+// 2. 三套主题 token
+// ------------------------------------------------------------
+
+// B 冷感控制塔（默认主题）—— 深蓝侧栏 + 浅内容区
+[data-ui-theme='cool-tower'] {
+  --ui-bg-page: #f4f8fb;
+  --ui-bg-panel: #ffffff;
+  --ui-bg-panel-soft: #edf6fb;
+  --ui-bg-sidebar: #0f3b60;
+  --ui-bg-sidebar-deep: #12202f;
+  --ui-bg-topbar: rgba(255, 255, 255, 0.86);
+
+  --ui-text-primary: #0f172a;
+  --ui-text-regular: #334155;
+  --ui-text-secondary: #64748b;
+  --ui-text-inverse: #eaf8ff;
+
+  --ui-border: #d8e6ef;
+  --ui-border-strong: #bfd7e6;
+
+  --ui-primary: #0ea5e9;
+  --ui-primary-hover: #0284c7;
+  --ui-primary-active: #0369a1;
+  --ui-primary-soft: #e0f2fe;
+  --ui-accent: #7dd3fc;
+
+  --ui-success: #10b981;
+  --ui-warning: #f59e0b;
+  --ui-danger: #ef4444;
+  --ui-info: #64748b;
+
+  --ui-shadow-panel: 0 12px 28px rgba(15, 59, 96, 0.10);
+  --ui-shadow-popover: 0 18px 40px rgba(15, 59, 96, 0.14);
+}
+
+// A 琥珀指挥舱 —— 深色控制台，琥珀主色
+[data-ui-theme='amber-command'] {
+  --ui-bg-page: #0e1218;
+  --ui-bg-panel: #151b24;
+  --ui-bg-panel-soft: #1e2633;
+  --ui-bg-sidebar: #0a0d12;
+  --ui-bg-sidebar-deep: #111720;
+  --ui-bg-topbar: rgba(21, 27, 36, 0.90);
+
+  --ui-text-primary: #f8fafc;
+  --ui-text-regular: #cbd5e1;
+  --ui-text-secondary: #94a3b8;
+  --ui-text-inverse: #101418;
+
+  --ui-border: rgba(255, 255, 255, 0.10);
+  --ui-border-strong: rgba(255, 255, 255, 0.18);
+
+  --ui-primary: #ffb74d;
+  --ui-primary-hover: #f59e0b;
+  --ui-primary-active: #d97706;
+  --ui-primary-soft: rgba(255, 183, 77, 0.16);
+  --ui-accent: #ffd271;
+
+  --ui-success: #22c55e;
+  --ui-warning: #f59e0b;
+  --ui-danger: #f87171;
+  --ui-info: #94a3b8;
+
+  --ui-shadow-panel: 0 16px 36px rgba(0, 0, 0, 0.30);
+  --ui-shadow-popover: 0 22px 48px rgba(0, 0, 0, 0.42);
+}
+
+// C 米金账本台 —— 暖白基调，铜金点缀
+[data-ui-theme='gold-ledger'] {
+  --ui-bg-page: #f7f1e6;
+  --ui-bg-panel: #fffdf8;
+  --ui-bg-panel-soft: #f2e6d4;
+  --ui-bg-sidebar: #f4e9d8;
+  --ui-bg-sidebar-deep: #ead8bd;
+  --ui-bg-topbar: rgba(255, 253, 248, 0.90);
+
+  --ui-text-primary: #2f2418;
+  --ui-text-regular: #5c4630;
+  --ui-text-secondary: #80664b;
+  --ui-text-inverse: #fffaf0;
+
+  --ui-border: #e7d6bd;
+  --ui-border-strong: #d5bc93;
+
+  --ui-primary: #c88b3a;
+  --ui-primary-hover: #a96f24;
+  --ui-primary-active: #875519;
+  --ui-primary-soft: #f7e4c3;
+  --ui-accent: #f3c67b;
+
+  --ui-success: #15803d;
+  --ui-warning: #b7791f;
+  --ui-danger: #dc2626;
+  --ui-info: #80664b;
+
+  --ui-shadow-panel: 0 12px 28px rgba(108, 78, 38, 0.12);
+  --ui-shadow-popover: 0 18px 40px rgba(108, 78, 38, 0.18);
+}
+
+// ------------------------------------------------------------
+// 3. Element Plus 变量映射
+// ------------------------------------------------------------
+[data-ui-theme] {
+  --el-color-primary: var(--ui-primary);
+  --el-color-primary-light-3: color-mix(in srgb, var(--ui-primary) 70%, #ffffff 30%);
+  --el-color-primary-light-5: color-mix(in srgb, var(--ui-primary) 45%, #ffffff 55%);
+  --el-color-primary-light-7: color-mix(in srgb, var(--ui-primary) 24%, #ffffff 76%);
+  --el-color-primary-light-9: var(--ui-primary-soft);
+  --el-color-primary-dark-2: var(--ui-primary-active);
+
+  --el-color-success: var(--ui-success);
+  --el-color-warning: var(--ui-warning);
+  --el-color-danger: var(--ui-danger);
+  --el-color-info: var(--ui-info);
+
+  --el-bg-color: var(--ui-bg-panel);
+  --el-bg-color-page: var(--ui-bg-page);
+  --el-bg-color-overlay: var(--ui-bg-panel);
+
+  --el-text-color-primary: var(--ui-text-primary);
+  --el-text-color-regular: var(--ui-text-regular);
+  --el-text-color-secondary: var(--ui-text-secondary);
+
+  --el-border-color: var(--ui-border);
+  --el-border-color-light: var(--ui-border);
+  --el-border-color-lighter: color-mix(in srgb, var(--ui-border) 68%, transparent);
+
+  --el-border-radius-base: var(--ui-radius-control);
+  --el-fill-color-light: var(--ui-bg-panel-soft);
+  --el-fill-color-blank: var(--ui-bg-panel);
+}
+
+// ------------------------------------------------------------
+// 4. 公共样式类
+// ------------------------------------------------------------
+.app-container {
+  min-height: 100%;
+  padding: var(--ui-layout-content-padding);
+  background: var(--ui-bg-page);
+}
+
+.ui-filter-card,
+.ui-table-card,
+.ui-panel-card {
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-panel);
+  background: var(--ui-bg-panel);
+  box-shadow: var(--ui-shadow-panel);
+}
+
+.ui-filter-card {
+  padding: 16px;
+  background: var(--ui-bg-panel-soft);
+}
+
+.el-button--primary {
+  --el-button-bg-color: var(--ui-primary);
+  --el-button-border-color: var(--ui-primary);
+  --el-button-hover-bg-color: var(--ui-primary-hover);
+  --el-button-hover-border-color: var(--ui-primary-hover);
+  --el-button-active-bg-color: var(--ui-primary-active);
+  --el-button-active-border-color: var(--ui-primary-active);
+}
+
+// ------------------------------------------------------------
+// 5. 移动端响应式（max-width: 991px）
+// ------------------------------------------------------------
+@media (max-width: 991px) {
+  :root {
+    --ui-layout-content-padding: 12px;
+  }
+}

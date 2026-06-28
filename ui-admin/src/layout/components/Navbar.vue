@@ -22,6 +22,8 @@
 
         <screenfull id="screenfull" class="right-menu-item hover-effect" />
 
+        <theme-switcher class="right-menu-item hover-effect" />
+
         <el-tooltip content="主题模式" effect="dark" placement="bottom">
           <div class="right-menu-item hover-effect theme-switch-wrapper" @click="toggleTheme">
             <svg-icon v-if="settingsStore.isDark" icon-class="sunny" />
@@ -81,6 +83,8 @@ import useUserStore from '@/store/modules/user'
 import useLockStore from '@/store/modules/lock'
 import useSettingsStore from '@/store/modules/settings'
 import HeaderNotice from './HeaderNotice'
+
+import ThemeSwitcher from '@/components/ThemeSwitcher'
 
 const route = useRoute()
 const router = useRouter()
