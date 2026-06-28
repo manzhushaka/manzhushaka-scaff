@@ -76,6 +76,44 @@ public class SysPasswordService
         return PasswordUtils.matches(rawPassword, user.getPassword());
     }
 
+    /**
+     * 校验密码（接收加密密码字符串，不依赖 SysUser 实体）
+     * <p>
+     * 供 {@code UserDetailsServiceImpl} 在切换到 {@code SystemSecurityQueryService} 后使用。
+     * </p>
+     *
+     * @param encodedPassword 数据库中存储的加密密码
+     */
+    public void validate(String encodedPassword)
+    {
+        Authentication usernamePasswordAuthenticationToken = AuthenticationContextHolder.getContext();
+        String username = usernamePasswordAuthenticationToken.getName();
+        String password = usernamePasswordAuthenticationToken.getCredentials().toString();
+
+        Integer retryCount = redisCache.getCacheObject(getCacheKey(username));
+
+        if (retryCount == null)
+        {
+            retryCount = 0;
+        }
+
+        if (retryCount >= Integer.valueOf(maxRetryCount).intValue())
+        {
+            throw new UserPasswordRetryLimitExceedException(maxRetryCount, lockTime);
+        }
+
+        if (!PasswordUtils.matches(password, encodedPassword))
+        {
+            retryCount = retryCount + 1;
+            redisCache.setCacheObject(getCacheKey(username), retryCount, lockTime, TimeUnit.MINUTES);
+            throw new UserPasswordNotMatchException();
+        }
+        else
+        {
+            clearLoginRecordCache(username);
+        }
+    }
+
     public void clearLoginRecordCache(String loginName)
     {
         if (redisCache.hasKey(getCacheKey(loginName)))

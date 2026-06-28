@@ -2,7 +2,6 @@ package com.manzhushaka.web.controller.system;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,19 +15,18 @@ import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.framework.security.context.SecurityContextHelper;
 import com.manzhushaka.framework.security.model.LoginPrincipal;
 import com.manzhushaka.framework.web.service.SysLoginService;
-import com.manzhushaka.framework.web.service.SysPermissionService;
 import com.manzhushaka.framework.web.service.TokenService;
 import com.manzhushaka.framework.web.command.LoginCommand;
+import com.manzhushaka.system.application.result.auth.AuthUserProfileResult;
+import com.manzhushaka.system.application.service.SystemSecurityQueryService;
 import com.manzhushaka.system.service.ISysConfigService;
 import com.manzhushaka.system.service.ISysMenuService;
-import com.manzhushaka.system.service.ISysUserService;
-import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
 import com.manzhushaka.web.converter.system.AuthAdminConverter;
 import com.manzhushaka.web.dto.system.LoginRequest;
 
 /**
  * 登录验证
- * 
+ *
  * @author manzhushaka
  */
 @RestController
@@ -41,7 +39,7 @@ public class SysLoginController
     private ISysMenuService menuService;
 
     @Autowired
-    private SysPermissionService permissionService;
+    private SystemSecurityQueryService systemSecurityQueryService;
 
     @Autowired
     private TokenService tokenService;
@@ -49,12 +47,9 @@ public class SysLoginController
     @Autowired
     private ISysConfigService configService;
 
-    @Autowired
-    private ISysUserService userService;
-
     /**
      * 登录方法
-     * 
+     *
      * @param loginBody 登录信息
      * @return 结果
      */
@@ -72,34 +67,38 @@ public class SysLoginController
 
     /**
      * 获取用户信息
-     * 
+     *
      * @return 用户信息
      */
     @GetMapping("getInfo")
     public AjaxResult getInfo()
     {
         LoginPrincipal principal = SecurityContextHelper.getPrincipal();
-        // 通过 userId 查询用户完整信息以获取角色和权限
-        SysUser user = null;
+        // 通过系统安全查询服务获取用户认证信息，不再直接操作 SysUser 实体
+        AuthUserProfileResult profile = null;
         if (principal.getUserId() != null) {
-            user = userService.selectUserById(principal.getUserId());
+            profile = systemSecurityQueryService.loadAuthProfileByUserId(principal.getUserId());
         }
         // 角色集合
-        Set<String> roles = permissionService.getRolePermission(user != null ? user : new SysUser());
+        java.util.Set<String> roles = profile != null
+                ? systemSecurityQueryService.loadRoleKeys(profile.userId())
+                : java.util.Collections.emptySet();
         // 权限集合
-        Set<String> permissions = permissionService.getMenuPermission(user != null ? user : new SysUser());
-        if (user != null && !principal.getPermissions().equals(permissions))
+        java.util.Set<String> permissions = profile != null
+                ? systemSecurityQueryService.loadPermissions(profile.userId())
+                : java.util.Collections.emptySet();
+        if (profile != null && !principal.getPermissions().equals(permissions))
         {
             principal.setPermissions(permissions);
             tokenService.refreshToken(principal);
         }
         AjaxResult ajax = AjaxResult.success();
-        ajax.put("user", user);
+        ajax.put("user", profile);
         ajax.put("roles", roles);
         ajax.put("permissions", permissions);
         ajax.put("pwdChrtype", getSysAccountChrtype());
-        ajax.put("isDefaultModifyPwd", user != null ? initPasswordIsModify(user.getPwdUpdateDate()) : false);
-        ajax.put("isPasswordExpired", user != null ? passwordIsExpiration(user.getPwdUpdateDate()) : false);
+        ajax.put("isDefaultModifyPwd", profile != null ? initPasswordIsModify(profile.pwdUpdateDate()) : false);
+        ajax.put("isPasswordExpired", profile != null ? passwordIsExpiration(profile.pwdUpdateDate()) : false);
         return ajax;
     }
 
