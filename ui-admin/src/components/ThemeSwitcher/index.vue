@@ -1,24 +1,27 @@
 <template>
   <div class="theme-switcher">
-    <button
+    <el-tooltip
       v-for="theme in themes"
       :key="theme.id"
-      type="button"
-      class="theme-swatch"
-      :class="{ active: settingsStore.brandTheme === theme.id }"
-      :aria-label="theme.label"
-      :aria-pressed="(settingsStore.brandTheme === theme.id).toString()"
-      :style="{ background: theme.gradient }"
-      @click="switchTheme(theme.id)"
-      @keydown.enter="switchTheme(theme.id)"
-      @keydown.space.prevent="switchTheme(theme.id)"
+      :content="theme.label"
+      effect="dark"
+      placement="top"
+      :popper-options="{ modifiers: [{ name: 'offset', options: { offset: [0, 4] } }] }"
     >
-      <el-tooltip :content="theme.label" effect="dark" placement="top" :popper-options="{
-        modifiers: [{ name: 'offset', options: { offset: [0, 4] } }]
-      }">
+      <button
+        type="button"
+        class="theme-swatch"
+        :class="{ active: settingsStore.brandTheme === theme.id }"
+        :aria-label="theme.label"
+        :aria-pressed="(settingsStore.brandTheme === theme.id).toString()"
+        :style="{ background: theme.gradient }"
+        @click="switchTheme(theme.id)"
+        @keydown.enter="switchTheme(theme.id)"
+        @keydown.space.prevent="switchTheme(theme.id)"
+      >
         <span class="theme-swatch-inner"></span>
-      </el-tooltip>
-    </button>
+      </button>
+    </el-tooltip>
   </div>
 </template>
 

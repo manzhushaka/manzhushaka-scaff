@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.context.annotation.Profile;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,6 +27,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
  * @author manzhushaka
  */
 @Tag(name = "用户信息管理")
+@Profile("dev")
 @RestController
 @RequestMapping("/test/user")
 public class TestController extends BaseController
@@ -36,6 +39,7 @@ public class TestController extends BaseController
     }
     
     @Operation(summary = "获取用户列表")
+    @PreAuthorize("@ss.hasPermi('tool:test:list')")
     @GetMapping("/list")
     public R<List<UserEntity>> userList()
     {

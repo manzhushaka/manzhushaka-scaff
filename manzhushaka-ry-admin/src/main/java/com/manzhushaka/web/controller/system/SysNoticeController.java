@@ -51,12 +51,22 @@ public class SysNoticeController extends BaseController
     }
 
     /**
-     * 根据通知公告编号获取详细信息
+     * 根据通知公告编号获取详细信息（后台管理用）
      */
+    @PreAuthorize("@ss.hasPermi('system:notice:query')")
     @GetMapping(value = "/{noticeId}")
     public AjaxResult getInfo(@PathVariable Long noticeId)
     {
         return success(noticeService.selectNoticeById(noticeId));
+    }
+
+    /**
+     * 获取已发布的公告详情（前台顶部铃铛用，仅允许查看 status='0' 的正常公告）
+     */
+    @GetMapping(value = "/published/{noticeId}")
+    public AjaxResult getPublishedInfo(@PathVariable Long noticeId)
+    {
+        return success(noticeService.selectPublishedNoticeById(noticeId));
     }
 
     /**

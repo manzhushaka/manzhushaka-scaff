@@ -42,13 +42,13 @@ spring:
             webStatFilter:
                 enabled: ${DRUID_WEB_STAT_FILTER_ENABLED:true}
             statViewServlet:
-                enabled: ${DRUID_STAT_VIEW_SERVLET_ENABLED:true}
+                enabled: ${DRUID_STAT_VIEW_SERVLET_ENABLED:false}
                 # 设置白名单，不填则允许所有访问
-                allow: ${DRUID_STAT_VIEW_ALLOW:}
+                allow: ${DRUID_STAT_VIEW_ALLOW:127.0.0.1}
                 url-pattern: ${DRUID_STAT_VIEW_URL_PATTERN:/druid/*}
                 # 控制台管理用户名和密码
-                login-username: ${DRUID_STAT_VIEW_USERNAME:manzhushaka}
-                login-password: ${DRUID_STAT_VIEW_PASSWORD:123456}
+                login-username: ${DRUID_STAT_VIEW_USERNAME:}
+                login-password: ${DRUID_STAT_VIEW_PASSWORD:}
             filter:
                 stat:
                     enabled: ${DRUID_FILTER_STAT_ENABLED:true}

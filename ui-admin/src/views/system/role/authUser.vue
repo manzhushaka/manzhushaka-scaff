@@ -1,7 +1,7 @@
 
 <template>
    <div class="app-container">
-      <el-form :model="queryParams" ref="queryRef" v-show="showSearch" :inline="true">
+      <el-form :model="queryParams" ref="queryRef" v-show="showSearch" :inline="true" class="ui-filter-card">
          <el-form-item label="用户名称" prop="userName">
             <el-input
                v-model="queryParams.userName"
@@ -26,7 +26,7 @@
          </el-form-item>
       </el-form>
 
-      <el-row :gutter="10" class="mb8">
+      <el-row :gutter="10" class="mb8 ui-action-bar">
          <el-col :span="1.5">
             <el-button
                type="primary"
@@ -57,6 +57,7 @@
          <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
       </el-row>
 
+      <div class="ui-table-card">
       <el-table v-loading="loading" :data="userList" @selection-change="handleSelectionChange">
          <el-table-column type="selection" width="55" align="center" />
          <el-table-column label="用户名称" prop="userName" :show-overflow-tooltip="true" />
@@ -87,6 +88,7 @@
          v-model:limit="queryParams.pageSize"
          @pagination="getList"
       />
+      </div>
       <select-user ref="selectRef" :roleId="queryParams.roleId" @ok="handleQuery" />
    </div>
 </template>

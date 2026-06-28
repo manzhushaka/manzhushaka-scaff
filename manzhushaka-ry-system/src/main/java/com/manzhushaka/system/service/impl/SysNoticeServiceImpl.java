@@ -31,6 +31,18 @@ public class SysNoticeServiceImpl implements ISysNoticeService
     }
 
     /**
+     * 查询已发布的公告信息
+     *
+     * @param noticeId 公告ID
+     * @return 公告信息
+     */
+    @Override
+    public SysNotice selectPublishedNoticeById(Long noticeId)
+    {
+        return noticeMapper.selectPublishedNoticeById(noticeId);
+    }
+
+    /**
      * 查询公告列表
      * 
      * @param notice 公告信息

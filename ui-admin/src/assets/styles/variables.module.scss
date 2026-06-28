@@ -227,11 +227,11 @@ html.dark {
     &:not(.tags-view-container--chrome) .tags-view-wrapper .tags-view-item.active {
       background-color: var(--tags-card-active-bg) !important;
       border-color: var(--tags-card-active-border) !important;
-      color: var(--current-color, #409eff) !important;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+      color: var(--ui-primary) !important;
+      box-shadow: var(--ui-shadow-panel);
 
       &::before {
-        background: var(--current-color, #409eff) !important;
+        background: var(--ui-primary) !important;
       }
     }
   }

@@ -1,11 +1,11 @@
 <template>
   <div class="app-container server-monitor-card">
     <el-row :gutter="10">
-      <el-col :span="12" class="card-box">
+      <el-col :xs="24" :sm="24" :md="12" class="card-box">
         <el-card>
           <template #header><Cpu style="width: 1em; height: 1em; vertical-align: middle;" /> <span style="vertical-align: middle;">CPU</span></template>
           <div class="el-table el-table--enable-row-hover el-table--medium">
-            <table cellspacing="0" style="width: 100%;">
+            <table cellspacing="0" class="server-monitor-table">
               <thead>
                 <tr>
                   <th class="el-table__cell is-leaf"><div class="cell">属性</div></th>
@@ -35,11 +35,11 @@
         </el-card>
       </el-col>
 
-      <el-col :span="12" class="card-box">
+      <el-col :xs="24" :sm="24" :md="12" class="card-box">
         <el-card>
           <template #header><Tickets style="width: 1em; height: 1em; vertical-align: middle;" /> <span style="vertical-align: middle;">内存</span></template>
           <div class="el-table el-table--enable-row-hover el-table--medium">
-            <table cellspacing="0" style="width: 100%;">
+            <table cellspacing="0" class="server-monitor-table">
               <thead>
                 <tr>
                   <th class="el-table__cell is-leaf"><div class="cell">属性</div></th>
@@ -78,7 +78,7 @@
         <el-card>
           <template #header><Monitor style="width: 1em; height: 1em; vertical-align: middle;" /> <span style="vertical-align: middle;">服务器信息</span></template>
           <div class="el-table el-table--enable-row-hover el-table--medium">
-            <table cellspacing="0" style="width: 100%;">
+            <table cellspacing="0" class="server-monitor-table">
               <tbody>
                 <tr>
                   <td class="el-table__cell is-leaf"><div class="cell">服务器名称</div></td>
@@ -102,7 +102,7 @@
         <el-card>
           <template #header><CoffeeCup style="width: 1em; height: 1em; vertical-align: middle;" /> <span style="vertical-align: middle;">Java虚拟机信息</span></template>
           <div class="el-table el-table--enable-row-hover el-table--medium">
-            <table cellspacing="0" style="width: 100%;table-layout:fixed;">
+            <table cellspacing="0" class="server-monitor-table">
               <tbody>
                 <tr>
                   <td class="el-table__cell is-leaf"><div class="cell">Java名称</div></td>
@@ -118,15 +118,15 @@
                 </tr>
                 <tr>
                   <td colspan="1" class="el-table__cell is-leaf"><div class="cell">安装路径</div></td>
-                  <td colspan="3" class="el-table__cell is-leaf"><div class="cell" v-if="server.jvm">{{ server.jvm.home }}</div></td>
+                  <td colspan="3" class="el-table__cell is-leaf cell-word-break"><div class="cell" v-if="server.jvm">{{ server.jvm.home }}</div></td>
                 </tr>
                 <tr>
                   <td colspan="1" class="el-table__cell is-leaf"><div class="cell">项目路径</div></td>
-                  <td colspan="3" class="el-table__cell is-leaf"><div class="cell" v-if="server.sys">{{ server.sys.userDir }}</div></td>
+                  <td colspan="3" class="el-table__cell is-leaf cell-word-break"><div class="cell" v-if="server.sys">{{ server.sys.userDir }}</div></td>
                 </tr>
                 <tr>
                   <td colspan="1" class="el-table__cell is-leaf"><div class="cell">运行参数</div></td>
-                  <td colspan="3" class="el-table__cell is-leaf"><div class="cell" v-if="server.jvm">{{ server.jvm.inputArgs }}</div></td>
+                  <td colspan="3" class="el-table__cell is-leaf cell-word-break"><div class="cell" v-if="server.jvm">{{ server.jvm.inputArgs }}</div></td>
                 </tr>
               </tbody>
             </table>
@@ -138,7 +138,7 @@
         <el-card>
           <template #header><MessageBox style="width: 1em; height: 1em; vertical-align: middle;" /> <span style="vertical-align: middle;">磁盘状态</span></template>
           <div class="el-table el-table--enable-row-hover el-table--medium">
-            <table cellspacing="0" style="width: 100%;">
+            <table cellspacing="0" class="server-monitor-table">
               <thead>
                 <tr>
                   <th class="el-table__cell el-table__cell is-leaf"><div class="cell">盘符路径</div></th>
@@ -185,3 +185,13 @@ function getList() {
 
 getList()
 </script>
+
+<style scoped>
+.server-monitor-table {
+  width: 100%;
+}
+
+.cell-word-break .cell {
+  word-break: break-all;
+}
+</style>

@@ -86,7 +86,9 @@ function onNoticeLeave() {
 // 预览公告详情
 function previewNotice(item) {
   if (!item.isRead) {
-    markNoticeRead(item.noticeId).catch(() => {})
+    markNoticeRead(item.noticeId).catch(() => {
+      proxy.$modal.msgError('标记已读失败，请稍后重试')
+    })
     const idx = noticeList.value.indexOf(item)
     if (idx !== -1) noticeList.value[idx] = { ...item, isRead: true }
     unreadCount.value = Math.max(0, unreadCount.value - 1)
@@ -98,7 +100,9 @@ function previewNotice(item) {
 function markAllRead() {
   const ids = noticeList.value.map(n => n.noticeId).join(',')
   if (!ids) return
-  markNoticeReadAll(ids).catch(() => {})
+  markNoticeReadAll(ids).catch(() => {
+    proxy.$modal.msgError('标记已读失败，请稍后重试')
+  })
   noticeList.value = noticeList.value.map(n => ({ ...n, isRead: true }))
   unreadCount.value = 0
 }

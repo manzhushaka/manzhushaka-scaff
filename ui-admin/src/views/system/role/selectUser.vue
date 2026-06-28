@@ -1,7 +1,7 @@
 <template>
    <!-- 授权用户 -->
    <el-dialog title="选择用户" v-model="visible" width="800px" top="5vh" append-to-body>
-      <el-form :model="queryParams" ref="queryRef" :inline="true">
+      <el-form :model="queryParams" ref="queryRef" :inline="true" class="ui-filter-card">
          <el-form-item label="用户名称" prop="userName">
             <el-input
                v-model="queryParams.userName"
@@ -25,7 +25,7 @@
             <el-button icon="Refresh" @click="resetQuery">重置</el-button>
          </el-form-item>
       </el-form>
-      <el-row>
+      <div class="ui-table-card" style="margin-bottom: 12px;">
          <el-table @row-click="clickRow" ref="refTable" :data="userList" @selection-change="handleSelectionChange" height="260px">
             <el-table-column type="selection" width="55"></el-table-column>
             <el-table-column label="用户名称" prop="userName" :show-overflow-tooltip="true" />
@@ -50,7 +50,7 @@
             v-model:limit="queryParams.pageSize"
             @pagination="getList"
          />
-      </el-row>
+     </div>
       <template #footer>
          <div class="dialog-footer">
             <el-button type="primary" @click="handleSelectUser">确 定</el-button>

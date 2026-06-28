@@ -17,6 +17,14 @@ export function getNotice(noticeId) {
   })
 }
 
+// 查询已发布的公告详情（前台顶部铃铛用）
+export function getPublishedNotice(noticeId) {
+  return request({
+    url: '/system/notice/published/' + noticeId,
+    method: 'get'
+  })
+}
+
 // 新增公告
 export function addNotice(data) {
   return request({

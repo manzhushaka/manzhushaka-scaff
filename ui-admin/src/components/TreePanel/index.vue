@@ -551,8 +551,8 @@ onBeforeUnmount(() => {
 .tree-sidebar {
   flex-shrink: 0;
   width: 220px;
-  background: #fff;
-  border-right: 1px solid #e8eaed;
+  background: var(--ui-bg-panel);
+  border-right: 1px solid var(--ui-border);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -589,11 +589,11 @@ onBeforeUnmount(() => {
   transition: background 0.2s;
   
   &:hover {
-    background: rgba(64, 158, 255, 0.3);
+    background: var(--ui-primary-soft, rgba(14, 165, 233, 0.3));
   }
   
   &.active {
-    background: rgba(64, 158, 255, 0.5);
+    background: var(--ui-primary-soft-active, rgba(14, 165, 233, 0.5));
   }
 }
 
@@ -608,14 +608,14 @@ onBeforeUnmount(() => {
   justify-content: center;
   width: 15px;
   height: 20px;
-  background: #fff;
+  background: var(--ui-bg-panel);
   border-radius: 0 4px 4px 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--ui-shadow-panel, 0 1px 3px rgba(0, 0, 0, 0.1));
   transition: all 0.2s ease;
   
   .tree-sidebar.collapsed & {
     right: 0;
-    background: #f7f8fa;
+    background: var(--ui-bg-panel-soft, #f7f8fa);
     border-radius: 0 4px 4px 0;
   }
   
@@ -626,15 +626,15 @@ onBeforeUnmount(() => {
 
 .collapse-button {
   font-size: 20px;
-  color: #909399;
+  color: var(--ui-text-secondary, #909399);
   cursor: pointer;
   padding: 4px;
   border-radius: 4px;
   transition: all 0.2s;
   
   &:hover {
-    color: #409eff;
-    background: #ecf5ff;
+    color: var(--ui-primary);
+    background: var(--ui-primary-bg-subtle, #ecf5ff);
   }
 }
 
