@@ -184,6 +184,176 @@
   background: var(--ui-bg-panel-soft);
 }
 
+// 操作工具条
+.ui-action-bar {
+  margin-bottom: 8px;
+}
+.ui-action-bar + .ui-table-card {
+  border-radius: 0 0 var(--ui-radius-panel) var(--ui-radius-panel);
+}
+
+// 表格容器
+.ui-table-card {
+  overflow: hidden;
+  :deep(.el-table) {
+    border: none;
+  }
+  :deep(.el-table th.el-table__cell) {
+    background-color: var(--ui-bg-panel-soft) !important;
+    color: var(--ui-text-regular);
+  }
+  :deep(.el-table__inner-wrapper::before) {
+    display: none;
+  }
+}
+
+// 空表格最小高度
+.el-table__empty-text {
+  min-height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// 弹窗/抽屉主题 token 兼容
+.el-dialog,
+.el-drawer {
+  --el-dialog-bg-color: var(--ui-bg-panel);
+  --el-drawer-bg-color: var(--ui-bg-panel);
+}
+.el-dialog__header,
+.el-drawer__header {
+  color: var(--ui-text-primary);
+  border-bottom: 1px solid var(--ui-border);
+  margin: 0;
+  padding: 16px 20px;
+}
+.el-dialog__body,
+.el-drawer__body {
+  color: var(--ui-text-regular);
+  padding: 20px;
+}
+.el-dialog__footer,
+.el-drawer__footer {
+  border-top: 1px solid var(--ui-border);
+  padding: 12px 20px;
+}
+
+// 抽屉 header/body/footer
+.el-drawer__header {
+  margin-bottom: 0 !important;
+}
+.el-drawer__body {
+  flex: 1;
+  overflow: auto;
+}
+
+// 状态标签使用主题变量
+.el-tag--success {
+  --el-tag-bg-color: color-mix(in srgb, var(--ui-success) 14%, transparent);
+  --el-tag-text-color: var(--ui-success);
+  --el-tag-border-color: color-mix(in srgb, var(--ui-success) 30%, transparent);
+}
+.el-tag--warning {
+  --el-tag-bg-color: color-mix(in srgb, var(--ui-warning) 14%, transparent);
+  --el-tag-text-color: var(--ui-warning);
+  --el-tag-border-color: color-mix(in srgb, var(--ui-warning) 30%, transparent);
+}
+.el-tag--danger {
+  --el-tag-bg-color: color-mix(in srgb, var(--ui-danger) 14%, transparent);
+  --el-tag-text-color: var(--ui-danger);
+  --el-tag-border-color: color-mix(in srgb, var(--ui-danger) 30%, transparent);
+}
+.el-tag--info {
+  --el-tag-bg-color: color-mix(in srgb, var(--ui-info) 14%, transparent);
+  --el-tag-text-color: var(--ui-info);
+  --el-tag-border-color: color-mix(in srgb, var(--ui-info) 30%, transparent);
+}
+
+// 树侧栏主题 token 化
+.tree-sidebar {
+  border-right: 1px solid var(--ui-border);
+  background: var(--ui-bg-panel);
+  .tree-header {
+    border-bottom: 1px solid var(--ui-border);
+    .tree-title {
+      color: var(--ui-text-primary);
+    }
+    .tree-action-icon {
+      color: var(--ui-text-secondary);
+      &:hover { color: var(--ui-primary); }
+    }
+  }
+  .collapse-button {
+    color: var(--ui-text-secondary);
+    background: var(--ui-bg-panel-soft);
+    &:hover {
+      color: var(--ui-primary);
+      background: var(--ui-primary-soft);
+    }
+  }
+  .tree-search {
+    .el-input__inner {
+      background: var(--ui-bg-panel-soft);
+    }
+  }
+  :deep(.el-tree-node__content) {
+    height: 34px;
+    border-radius: var(--ui-radius-control);
+    &:hover {
+      background: var(--ui-primary-soft);
+    }
+  }
+  :deep(.el-tree-node.is-current > .el-tree-node__content) {
+    background: color-mix(in srgb, var(--ui-primary) 14%, transparent);
+    color: var(--ui-primary);
+    .node-icon {
+      color: var(--ui-primary) !important;
+    }
+  }
+}
+
+// 服务监控卡片主题化
+.server-monitor-card {
+  .el-card {
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius-panel);
+    background: var(--ui-bg-panel);
+    box-shadow: var(--ui-shadow-panel);
+  }
+  .el-card__header {
+    color: var(--ui-text-primary);
+    border-bottom: 1px solid var(--ui-border);
+  }
+  .el-card__body {
+    .text-danger {
+      color: var(--ui-danger) !important;
+      font-weight: 600;
+    }
+  }
+}
+
+// 详情抽屉主题变量
+.detail-drawer {
+  .el-drawer__header {
+    background: var(--ui-bg-panel-soft);
+    color: var(--ui-text-primary);
+  }
+  .section-header {
+    color: var(--ui-primary);
+    border-bottom: 1px solid var(--ui-border);
+  }
+  .info-label {
+    color: var(--ui-text-secondary);
+  }
+  .info-value {
+    color: var(--ui-text-primary);
+    &.plaintext {
+      border-bottom: 1px dashed var(--ui-border);
+    }
+  }
+}
+
 .el-button--primary {
   --el-button-bg-color: var(--ui-primary);
   --el-button-border-color: var(--ui-primary);
