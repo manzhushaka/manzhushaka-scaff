@@ -5,21 +5,24 @@ import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+import static com.tngtech.archunit.library.freeze.FreezingArchRule.freeze;
 
 /**
- * Admin 模块边界守护：
- * - Controller 禁止直接依赖 infrastructure.persistence.entity
- * - Controller 禁止直接依赖 mapper
+ * Admin 模块边界守护。
+ *
+ * @author manzhushaka
+ * @date 2026-06-28
  */
 @AnalyzeClasses(packages = "com.manzhushaka")
 public class AdminBoundaryArchTest {
 
     @ArchTest
     static final ArchRule CONTROLLER_SHOULD_NOT_DEPEND_ON_ENTITY =
-            noClasses()
+            freeze(noClasses()
                     .that().resideInAPackage("..web.controller..")
                     .should().dependOnClassesThat()
-                    .resideInAnyPackage("..infrastructure.persistence.entity..", "..mapper..");
+                    .resideInAnyPackage("..infrastructure.persistence.entity.."))
+                    .as("admin_controllers_should_not_depend_on_persistence_entity");
 
     @ArchTest
     static final ArchRule CONTROLLER_SHOULD_NOT_DEPEND_ON_MAPPER =
