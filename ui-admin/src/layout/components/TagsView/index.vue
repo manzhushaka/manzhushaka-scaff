@@ -370,23 +370,23 @@ function handleScroll() {
 </script>
 
 <style lang="scss" scoped>
-$tags-bar-height: 34px;
+$tags-bar-height: 42px;
 
 .tags-view-container {
   height: $tags-bar-height;
   width: 100%;
-  background: var(--tags-bg, #fff);
-  border-bottom: 1px solid var(--tags-item-border, #d8dce5);
+  background: var(--ui-bg-panel);
+  border-bottom: 1px solid var(--ui-border);
   display: flex;
   align-items: center;
   overflow: hidden;
 
-  $btn-width: 28px;
-  $btn-color: #71717a;
-  $btn-hover-bg: #f0f2f5;
-  $btn-hover-color: #303133;
-  $btn-disabled-color: #c0c4cc;
-  $divider: 1px solid var(--tags-item-border, #d8dce5);
+  $btn-width: 32px;
+  $btn-color: var(--ui-text-secondary);
+  $btn-hover-bg: var(--ui-primary-soft);
+  $btn-hover-color: var(--ui-primary);
+  $btn-disabled-color: var(--ui-border);
+  $divider: 1px solid var(--ui-border);
 
   .tags-nav-btn {
     flex-shrink: 0;
@@ -394,12 +394,14 @@ $tags-bar-height: 34px;
     align-items: center;
     justify-content: center;
     width: $btn-width;
-    height: $tags-bar-height;
+    height: $btn-width;
+    border-radius: 6px;
     cursor: pointer;
     color: $btn-color;
     font-size: 13px;
     user-select: none;
     transition: background 0.15s, color 0.15s;
+    margin: 0 2px;
 
     &:hover:not(.disabled) {
       background: $btn-hover-bg;
@@ -411,8 +413,8 @@ $tags-bar-height: 34px;
       cursor: not-allowed;
     }
 
-    &--left  { border-right: $divider; }
-    &--right { border-left: $divider; }
+    &--left  { border-right: none; }
+    &--right { border-left: none; }
   }
 
   .tags-view-wrapper {
@@ -425,35 +427,41 @@ $tags-bar-height: 34px;
       align-items: center;
       position: relative;
       cursor: pointer;
-      height: 26px;
-      line-height: 26px;
-      border: 1px solid var(--tags-item-border, #d8dce5);
-      color: var(--tags-item-text, #495060);
-      background: var(--tags-item-bg, #fff);
-      padding: 0 8px;
-      font-size: 12px;
-      margin-left: 5px;
-      border-radius: 3px;
+      height: 30px;
+      line-height: 30px;
+      border: 1px solid transparent;
+      color: var(--ui-text-regular);
+      background: transparent;
+      padding: 0 10px;
+      font-size: 13px;
+      margin-left: 0;
+      margin-right: 6px;
+      border-radius: 6px;
       text-decoration: none;
       vertical-align: middle;
-      padding-top: 2px !important;
+      transition: background var(--ui-transition-fast), color var(--ui-transition-fast), border-color var(--ui-transition-fast);
 
       &:first-of-type { margin-left: 6px; }
-      &:last-of-type  { margin-right: 15px; }
+      &:last-of-type  { margin-right: 6px; }
+
+      &:hover {
+        background: var(--ui-primary-soft);
+        color: var(--ui-text-primary);
+      }
     }
   }
 
   &:not(.tags-view-container--chrome) .tags-view-wrapper .tags-view-item.active {
-    background-color: #42b983;
-    color: #fff;
-    border-color: #42b983;
+    background-color: var(--ui-primary-soft);
+    color: var(--ui-primary);
+    border-color: var(--ui-primary);
 
     &::before {
       content: '';
-      background: #fff;
+      background: var(--ui-primary);
       display: inline-block;
-      width: 8px;
-      height: 8px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
       position: relative;
       margin-right: 5px;
@@ -475,13 +483,15 @@ $tags-bar-height: 34px;
     align-items: center;
     justify-content: center;
     width: $btn-width;
-    height: $tags-bar-height;
+    height: $btn-width;
+    border-radius: 6px;
     cursor: pointer;
     color: $btn-color;
     font-size: 13px;
-    border-left: $divider;
+    border-left: none;
     user-select: none;
     transition: background 0.15s, color 0.15s;
+    margin: 0 2px;
 
     &:hover {
       background: $btn-hover-bg;
@@ -490,7 +500,9 @@ $tags-bar-height: 34px;
   }
 
   .tags-refresh-btn {
-    width: 60px;
+    width: auto;
+    padding: 0 10px;
+    gap: 4px;
   }
 
   .contextmenu {
@@ -500,12 +512,12 @@ $tags-bar-height: 34px;
     position: fixed;
     list-style-type: none;
     padding: 5px 0;
-    border-radius: 4px;
+    border-radius: var(--ui-radius-popover, 8px);
     font-size: 12px;
     font-weight: 400;
-    color: var(--tags-item-text, #333);
-    box-shadow: 2px 2px 3px 0 rgba(0, 0, 0, .3);
-    border: 1px solid var(--el-border-color-light, #e4e7ed);
+    color: var(--ui-text-primary);
+    box-shadow: var(--ui-shadow-popover, 2px 2px 3px 0 rgba(0, 0, 0, .3));
+    border: 1px solid var(--ui-border);
 
     li {
       margin: 0;
@@ -513,17 +525,18 @@ $tags-bar-height: 34px;
       cursor: pointer;
 
       &:hover {
-        background: var(--tags-item-hover, #eee);
+        background: var(--ui-primary-soft);
+        color: var(--ui-primary);
       }
     }
   }
 
   &.tags-view-container--chrome {
-    --chrome-strip-bg: #ffffff;
-    --chrome-strip-border: var(--el-border-color-lighter, #e4e7ed);
-    --chrome-tab-active-bg: var(--el-color-primary-light-9);
-    --chrome-tab-text: var(--el-text-color-regular, #606266);
-    --chrome-tab-text-active: var(--el-color-primary);
+    --chrome-strip-bg: var(--ui-bg-panel);
+    --chrome-strip-border: var(--ui-border);
+    --chrome-tab-active-bg: var(--ui-primary-soft);
+    --chrome-tab-text: var(--ui-text-regular);
+    --chrome-tab-text-active: var(--ui-primary);
     --chrome-wing-r: 10px;
 
     overflow: visible;
@@ -536,10 +549,12 @@ $tags-bar-height: 34px;
       height: auto;
       min-height: $tags-bar-height;
       border-color: var(--chrome-strip-border);
+      border-radius: 0;
     }
 
     .tags-action-btn {
       border-color: var(--chrome-strip-border);
+      border-radius: 0;
     }
 
     .tags-view-wrapper {
@@ -549,8 +564,8 @@ $tags-bar-height: 34px;
         justify-content: center;
         position: relative;
         z-index: 1;
-        height: 30px;
-        min-height: 30px;
+        height: 32px;
+        min-height: 32px;
         margin: 0 0 -1px;
         padding: 0 12px;
         font-size: 13px;
@@ -600,19 +615,19 @@ $tags-bar-height: 34px;
         }
 
         &:not(.active) + .tags-view-item:not(.active) {
-          border-left: 1px solid var(--el-border-color-lighter, #e4e7ed);
+          border-left: 1px solid var(--ui-border);
           padding-left: 11px;
         }
 
         &:hover:not(.active) {
-          background: var(--el-fill-color-light, #f5f7fa) !important;
+          background: var(--ui-primary-soft) !important;
           border-radius: 6px 6px 0 0;
-          color: var(--el-text-color-primary, #303133);
+          color: var(--ui-text-primary);
         }
 
         &.active {
-          height: 31px;
-          min-height: 31px;
+          height: 33px;
+          min-height: 33px;
           padding: 0 14px;
           color: var(--chrome-tab-text-active) !important;
           font-weight: 500;
@@ -699,14 +714,14 @@ $tags-bar-height: 34px;
 
 .main-container.fullscreen-mode .app-main {
   position: fixed;
-  top: 34px;
+  top: 42px;
   left: 0;
   right: 0;
   bottom: 0;
   margin: 0 !important;
   padding: 0 !important;
-  height: calc(100vh - 34px) !important;
-  min-height: calc(100vh - 34px) !important;
+  height: calc(100vh - 42px) !important;
+  min-height: calc(100vh - 42px) !important;
   overflow: auto;
 }
 </style>

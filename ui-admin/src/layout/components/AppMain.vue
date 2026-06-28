@@ -36,9 +36,12 @@ function addIframe() {
 </script>
 
 <style lang="scss" scoped>
+$navbar-height: var(--ui-layout-topbar-height, 60px);
+$tags-height: var(--ui-layout-tags-height, 42px);
+$navbar-tags-height: calc($navbar-height + $tags-height);
+
 .app-main {
-  /* 50= navbar  50  */
-  min-height: calc(100vh - 50px);
+  min-height: calc(100vh - $navbar-height);
   width: 100%;
   position: relative;
   overflow: hidden;
@@ -47,7 +50,7 @@ function addIframe() {
 .fixed-header + .app-main {
   overflow-y: auto;
   scrollbar-gutter: auto;
-  height: calc(100vh - 50px);
+  height: calc(100vh - $navbar-height);
   min-height: 0px;
 }
 
@@ -56,18 +59,17 @@ function addIframe() {
 }
 
 .fixed-header + .app-main {
-  margin-top: 50px;
+  margin-top: $navbar-height;
 }
 
 .hasTagsView {
   .app-main {
-    /* 84 = navbar + tags-view = 50 + 34 */
-    min-height: calc(100vh - 84px);
+    min-height: calc(100vh - $navbar-tags-height);
   }
 
   .fixed-header + .app-main {
-    margin-top: 84px;
-    height: calc(100vh - 84px);
+    margin-top: $navbar-tags-height;
+    height: calc(100vh - $navbar-tags-height);
     min-height: 0px;
   }
 }
@@ -92,15 +94,15 @@ function addIframe() {
     .fixed-header + .app-main {
       padding-bottom: max(17px, calc(constant(safe-area-inset-bottom) + 10px));
       padding-bottom: max(17px, calc(env(safe-area-inset-bottom) + 10px));
-      height: calc(100svh - 50px);
-      height: calc(100dvh - 50px);
+      height: calc(100svh - $navbar-height);
+      height: calc(100dvh - $navbar-height);
     }
 
     .hasTagsView .fixed-header + .app-main {
       padding-bottom: max(17px, calc(constant(safe-area-inset-bottom) + 10px));
       padding-bottom: max(17px, calc(env(safe-area-inset-bottom) + 10px));
-      height: calc(100svh - 84px);
-      height: calc(100dvh - 84px);
+      height: calc(100svh - $navbar-tags-height);
+      height: calc(100dvh - $navbar-tags-height);
     }
   }
 }
