@@ -5,7 +5,7 @@
   .main-container {
     min-height: 100%;
     transition: margin-left .28s;
-    margin-left: vars.$base-sidebar-width;
+    margin-left: var(--ui-layout-sidebar-width, 224px);
     position: relative;
   }
 
@@ -15,7 +15,7 @@
 
   .sidebar-container {
     transition: width 0.28s;
-    width: vars.$base-sidebar-width !important;
+    width: var(--ui-layout-sidebar-width, 224px) !important;
     height: 100%;
     position: fixed;
     font-size: 0px;
@@ -24,8 +24,9 @@
     left: 0;
     z-index: 1001;
     overflow: hidden;
-    -webkit-box-shadow: 2px 0 6px rgba(0,21,41,.35);
-    box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.1);
+    border-right: 1px solid color-mix(in srgb, var(--ui-border) 72%, transparent);
+    box-shadow: none;
+    background: var(--ui-bg-sidebar);
 
     // reset element-ui css
     .horizontal-collapse-transition {
@@ -46,7 +47,7 @@
 
     &.has-logo {
       .el-scrollbar {
-        height: calc(100% - 50px);
+        height: calc(100% - 60px);
       }
     }
 
@@ -62,6 +63,8 @@
 
     .svg-icon {
       margin-right: 10px !important;
+      width: 16px !important;
+      height: 16px !important;
     }
 
     .el-menu {
@@ -86,7 +89,7 @@
     .sub-menu-title-noDropdown,
     .el-sub-menu__title {
       &:hover {
-        background-color: rgba(0, 0, 0, 0.06);
+        background-color: color-mix(in srgb, var(--ui-primary-soft) 70%, transparent);
       }
     }
 
@@ -96,26 +99,26 @@
 
     & .nest-menu .el-sub-menu>.el-sub-menu__title,
     & .el-sub-menu .el-menu-item {
-      min-width: vars.$base-sidebar-width !important;
+      min-width: var(--ui-layout-sidebar-width, 224px) !important;
 
       &:hover {
-        background-color: rgba(0, 0, 0, 0.06);
+        background-color: color-mix(in srgb, var(--ui-primary-soft) 70%, transparent);
       }
     }
 
     & .theme-dark .nest-menu .el-sub-menu>.el-sub-menu__title,
     & .theme-dark .el-sub-menu .el-menu-item {
-      background-color: vars.$base-sub-menu-background;
+      background-color: var(--ui-bg-sidebar-deep);
 
       &:hover {
-        background-color: vars.$base-sub-menu-hover !important;
+        background-color: color-mix(in srgb, var(--ui-primary-soft) 70%, transparent) !important;
       }
     }
 
     // theme-dark 深色主题
     &.theme-dark {
       box-shadow: 2px 0 8px rgba(0, 0, 0, 0.4);
-      border-right: none;
+      border-right: 1px solid color-mix(in srgb, var(--ui-border) 72%, transparent);
 
       .el-menu-item.is-active {
         position: relative;
@@ -124,14 +127,14 @@
           content: '';
           position: absolute;
           inset: 0;
-          background-color: var(--current-color-dark-bg, rgba(64, 158, 255, 0.2));
+          background-color: var(--ui-primary-soft);
           pointer-events: none;
           z-index: 1;
         }
       }
 
       .el-sub-menu.is-active > .el-sub-menu__title {
-        color: var(--current-color, #409eff) !important;
+        color: var(--ui-primary) !important;
       }
 
       .el-menu-item:not(.is-active),
@@ -150,52 +153,52 @@
         }
 
         &:hover::before {
-          background-color: var(--current-color-dark-bg, rgba(64, 158, 255, 0.2));
+          background-color: color-mix(in srgb, var(--ui-primary-soft) 70%, transparent);
         }
       }
     }
     
     // theme-light 浅色主题
     &.theme-light {
-      border-right: 1px solid #e8eaf0;
+      border-right: 1px solid color-mix(in srgb, var(--ui-border) 72%, transparent);
       box-shadow: none;
 
       .el-menu-item,
       .el-sub-menu__title {
-        color: rgba(0, 0, 0, 0.65);
+        color: var(--ui-text-regular);
       }
 
       .el-menu-item.is-active {
-        color: var(--current-color, #409eff) !important;
+        color: var(--ui-primary) !important;
         position: relative;
 
         &::before {
           content: '';
           position: absolute;
           inset: 0;
-          background-color: var(--current-color-light, #ecf5ff);
+          background-color: var(--ui-primary-soft);
           pointer-events: none;
           z-index: 1;
         }
       }
 
       .el-sub-menu.is-active > .el-sub-menu__title {
-        color: var(--current-color, #409eff) !important;
+        color: var(--ui-primary) !important;
       }
 
       .el-menu-item:not(.is-active):hover,
       .submenu-title-noDropdown:hover,
       .el-sub-menu__title:hover {
-        background-color: #f5f7fa;
-        color: rgba(0, 0, 0, 0.85) !important;
+        background-color: color-mix(in srgb, var(--ui-primary-soft) 70%, transparent);
+        color: var(--ui-text-primary) !important;
       }
 
       .nest-menu .el-sub-menu > .el-sub-menu__title,
       .el-sub-menu .el-menu-item {
-        background-color: #fafafa;
+        background-color: var(--ui-bg-sidebar-deep);
 
         &:hover {
-          background-color: #f0f5ff;
+          background-color: color-mix(in srgb, var(--ui-primary-soft) 70%, transparent);
         }
       }
     }
@@ -203,11 +206,11 @@
 
   .hideSidebar {
     .sidebar-container {
-      width: 54px !important;
+      width: var(--ui-layout-sidebar-collapse-width, 64px) !important;
     }
 
     .main-container {
-      margin-left: 54px;
+      margin-left: var(--ui-layout-sidebar-collapse-width, 64px);
     }
 
     .sub-menu-title-noDropdown {
@@ -259,7 +262,7 @@
   }
 
   .el-menu--collapse .el-menu .el-sub-menu {
-    min-width: vars.$base-sidebar-width !important;
+    min-width: var(--ui-layout-sidebar-width, 224px) !important;
   }
 
   // mobile responsive
@@ -270,14 +273,14 @@
 
     .sidebar-container {
       transition: transform .28s;
-      width: vars.$base-sidebar-width !important;
+      width: var(--ui-layout-sidebar-width, 224px) !important;
     }
 
     &.hideSidebar {
       .sidebar-container {
         pointer-events: none;
         transition-duration: 0.3s;
-        transform: translate3d(-(vars.$base-sidebar-width), 0, 0);
+        transform: translate3d(calc(-1 * var(--ui-layout-sidebar-width, 224px)), 0, 0);
       }
     }
   }
@@ -302,8 +305,7 @@
   .nest-menu .el-sub-menu>.el-sub-menu__title,
   .el-menu-item {
     &:hover {
-      // you can use $sub-menuHover
-      background-color: rgba(0, 0, 0, 0.06) !important;
+      background-color: color-mix(in srgb, var(--ui-primary-soft) 70%, transparent) !important;
     }
   }
 

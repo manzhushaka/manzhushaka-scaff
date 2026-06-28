@@ -28,7 +28,8 @@ const useSettingsStore = defineStore(
       dynamicTitle: storageSetting.dynamicTitle === undefined ? dynamicTitle : storageSetting.dynamicTitle,
       footerVisible: storageSetting.footerVisible === undefined ? footerVisible : storageSetting.footerVisible,
       footerContent: footerContent,
-      isDark: isDark.value
+      isDark: isDark.value,
+      brandTheme: storageSetting.brandTheme || 'cool-tower'
     }),
     actions: {
       // 修改布局设置
@@ -50,6 +51,18 @@ const useSettingsStore = defineStore(
         nextTick(() => {
           handleThemeStyle(this.theme)
         })
+      },
+      // 设置品牌主题
+      setBrandTheme(theme) {
+        this.brandTheme = theme
+        // 持久化到 localStorage
+        const storageSetting = JSON.parse(localStorage.getItem('layout-setting')) || ''
+        if (storageSetting) {
+          storageSetting.brandTheme = theme
+          localStorage.setItem('layout-setting', JSON.stringify(storageSetting))
+        } else {
+          localStorage.setItem('layout-setting', JSON.stringify({ brandTheme: theme }))
+        }
       }
     }
   })

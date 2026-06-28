@@ -82,22 +82,45 @@ const activeMenu = computed(() => {
     width: 100% !important;
     
     .el-menu-item, .el-sub-menu__title {
+      border-radius: 6px;
+      margin: 2px 4px;
+      width: calc(100% - 8px);
+
       &:hover {
-        background-color: var(--menu-hover, rgba(0, 0, 0, 0.06)) !important;
+        background-color: color-mix(in srgb, var(--ui-primary-soft) 70%, transparent) !important;
       }
     }
 
     .el-menu-item {
       color: v-bind(getMenuTextColor);
+      height: 44px !important;
+      line-height: 44px !important;
       
       &.is-active {
-        color: var(--menu-active-text, #409eff);
-        background-color: var(--menu-hover, rgba(0, 0, 0, 0.06)) !important;
+        color: var(--ui-primary) !important;
+        background-color: var(--ui-primary-soft) !important;
+        position: relative;
+
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 3px;
+          height: 20px;
+          border-radius: 999px;
+          background: var(--ui-primary);
+          pointer-events: none;
+          z-index: 2;
+        }
       }
     }
 
     .el-sub-menu__title {
       color: v-bind(getMenuTextColor);
+      height: 44px !important;
+      line-height: 44px !important;
     }
   }
 }

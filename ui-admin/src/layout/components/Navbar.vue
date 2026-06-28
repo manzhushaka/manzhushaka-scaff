@@ -22,6 +22,8 @@
 
         <screenfull id="screenfull" class="right-menu-item hover-effect" />
 
+        <theme-switcher class="right-menu-item hover-effect" />
+
         <el-tooltip content="主题模式" effect="dark" placement="bottom">
           <div class="right-menu-item hover-effect theme-switch-wrapper" @click="toggleTheme">
             <svg-icon v-if="settingsStore.isDark" icon-class="sunny" />
@@ -81,6 +83,8 @@ import useUserStore from '@/store/modules/user'
 import useLockStore from '@/store/modules/lock'
 import useSettingsStore from '@/store/modules/settings'
 import HeaderNotice from './HeaderNotice'
+
+import ThemeSwitcher from '@/components/ThemeSwitcher'
 
 const route = useRoute()
 const router = useRouter()
@@ -181,21 +185,22 @@ async function toggleTheme(event) {
 }
 
 .navbar {
-  height: 50px;
+  height: 60px;
   overflow: hidden;
   position: relative;
-  background: var(--navbar-bg);
-  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  background: var(--ui-bg-topbar);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--ui-border);
   display: flex;
   align-items: center;
-  // padding: 0 8px;
   box-sizing: border-box;
 
   .hamburger-container {
-    line-height: 46px;
+    line-height: 56px;
     height: 100%;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: background var(--ui-transition-fast);
     -webkit-tap-highlight-color: transparent;
     display: flex;
     align-items: center;
@@ -203,12 +208,18 @@ async function toggleTheme(event) {
     margin-right: 8px;
 
     &:hover {
-      background: rgba(0, 0, 0, 0.025);
+      background: var(--ui-primary-soft);
     }
   }
 
   .breadcrumb-container {
     flex-shrink: 0;
+    :deep(.el-breadcrumb__item) {
+      .el-breadcrumb__inner {
+        font-size: 13px;
+        line-height: 20px;
+      }
+    }
   }
 
   .topmenu-container {
@@ -227,35 +238,42 @@ async function toggleTheme(event) {
 
   .right-menu {
     height: 100%;
-    line-height: 50px;
+    line-height: 60px;
     display: flex;
     align-items: center;
     margin-left: auto;
+    gap: 6px;
+    padding-right: 8px;
 
     &:focus {
       outline: none;
     }
 
     .right-menu-item {
-      display: inline-block;
-      padding: 0 8px;
-      height: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      padding: 0;
       font-size: 18px;
-      color: #5a5e66;
-      vertical-align: text-bottom;
+      color: var(--ui-text-secondary, #5a5e66);
+      border-radius: 6px;
+      transition: background var(--ui-transition-fast), color var(--ui-transition-fast);
 
       &.hover-effect {
         cursor: pointer;
-        transition: background 0.3s;
 
         &:hover {
-          background: rgba(0, 0, 0, 0.025);
+          background: var(--ui-primary-soft);
+          color: var(--ui-primary);
         }
       }
 
       &.theme-switch-wrapper {
         display: flex;
         align-items: center;
+        justify-content: center;
 
         svg {
           transition: transform 0.3s;
@@ -268,35 +286,40 @@ async function toggleTheme(event) {
     }
 
     .avatar-container {
-      margin-right: 0px;
-      padding-right: 0px;
+      width: auto;
+      height: auto;
+      padding: 0 4px;
+      gap: 0;
+      display: flex;
+      align-items: center;
+
+      &:hover {
+        background: transparent;
+      }
 
       .avatar-wrapper {
-        margin-top: 10px;
-        right: 8px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
         position: relative;
 
         .user-avatar {
           cursor: pointer;
-          width: 30px;
-          height: 30px;
-          margin-right: 8px;
+          width: 32px;
+          height: 32px;
           border-radius: 50%;
+          flex-shrink: 0;
         }
 
         .user-nickname{
-          position: relative;
-          left: 0px;
-          bottom: 10px;
-          font-size: 14px;
-          font-weight: bold;
+          font-size: 13px;
+          font-weight: 500;
+          color: var(--ui-text-primary);
+          line-height: 20px;
         }
 
         i {
           cursor: pointer;
-          position: absolute;
-          right: -20px;
-          top: 25px;
           font-size: 12px;
         }
       }

@@ -1,6 +1,6 @@
 <template>
    <div class="app-container">
-      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
+      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" class="ui-filter-card">
          <el-form-item label="菜单名称" prop="menuName">
             <el-input
                v-model="queryParams.menuName"
@@ -26,7 +26,7 @@
          </el-form-item>
       </el-form>
 
-      <el-row :gutter="10" class="mb8">
+      <el-row :gutter="10" class="mb8 ui-action-bar">
          <el-col :span="1.5">
             <el-button
                type="primary"
@@ -56,6 +56,7 @@
          <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
       </el-row>
 
+      <div class="ui-table-card">
       <el-table
          v-if="refreshTable"
          v-loading="loading"
@@ -99,9 +100,11 @@
             </template>
          </el-table-column>
       </el-table>
+      </div>
 
-      <!-- 添加或修改菜单对话框 -->
-      <el-dialog :title="title" v-model="open" width="680px" append-to-body>
+      <!-- 添加或修改菜单抽屉 -->
+      <el-drawer :title="title" v-model="open" size="640px" append-to-body>
+         <template #default>
          <el-form ref="menuRef" :model="form" :rules="rules" label-width="100px">
             <el-row>
                <el-col :span="24">
@@ -295,13 +298,14 @@
                </el-col>
             </el-row>
          </el-form>
+         </template>
          <template #footer>
             <div class="dialog-footer">
                <el-button type="primary" @click="submitForm">确 定</el-button>
                <el-button @click="cancel">取 消</el-button>
             </div>
          </template>
-      </el-dialog>
+      </el-drawer>
    </div>
 </template>
 

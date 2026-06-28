@@ -52,6 +52,55 @@
   left: 0;
   position: relative;
   margin: 0 auto;
+  border-radius: var(--ui-radius-panel, 8px);
+  background: var(--ui-bg-panel);
+}
+
+// Dialog sizing
+.el-dialog:not(.is-fullscreen) {
+  margin-top: 6vh !important;
+}
+
+.el-dialog--small {
+  width: 480px;
+}
+
+.el-dialog--medium {
+  width: 600px;
+}
+
+.el-dialog--large {
+  width: 760px;
+}
+
+.el-dialog__header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--ui-border);
+}
+
+.el-dialog__body {
+  padding: 20px;
+}
+
+.el-dialog__footer {
+  padding: 12px 20px;
+  border-top: 1px solid var(--ui-border);
+}
+
+// Drawer
+.el-drawer {
+  border-radius: var(--ui-radius-panel, 8px);
+  background: var(--ui-bg-panel);
+}
+
+.el-drawer__header {
+  padding: 16px 20px;
+  margin-bottom: 0 !important;
+  border-bottom: 1px solid var(--ui-border);
+}
+
+.el-drawer__body {
+  padding: 20px;
 }
 
 // refine element ui upload
@@ -93,4 +142,78 @@
 
 .el-dropdown .el-dropdown-link{
   color: var(--el-color-primary) !important;
+}
+
+// Table header style
+.el-table th.el-table__cell {
+  background-color: var(--ui-bg-panel-soft) !important;
+  color: var(--ui-text-secondary);
+  font-weight: 500;
+}
+
+// Pagination
+.el-pagination {
+  .el-pager li {
+    border-radius: 6px !important;
+    min-width: 30px;
+    height: 30px;
+    line-height: 30px;
+    margin: 0 2px;
+    
+    &.is-active {
+      background-color: var(--ui-primary);
+      color: #fff;
+    }
+  }
+  
+  .el-pagination__editor.el-input {
+    border-radius: 6px;
+  }
+  
+  button {
+    border-radius: 6px !important;
+    min-width: 30px;
+    height: 30px;
+  }
+}
+
+// Button style updates — size 10.6
+.el-button {
+  border-radius: var(--ui-radius-control, 6px);
+  transition: background var(--ui-transition-fast), border-color var(--ui-transition-fast), color var(--ui-transition-fast);
+}
+
+.el-button--small {
+  height: 30px;
+  padding: 4px 12px;
+  font-size: 13px;
+  border-radius: 5px;
+}
+
+.el-button--mini,
+.el-button--small.is-round {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+// Search/Clear icon buttons — 36x36
+.el-button.is-circle {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 6px;
+}
+
+// Form control height
+.el-input__wrapper {
+  border-radius: var(--ui-radius-control, 6px);
+}
+
+.el-input__inner {
+  height: var(--ui-form-control-height, 36px);
+}
+
+.el-select .el-select__wrapper {
+  min-height: var(--ui-form-control-height, 36px);
+  border-radius: var(--ui-radius-control, 6px);
 }

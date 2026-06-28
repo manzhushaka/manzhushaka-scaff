@@ -64,13 +64,13 @@ function setLayout() {
 
 <style lang="scss" scoped>
 @use "@/assets/styles/mixin.scss" as mix;
-@use "@/assets/styles/variables.module.scss" as vars;
 
 .app-wrapper {
   @include mix.clearfix;
   position: relative;
   height: 100%;
   width: 100%;
+  background: var(--ui-bg-page);
 
   &.mobile.openSidebar {
     position: fixed;
@@ -81,6 +81,8 @@ function setLayout() {
 .main-container:has(.fixed-header) {
   height: 100vh;
   overflow: hidden;
+  margin-left: var(--ui-layout-sidebar-width, 224px);
+  transition: margin-left 0.28s;
 }
 
 .drawer-bg {
@@ -98,19 +100,27 @@ function setLayout() {
   top: 0;
   right: 0;
   z-index: 9;
-  width: calc(100% - #{vars.$base-sidebar-width});
+  width: calc(100% - var(--ui-layout-sidebar-width, 224px));
   transition: width 0.28s;
 }
 
 .hideSidebar .fixed-header {
-  width: calc(100% - 54px);
+  width: calc(100% - var(--ui-layout-sidebar-collapse-width, 64px));
 }
 
-.sidebarHide .fixed-header {
-  width: 100%;
+.hideSidebar .main-container {
+  margin-left: var(--ui-layout-sidebar-collapse-width, 64px);
 }
 
-.mobile .fixed-header {
+.sidebarHide .fixed-header,
+.sidebarHide .main-container {
   width: 100%;
+  margin-left: 0;
+}
+
+.mobile .fixed-header,
+.mobile .main-container {
+  width: 100%;
+  margin-left: 0;
 }
 </style>
