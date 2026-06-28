@@ -1,19 +1,19 @@
 package com.manzhushaka.system.service;
 
 import java.util.List;
-import com.manzhushaka.system.infrastructure.persistence.TreeSelect;
+import com.manzhushaka.system.application.result.shared.TreeNodeResult;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysDept;
 
 /**
  * 部门管理 服务层
- * 
+ *
  * @author manzhushaka
  */
 public interface ISysDeptService
 {
     /**
      * 查询部门管理数据
-     * 
+     *
      * @param dept 部门信息
      * @return 部门信息集合
      */
@@ -21,15 +21,15 @@ public interface ISysDeptService
 
     /**
      * 查询部门树结构信息
-     * 
+     *
      * @param dept 部门信息
      * @return 部门树信息集合
      */
-    public List<TreeSelect> selectDeptTreeList(SysDept dept);
+    public List<TreeNodeResult> selectDeptTreeList(SysDept dept);
 
     /**
      * 构建前端所需要树结构
-     * 
+     *
      * @param depts 部门列表
      * @return 树结构列表
      */
@@ -37,15 +37,15 @@ public interface ISysDeptService
 
     /**
      * 构建前端所需要下拉树结构
-     * 
+     *
      * @param depts 部门列表
      * @return 下拉树结构列表
      */
-    public List<TreeSelect> buildDeptTreeSelect(List<SysDept> depts);
+    public List<TreeNodeResult> buildDeptTreeSelect(List<SysDept> depts);
 
     /**
      * 根据角色ID查询部门树信息
-     * 
+     *
      * @param roleId 角色ID
      * @return 选中部门列表
      */

@@ -15,7 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.manzhushaka.common.constant.Constants;
 import com.manzhushaka.common.constant.UserConstants;
-import com.manzhushaka.system.infrastructure.persistence.TreeSelect;
+import com.manzhushaka.common.utils.StringUtils;
+import com.manzhushaka.system.application.result.shared.TreeNodeResult;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysMenu;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysRole;
 import com.manzhushaka.common.core.text.Convert;
@@ -255,10 +256,23 @@ public class SysMenuServiceImpl implements ISysMenuService
      * @return 下拉树结构列表
      */
     @Override
-    public List<TreeSelect> buildMenuTreeSelect(List<SysMenu> menus)
+    public List<TreeNodeResult> buildMenuTreeSelect(List<SysMenu> menus)
     {
         List<SysMenu> menuTrees = buildMenuTree(menus);
-        return menuTrees.stream().map(TreeSelect::new).collect(Collectors.toList());
+        return menuTrees.stream().map(this::toTreeNodeResult).collect(Collectors.toList());
+    }
+
+    /**
+     * 将 SysMenu 转换为 TreeNodeResult
+     */
+    private TreeNodeResult toTreeNodeResult(SysMenu menu)
+    {
+        List<TreeNodeResult> children = null;
+        if (menu.getChildren() != null && !menu.getChildren().isEmpty())
+        {
+            children = menu.getChildren().stream().map(this::toTreeNodeResult).collect(Collectors.toList());
+        }
+        return new TreeNodeResult(menu.getMenuId(), menu.getMenuName(), false, children);
     }
 
     /**

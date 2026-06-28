@@ -37,6 +37,7 @@ import com.manzhushaka.web.dto.system.user.ChangeUserStatusRequest;
 import com.manzhushaka.web.dto.system.user.CreateUserRequest;
 import com.manzhushaka.web.dto.system.user.ResetPwdRequest;
 import com.manzhushaka.web.dto.system.user.UpdateUserRequest;
+import com.manzhushaka.web.converter.system.shared.TreeSelectAdminConverter;
 import com.manzhushaka.web.dto.system.user.UserListRequest;
 
 /**
@@ -276,6 +277,6 @@ public class SysUserController extends BaseController
     @GetMapping("/deptTree")
     public AjaxResult deptTree(SysDept dept)
     {
-        return success(deptService.selectDeptTreeList(dept));
+        return success(TreeSelectAdminConverter.toVoList(deptService.selectDeptTreeList(dept)));
     }
 }

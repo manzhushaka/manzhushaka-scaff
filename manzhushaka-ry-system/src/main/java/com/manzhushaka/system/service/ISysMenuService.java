@@ -2,20 +2,20 @@ package com.manzhushaka.system.service;
 
 import java.util.List;
 import java.util.Set;
-import com.manzhushaka.system.infrastructure.persistence.TreeSelect;
+import com.manzhushaka.system.application.result.shared.TreeNodeResult;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysMenu;
 import com.manzhushaka.system.domain.vo.RouterVo;
 
 /**
  * 菜单 业务层
- * 
+ *
  * @author manzhushaka
  */
 public interface ISysMenuService
 {
     /**
      * 根据用户查询系统菜单列表
-     * 
+     *
      * @param userId 用户ID
      * @return 菜单列表
      */
@@ -23,7 +23,7 @@ public interface ISysMenuService
 
     /**
      * 根据用户查询系统菜单列表
-     * 
+     *
      * @param menu 菜单信息
      * @param userId 用户ID
      * @return 菜单列表
@@ -32,7 +32,7 @@ public interface ISysMenuService
 
     /**
      * 根据用户ID查询权限
-     * 
+     *
      * @param userId 用户ID
      * @return 权限列表
      */
@@ -40,7 +40,7 @@ public interface ISysMenuService
 
     /**
      * 根据角色ID查询权限
-     * 
+     *
      * @param roleId 角色ID
      * @return 权限列表
      */
@@ -48,7 +48,7 @@ public interface ISysMenuService
 
     /**
      * 根据用户ID查询菜单树信息
-     * 
+     *
      * @param userId 用户ID
      * @return 菜单列表
      */
@@ -56,7 +56,7 @@ public interface ISysMenuService
 
     /**
      * 根据角色ID查询菜单树信息
-     * 
+     *
      * @param roleId 角色ID
      * @return 选中菜单列表
      */
@@ -64,7 +64,7 @@ public interface ISysMenuService
 
     /**
      * 构建前端路由所需要的菜单
-     * 
+     *
      * @param menus 菜单列表
      * @return 路由列表
      */
@@ -72,7 +72,7 @@ public interface ISysMenuService
 
     /**
      * 构建前端所需要树结构
-     * 
+     *
      * @param menus 菜单列表
      * @return 树结构列表
      */
@@ -80,15 +80,15 @@ public interface ISysMenuService
 
     /**
      * 构建前端所需要下拉树结构
-     * 
+     *
      * @param menus 菜单列表
      * @return 下拉树结构列表
      */
-    public List<TreeSelect> buildMenuTreeSelect(List<SysMenu> menus);
+    public List<TreeNodeResult> buildMenuTreeSelect(List<SysMenu> menus);
 
     /**
      * 根据菜单ID查询信息
-     * 
+     *
      * @param menuId 菜单ID
      * @return 菜单信息
      */

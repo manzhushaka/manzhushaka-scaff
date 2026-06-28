@@ -9,11 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.manzhushaka.common.constant.UserConstants;
+import com.manzhushaka.common.exception.ServiceException;
+import com.manzhushaka.common.utils.StringUtils;
+import com.manzhushaka.system.infrastructure.dict.SystemDictCacheSupport;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysDictData;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysDictType;
-import com.manzhushaka.common.exception.ServiceException;
-import com.manzhushaka.system.infrastructure.persistence.DictUtils;
-import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.system.mapper.SysDictDataMapper;
 import com.manzhushaka.system.mapper.SysDictTypeMapper;
 import com.manzhushaka.system.service.ISysDictTypeService;
@@ -73,7 +73,7 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService
     @Override
     public List<SysDictData> selectDictDataByType(String dictType)
     {
-        List<SysDictData> dictDatas = DictUtils.getDictCache(dictType);
+        List<SysDictData> dictDatas = SystemDictCacheSupport.getDictCache(dictType);
         if (StringUtils.isNotEmpty(dictDatas))
         {
             return dictDatas;
@@ -81,7 +81,7 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService
         dictDatas = dictDataMapper.selectDictDataByType(dictType);
         if (StringUtils.isNotEmpty(dictDatas))
         {
-            DictUtils.setDictCache(dictType, dictDatas);
+            SystemDictCacheSupport.setDictCache(dictType, dictDatas);
             return dictDatas;
         }
         return null;
@@ -127,7 +127,7 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService
                 throw new ServiceException(String.format("%1$s已分配,不能删除", dictType.getDictName()));
             }
             dictTypeMapper.deleteDictTypeById(dictId);
-            DictUtils.removeDictCache(dictType.getDictType());
+            SystemDictCacheSupport.removeDictCache(dictType.getDictType());
         }
     }
 
@@ -142,7 +142,7 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService
         Map<String, List<SysDictData>> dictDataMap = dictDataMapper.selectDictDataList(dictData).stream().collect(Collectors.groupingBy(SysDictData::getDictType));
         for (Map.Entry<String, List<SysDictData>> entry : dictDataMap.entrySet())
         {
-            DictUtils.setDictCache(entry.getKey(), entry.getValue().stream().sorted(Comparator.comparing(SysDictData::getDictSort)).collect(Collectors.toList()));
+            SystemDictCacheSupport.setDictCache(entry.getKey(), entry.getValue().stream().sorted(Comparator.comparing(SysDictData::getDictSort)).collect(Collectors.toList()));
         }
     }
 
@@ -152,7 +152,7 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService
     @Override
     public void clearDictCache()
     {
-        DictUtils.clearDictCache();
+        SystemDictCacheSupport.clearDictCache();
     }
 
     /**
@@ -177,7 +177,7 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService
         int row = dictTypeMapper.insertDictType(dict);
         if (row > 0)
         {
-            DictUtils.setDictCache(dict.getDictType(), null);
+            SystemDictCacheSupport.setDictCache(dict.getDictType(), null);
         }
         return row;
     }
@@ -198,7 +198,7 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService
         if (row > 0)
         {
             List<SysDictData> dictDatas = dictDataMapper.selectDictDataByType(dict.getDictType());
-            DictUtils.setDictCache(dict.getDictType(), dictDatas);
+            SystemDictCacheSupport.setDictCache(dict.getDictType(), dictDatas);
         }
         return row;
     }

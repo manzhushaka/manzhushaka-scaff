@@ -17,10 +17,13 @@ import com.manzhushaka.common.annotation.Log;
 import com.manzhushaka.common.constant.UserConstants;
 import com.manzhushaka.common.core.controller.BaseController;
 import com.manzhushaka.common.core.domain.AjaxResult;
-import com.manzhushaka.system.infrastructure.persistence.entity.SysMenu;
 import com.manzhushaka.common.enums.BusinessType;
 import com.manzhushaka.common.utils.StringUtils;
+import com.manzhushaka.system.application.result.shared.TreeNodeResult;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysMenu;
 import com.manzhushaka.system.service.ISysMenuService;
+import com.manzhushaka.web.converter.system.shared.TreeSelectAdminConverter;
+import com.manzhushaka.web.vo.system.shared.TreeSelectVo;
 
 /**
  * 菜单信息
@@ -62,7 +65,8 @@ public class SysMenuController extends BaseController
     public AjaxResult treeselect(SysMenu menu)
     {
         List<SysMenu> menus = menuService.selectMenuList(menu, getUserId());
-        return success(menuService.buildMenuTreeSelect(menus));
+        List<TreeNodeResult> treeNodes = menuService.buildMenuTreeSelect(menus);
+        return success(TreeSelectAdminConverter.toVoList(treeNodes));
     }
 
     /**
@@ -74,7 +78,8 @@ public class SysMenuController extends BaseController
         List<SysMenu> menus = menuService.selectMenuList(getUserId());
         AjaxResult ajax = AjaxResult.success();
         ajax.put("checkedKeys", menuService.selectMenuListByRoleId(roleId));
-        ajax.put("menus", menuService.buildMenuTreeSelect(menus));
+        List<TreeNodeResult> treeNodes = menuService.buildMenuTreeSelect(menus);
+        ajax.put("menus", TreeSelectAdminConverter.toVoList(treeNodes));
         return ajax;
     }
 

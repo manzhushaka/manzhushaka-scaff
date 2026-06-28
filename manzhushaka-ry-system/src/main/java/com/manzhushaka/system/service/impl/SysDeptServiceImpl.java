@@ -9,7 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.manzhushaka.common.annotation.DataScope;
 import com.manzhushaka.common.constant.UserConstants;
-import com.manzhushaka.system.infrastructure.persistence.TreeSelect;
+import com.manzhushaka.common.utils.StringUtils;
+import com.manzhushaka.system.application.result.shared.TreeNodeResult;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysDept;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysRole;
 import com.manzhushaka.common.core.text.Convert;
@@ -54,7 +55,7 @@ public class SysDeptServiceImpl implements ISysDeptService
      * @return 部门树信息集合
      */
     @Override
-    public List<TreeSelect> selectDeptTreeList(SysDept dept)
+    public List<TreeNodeResult> selectDeptTreeList(SysDept dept)
     {
         List<SysDept> depts = SpringUtils.getAopProxy(this).selectDeptList(dept);
         return buildDeptTreeSelect(depts);
@@ -94,10 +95,24 @@ public class SysDeptServiceImpl implements ISysDeptService
      * @return 下拉树结构列表
      */
     @Override
-    public List<TreeSelect> buildDeptTreeSelect(List<SysDept> depts)
+    public List<TreeNodeResult> buildDeptTreeSelect(List<SysDept> depts)
     {
         List<SysDept> deptTrees = buildDeptTree(depts);
-        return deptTrees.stream().map(TreeSelect::new).collect(Collectors.toList());
+        return deptTrees.stream().map(this::toTreeNodeResult).collect(Collectors.toList());
+    }
+
+    /**
+     * 将 SysDept 转换为 TreeNodeResult
+     */
+    private TreeNodeResult toTreeNodeResult(SysDept dept)
+    {
+        List<TreeNodeResult> children = null;
+        if (dept.getChildren() != null && !dept.getChildren().isEmpty())
+        {
+            children = dept.getChildren().stream().map(this::toTreeNodeResult).collect(Collectors.toList());
+        }
+        boolean disabled = StringUtils.equals(UserConstants.DEPT_DISABLE, dept.getStatus());
+        return new TreeNodeResult(dept.getDeptId(), dept.getDeptName(), disabled, children);
     }
 
     /**

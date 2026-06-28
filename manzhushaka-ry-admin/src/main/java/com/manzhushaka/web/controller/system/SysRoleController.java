@@ -34,6 +34,7 @@ import com.manzhushaka.web.dto.system.role.ChangeRoleStatusRequest;
 import com.manzhushaka.web.dto.system.role.CreateRoleRequest;
 import com.manzhushaka.web.dto.system.role.DataScopeRequest;
 import com.manzhushaka.web.dto.system.role.RoleListRequest;
+import com.manzhushaka.web.converter.system.shared.TreeSelectAdminConverter;
 import com.manzhushaka.web.dto.system.role.UpdateRoleRequest;
 
 /**
@@ -274,7 +275,7 @@ public class SysRoleController extends BaseController
     {
         AjaxResult ajax = AjaxResult.success();
         ajax.put("checkedKeys", deptService.selectDeptListByRoleId(roleId));
-        ajax.put("depts", deptService.selectDeptTreeList(new SysDept()));
+        ajax.put("depts", TreeSelectAdminConverter.toVoList(deptService.selectDeptTreeList(new SysDept())));
         return ajax;
     }
 }

@@ -78,9 +78,10 @@ import com.manzhushaka.common.config.ManzhushakaConfig;
 import com.manzhushaka.common.core.domain.AjaxResult;
 import com.manzhushaka.common.core.text.Convert;
 import com.manzhushaka.common.exception.UtilException;
+import com.manzhushaka.common.spi.DictResolver;
 import com.manzhushaka.common.utils.DateUtils;
-import com.manzhushaka.common.utils.DictUtils;
 import com.manzhushaka.common.utils.StringUtils;
+import com.manzhushaka.common.utils.spring.SpringUtils;
 import com.manzhushaka.common.utils.file.FileTypeUtils;
 import com.manzhushaka.common.utils.file.FileUtils;
 import com.manzhushaka.common.utils.file.ImageUtils;
@@ -1218,11 +1219,11 @@ public class ExcelUtil<T>
             {
                 if (!sysDictMap.containsKey("combo_" + attr.dictType()))
                 {
-                    String labels = DictUtils.getDictLabels(attr.dictType());
+                    String labels = getDictResolver().getDictLabels(attr.dictType());
                     sysDictMap.put("combo_" + attr.dictType(), labels);
                 }
                 String val = sysDictMap.get("combo_" + attr.dictType());
-                comboArray = StringUtils.split(val, DictUtils.SEPARATOR);
+                comboArray = StringUtils.split(val, DictResolver.SEPARATOR);
             }
             if (comboArray.length > 15 || StringUtils.join(comboArray).length() > 255)
             {
@@ -1522,7 +1523,7 @@ public class ExcelUtil<T>
      */
     public static String convertDictByExp(String dictValue, String dictType, String separator)
     {
-        return DictUtils.getDictLabel(dictType, dictValue, separator);
+        return getDictResolver().getDictLabel(dictType, dictValue, separator);
     }
 
     /**
@@ -1535,7 +1536,18 @@ public class ExcelUtil<T>
      */
     public static String reverseDictByExp(String dictLabel, String dictType, String separator)
     {
-        return DictUtils.getDictValue(dictType, dictLabel, separator);
+        return getDictResolver().getDictValue(dictType, dictLabel, separator);
+    }
+
+    /**
+     * 获取 DictResolver 实现
+     * <p>
+     * 通过 Spring SPI 获取字典解析器，解耦 common 模块对 system 模块字典能力的直接依赖。
+     * </p>
+     */
+    private static DictResolver getDictResolver()
+    {
+        return SpringUtils.getBean(DictResolver.class);
     }
 
     /**
