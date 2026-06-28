@@ -46,6 +46,7 @@
         <jwt.version>0.9.1</jwt.version>
         <jaxb-api.version>2.3.1</jaxb-api.version>
         <springdoc.version>3.0.3</springdoc.version>
+        <archunit.version>1.4.0</archunit.version>
 
     </properties>
 
@@ -257,9 +258,20 @@
                 <version>${spring-boot.version}</version>
                 <scope>test</scope>
             </dependency>
-
-        </dependencies>
-    </dependencyManagement>
+    
+                <!-- ========================================================= -->
+                <!-- ArchUnit 架构测试                                          -->
+                <!-- Java 架构测试框架，用于验证代码架构约定（如分层依赖规则） -->
+                <!-- ========================================================= -->
+                <dependency>
+                    <groupId>com.tngtech.archunit</groupId>
+                    <artifactId>archunit-junit5</artifactId>
+                    <version>${archunit.version}</version>
+                    <scope>test</scope>
+                </dependency>
+    
+            </dependencies>
+        </dependencyManagement>
 
     <!-- ================================================================= -->
     <!-- 模块定义 (modules)                                                 -->
