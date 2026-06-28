@@ -16,8 +16,8 @@ import com.manzhushaka.common.constant.UserConstants;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysRole;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
 import com.manzhushaka.common.exception.ServiceException;
-import com.manzhushaka.common.utils.SecurityUtils;
 import com.manzhushaka.common.utils.StringUtils;
+import com.manzhushaka.common.utils.security.PasswordUtils;
 import com.manzhushaka.common.utils.bean.BeanValidators;
 import com.manzhushaka.common.utils.spring.SpringUtils;
 import com.manzhushaka.system.domain.SysPost;
@@ -239,7 +239,7 @@ public class SysUserServiceImpl implements ISysUserService
     @Override
     public void checkUserDataScope(Long userId)
     {
-        if (!SecurityUtils.isAdmin())
+        if (StringUtils.isNotNull(userId))
         {
             SysUser user = new SysUser();
             user.setUserId(userId);
@@ -518,7 +518,7 @@ public class SysUserServiceImpl implements ISysUserService
                     BeanValidators.validateWithException(validator, user);
                     deptService.checkDeptDataScope(user.getDeptId());
                     String password = configService.selectConfigByKey("sys.user.initPassword");
-                    user.setPassword(SecurityUtils.encryptPassword(password));
+                    user.setPassword(PasswordUtils.encrypt(password));
                     user.setCreateBy(operName);
                     userMapper.insertUser(user);
                     successNum++;

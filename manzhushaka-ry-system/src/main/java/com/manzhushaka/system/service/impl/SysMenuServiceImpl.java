@@ -20,7 +20,6 @@ import com.manzhushaka.system.infrastructure.persistence.entity.SysMenu;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysRole;
 import com.manzhushaka.common.core.text.Convert;
 import com.manzhushaka.common.exception.ServiceException;
-import com.manzhushaka.common.utils.SecurityUtils;
 import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.system.domain.vo.MetaVo;
 import com.manzhushaka.system.domain.vo.RouterVo;
@@ -75,7 +74,7 @@ public class SysMenuServiceImpl implements ISysMenuService
     {
         List<SysMenu> menuList = null;
         // 管理员显示所有菜单信息
-        if (SecurityUtils.isAdmin(userId))
+        if (userId != null && 1L == userId)
         {
             menuList = menuMapper.selectMenuList(menu);
         }
@@ -139,7 +138,7 @@ public class SysMenuServiceImpl implements ISysMenuService
     public List<SysMenu> selectMenuTreeByUserId(Long userId)
     {
         List<SysMenu> menus = null;
-        if (SecurityUtils.isAdmin(userId))
+        if (userId != null && 1L == userId)
         {
             menus = menuMapper.selectMenuTreeAll();
         }

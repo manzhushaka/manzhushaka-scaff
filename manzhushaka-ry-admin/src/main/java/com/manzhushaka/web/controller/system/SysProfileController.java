@@ -14,17 +14,17 @@ import com.manzhushaka.common.annotation.Log;
 import com.manzhushaka.common.config.ManzhushakaConfig;
 import com.manzhushaka.common.core.controller.BaseController;
 import com.manzhushaka.common.core.domain.AjaxResult;
-import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
-import com.manzhushaka.common.core.domain.model.LoginUser;
 import com.manzhushaka.common.enums.BusinessType;
 import com.manzhushaka.common.utils.DateUtils;
-import com.manzhushaka.common.utils.SecurityUtils;
 import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.common.utils.file.FileUploadUtils;
 import com.manzhushaka.common.utils.file.FileUtils;
 import com.manzhushaka.common.utils.file.MimeTypeUtils;
-import com.manzhushaka.framework.web.service.SysUserConverter;
+import com.manzhushaka.common.utils.security.PasswordUtils;
+import com.manzhushaka.framework.security.context.SecurityContextHelper;
+import com.manzhushaka.framework.security.model.LoginPrincipal;
 import com.manzhushaka.framework.web.service.TokenService;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
 import com.manzhushaka.system.service.ISysUserService;
 
 /**
@@ -48,11 +48,11 @@ public class SysProfileController extends BaseController
     @GetMapping
     public AjaxResult profile()
     {
-        LoginUser loginUser = getLoginUser();
-        SysUser user = SysUserConverter.toSystem(loginUser.getUser());
+        LoginPrincipal principal = SecurityContextHelper.getPrincipal();
+        SysUser user = userService.selectUserById(principal.getUserId());
         AjaxResult ajax = AjaxResult.success(user);
-        ajax.put("roleGroup", userService.selectUserRoleGroup(loginUser.getUsername()));
-        ajax.put("postGroup", userService.selectUserPostGroup(loginUser.getUsername()));
+        ajax.put("roleGroup", userService.selectUserRoleGroup(principal.getUsername()));
+        ajax.put("postGroup", userService.selectUserPostGroup(principal.getUsername()));
         return ajax;
     }
 
@@ -61,31 +61,24 @@ public class SysProfileController extends BaseController
      */
     @Log(title = "个人信息", businessType = BusinessType.UPDATE)
     @PutMapping
-    public AjaxResult updateProfile(@RequestBody com.manzhushaka.system.infrastructure.persistence.entity.SysUser user)
+    public AjaxResult updateProfile(@RequestBody SysUser user)
     {
-        LoginUser loginUser = getLoginUser();
-        SysUser currentUser = SysUserConverter.toSystem(loginUser.getUser());
-        com.manzhushaka.system.infrastructure.persistence.entity.SysUser systemUser = currentUser;
-        systemUser.setNickName(user.getNickName());
-        systemUser.setEmail(user.getEmail());
-        systemUser.setPhonenumber(user.getPhonenumber());
-        systemUser.setSex(user.getSex());
-        if (StringUtils.isNotEmpty(user.getPhonenumber()) && !userService.checkPhoneUnique(systemUser))
+        LoginPrincipal principal = SecurityContextHelper.getPrincipal();
+        SysUser currentUser = userService.selectUserById(principal.getUserId());
+        currentUser.setNickName(user.getNickName());
+        currentUser.setEmail(user.getEmail());
+        currentUser.setPhonenumber(user.getPhonenumber());
+        currentUser.setSex(user.getSex());
+        if (StringUtils.isNotEmpty(user.getPhonenumber()) && !userService.checkPhoneUnique(currentUser))
         {
-            return error("修改用户'" + loginUser.getUsername() + "'失败，手机号码已存在");
+            return error("修改用户'" + principal.getUsername() + "'失败，手机号码已存在");
         }
-        if (StringUtils.isNotEmpty(user.getEmail()) && !userService.checkEmailUnique(systemUser))
+        if (StringUtils.isNotEmpty(user.getEmail()) && !userService.checkEmailUnique(currentUser))
         {
-            return error("修改用户'" + loginUser.getUsername() + "'失败，邮箱账号已存在");
+            return error("修改用户'" + principal.getUsername() + "'失败，邮箱账号已存在");
         }
-        if (userService.updateUserProfile(systemUser) > 0)
+        if (userService.updateUserProfile(currentUser) > 0)
         {
-            // 更新缓存用户信息（使用 common 版本 SysUser）
-            currentUser.setNickName(systemUser.getNickName());
-            currentUser.setEmail(systemUser.getEmail());
-            currentUser.setPhonenumber(systemUser.getPhonenumber());
-            currentUser.setSex(systemUser.getSex());
-            tokenService.setLoginUser(loginUser);
             return success();
         }
         return error("修改个人信息异常，请联系管理员");
@@ -100,25 +93,28 @@ public class SysProfileController extends BaseController
     {
         String oldPassword = params.get("oldPassword");
         String newPassword = params.get("newPassword");
-        LoginUser loginUser = getLoginUser();
-        Long userId = loginUser.getUserId();
-        com.manzhushaka.system.infrastructure.persistence.entity.SysUser user = userService.selectUserById(userId);
+        LoginPrincipal principal = SecurityContextHelper.getPrincipal();
+        Long userId = principal.getUserId();
+        SysUser user = userService.selectUserById(userId);
         String password = user.getPassword();
-        if (!SecurityUtils.matchesPassword(oldPassword, password))
+        if (!PasswordUtils.matches(oldPassword, password))
         {
             return error("修改密码失败，旧密码错误");
         }
-        if (SecurityUtils.matchesPassword(newPassword, password))
+        if (PasswordUtils.matches(newPassword, password))
         {
             return error("新密码不能与旧密码相同");
         }
-        newPassword = SecurityUtils.encryptPassword(newPassword);
+        newPassword = PasswordUtils.encrypt(newPassword);
         if (userService.resetUserPwd(userId, newPassword) > 0)
         {
-            // 更新缓存用户密码&密码最后更新时间
-            loginUser.getUser().setPwdUpdateDate(DateUtils.getNowDate());
-            loginUser.getUser().setPassword(newPassword);
-            tokenService.setLoginUser(loginUser);
+            // 更新缓存中的密码
+            if (SecurityContextHelper.getPrincipalQuietly() != null)
+            {
+                LoginPrincipal refreshed = SecurityContextHelper.getPrincipal();
+                refreshed.setPassword(newPassword);
+                tokenService.setLoginUser(refreshed);
+            }
             return success();
         }
         return error("修改密码异常，请联系管理员");
@@ -133,20 +129,12 @@ public class SysProfileController extends BaseController
     {
         if (!file.isEmpty())
         {
-            LoginUser loginUser = getLoginUser();
+            LoginPrincipal principal = SecurityContextHelper.getPrincipal();
             String avatar = FileUploadUtils.upload(ManzhushakaConfig.getAvatarPath(), file, MimeTypeUtils.IMAGE_EXTENSION, true);
-            if (userService.updateUserAvatar(loginUser.getUserId(), avatar))
+            if (userService.updateUserAvatar(principal.getUserId(), avatar))
             {
-                String oldAvatar = loginUser.getUser().getAvatar();
-                if (StringUtils.isNotEmpty(oldAvatar))
-                {
-                    FileUtils.deleteFile(ManzhushakaConfig.getProfile() + FileUtils.stripPrefix(oldAvatar));
-                }
                 AjaxResult ajax = AjaxResult.success();
                 ajax.put("imgUrl", avatar);
-                // 更新缓存用户头像
-                loginUser.getUser().setAvatar(avatar);
-                tokenService.setLoginUser(loginUser);
                 return ajax;
             }
         }

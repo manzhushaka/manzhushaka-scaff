@@ -12,7 +12,6 @@ import com.manzhushaka.common.annotation.Excel.ColumnType;
 import com.manzhushaka.common.annotation.Excel.Type;
 import com.manzhushaka.common.annotation.Excels;
 import com.manzhushaka.common.core.domain.BaseEntity;
-import com.manzhushaka.common.utils.SecurityUtils;
 import com.manzhushaka.common.xss.Xss;
 
 /**
@@ -118,7 +117,7 @@ public class SysUser extends BaseEntity
 
     public boolean isAdmin()
     {
-        return SecurityUtils.isAdmin(this.userId);
+        return this.userId != null && 1L == this.userId;
     }
 
     public Long getDeptId()

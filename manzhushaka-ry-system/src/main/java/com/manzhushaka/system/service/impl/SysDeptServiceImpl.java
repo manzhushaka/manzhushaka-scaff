@@ -14,7 +14,6 @@ import com.manzhushaka.system.infrastructure.persistence.entity.SysDept;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysRole;
 import com.manzhushaka.common.core.text.Convert;
 import com.manzhushaka.common.exception.ServiceException;
-import com.manzhushaka.common.utils.SecurityUtils;
 import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.common.utils.spring.SpringUtils;
 import com.manzhushaka.system.mapper.SysDeptMapper;
@@ -190,7 +189,7 @@ public class SysDeptServiceImpl implements ISysDeptService
     @Override
     public void checkDeptDataScope(Long deptId)
     {
-        if (!SecurityUtils.isAdmin() && StringUtils.isNotNull(deptId))
+        if (StringUtils.isNotNull(deptId))
         {
             SysDept dept = new SysDept();
             dept.setDeptId(deptId);

@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import com.manzhushaka.common.constant.CacheConstants;
 import com.manzhushaka.common.constant.Constants;
 import com.manzhushaka.common.constant.UserConstants;
-import com.manzhushaka.common.core.domain.model.LoginUser;
 import com.manzhushaka.common.core.redis.RedisCache;
 import com.manzhushaka.common.exception.ServiceException;
 import com.manzhushaka.common.exception.user.BlackListException;
@@ -25,12 +24,13 @@ import com.manzhushaka.common.utils.ip.IpUtils;
 import com.manzhushaka.framework.manager.AsyncManager;
 import com.manzhushaka.framework.manager.factory.AsyncFactory;
 import com.manzhushaka.framework.security.context.AuthenticationContextHolder;
+import com.manzhushaka.framework.security.model.LoginPrincipal;
 import com.manzhushaka.system.service.ISysConfigService;
 import com.manzhushaka.system.service.ISysUserService;
 
 /**
  * 登录校验方法
- * 
+ *
  * @author manzhushaka
  */
 @Component
@@ -53,7 +53,7 @@ public class SysLoginService
 
     /**
      * 登录验证
-     * 
+     *
      * @param username 用户名
      * @param password 密码
      * @param code 验证码
@@ -93,15 +93,15 @@ public class SysLoginService
             AuthenticationContextHolder.clearContext();
         }
         AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_SUCCESS, MessageUtils.message("user.login.success")));
-        LoginUser loginUser = (LoginUser) authentication.getPrincipal();
-        recordLoginInfo(loginUser.getUserId());
+        LoginPrincipal loginPrincipal = (LoginPrincipal) authentication.getPrincipal();
+        recordLoginInfo(loginPrincipal.getUserId());
         // 生成token
-        return tokenService.createToken(loginUser);
+        return tokenService.createToken(loginPrincipal);
     }
 
     /**
      * 校验验证码
-     * 
+     *
      * @param username 用户名
      * @param code 验证码
      * @param uuid 唯一标识

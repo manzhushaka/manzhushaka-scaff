@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysRole;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
-import com.manzhushaka.common.utils.SecurityUtils;
 import com.manzhushaka.common.utils.StringUtils;
+import com.manzhushaka.common.utils.security.PasswordUtils;
 import com.manzhushaka.system.application.command.ChangeUserStatusCommand;
 import com.manzhushaka.system.application.command.CreateUserCommand;
 import com.manzhushaka.system.application.command.ResetPwdCommand;
@@ -91,7 +91,7 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
         user.setDeptId(command.deptId());
         user.setRoleIds(command.roleIds());
         user.setPostIds(command.postIds());
-        user.setPassword(SecurityUtils.encryptPassword(command.password()));
+        user.setPassword(PasswordUtils.encrypt(command.password()));
         user.setCreateBy(command.username());
 
         if (StringUtils.isNotEmpty(user.getPhonenumber()) && !userService.checkPhoneUnique(user))
@@ -157,7 +157,7 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
     {
         SysUser user = new SysUser();
         user.setUserId(command.userId());
-        user.setPassword(SecurityUtils.encryptPassword(command.password()));
+        user.setPassword(PasswordUtils.encrypt(command.password()));
         userService.checkUserAllowed(user);
         userService.checkUserDataScope(user.getUserId());
         userRepository.resetUserPwd(user.getUserId(), user.getPassword());

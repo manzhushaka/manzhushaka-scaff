@@ -15,7 +15,6 @@ import com.manzhushaka.common.annotation.Log;
 import com.manzhushaka.common.constant.CacheConstants;
 import com.manzhushaka.common.core.controller.BaseController;
 import com.manzhushaka.common.core.domain.AjaxResult;
-import com.manzhushaka.common.core.domain.model.LoginUser;
 import com.manzhushaka.common.core.page.TableDataInfo;
 import com.manzhushaka.common.core.redis.RedisCache;
 import com.manzhushaka.common.enums.BusinessType;
@@ -46,7 +45,9 @@ public class SysUserOnlineController extends BaseController
         List<SysUserOnline> userOnlineList = new ArrayList<SysUserOnline>();
         for (String key : keys)
         {
-            LoginUser user = redisCache.getCacheObject(key);
+            Object cached = redisCache.getCacheObject(key);
+            com.manzhushaka.framework.security.model.LoginPrincipal user =
+                    (com.manzhushaka.framework.security.model.LoginPrincipal) cached;
             if (StringUtils.isNotEmpty(ipaddr) && StringUtils.isNotEmpty(userName))
             {
                 userOnlineList.add(userOnlineService.selectOnlineByInfo(ipaddr, userName, user));
@@ -55,7 +56,7 @@ public class SysUserOnlineController extends BaseController
             {
                 userOnlineList.add(userOnlineService.selectOnlineByIpaddr(ipaddr, user));
             }
-            else if (StringUtils.isNotEmpty(userName) && StringUtils.isNotNull(user.getUser()))
+            else if (StringUtils.isNotEmpty(userName) && user != null)
             {
                 userOnlineList.add(userOnlineService.selectOnlineByUserName(userName, user));
             }

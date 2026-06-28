@@ -5,19 +5,20 @@ import java.util.List;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.manzhushaka.common.annotation.DataScope;
 import com.manzhushaka.common.constant.Constants;
 import com.manzhushaka.common.constant.UserConstants;
 import com.manzhushaka.common.core.domain.BaseEntity;
-import com.manzhushaka.system.infrastructure.persistence.entity.SysRole;
-import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
-import com.manzhushaka.common.core.domain.model.LoginUser;
-import com.manzhushaka.framework.web.service.SysUserConverter;
 import com.manzhushaka.common.core.text.Convert;
-import com.manzhushaka.common.utils.SecurityUtils;
 import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.framework.security.context.PermissionContextHolder;
+import com.manzhushaka.framework.security.context.SecurityContextHelper;
+import com.manzhushaka.framework.security.model.LoginPrincipal;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysRole;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
+import com.manzhushaka.system.service.ISysRoleService;
 
 /**
  * 数据过滤处理
@@ -33,6 +34,9 @@ public class DataScopeAspect
      */
     public static final String DATA_SCOPE = "dataScope";
 
+    @Autowired
+    private ISysRoleService roleService;
+
     @Before("@annotation(controllerDataScope)")
     public void doBefore(JoinPoint point, DataScope controllerDataScope) throws Throwable
     {
@@ -43,15 +47,20 @@ public class DataScopeAspect
     protected void handleDataScope(final JoinPoint joinPoint, DataScope controllerDataScope)
     {
         // 获取当前的用户
-        LoginUser loginUser = SecurityUtils.getLoginUser();
-        if (StringUtils.isNotNull(loginUser))
+        LoginPrincipal principal = SecurityContextHelper.getPrincipalQuietly();
+        if (StringUtils.isNotNull(principal) && !principal.isAdmin())
         {
-            SysUser currentUser = SysUserConverter.toSystem(loginUser.getUser());
-            // 如果是超级管理员，则不过滤数据
-            if (StringUtils.isNotNull(currentUser) && !currentUser.isAdmin())
+            // 通过角色服务查询当前用户的角色列表（包含数据权限信息）
+            List<SysRole> roles = roleService.selectRolesByUserId(principal.getUserId());
+            // 构造临时 SysUser 对象供 dataScopeFilter 使用
+            SysUser user = new SysUser();
+            user.setUserId(principal.getUserId());
+            user.setDeptId(principal.getDeptId());
+            user.setRoles(roles);
+            if (!user.isAdmin())
             {
                 String permission = StringUtils.defaultIfEmpty(controllerDataScope.permission(), PermissionContextHolder.getContext());
-                dataScopeFilter(joinPoint, currentUser, controllerDataScope.userAlias(), controllerDataScope.deptAlias(), controllerDataScope.userField(), controllerDataScope.deptField(), permission);
+                dataScopeFilter(joinPoint, user, controllerDataScope.userAlias(), controllerDataScope.deptAlias(), controllerDataScope.userField(), controllerDataScope.deptField(), permission);
             }
         }
     }

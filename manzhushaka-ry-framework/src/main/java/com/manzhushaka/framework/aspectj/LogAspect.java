@@ -18,25 +18,23 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 import com.alibaba.fastjson2.JSON;
 import com.manzhushaka.common.annotation.Log;
-import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
-import com.manzhushaka.common.core.domain.model.LoginUser;
-import com.manzhushaka.framework.web.service.SysUserConverter;
 import com.manzhushaka.common.core.text.Convert;
 import com.manzhushaka.common.enums.BusinessStatus;
 import com.manzhushaka.common.enums.HttpMethod;
 import com.manzhushaka.common.filter.PropertyPreExcludeFilter;
 import com.manzhushaka.common.utils.ExceptionUtil;
-import com.manzhushaka.common.utils.SecurityUtils;
 import com.manzhushaka.common.utils.ServletUtils;
 import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.common.utils.ip.IpUtils;
 import com.manzhushaka.framework.manager.AsyncManager;
 import com.manzhushaka.framework.manager.factory.AsyncFactory;
+import com.manzhushaka.framework.security.context.SecurityContextHelper;
+import com.manzhushaka.framework.security.model.LoginPrincipal;
 import com.manzhushaka.framework.web.command.OperationAuditRecord;
 
 /**
  * 操作日志记录处理
- * 
+ *
  * @author manzhushaka
  */
 @Aspect
@@ -76,7 +74,7 @@ public class LogAspect
 
     /**
      * 拦截异常操作
-     * 
+     *
      * @param joinPoint 切点
      * @param e 异常
      */
@@ -91,7 +89,7 @@ public class LogAspect
         try
         {
             // 获取当前的用户
-            LoginUser loginUser = SecurityUtils.getLoginUser();
+            LoginPrincipal principal = SecurityContextHelper.getPrincipalQuietly();
 
             // *========数据库日志=========*//
             Integer status = BusinessStatus.SUCCESS.ordinal();
@@ -100,14 +98,10 @@ public class LogAspect
             String operUrl = StringUtils.substring(ServletUtils.getRequest().getRequestURI(), 0, 255);
             String operName = null;
             String deptName = null;
-            if (loginUser != null)
+            if (principal != null)
             {
-                operName = loginUser.getUsername();
-                SysUser currentUser = SysUserConverter.toSystem(loginUser.getUser());
-                if (StringUtils.isNotNull(currentUser) && StringUtils.isNotNull(currentUser.getDept()))
-                {
-                    deptName = currentUser.getDept().getDeptName();
-                }
+                operName = principal.getUsername();
+                deptName = principal.getDeptName();
             }
 
             String errorMsg = null;
@@ -157,7 +151,7 @@ public class LogAspect
 
     /**
      * 获取注解中对方法的描述信息 用于Controller层注解
-     * 
+     *
      * @param log 日志
      * @param builder 操作日志记录 builder
      * @throws Exception
@@ -179,7 +173,7 @@ public class LogAspect
 
     /**
      * 获取请求的参数，放到log中
-     * 
+     *
      * @param builder 操作日志记录 builder
      * @throws Exception 异常
      */
@@ -240,7 +234,7 @@ public class LogAspect
 
     /**
      * 判断是否需要过滤的对象。
-     * 
+     *
      * @param o 对象信息。
      * @return 如果是需要过滤的对象，则返回true；否则返回false。
      */

@@ -12,7 +12,6 @@ import com.manzhushaka.common.annotation.DataScope;
 import com.manzhushaka.common.constant.UserConstants;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysRole;
 import com.manzhushaka.common.exception.ServiceException;
-import com.manzhushaka.common.utils.SecurityUtils;
 import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.common.utils.spring.SpringUtils;
 import com.manzhushaka.system.domain.SysRoleDept;
@@ -196,7 +195,7 @@ public class SysRoleServiceImpl implements ISysRoleService
     @Override
     public void checkRoleDataScope(Long... roleIds)
     {
-        if (!SecurityUtils.isAdmin())
+        if (StringUtils.isNotNull(roleIds) && roleIds.length > 0)
         {
             for (Long roleId : roleIds)
             {

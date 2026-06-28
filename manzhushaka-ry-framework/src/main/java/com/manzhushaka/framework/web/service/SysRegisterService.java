@@ -11,7 +11,7 @@ import com.manzhushaka.common.exception.user.CaptchaException;
 import com.manzhushaka.common.exception.user.CaptchaExpireException;
 import com.manzhushaka.common.utils.DateUtils;
 import com.manzhushaka.common.utils.MessageUtils;
-import com.manzhushaka.common.utils.SecurityUtils;
+import com.manzhushaka.common.utils.security.PasswordUtils;
 import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.framework.manager.AsyncManager;
 import com.manzhushaka.framework.manager.factory.AsyncFactory;
@@ -78,7 +78,7 @@ public class SysRegisterService
         {
             sysUser.setNickName(username);
             sysUser.setPwdUpdateDate(DateUtils.getNowDate());
-            sysUser.setPassword(SecurityUtils.encryptPassword(password));
+            sysUser.setPassword(PasswordUtils.encrypt(password));
             boolean regFlag = userService.registerUser(sysUser);
             if (!regFlag)
             {

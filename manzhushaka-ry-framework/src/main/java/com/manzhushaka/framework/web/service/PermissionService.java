@@ -4,11 +4,10 @@ import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import com.manzhushaka.common.constant.Constants;
-import com.manzhushaka.system.infrastructure.persistence.entity.SysRole;
-import com.manzhushaka.common.core.domain.model.LoginUser;
-import com.manzhushaka.common.utils.SecurityUtils;
 import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.framework.security.context.PermissionContextHolder;
+import com.manzhushaka.framework.security.context.SecurityContextHelper;
+import com.manzhushaka.framework.security.model.LoginPrincipal;
 
 /**
  * RuoYi首创 自定义权限实现，ss取自SpringSecurity首字母
@@ -30,13 +29,13 @@ public class PermissionService
         {
             return false;
         }
-        LoginUser loginUser = SecurityUtils.getLoginUser();
-        if (StringUtils.isNull(loginUser) || CollectionUtils.isEmpty(loginUser.getPermissions()))
+        LoginPrincipal principal = SecurityContextHelper.getPrincipalQuietly();
+        if (StringUtils.isNull(principal) || CollectionUtils.isEmpty(principal.getPermissions()))
         {
             return false;
         }
         PermissionContextHolder.setContext(permission);
-        return hasPermissions(loginUser.getPermissions(), permission);
+        return hasPermissions(principal.getPermissions(), permission);
     }
 
     /**
@@ -62,13 +61,13 @@ public class PermissionService
         {
             return false;
         }
-        LoginUser loginUser = SecurityUtils.getLoginUser();
-        if (StringUtils.isNull(loginUser) || CollectionUtils.isEmpty(loginUser.getPermissions()))
+        LoginPrincipal principal = SecurityContextHelper.getPrincipalQuietly();
+        if (StringUtils.isNull(principal) || CollectionUtils.isEmpty(principal.getPermissions()))
         {
             return false;
         }
         PermissionContextHolder.setContext(permissions);
-        Set<String> authorities = loginUser.getPermissions();
+        Set<String> authorities = principal.getPermissions();
         for (String permission : permissions.split(Constants.PERMISSION_DELIMITER))
         {
             if (permission != null && hasPermissions(authorities, permission))
@@ -91,14 +90,13 @@ public class PermissionService
         {
             return false;
         }
-        LoginUser loginUser = SecurityUtils.getLoginUser();
-        if (StringUtils.isNull(loginUser) || CollectionUtils.isEmpty(loginUser.getUser().getRoles()))
+        LoginPrincipal principal = SecurityContextHelper.getPrincipalQuietly();
+        if (StringUtils.isNull(principal) || CollectionUtils.isEmpty(principal.getRoleKeys()))
         {
             return false;
         }
-        for (com.manzhushaka.common.core.domain.entity.SysRole sysRole : loginUser.getUser().getRoles())
+        for (String roleKey : principal.getRoleKeys())
         {
-            String roleKey = sysRole.getRoleKey();
             if (Constants.SUPER_ADMIN.equals(roleKey) || roleKey.equals(StringUtils.trim(role)))
             {
                 return true;
@@ -130,8 +128,8 @@ public class PermissionService
         {
             return false;
         }
-        LoginUser loginUser = SecurityUtils.getLoginUser();
-        if (StringUtils.isNull(loginUser) || CollectionUtils.isEmpty(loginUser.getUser().getRoles()))
+        LoginPrincipal principal = SecurityContextHelper.getPrincipalQuietly();
+        if (StringUtils.isNull(principal) || CollectionUtils.isEmpty(principal.getRoleKeys()))
         {
             return false;
         }

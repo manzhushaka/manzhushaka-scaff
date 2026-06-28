@@ -11,13 +11,11 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.manzhushaka.common.constant.HttpStatus;
 import com.manzhushaka.common.core.domain.AjaxResult;
-import com.manzhushaka.common.core.domain.model.LoginUser;
 import com.manzhushaka.common.core.page.PageDomain;
 import com.manzhushaka.common.core.page.TableDataInfo;
 import com.manzhushaka.common.core.page.TableSupport;
 import com.manzhushaka.common.utils.DateUtils;
 import com.manzhushaka.common.utils.PageUtils;
-import com.manzhushaka.common.utils.SecurityUtils;
 import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.common.utils.sql.SqlUtil;
 
@@ -170,10 +168,13 @@ public class BaseController
 
     /**
      * 获取用户缓存信息
+     * 
+     * @deprecated 请使用 {@code SecurityContextHelper.getPrincipal()} 或直接调用 getUserId/getDeptId/getUsername
      */
-    public LoginUser getLoginUser()
+    @Deprecated
+    public Object getLoginUser()
     {
-        return SecurityUtils.getLoginUser();
+        return getUserId();
     }
 
     /**
@@ -181,7 +182,7 @@ public class BaseController
      */
     public Long getUserId()
     {
-        return getLoginUser().getUserId();
+        return getPrincipalField("getUserId");
     }
 
     /**
@@ -189,7 +190,7 @@ public class BaseController
      */
     public Long getDeptId()
     {
-        return getLoginUser().getDeptId();
+        return getPrincipalField("getDeptId");
     }
 
     /**
@@ -197,6 +198,38 @@ public class BaseController
      */
     public String getUsername()
     {
-        return getLoginUser().getUsername();
+        return getPrincipalField("getUsername");
+    }
+
+    /**
+     * 通过反射从安全上下文获取 LoginPrincipal 的字段值
+     * <p>
+     * common 模块不直接依赖 framework，使用反射避免编译期依赖。
+     * 运行时 LoginPrincipal 一定在 classpath 上。
+     */
+    @SuppressWarnings("unchecked")
+    private static <T> T getPrincipalField(String methodName)
+    {
+        try
+        {
+            Object auth = org.springframework.security.core.context.SecurityContextHolder
+                    .getContext().getAuthentication();
+            if (auth == null)
+            {
+                return null;
+            }
+            java.lang.reflect.Method getPrincipalMethod = auth.getClass().getMethod("getPrincipal");
+            Object principal = getPrincipalMethod.invoke(auth);
+            if (principal == null)
+            {
+                return null;
+            }
+            java.lang.reflect.Method fieldMethod = principal.getClass().getMethod(methodName);
+            return (T) fieldMethod.invoke(principal);
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
     }
 }

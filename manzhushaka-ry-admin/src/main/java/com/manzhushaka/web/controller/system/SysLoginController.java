@@ -10,19 +10,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.manzhushaka.common.constant.Constants;
 import com.manzhushaka.common.core.domain.AjaxResult;
-import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
-import com.manzhushaka.common.core.domain.model.LoginUser;
 import com.manzhushaka.common.core.text.Convert;
 import com.manzhushaka.common.utils.DateUtils;
-import com.manzhushaka.common.utils.SecurityUtils;
 import com.manzhushaka.common.utils.StringUtils;
+import com.manzhushaka.framework.security.context.SecurityContextHelper;
+import com.manzhushaka.framework.security.model.LoginPrincipal;
 import com.manzhushaka.framework.web.service.SysLoginService;
 import com.manzhushaka.framework.web.service.SysPermissionService;
-import com.manzhushaka.framework.web.service.SysUserConverter;
-import com.manzhushaka.framework.web.command.LoginCommand;
 import com.manzhushaka.framework.web.service.TokenService;
+import com.manzhushaka.framework.web.command.LoginCommand;
 import com.manzhushaka.system.service.ISysConfigService;
 import com.manzhushaka.system.service.ISysMenuService;
+import com.manzhushaka.system.service.ISysUserService;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
 import com.manzhushaka.web.converter.system.AuthAdminConverter;
 import com.manzhushaka.web.dto.system.LoginRequest;
 
@@ -48,6 +48,9 @@ public class SysLoginController
 
     @Autowired
     private ISysConfigService configService;
+
+    @Autowired
+    private ISysUserService userService;
 
     /**
      * 登录方法
@@ -75,24 +78,28 @@ public class SysLoginController
     @GetMapping("getInfo")
     public AjaxResult getInfo()
     {
-        LoginUser loginUser = SecurityUtils.getLoginUser();
-        SysUser user = SysUserConverter.toSystem(loginUser.getUser());
+        LoginPrincipal principal = SecurityContextHelper.getPrincipal();
+        // 通过 userId 查询用户完整信息以获取角色和权限
+        SysUser user = null;
+        if (principal.getUserId() != null) {
+            user = userService.selectUserById(principal.getUserId());
+        }
         // 角色集合
-        Set<String> roles = permissionService.getRolePermission(user);
+        Set<String> roles = permissionService.getRolePermission(user != null ? user : new SysUser());
         // 权限集合
-        Set<String> permissions = permissionService.getMenuPermission(user);
-        if (!loginUser.getPermissions().equals(permissions))
+        Set<String> permissions = permissionService.getMenuPermission(user != null ? user : new SysUser());
+        if (user != null && !principal.getPermissions().equals(permissions))
         {
-            loginUser.setPermissions(permissions);
-            tokenService.refreshToken(loginUser);
+            principal.setPermissions(permissions);
+            tokenService.refreshToken(principal);
         }
         AjaxResult ajax = AjaxResult.success();
         ajax.put("user", user);
         ajax.put("roles", roles);
         ajax.put("permissions", permissions);
         ajax.put("pwdChrtype", getSysAccountChrtype());
-        ajax.put("isDefaultModifyPwd", initPasswordIsModify(user.getPwdUpdateDate()));
-        ajax.put("isPasswordExpired", passwordIsExpiration(user.getPwdUpdateDate()));
+        ajax.put("isDefaultModifyPwd", user != null ? initPasswordIsModify(user.getPwdUpdateDate()) : false);
+        ajax.put("isPasswordExpired", user != null ? passwordIsExpiration(user.getPwdUpdateDate()) : false);
         return ajax;
     }
 
@@ -104,7 +111,7 @@ public class SysLoginController
     @GetMapping("getRouters")
     public AjaxResult getRouters()
     {
-        Long userId = SecurityUtils.getUserId();
+        Long userId = SecurityContextHelper.getUserId();
         List<com.manzhushaka.system.infrastructure.persistence.entity.SysMenu> menus = menuService.selectMenuTreeByUserId(userId);
         return AjaxResult.success(menuService.buildMenus(menus));
     }

@@ -10,7 +10,7 @@ import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
 import com.manzhushaka.common.core.redis.RedisCache;
 import com.manzhushaka.common.exception.user.UserPasswordNotMatchException;
 import com.manzhushaka.common.exception.user.UserPasswordRetryLimitExceedException;
-import com.manzhushaka.common.utils.SecurityUtils;
+import com.manzhushaka.common.utils.security.PasswordUtils;
 import com.manzhushaka.framework.security.context.AuthenticationContextHolder;
 
 /**
@@ -73,7 +73,7 @@ public class SysPasswordService
 
     public boolean matches(SysUser user, String rawPassword)
     {
-        return SecurityUtils.matchesPassword(rawPassword, user.getPassword());
+        return PasswordUtils.matches(rawPassword, user.getPassword());
     }
 
     public void clearLoginRecordCache(String loginName)

@@ -1,5 +1,11 @@
 package com.manzhushaka.framework.web.service;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,11 +13,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import com.manzhushaka.common.core.domain.model.LoginUser;
+import org.springframework.util.CollectionUtils;
+
+import com.manzhushaka.common.constant.Constants;
 import com.manzhushaka.common.enums.UserStatus;
 import com.manzhushaka.common.exception.ServiceException;
 import com.manzhushaka.common.utils.MessageUtils;
 import com.manzhushaka.common.utils.StringUtils;
+import com.manzhushaka.framework.security.model.LoginPrincipal;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysRole;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
 import com.manzhushaka.system.service.ISysUserService;
 
@@ -54,18 +64,57 @@ public class UserDetailsServiceImpl implements UserDetailsService
             throw new ServiceException(MessageUtils.message("user.blocked"));
         }
 
-        // SysPasswordService.validate() 需要 common 版本的 SysUser
         passwordService.validate(user);
 
-        return createLoginUser(user);
+        return createLoginPrincipal(user);
     }
 
+    /**
+     * 从 SysUser 构建扁平化的 LoginPrincipal
+     */
+    public LoginPrincipal createLoginPrincipal(SysUser user)
+    {
+        Set<String> permissions = permissionService.getMenuPermission(user);
+        Set<String> roleKeys = extractRoleKeys(user.getRoles());
+
+        LoginPrincipal.Builder builder = LoginPrincipal.builder()
+                .userId(user.getUserId())
+                .deptId(user.getDeptId())
+                .username(user.getUserName())
+                .password(user.getPassword())
+                .permissions(permissions)
+                .roleKeys(roleKeys);
+
+        // 填充 deptName（如果存在）
+        if (user.getDept() != null)
+        {
+            builder.deptName(user.getDept().getDeptName());
+        }
+
+        return builder.build();
+    }
+
+    /**
+     * 从角色列表中提取角色键集合
+     */
+    private Set<String> extractRoleKeys(List<SysRole> roles)
+    {
+        if (CollectionUtils.isEmpty(roles))
+        {
+            return new HashSet<>();
+        }
+        return roles.stream()
+                .map(SysRole::getRoleKey)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * 兼容旧的 createLoginUser 方法签名（返回 UserDetails）
+     * 用于外部调用
+     */
     public UserDetails createLoginUser(SysUser user)
     {
-        // 将 system 模块的 SysUser 转换为 common 模块的 SysUser
-        com.manzhushaka.common.core.domain.entity.SysUser commonUser =
-                SysUserConverter.toCommon(user);
-        return new LoginUser(user.getUserId(), user.getDeptId(), commonUser,
-                permissionService.getMenuPermission(user));
+        return createLoginPrincipal(user);
     }
 }

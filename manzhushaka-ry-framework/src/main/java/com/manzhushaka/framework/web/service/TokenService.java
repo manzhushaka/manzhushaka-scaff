@@ -4,15 +4,15 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
 import com.manzhushaka.common.constant.CacheConstants;
 import com.manzhushaka.common.constant.Constants;
-import com.manzhushaka.common.core.domain.model.LoginUser;
-import com.manzhushaka.framework.web.service.SysUserConverter;
 import com.manzhushaka.common.core.redis.RedisCache;
 import com.manzhushaka.common.utils.ServletUtils;
 import com.manzhushaka.common.utils.StringUtils;
@@ -20,6 +20,8 @@ import com.manzhushaka.common.utils.http.UserAgentUtils;
 import com.manzhushaka.common.utils.ip.AddressUtils;
 import com.manzhushaka.common.utils.ip.IpUtils;
 import com.manzhushaka.common.utils.uuid.IdUtils;
+import com.manzhushaka.framework.security.model.LoginPrincipal;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -61,7 +63,7 @@ public class TokenService
      * 
      * @return 用户信息
      */
-    public LoginUser getLoginUser(HttpServletRequest request)
+    public LoginPrincipal getLoginUser(HttpServletRequest request)
     {
         // 获取请求携带的令牌
         String token = getToken(request);
@@ -73,7 +75,7 @@ public class TokenService
                 // 解析对应的权限以及用户信息
                 String uuid = (String) claims.get(Constants.LOGIN_USER_KEY);
                 String userKey = getTokenKey(uuid);
-                LoginUser user = redisCache.getCacheObject(userKey);
+                LoginPrincipal user = redisCache.getCacheObject(userKey);
                 return user;
             }
             catch (Exception e)
@@ -87,11 +89,11 @@ public class TokenService
     /**
      * 设置用户身份信息
      */
-    public void setLoginUser(LoginUser loginUser)
+    public void setLoginUser(LoginPrincipal loginPrincipal)
     {
-        if (StringUtils.isNotNull(loginUser) && StringUtils.isNotEmpty(loginUser.getToken()))
+        if (StringUtils.isNotNull(loginPrincipal) && StringUtils.isNotEmpty(loginPrincipal.getToken()))
         {
-            refreshToken(loginUser);
+            refreshToken(loginPrincipal);
         }
     }
 
@@ -110,65 +112,65 @@ public class TokenService
     /**
      * 创建令牌
      * 
-     * @param loginUser 用户信息
+     * @param loginPrincipal 用户信息
      * @return 令牌
      */
-    public String createToken(LoginUser loginUser)
+    public String createToken(LoginPrincipal loginPrincipal)
     {
         String token = IdUtils.fastUUID();
-        loginUser.setToken(token);
-        setUserAgent(loginUser);
-        refreshToken(loginUser);
+        loginPrincipal.setToken(token);
+        setUserAgent(loginPrincipal);
+        refreshToken(loginPrincipal);
 
         Map<String, Object> claims = new HashMap<>();
         claims.put(Constants.LOGIN_USER_KEY, token);
-        claims.put(Constants.JWT_USERNAME, loginUser.getUsername());
+        claims.put(Constants.JWT_USERNAME, loginPrincipal.getUsername());
         return createToken(claims);
     }
 
     /**
      * 验证令牌有效期，相差不足20分钟，自动刷新缓存
      * 
-     * @param loginUser 登录信息
+     * @param loginPrincipal 登录信息
      * @return 令牌
      */
-    public void verifyToken(LoginUser loginUser)
+    public void verifyToken(LoginPrincipal loginPrincipal)
     {
-        long expireTime = loginUser.getExpireTime();
+        long expireTime = loginPrincipal.getExpireTime();
         long currentTime = System.currentTimeMillis();
         if (expireTime - currentTime <= MILLIS_MINUTE_TWENTY)
         {
-            refreshToken(loginUser);
+            refreshToken(loginPrincipal);
         }
     }
 
     /**
      * 刷新令牌有效期
      * 
-     * @param loginUser 登录信息
+     * @param loginPrincipal 登录信息
      */
-    public void refreshToken(LoginUser loginUser)
+    public void refreshToken(LoginPrincipal loginPrincipal)
     {
-        loginUser.setLoginTime(System.currentTimeMillis());
-        loginUser.setExpireTime(loginUser.getLoginTime() + expireTime * MILLIS_MINUTE);
-        // 根据uuid将loginUser缓存
-        String userKey = getTokenKey(loginUser.getToken());
-        redisCache.setCacheObject(userKey, loginUser, expireTime, TimeUnit.MINUTES);
+        loginPrincipal.setLoginTime(System.currentTimeMillis());
+        loginPrincipal.setExpireTime(loginPrincipal.getLoginTime() + expireTime * MILLIS_MINUTE);
+        // 根据uuid将loginPrincipal缓存
+        String userKey = getTokenKey(loginPrincipal.getToken());
+        redisCache.setCacheObject(userKey, loginPrincipal, expireTime, TimeUnit.MINUTES);
     }
 
     /**
      * 设置用户代理信息
      * 
-     * @param loginUser 登录信息
+     * @param loginPrincipal 登录信息
      */
-    public void setUserAgent(LoginUser loginUser)
+    public void setUserAgent(LoginPrincipal loginPrincipal)
     {
         String userAgent = ServletUtils.getRequest().getHeader("User-Agent");
         String ip = IpUtils.getIpAddr();
-        loginUser.setIpaddr(ip);
-        loginUser.setLoginLocation(AddressUtils.getRealAddressByIP(ip));
-        loginUser.setBrowser(UserAgentUtils.getBrowser(userAgent));
-        loginUser.setOs(UserAgentUtils.getOperatingSystem(userAgent));
+        loginPrincipal.setIpaddr(ip);
+        loginPrincipal.setLoginLocation(AddressUtils.getRealAddressByIP(ip));
+        loginPrincipal.setBrowser(UserAgentUtils.getBrowser(userAgent));
+        loginPrincipal.setOs(UserAgentUtils.getOperatingSystem(userAgent));
     }
 
     /**
@@ -249,23 +251,26 @@ public class TokenService
         }
         for (String key : keys)
         {
-            LoginUser loginUser = redisCache.getCacheObject(key);
-            if (loginUser == null || loginUser.getUser() == null || loginUser.getUser().isAdmin())
+            LoginPrincipal loginPrincipal = redisCache.getCacheObject(key);
+            if (loginPrincipal == null || loginPrincipal.isAdmin())
             {
                 // 管理员拥有所有权限，跳过
                 continue;
             }
             // 判断该用户是否拥有此角色
-            boolean hasRole = loginUser.getUser().getRoles() != null
-                    && loginUser.getUser().getRoles().stream().anyMatch(r -> roleId.equals(r.getRoleId()));
+            boolean hasRole = loginPrincipal.getRoleKeys() != null
+                    && loginPrincipal.getRoleKeys().stream().anyMatch(r -> roleId.equals(r));
             if (!hasRole)
             {
                 continue;
             }
-            // 刷新权限缓存
-            loginUser.setPermissions(permissionService.getMenuPermission(SysUserConverter.toSystem(loginUser.getUser())));
-            refreshToken(loginUser);
-            log.info("角色[{}]权限变更，已刷新在线用户[{}]的权限缓存", roleId, loginUser.getUsername());
+            // 刷新权限缓存 - 需要重新查询用户的完整信息以更新权限
+            // 通过 userId 查询用户并刷新权限
+            com.manzhushaka.system.infrastructure.persistence.entity.SysUser sysUser = new com.manzhushaka.system.infrastructure.persistence.entity.SysUser();
+            sysUser.setUserId(loginPrincipal.getUserId());
+            loginPrincipal.setPermissions(permissionService.getMenuPermission(sysUser));
+            refreshToken(loginPrincipal);
+            log.info("角色[{}]权限变更，已刷新在线用户[{}]的权限缓存", roleId, loginPrincipal.getUsername());
         }
     }
 }
