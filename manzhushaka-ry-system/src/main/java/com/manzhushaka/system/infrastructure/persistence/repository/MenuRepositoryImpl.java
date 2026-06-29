@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import com.manzhushaka.system.domain.repository.MenuRepository;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysMenu;
-import com.manzhushaka.system.infrastructure.persistence.mapper.SysMenuMapper;
+import com.manzhushaka.system.mapper.SysMenuMapper;
 
 /**
  * 菜单仓储实现

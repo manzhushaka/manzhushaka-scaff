@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import com.manzhushaka.system.domain.repository.DeptRepository;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysDept;
-import com.manzhushaka.system.infrastructure.persistence.mapper.SysDeptMapper;
+import com.manzhushaka.system.mapper.SysDeptMapper;
 
 /**
  * 部门仓储实现

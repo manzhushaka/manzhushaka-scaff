@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import com.manzhushaka.system.domain.repository.DictDataRepository;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysDictData;
-import com.manzhushaka.system.infrastructure.persistence.mapper.SysDictDataMapper;
+import com.manzhushaka.system.mapper.SysDictDataMapper;
 
 /**
  * 字典数据仓储实现

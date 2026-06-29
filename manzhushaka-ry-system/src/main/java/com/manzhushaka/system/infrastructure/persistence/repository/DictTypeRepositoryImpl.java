@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import com.manzhushaka.system.domain.repository.DictTypeRepository;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysDictType;
-import com.manzhushaka.system.infrastructure.persistence.mapper.SysDictTypeMapper;
+import com.manzhushaka.system.mapper.SysDictTypeMapper;
 
 /**
  * 字典类型仓储实现
