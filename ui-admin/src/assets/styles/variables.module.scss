@@ -228,7 +228,7 @@ html.dark {
       background-color: var(--tags-card-active-bg) !important;
       border-color: var(--tags-card-active-border) !important;
       color: var(--ui-primary) !important;
-      box-shadow: var(--ui-shadow-panel);
+      box-shadow: 0 -1px 0 color-mix(in srgb, var(--el-color-primary) 18%, transparent);
 
       &::before {
         background: var(--ui-primary) !important;
@@ -415,34 +415,4 @@ html.dark {
   --dict-drawer-border-color: var(--el-border-color);
   --dict-drawer-cell-divider: var(--el-border-color-lighter, #2a2a2a);
 
-  /* 通知公告详情抽屉暗黑模式变量 */
-  --notice-title-color: var(--el-text-color-primary);
-  --notice-meta-color: var(--el-text-color-secondary);
-  --notice-meta-icon-color: var(--el-text-color-placeholder, #606266);
-  --notice-border-color: var(--el-border-color);
-  --notice-body-bg: var(--el-bg-color-overlay);
-  --notice-body-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.04);
-  --notice-content-color: var(--el-text-color-regular);
-  --notice-drawer-body-bg: var(--el-bg-color);
-  --notice-divider-gradient: linear-gradient(to right, transparent, var(--el-border-color), transparent);
-  --notice-divider-dot-color: var(--el-border-color-light, #434343);
-  --notice-blockquote-bg: var(--el-bg-color);
-  --notice-blockquote-border: var(--el-border-color);
-  --notice-table-border: var(--el-border-color);
-  --notice-table-header-bg: var(--el-bg-color);
-  --notice-tag-notify-bg: rgba(217, 119, 6, 0.15);
-  --notice-tag-notify-color: #f6ad55;
-  --notice-tag-announce-bg: rgba(56, 161, 105, 0.15);
-  --notice-tag-announce-color: #68d391;
 }
-
-.notice-detail-drawer {
-  .notice-content {
-    color: var(--el-text-color-regular) !important;
-    * { color: var(--el-text-color-regular) !important; }
-    h1~h6, strong, b { color: var(--el-text-color-primary) !important; }
-    a, a * { color: #5ba7f5 !important; }
-    blockquote, blockquote * { color: var(--el-text-color-secondary) !important; }
-  }
-}
-

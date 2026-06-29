@@ -7,7 +7,7 @@
         <div class="login-brand-icon">
           <svg-icon icon-class="dashboard" class="brand-svg" />
         </div>
-        <span class="login-brand-text">满招科技</span>
+        <span class="login-brand-text">manzhushaka</span>
       </div>
 
       <!-- 登录卡片 -->
@@ -172,7 +172,7 @@ function getCode() {
   getCodeImg().then(res => {
     captchaEnabled.value = res.captchaEnabled === undefined ? true : res.captchaEnabled
     if (captchaEnabled.value) {
-      codeUrl.value = "data:image/gif;base64," + res.img
+      codeUrl.value = "data:image/png;base64," + res.img
       loginForm.value.uuid = res.uuid
     }
   })

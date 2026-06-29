@@ -20,7 +20,7 @@ import Layout from '@/layout'
     title: 'title'                  // 设置该路由在侧边栏和面包屑中展示的名字
     icon: 'svg-name'                // 设置该路由的图标，对应路径src/assets/icons/svg
     breadcrumb: false               // 如果设置为false，则不会在breadcrumb面包屑中显示
-    activeMenu: '/system/user'      // 当路由设置了该属性，则会高亮相对应的侧边栏。
+    activeMenu: '/userAuth/user'      // 当路由设置了该属性，则会高亮相对应的侧边栏。
   }
  */
 
@@ -104,7 +104,7 @@ export const dynamicRoutes = [
         path: 'role/:userId(\\d+)',
         component: () => import('@/views/system/user/authRole'),
         name: 'AuthRole',
-        meta: { title: '分配角色', activeMenu: '/system/user' }
+        meta: { title: '分配角色', activeMenu: '/userAuth/user' }
       }
     ]
   },
@@ -118,7 +118,7 @@ export const dynamicRoutes = [
         path: 'user/:roleId(\\d+)',
         component: () => import('@/views/system/role/authUser'),
         name: 'AuthUser',
-        meta: { title: '分配用户', activeMenu: '/system/role' }
+        meta: { title: '分配用户', activeMenu: '/userAuth/role' }
       }
     ]
   },

@@ -1,6 +1,6 @@
 <template>
   <div v-if="!item.hidden">
-    <template v-if="hasOneShowingChild(item.children, item) && (!onlyOneChild.children || onlyOneChild.noShowingChildren) && !item.alwaysShow">
+    <template v-if="renderSingleMenuItem">
       <app-link v-if="onlyOneChild.meta" :to="resolvePath(onlyOneChild.path, onlyOneChild.query)">
         <el-menu-item :index="resolvePath(onlyOneChild.path)" :class="{ 'submenu-title-noDropdown': !isNest }">
           <svg-icon :icon-class="onlyOneChild.meta.icon || (item.meta && item.meta.icon)"/>
@@ -9,7 +9,12 @@
       </app-link>
     </template>
 
-    <el-sub-menu v-else ref="subMenu" :index="resolvePath(item.path)" teleported>
+    <el-sub-menu
+      v-else
+      ref="subMenu"
+      :index="resolvePath(item.path)"
+      teleported
+    >
       <template v-if="item.meta" #title>
         <svg-icon :icon-class="item.meta && item.meta.icon" />
         <span class="menu-title" :title="hasTitle(item.meta.title)">{{ item.meta.title }}</span>
@@ -21,6 +26,7 @@
         :is-nest="true"
         :item="child"
         :base-path="resolvePath(child.path)"
+        :show-submenu-arrow="showSubmenuArrow"
         class="nest-menu"
       />
     </el-sub-menu>
@@ -45,10 +51,28 @@ const props = defineProps({
   basePath: {
     type: String,
     default: ''
+  },
+  showSubmenuArrow: {
+    type: Boolean,
+    default: false
   }
 })
 
 const onlyOneChild = ref({})
+const hasVisibleChildren = computed(() => {
+  return Array.isArray(props.item.children) && props.item.children.some(child => !child.hidden)
+})
+
+const forceSubmenuArrow = computed(() => {
+  return props.showSubmenuArrow && Boolean(props.item.meta) && hasVisibleChildren.value
+})
+
+const renderSingleMenuItem = computed(() => {
+  return hasOneShowingChild(props.item.children, props.item)
+    && (!onlyOneChild.value.children || onlyOneChild.value.noShowingChildren)
+    && !props.item.alwaysShow
+    && !forceSubmenuArrow.value
+})
 
 function hasOneShowingChild(children = [], parent) {
   if (!children) {

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.manzhushaka.system.mapper.SysSlowSqlLogMapper">
+
+    <resultMap type="SysSlowSqlLog" id="SysSlowSqlLogResult">
+        <id     property="slowSqlId"     column="slow_sql_id"     />
+        <result property="mapperId"      column="mapper_id"       />
+        <result property="sqlText"       column="sql_text"        />
+        <result property="dataSourceName" column="data_source_name" />
+        <result property="costTime"      column="cost_time"       />
+        <result property="errorMsg"      column="error_msg"       />
+        <result property="executeTime"   column="execute_time"    />
+    </resultMap>
+
+    <sql id="selectSlowSqlLogVo">
+        select slow_sql_id, mapper_id, sql_text, data_source_name, cost_time, error_msg, execute_time
+        from sys_slow_sql_log
+    </sql>
+
+    <insert id="insertSlowSqlLog" parameterType="SysSlowSqlLog">
+        insert into sys_slow_sql_log(mapper_id, sql_text, data_source_name, cost_time, error_msg, execute_time)
+        values (#{mapperId}, #{sqlText}, #{dataSourceName}, #{costTime}, #{errorMsg}, #{executeTime})
+    </insert>
+
+    <select id="selectSlowSqlLogList" parameterType="SysSlowSqlLog" resultMap="SysSlowSqlLogResult">
+        <include refid="selectSlowSqlLogVo"/>
+        <where>
+            <if test="mapperId != null and mapperId != ''">
+                AND mapper_id like concat('%', #{mapperId}, '%')
+            </if>
+            <if test="sqlText != null and sqlText != ''">
+                AND sql_text like concat('%', #{sqlText}, '%')
+            </if>
+            <if test="dataSourceName != null and dataSourceName != ''">
+                AND data_source_name = #{dataSourceName}
+            </if>
+            <if test="costTime != null">
+                AND cost_time &gt;= #{costTime}
+            </if>
+            <if test="params.beginTime != null and params.beginTime != ''">
+                AND execute_time &gt;= #{params.beginTime}
+            </if>
+            <if test="params.endTime != null and params.endTime != ''">
+                AND execute_time &lt;= #{params.endTime}
+            </if>
+        </where>
+        order by execute_time desc, slow_sql_id desc
+    </select>
+
+    <select id="selectSlowSqlLogById" parameterType="Long" resultMap="SysSlowSqlLogResult">
+        <include refid="selectSlowSqlLogVo"/>
+        where slow_sql_id = #{slowSqlId}
+    </select>
+
+    <delete id="deleteSlowSqlLogByIds" parameterType="Long">
+        delete from sys_slow_sql_log where slow_sql_id in
+        <foreach collection="array" item="slowSqlId" open="(" separator="," close=")">
+            #{slowSqlId}
+        </foreach>
+    </delete>
+
+    <update id="cleanSlowSqlLog">
+        truncate table sys_slow_sql_log
+    </update>
+
+</mapper>

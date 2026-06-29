@@ -50,12 +50,6 @@
       <el-row :gutter="20" class="mb8">
         <el-col :span="12">
           <div class="info-item">
-            <label class="info-label">岗位：</label>
-            <span class="info-value plaintext">{{ postNames || '无岗位' }}</span>
-          </div>
-        </el-col>
-        <el-col :span="12">
-          <div class="info-item">
             <label class="info-label">用户性别：</label>
             <span class="info-value plaintext">{{ sexLabel }}</span>
           </div>
@@ -131,17 +125,11 @@ import { getUser } from '@/api/system/user'
 const visible = ref(false)
 const loading = ref(false)
 const info = reactive({})
-const postOptions = ref([])
 const roleOptions = ref([])
 
 const { sys_user_sex } = useDict("sys_user_sex")
 
 const sexLabel = computed(() => selectDictLabel(sys_user_sex.value, info.sex) || '-')
-
-const postNames = computed(() => {
-  if (!postOptions.value.length || !info.postIds) return ''
-  return postOptions.value.filter(p => info.postIds?.includes(p.postId)).map(p => p.postName).join('、') || ''
-})
 
 const roleNames = computed(() => {
   if (!roleOptions.value.length || !info.roleIds) return ''
@@ -154,9 +142,7 @@ const open = async (userId) => {
   try {
     const res = await getUser(userId)
     Object.assign(info, res.data || {})
-    postOptions.value = res.posts || []
     roleOptions.value = res.roles || []
-    info.postIds = res.postIds || []
     info.roleIds = res.roleIds || []
   } catch (error) {
     console.error('获取用户信息失败:', error)

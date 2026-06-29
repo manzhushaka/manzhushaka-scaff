@@ -1,6 +1,6 @@
 # Repository Guidelines
 
-每次回答问题前，都先说问候语：“你好，我是 manzhushaka”。
+每次回答问题前，都先说问候语：“你好，我是 manzhushaka (≧▽≦)”，并在说完问候语后换行。
 
 ## 适用范围与优先级
 
@@ -346,6 +346,11 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 
 ## 日志规约
 
+- `manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller` 下所有 Controller HTTP 接口方法必须添加操作日志注解 `@Log`，全限定名为 `com.manzhushaka.common.annotation.Log`。
+- `@Log.title` 使用清晰的业务模块或操作名称，例如 `"用户管理"`、`"菜单管理"`。
+- `@Log.businessType` 必须按实际动作选择 `com.manzhushaka.common.enums.BusinessType`，例如 `INSERT`、`UPDATE`、`DELETE`、`EXPORT`、`IMPORT`、`GRANT`、`CLEAN`、`FORCE`、`OTHER`。
+- 涉及密码、Token、密钥、验证码、文件内容、请求快照、响应快照、大体量响应等敏感或超长数据时，必须通过 `isSaveRequestData = false`、`isSaveResponseData = false` 或 `excludeParamNames` 避免落库。
+- 新增 Controller 接口时同步检查 `@PreAuthorize` 或 `@Anonymous` 与 `@Log` 是否同时满足规范，不能只补权限或只补日志。
 - 不直接依赖 Log4j、Logback API，应使用 SLF4J、JCL 等日志门面。
 - 日志至少保存 15 天；网络运行状态、网络安全事件、个人敏感信息操作等日志按合规要求留存并备份。
 - 扩展日志命名使用 `appName_logType_logName.log`，例如 stats、monitor、access。

@@ -33,14 +33,6 @@ public interface SystemUserAppService
     SysUser getUserDetail(Long userId);
 
     /**
-     * 获取用户的岗位ID列表
-     *
-     * @param userId 用户ID
-     * @return 岗位ID列表
-     */
-    List<Long> getPostIdsByUserId(Long userId);
-
-    /**
      * 创建用户
      *
      * @param command 创建命令

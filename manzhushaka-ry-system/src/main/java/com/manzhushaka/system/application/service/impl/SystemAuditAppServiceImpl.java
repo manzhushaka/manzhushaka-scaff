@@ -10,8 +10,12 @@ import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.system.application.service.SystemAuditAppService;
 import com.manzhushaka.system.domain.SysLogininfor;
 import com.manzhushaka.system.domain.SysOperLog;
+import com.manzhushaka.system.domain.SysRequestLog;
+import com.manzhushaka.system.domain.SysSlowSqlLog;
 import com.manzhushaka.system.service.ISysLogininforService;
 import com.manzhushaka.system.service.ISysOperLogService;
+import com.manzhushaka.system.service.ISysRequestLogService;
+import com.manzhushaka.system.service.ISysSlowSqlLogService;
 
 /**
  * 系统审计应用服务实现
@@ -32,6 +36,12 @@ public class SystemAuditAppServiceImpl implements SystemAuditAppService
 
     @Autowired
     private ISysOperLogService operLogService;
+
+    @Autowired
+    private ISysRequestLogService requestLogService;
+
+    @Autowired
+    private ISysSlowSqlLogService slowSqlLogService;
 
     @Override
     public void recordLoginAudit(String username, String status, String message, String ip,
@@ -85,5 +95,42 @@ public class SystemAuditAppServiceImpl implements SystemAuditAppService
         operLog.setOperLocation(com.manzhushaka.common.utils.ip.AddressUtils.getRealAddressByIP(operIp));
 
         operLogService.insertOperlog(operLog);
+    }
+
+    @Override
+    public void recordRequestLog(String requestUri, String requestMethod, String controllerMethod, String queryString,
+                                  String requestParams, String ipaddr, String userName, Integer statusCode,
+                                  Integer status, String errorMsg, String userAgent, Long costTime,
+                                  java.util.Date requestTime)
+    {
+        SysRequestLog requestLog = new SysRequestLog();
+        requestLog.setRequestUri(requestUri);
+        requestLog.setRequestMethod(requestMethod);
+        requestLog.setControllerMethod(controllerMethod);
+        requestLog.setQueryString(queryString);
+        requestLog.setRequestParams(requestParams);
+        requestLog.setIpaddr(ipaddr);
+        requestLog.setUserName(userName);
+        requestLog.setStatusCode(statusCode);
+        requestLog.setStatus(status);
+        requestLog.setErrorMsg(errorMsg);
+        requestLog.setUserAgent(userAgent);
+        requestLog.setCostTime(costTime);
+        requestLog.setRequestTime(requestTime);
+        requestLogService.insertRequestLog(requestLog);
+    }
+
+    @Override
+    public void recordSlowSqlLog(String mapperId, String sqlText, String dataSourceName, Long costTime,
+                                  String errorMsg, java.util.Date executeTime)
+    {
+        SysSlowSqlLog slowSqlLog = new SysSlowSqlLog();
+        slowSqlLog.setMapperId(mapperId);
+        slowSqlLog.setSqlText(sqlText);
+        slowSqlLog.setDataSourceName(dataSourceName);
+        slowSqlLog.setCostTime(costTime);
+        slowSqlLog.setErrorMsg(errorMsg);
+        slowSqlLog.setExecuteTime(executeTime);
+        slowSqlLogService.insertSlowSqlLog(slowSqlLog);
     }
 }

@@ -23,6 +23,7 @@ import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.util.ClassUtils;
 import com.manzhushaka.common.utils.StringUtils;
+import com.manzhushaka.framework.mybatis.SlowSqlInterceptor;
 
 /**
  * Mybatis支持*匹配扫描包
@@ -34,6 +35,9 @@ public class MyBatisConfig
 {
     @Autowired
     private Environment env;
+
+    @Autowired
+    private SlowSqlInterceptor slowSqlInterceptor;
 
     static final String DEFAULT_RESOURCE_PATTERN = "**/*.class";
 
@@ -127,6 +131,7 @@ public class MyBatisConfig
         sessionFactory.setTypeAliasesPackage(typeAliasesPackage);
         sessionFactory.setMapperLocations(resolveMapperLocations(StringUtils.split(mapperLocations, ",")));
         sessionFactory.setConfigLocation(new DefaultResourceLoader().getResource(configLocation));
+        sessionFactory.setPlugins(slowSqlInterceptor);
         return sessionFactory.getObject();
     }
 }

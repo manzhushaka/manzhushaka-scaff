@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.manzhushaka.system.mapper.SysRequestLogMapper">
+
+    <resultMap type="SysRequestLog" id="SysRequestLogResult">
+        <id     property="requestId"        column="request_id"        />
+        <result property="requestUri"       column="request_uri"       />
+        <result property="requestMethod"    column="request_method"    />
+        <result property="controllerMethod" column="controller_method" />
+        <result property="queryString"      column="query_string"      />
+        <result property="requestParams"    column="request_params"    />
+        <result property="ipaddr"           column="ipaddr"            />
+        <result property="userName"         column="user_name"         />
+        <result property="statusCode"       column="status_code"       />
+        <result property="status"           column="status"            />
+        <result property="errorMsg"         column="error_msg"         />
+        <result property="userAgent"        column="user_agent"        />
+        <result property="costTime"         column="cost_time"         />
+        <result property="requestTime"      column="request_time"      />
+    </resultMap>
+
+    <sql id="selectRequestLogVo">
+        select request_id, request_uri, request_method, controller_method, query_string, request_params,
+               ipaddr, user_name, status_code, status, error_msg, user_agent, cost_time, request_time
+        from sys_request_log
+    </sql>
+
+    <insert id="insertRequestLog" parameterType="SysRequestLog">
+        insert into sys_request_log(request_uri, request_method, controller_method, query_string, request_params,
+                                    ipaddr, user_name, status_code, status, error_msg, user_agent, cost_time, request_time)
+        values (#{requestUri}, #{requestMethod}, #{controllerMethod}, #{queryString}, #{requestParams},
+                #{ipaddr}, #{userName}, #{statusCode}, #{status}, #{errorMsg}, #{userAgent}, #{costTime}, #{requestTime})
+    </insert>
+
+    <select id="selectRequestLogList" parameterType="SysRequestLog" resultMap="SysRequestLogResult">
+        <include refid="selectRequestLogVo"/>
+        <where>
+            <if test="requestUri != null and requestUri != ''">
+                AND request_uri like concat('%', #{requestUri}, '%')
+            </if>
+            <if test="requestMethod != null and requestMethod != ''">
+                AND request_method = #{requestMethod}
+            </if>
+            <if test="userName != null and userName != ''">
+                AND user_name like concat('%', #{userName}, '%')
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="statusCode != null">
+                AND status_code = #{statusCode}
+            </if>
+            <if test="params.beginTime != null and params.beginTime != ''">
+                AND request_time &gt;= #{params.beginTime}
+            </if>
+            <if test="params.endTime != null and params.endTime != ''">
+                AND request_time &lt;= #{params.endTime}
+            </if>
+        </where>
+        order by request_time desc, request_id desc
+    </select>
+
+    <select id="selectRequestLogById" parameterType="Long" resultMap="SysRequestLogResult">
+        <include refid="selectRequestLogVo"/>
+        where request_id = #{requestId}
+    </select>
+
+    <delete id="deleteRequestLogByIds" parameterType="Long">
+        delete from sys_request_log where request_id in
+        <foreach collection="array" item="requestId" open="(" separator="," close=")">
+            #{requestId}
+        </foreach>
+    </delete>
+
+    <update id="cleanRequestLog">
+        truncate table sys_request_log
+    </update>
+
+</mapper>

@@ -12,7 +12,6 @@ package com.manzhushaka.system.application.command;
  * @param status      状态（0正常 1停用）
  * @param deptId      部门ID
  * @param roleIds     角色组
- * @param postIds     岗位组
  */
 public record UpdateUserCommand(
         Long userId,
@@ -23,8 +22,7 @@ public record UpdateUserCommand(
         String sex,
         String status,
         Long deptId,
-        Long[] roleIds,
-        Long[] postIds
+        Long[] roleIds
 )
 {
 }

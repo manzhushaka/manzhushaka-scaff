@@ -17,6 +17,7 @@
           :key="route.path + index"
           :item="route"
           :base-path="route.path"
+          :show-submenu-arrow="true"
         />
       </el-menu>
     </el-scrollbar>

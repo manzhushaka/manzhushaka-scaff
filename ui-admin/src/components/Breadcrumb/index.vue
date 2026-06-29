@@ -85,9 +85,25 @@ getBreadcrumb()
 
 <style lang='scss' scoped>
 .app-breadcrumb.el-breadcrumb {
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
   font-size: 14px;
-  line-height: 50px;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+
+  :deep(.el-breadcrumb__item) {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  :deep(.el-breadcrumb__inner),
+  :deep(.el-breadcrumb__separator) {
+    white-space: nowrap;
+  }
 
   .no-redirect {
     color: #97a8be;

@@ -368,7 +368,7 @@ $tags-bar-height: 42px;
   background: color-mix(in srgb, var(--ui-bg-panel) 86%, var(--ui-bg-panel-soft) 14%);
   border-bottom: 1px solid var(--ui-border);
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   overflow: hidden;
 
   $btn-width: 32px;
@@ -385,6 +385,7 @@ $tags-bar-height: 42px;
     justify-content: center;
     width: $btn-width;
     height: $btn-width;
+    margin-bottom: 5px;
     border-radius: 6px;
     cursor: pointer;
     color: $btn-color;
@@ -410,7 +411,9 @@ $tags-bar-height: 42px;
   .tags-view-wrapper {
     flex: 1;
     min-width: 0;
-    height: 100%;
+    height: 36px;
+    display: flex;
+    align-items: flex-end;
 
     .tags-view-item {
       display: inline-flex;
@@ -442,10 +445,11 @@ $tags-bar-height: 42px;
   }
 
   &:not(.tags-view-container--chrome) .tags-view-wrapper .tags-view-item.active {
-    background-color: var(--ui-bg-selected);
+    background-color: color-mix(in srgb, var(--ui-primary-soft) 88%, var(--ui-bg-panel) 12%);
     color: var(--ui-primary);
-    border-color: color-mix(in srgb, var(--ui-primary) 40%, var(--ui-border));
+    border-color: color-mix(in srgb, var(--ui-primary) 34%, var(--ui-border));
     font-weight: 600;
+    box-shadow: 0 -1px 0 color-mix(in srgb, var(--ui-primary) 10%, transparent);
 
     &::before {
       content: '';
@@ -466,7 +470,8 @@ $tags-bar-height: 42px;
   .tags-action-dropdown {
     flex-shrink: 0;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
+    margin-bottom: 2px;
   }
 
   .tags-action-btn {
@@ -494,6 +499,7 @@ $tags-bar-height: 42px;
     width: auto;
     padding: 0 10px;
     gap: 4px;
+    margin-bottom: 2px;
   }
 
   .contextmenu {
@@ -539,8 +545,13 @@ $tags-bar-height: 42px;
       align-self: stretch;
       height: auto;
       min-height: $tags-bar-height;
+      margin-bottom: 0;
       border-color: var(--chrome-strip-border);
       border-radius: 0;
+    }
+
+    .tags-action-dropdown {
+      margin-bottom: 0;
     }
 
     .tags-action-btn {

@@ -7,20 +7,16 @@
           <h2 class="welcome-greeting">
             {{ greeting }}，<span class="welcome-user">{{ userStore.nickName || userStore.name }}</span>
           </h2>
-          <p class="welcome-sub">聚合用户、权限、公告与运行状态，保持后台运营节奏清晰可控。</p>
+          <p class="welcome-sub">聚合用户、权限与运行状态，保持后台运营节奏清晰可控。</p>
         </div>
         <div class="welcome-actions">
-          <el-button class="welcome-action-btn is-primary" @click="goRoute('/system/user')">
+          <el-button class="welcome-action-btn is-primary" @click="goRoute('/userAuth/user')">
             <svg-icon icon-class="user" class="action-icon" />
             用户管理
           </el-button>
-          <el-button class="welcome-action-btn" @click="goRoute('/system/role')">
+          <el-button class="welcome-action-btn" @click="goRoute('/userAuth/role')">
             <svg-icon icon-class="peoples" class="action-icon" />
             角色管理
-          </el-button>
-          <el-button class="welcome-action-btn" @click="goRoute('/system/notice')">
-            <svg-icon icon-class="message" class="action-icon" />
-            通知公告
           </el-button>
         </div>
       </div>
@@ -41,97 +37,40 @@
       </div>
     </div>
 
-    <el-row :gutter="18">
-      <el-col :xs="24" :sm="24" :md="16" :lg="16">
-        <div class="ui-panel-card notice-card">
-          <div class="panel-header">
-            <div class="panel-header-left">
-              <svg-icon icon-class="message" class="panel-header-icon" />
-              <span>通知公告</span>
+    <div class="quick-card">
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <svg-icon icon-class="skill" class="panel-header-icon" />
+          <span>快捷入口</span>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="quick-grid">
+          <div
+            class="quick-item"
+            v-for="item in quickLinks"
+            :key="item.route"
+            @click="goRoute(item.route)"
+          >
+            <div class="quick-icon" :class="'tone-' + item.tone">
+              <svg-icon :icon-class="item.icon" class="quick-svg" />
             </div>
-            <el-button text type="primary" size="small" @click="goRoute('/system/notice')">
-              查看更多
-            </el-button>
-          </div>
-          <div class="panel-body">
-            <div v-if="noticeList.length > 0">
-              <div
-                class="notice-item"
-                v-for="item in noticeList"
-                :key="item.noticeId"
-              >
-                <span class="notice-tag" :class="noticeTypeClass(item.noticeType)">{{ noticeTypeText(item.noticeType) }}</span>
-                <span class="notice-title">{{ item.noticeTitle }}</span>
-                <span class="notice-time">{{ item.createTime }}</span>
-              </div>
-            </div>
-            <div v-else class="panel-empty">
-              <svg-icon icon-class="message" class="empty-icon" />
-              <span>暂无通知公告</span>
-            </div>
+            <span class="quick-label">{{ item.label }}</span>
           </div>
         </div>
-
-        <div class="ui-panel-card recent-card">
-          <div class="panel-header">
-            <div class="panel-header-left">
-              <svg-icon icon-class="log" class="panel-header-icon" />
-              <span>最近动态</span>
-            </div>
-          </div>
-          <div class="panel-body">
-            <div class="dynamic-list">
-              <div class="dynamic-item" v-for="(item, idx) in recentDynamics" :key="idx">
-                <div class="dynamic-dot" :class="'tone-' + item.tone" />
-                <div class="dynamic-content">
-                  <span class="dynamic-text">{{ item.text }}</span>
-                  <span class="dynamic-time">{{ item.time }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </el-col>
-
-      <el-col :xs="24" :sm="24" :md="8" :lg="8">
-        <div class="ui-panel-card quick-card">
-          <div class="panel-header">
-            <div class="panel-header-left">
-              <svg-icon icon-class="skill" class="panel-header-icon" />
-              <span>快捷入口</span>
-            </div>
-          </div>
-          <div class="panel-body">
-            <div class="quick-grid">
-              <div
-                class="quick-item"
-                v-for="item in quickLinks"
-                :key="item.route"
-                @click="goRoute(item.route)"
-              >
-                <div class="quick-icon" :class="'tone-' + item.tone">
-                  <svg-icon :icon-class="item.icon" class="quick-svg" />
-                </div>
-                <span class="quick-label">{{ item.label }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </el-col>
-    </el-row>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import useUserStore from '@/store/modules/user'
-import { listNotice } from "@/api/system/notice"
 
 const router = useRouter()
 const userStore = useUserStore()
 
-// ---------- 问候语 ----------
 const now = new Date()
 const hour = now.getHours()
 let greeting = '您好'
@@ -140,68 +79,25 @@ else if (hour >= 12 && hour < 14) greeting = '中午好'
 else if (hour >= 14 && hour < 18) greeting = '下午好'
 else greeting = '晚上好'
 
-// ---------- 核心指标 ----------
 const kpiList = ref([
   { label: '用户总数', value: '—', icon: 'user', tone: 'primary', trend: '' },
   { label: '角色总数', value: '—', icon: 'peoples', tone: 'success', trend: '' },
-  { label: '通知公告', value: '—', icon: 'message', tone: 'warning', trend: '' },
   { label: '服务状态', value: '正常', icon: 'server', tone: 'accent', trend: '运行中' },
 ])
 
-// ---------- 通知公告 ----------
-const noticeList = ref([])
-
-function loadNotice() {
-  listNotice({ pageNum: 1, pageSize: 5 }).then(res => {
-    if (res.code === 200) {
-      noticeList.value = res.rows || []
-      if (kpiList.value[2]) {
-        kpiList.value[2].value = res.total || '—'
-      }
-      if (res.rows && res.rows.length > 0) {
-        const total = res.total
-        kpiList.value[2] = { ...kpiList.value[2], value: total || '—' }
-      }
-    }
-  }).catch(() => {
-    // 接口不可用时静默失败
-  })
-}
-
-function noticeTypeClass(type) {
-  return type === '1' ? 'tag-notice' : 'tag-warn'
-}
-
-function noticeTypeText(type) {
-  return type === '1' ? '通知' : '公告'
-}
-
-// ---------- 最近动态 ----------
-const recentDynamics = ref([
-  { text: '欢迎使用满招科技后台管理系统', time: '—', tone: 'primary' },
-  { text: '系统运行正常，所有服务在线', time: '—', tone: 'success' },
-  { text: '建议定期修改密码以保障账户安全', time: '—', tone: 'warning' },
-])
-
-// ---------- 快捷入口 ----------
 const quickLinks = [
-  { label: '用户管理', route: '/system/user', icon: 'user', tone: 'primary' },
-  { label: '角色管理', route: '/system/role', icon: 'peoples', tone: 'success' },
-  { label: '菜单管理', route: '/system/menu', icon: 'tree-table', tone: 'warning' },
-  { label: '通知公告', route: '/system/notice', icon: 'message', tone: 'accent' },
+  { label: '用户管理', route: '/userAuth/user', icon: 'user', tone: 'primary' },
+  { label: '角色管理', route: '/userAuth/role', icon: 'peoples', tone: 'success' },
+  { label: '菜单管理', route: '/userAuth/menu', icon: 'tree-table', tone: 'warning' },
   { label: '服务监控', route: '/monitor/server', icon: 'server', tone: 'supplement' },
-  { label: '操作日志', route: '/monitor/operlog', icon: 'log', tone: 'primary' },
-  { label: '登录日志', route: '/monitor/logininfor', icon: 'logininfor', tone: 'success' },
+  { label: '操作日志', route: '/system/log/operlog', icon: 'log', tone: 'primary' },
+  { label: '登录日志', route: '/system/log/logininfor', icon: 'logininfor', tone: 'success' },
   { label: '缓存监控', route: '/monitor/cache', icon: 'redis', tone: 'warning' },
 ]
 
-// ---------- 路由跳转 ----------
 function goRoute(path) {
   router.push(path)
 }
-
-// 加载数据
-loadNotice()
 </script>
 
 <style lang="scss" scoped>
@@ -210,9 +106,6 @@ loadNotice()
   padding: 0;
 }
 
-// ============================================================
-// 欢迎区
-// ============================================================
 .welcome-panel {
   position: relative;
   min-height: 172px;
@@ -351,21 +244,14 @@ loadNotice()
   }
 }
 
-// ============================================================
-// KPI 指标网格
-// ============================================================
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 12px;
   margin-bottom: 18px;
 
-  @media (max-width: 991px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
   @media (max-width: 480px) {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 10px;
   }
 }
@@ -440,9 +326,14 @@ loadNotice()
   color: var(--tone-color);
 }
 
-// ============================================================
-// 面板通用
-// ============================================================
+.quick-card {
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-panel);
+  background: var(--ui-bg-panel);
+  box-shadow: var(--ui-shadow-panel);
+  overflow: hidden;
+}
+
 .panel-header {
   display: flex;
   justify-content: space-between;
@@ -472,145 +363,9 @@ loadNotice()
   padding: 14px 16px 16px;
 }
 
-.panel-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 24px 0;
-  color: var(--ui-text-secondary);
-  font-size: 13px;
-
-  .empty-icon {
-    width: 36px;
-    height: 36px;
-    opacity: 0.40;
-    color: var(--ui-text-secondary);
-  }
-}
-
-// ============================================================
-// 通知公告
-// ============================================================
-.notice-card,
-.recent-card,
-.quick-card {
-  border: 1px solid var(--ui-border);
-  border-radius: var(--ui-radius-panel);
-  background: var(--ui-bg-panel);
-  box-shadow: var(--ui-shadow-panel);
-  margin-bottom: 18px;
-  overflow: hidden;
-}
-
-.notice-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--ui-divider);
-
-  &:last-child {
-    border-bottom: none;
-  }
-}
-
-.notice-tag {
-  display: inline-flex;
-  align-items: center;
-  height: 22px;
-  padding: 0 8px;
-  border-radius: var(--ui-radius-subtle);
-  font-size: 11px;
-  font-weight: 600;
-  flex-shrink: 0;
-}
-
-.tag-notice {
-  background: color-mix(in srgb, var(--ui-primary) 14%, transparent);
-  color: var(--ui-primary);
-}
-
-.tag-warn {
-  background: color-mix(in srgb, var(--ui-warning) 14%, transparent);
-  color: var(--ui-warning);
-}
-
-.notice-title {
-  flex: 1;
-  font-size: 13px;
-  color: var(--ui-text-regular);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.notice-time {
-  font-size: 12px;
-  color: var(--ui-text-secondary);
-  flex-shrink: 0;
-}
-
-// ============================================================
-// 最近动态
-// ============================================================
-.dynamic-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.dynamic-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--ui-divider);
-
-  &:last-child {
-    border-bottom: none;
-  }
-}
-
-.dynamic-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  margin-top: 5px;
-  background: var(--tone-color);
-}
-
-.dynamic-content {
-  flex: 1;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  min-width: 0;
-}
-
-.dynamic-text {
-  font-size: 13px;
-  color: var(--ui-text-regular);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.dynamic-time {
-  font-size: 12px;
-  color: var(--ui-text-secondary);
-  flex-shrink: 0;
-  margin-left: 8px;
-}
-
-// ============================================================
-// 快捷入口
-// ============================================================
 .quick-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 9px;
 }
 

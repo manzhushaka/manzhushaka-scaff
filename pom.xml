@@ -36,7 +36,7 @@
         <mybatis-spring-boot.version>4.0.1</mybatis-spring-boot.version>
         <druid.version>1.2.28</druid.version>
         <yauaa.version>8.1.1</yauaa.version>
-        <kaptcha.version>2.3.3</kaptcha.version>
+        <hutool.version>5.8.46</hutool.version>
         <pagehelper.boot.version>4.1.0</pagehelper.boot.version>
         <fastjson.version>2.0.62</fastjson.version>
         <oshi.version>7.3.0</oshi.version>
@@ -206,13 +206,13 @@
             </dependency>
 
             <!-- ========================================================= -->
-            <!-- Kaptcha 验证码                                            -->
-            <!-- 生成图片验证码工具，支持样式配置、干扰线、扭曲等。         -->
+            <!-- Hutool 验证码                                             -->
+            <!-- 生成图片验证码工具，支持静态字符验证码和多种干扰样式。     -->
             <!-- ========================================================= -->
             <dependency>
-                <groupId>pro.fessional</groupId>
-                <artifactId>kaptcha</artifactId>
-                <version>${kaptcha.version}</version>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-captcha</artifactId>
+                <version>${hutool.version}</version>
             </dependency>
 
             <!-- ========================================================= -->

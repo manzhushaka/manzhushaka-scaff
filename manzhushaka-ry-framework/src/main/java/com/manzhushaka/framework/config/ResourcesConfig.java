@@ -13,6 +13,7 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import com.manzhushaka.common.config.ManzhushakaConfig;
 import com.manzhushaka.common.constant.Constants;
+import com.manzhushaka.framework.interceptor.RequestLogInterceptor;
 import com.manzhushaka.framework.interceptor.RepeatSubmitInterceptor;
 
 /**
@@ -25,6 +26,9 @@ public class ResourcesConfig implements WebMvcConfigurer
 {
     @Autowired
     private RepeatSubmitInterceptor repeatSubmitInterceptor;
+
+    @Autowired
+    private RequestLogInterceptor requestLogInterceptor;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry)
@@ -45,6 +49,7 @@ public class ResourcesConfig implements WebMvcConfigurer
     @Override
     public void addInterceptors(InterceptorRegistry registry)
     {
+        registry.addInterceptor(requestLogInterceptor).addPathPatterns("/**");
         registry.addInterceptor(repeatSubmitInterceptor).addPathPatterns("/**");
     }
 

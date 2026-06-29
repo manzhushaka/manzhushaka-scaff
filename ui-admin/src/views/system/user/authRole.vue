@@ -87,7 +87,7 @@ function checkSelectable(row) {
 
 /** 关闭按钮 */
 function close() {
-  const obj = { path: "/system/user" }
+  const obj = { path: "/userAuth/user" }
   proxy.$tab.closeOpenPage(obj)
 }
 

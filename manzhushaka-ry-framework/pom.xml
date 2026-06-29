@@ -37,14 +37,8 @@
 
         <!-- 验证码 -->
         <dependency>
-            <groupId>pro.fessional</groupId>
-            <artifactId>kaptcha</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>servlet-api</artifactId>
-                    <groupId>javax.servlet</groupId>
-                </exclusion>
-            </exclusions>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-captcha</artifactId>
         </dependency>
 
         <!-- 获取系统信息 -->

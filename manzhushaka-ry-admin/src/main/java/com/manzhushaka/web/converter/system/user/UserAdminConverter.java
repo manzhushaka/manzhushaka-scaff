@@ -15,7 +15,6 @@ import com.manzhushaka.web.dto.system.user.CreateUserRequest;
 import com.manzhushaka.web.dto.system.user.ResetPwdRequest;
 import com.manzhushaka.web.dto.system.user.UpdateUserRequest;
 import com.manzhushaka.web.dto.system.user.UserListRequest;
-import com.manzhushaka.web.vo.system.user.UserDetailVO;
 import com.manzhushaka.web.vo.system.user.UserListVO;
 
 /**
@@ -65,8 +64,7 @@ public class UserAdminConverter
                 request.getAvatar(),
                 request.getStatus(),
                 request.getDeptId(),
-                request.getRoleIds(),
-                request.getPostIds());
+                request.getRoleIds());
     }
 
     /**
@@ -87,8 +85,7 @@ public class UserAdminConverter
                 request.getSex(),
                 request.getStatus(),
                 request.getDeptId(),
-                request.getRoleIds(),
-                request.getPostIds());
+                request.getRoleIds());
     }
 
     /**
@@ -155,41 +152,4 @@ public class UserAdminConverter
                 .collect(Collectors.toList());
     }
 
-    /**
-     * SysUser + 辅助数据 -> UserDetailVO
-     */
-    public static UserDetailVO toUserDetailVO(SysUser user, List<Long> postIds,
-            List<SysRole> allRoles, List<Long> roleIds, List<?> allPosts)
-    {
-        if (user == null)
-        {
-            return null;
-        }
-        UserDetailVO vo = new UserDetailVO();
-        vo.setUserId(user.getUserId());
-        vo.setDeptId(user.getDeptId());
-        vo.setUserName(user.getUserName());
-        vo.setNickName(user.getNickName());
-        vo.setEmail(user.getEmail());
-        vo.setPhonenumber(user.getPhonenumber());
-        vo.setSex(user.getSex());
-        vo.setAvatar(user.getAvatar());
-        vo.setStatus(user.getStatus());
-        if (user.getDept() != null)
-        {
-            vo.setDeptName(user.getDept().getDeptName());
-        }
-        vo.setRoles(user.getRoles());
-        vo.setRoleIds(roleIds);
-        vo.setPostIds(postIds);
-        vo.setAllRoles(allRoles);
-        if (allPosts != null)
-        {
-            @SuppressWarnings("unchecked")
-            List<Object> posts = (List<Object>) allPosts;
-            vo.setAllPosts(posts);
-        }
-        vo.setCreateTime(user.getCreateTime());
-        return vo;
-    }
 }

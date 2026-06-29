@@ -44,6 +44,13 @@ import ImagePreview from "@/components/ImagePreview"
 // 字典标签组件
 import DictTag from '@/components/DictTag'
 
+const UI_THEME_NAME = 'cool-tower'
+
+if (typeof document !== 'undefined') {
+  document.documentElement.setAttribute('data-ui-theme', UI_THEME_NAME)
+  document.body.setAttribute('data-ui-theme', UI_THEME_NAME)
+}
+
 const app = createApp(App)
 
 // 全局方法挂载

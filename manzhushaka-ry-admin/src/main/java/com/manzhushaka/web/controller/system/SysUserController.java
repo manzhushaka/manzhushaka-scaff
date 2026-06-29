@@ -29,7 +29,6 @@ import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.common.utils.poi.ExcelUtil;
 import com.manzhushaka.system.application.service.SystemUserAppService;
 import com.manzhushaka.system.service.ISysDeptService;
-import com.manzhushaka.system.service.ISysPostService;
 import com.manzhushaka.system.service.ISysRoleService;
 import com.manzhushaka.system.service.ISysUserService;
 import com.manzhushaka.web.converter.system.user.UserAdminConverter;
@@ -60,9 +59,6 @@ public class SysUserController extends BaseController
 
     @Autowired
     private ISysDeptService deptService;
-
-    @Autowired
-    private ISysPostService postService;
 
     /**
      * 获取用户列表
@@ -117,14 +113,11 @@ public class SysUserController extends BaseController
         if (StringUtils.isNotNull(userId))
         {
             SysUser sysUser = userAppService.getUserDetail(userId);
-            List<Long> postIds = userAppService.getPostIdsByUserId(userId);
             ajax.put(AjaxResult.DATA_TAG, sysUser);
-            ajax.put("postIds", postIds);
             ajax.put("roleIds", sysUser.getRoles().stream().map(SysRole::getRoleId).collect(Collectors.toList()));
         }
         List<SysRole> roles = roleService.selectRoleAll();
         ajax.put("roles", SecurityContextHelper.isAdmin(userId) ? roles : roles.stream().filter(r -> !r.isAdmin()).collect(Collectors.toList()));
-        ajax.put("posts", postService.selectPostAll());
         return ajax;
     }
 

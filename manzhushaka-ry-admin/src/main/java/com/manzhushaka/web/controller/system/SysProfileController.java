@@ -52,7 +52,6 @@ public class SysProfileController extends BaseController
         SysUser user = userService.selectUserById(principal.getUserId());
         AjaxResult ajax = AjaxResult.success(user);
         ajax.put("roleGroup", userService.selectUserRoleGroup(principal.getUsername()));
-        ajax.put("postGroup", userService.selectUserPostGroup(principal.getUsername()));
         return ajax;
     }
 

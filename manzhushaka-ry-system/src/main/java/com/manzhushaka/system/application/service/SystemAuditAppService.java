@@ -47,4 +47,39 @@ public interface SystemAuditAppService
                               String method, String requestMethod, String operUrl, String operParam,
                               String jsonResult, Integer status, String errorMsg, Integer businessType,
                               String title, Integer operatorType, Long costTime);
+
+    /**
+     * 记录请求日志。
+     *
+     * @param requestUri       请求地址
+     * @param requestMethod    请求方式
+     * @param controllerMethod 控制器方法
+     * @param queryString      URL 查询参数
+     * @param requestParams    请求参数
+     * @param ipaddr           请求 IP
+     * @param userName         用户账号
+     * @param statusCode       HTTP 状态码
+     * @param status           状态
+     * @param errorMsg         错误消息
+     * @param userAgent        User-Agent
+     * @param costTime         消耗时间
+     * @param requestTime      请求时间
+     */
+    void recordRequestLog(String requestUri, String requestMethod, String controllerMethod, String queryString,
+                          String requestParams, String ipaddr, String userName, Integer statusCode,
+                          Integer status, String errorMsg, String userAgent, Long costTime,
+                          java.util.Date requestTime);
+
+    /**
+     * 记录慢 SQL 日志。
+     *
+     * @param mapperId       Mapper 方法
+     * @param sqlText        SQL 文本
+     * @param dataSourceName 数据源名称
+     * @param costTime       消耗时间
+     * @param errorMsg       错误消息
+     * @param executeTime    执行时间
+     */
+    void recordSlowSqlLog(String mapperId, String sqlText, String dataSourceName, Long costTime,
+                          String errorMsg, java.util.Date executeTime);
 }

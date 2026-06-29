@@ -16,7 +16,6 @@ import com.manzhushaka.system.application.query.UserListQuery;
 import com.manzhushaka.system.application.service.SystemUserAppService;
 import com.manzhushaka.system.domain.repository.UserRepository;
 import com.manzhushaka.system.service.ISysDeptService;
-import com.manzhushaka.system.service.ISysPostService;
 import com.manzhushaka.system.service.ISysRoleService;
 import com.manzhushaka.system.service.ISysUserService;
 
@@ -39,9 +38,6 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
 
     @Autowired
     private ISysDeptService deptService;
-
-    @Autowired
-    private ISysPostService postService;
 
     @Override
     public List<SysUser> listUsers(UserListQuery query)
@@ -70,12 +66,6 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
     }
 
     @Override
-    public List<Long> getPostIdsByUserId(Long userId)
-    {
-        return postService.selectPostListByUserId(userId);
-    }
-
-    @Override
     @Transactional
     public Long createUser(CreateUserCommand command)
     {
@@ -90,7 +80,6 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
         user.setStatus(command.status());
         user.setDeptId(command.deptId());
         user.setRoleIds(command.roleIds());
-        user.setPostIds(command.postIds());
         user.setPassword(PasswordUtils.encrypt(command.password()));
         user.setCreateBy(command.username());
 
@@ -121,7 +110,6 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
         user.setStatus(command.status());
         user.setDeptId(command.deptId());
         user.setRoleIds(command.roleIds());
-        user.setPostIds(command.postIds());
 
         userService.checkUserAllowed(user);
         userService.checkUserDataScope(user.getUserId());

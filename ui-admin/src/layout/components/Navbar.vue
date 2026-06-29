@@ -28,9 +28,6 @@
           <size-select id="size-select" class="right-menu-item hover-effect" />
         </el-tooltip>
 
-        <el-tooltip content="消息通知" effect="dark" placement="bottom">
-          <header-notice id="header-notice" class="right-menu-item hover-effect" />
-        </el-tooltip>
       </template>
 
       <el-dropdown @command="handleCommand" class="avatar-container right-menu-item hover-effect" trigger="hover">
@@ -75,8 +72,6 @@ import useAppStore from '@/store/modules/app'
 import useUserStore from '@/store/modules/user'
 import useLockStore from '@/store/modules/lock'
 import useSettingsStore from '@/store/modules/settings'
-import HeaderNotice from './HeaderNotice'
-
 const route = useRoute()
 const router = useRouter()
 const appStore = useAppStore()
@@ -205,7 +200,14 @@ async function toggleTheme(event) {
   }
 
   .breadcrumb-container {
-    flex-shrink: 0;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    overflow: hidden;
+    margin-right: 16px;
+
     :deep(.el-breadcrumb__item) {
       .el-breadcrumb__inner {
         font-size: 13px;
