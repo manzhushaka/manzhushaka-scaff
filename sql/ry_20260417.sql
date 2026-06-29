@@ -147,6 +147,7 @@ insert into sys_menu values('162',  '运行日志', '108', '2', 'runtimeLog', 'm
 insert into sys_menu values('163',  '慢 SQL 日志', '108', '3', 'slowSql', 'monitor/slowSql/index',    '', '', 1, 0, 'C', '0', '0', 'monitor:slowsql:list',    'druid',         'admin', sysdate(), '', null, '慢 SQL 日志菜单');
 insert into sys_menu values('149',  '操作日志', '108', '4', 'operlog',    'monitor/operlog/index',    '', '', 1, 0, 'C', '0', '0', 'monitor:operlog:list',    'form',          'admin', sysdate(), '', null, '操作日志菜单');
 insert into sys_menu values('150',  '登录日志', '108', '5', 'logininfor', 'monitor/logininfor/index', '', '', 1, 0, 'C', '0', '0', 'monitor:logininfor:list', 'logininfor',    'admin', sysdate(), '', null, '登录日志菜单');
+insert into sys_menu values('175',  '消息队列台账', '108', '6', 'mqLog',     'monitor/mqLog/index',     '', '', 1, 0, 'C', '0', '0', 'monitor:mqlog:list',     'message',       'admin', sysdate(), '', null, '消息队列台账菜单');
 insert into sys_menu values('109',  '在线用户', '2',   '1', 'online',     'monitor/online/index',     '', '', 1, 0, 'C', '0', '0', 'monitor:online:list',     'online',        'admin', sysdate(), '', null, '在线用户菜单');
 insert into sys_menu values('110',  '定时任务', '2',   '2', 'job',        'monitor/job/index',        '', '', 1, 0, 'C', '0', '0', 'monitor:job:list',        'job',           'admin', sysdate(), '', null, '定时任务菜单');
 insert into sys_menu values('111',  '数据监控', '2',   '3', 'druid',      'monitor/druid/index',      '', '', 1, 0, 'C', '0', '0', 'monitor:druid:list',      'druid',         'admin', sysdate(), '', null, '数据监控菜单');
@@ -225,6 +226,11 @@ insert into sys_menu values('146', '登录日志查询', '150', '1', '', null, '
 insert into sys_menu values('147', '登录日志删除', '150', '2', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:remove',  '#',                'admin', sysdate(), '', null, '登录日志删除按钮');
 insert into sys_menu values('148', '登录日志导出', '150', '3', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:export',  '#',                'admin', sysdate(), '', null, '登录日志导出按钮');
 insert into sys_menu values('151', '登录账户解锁', '150', '4', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:unlock',  '#',                'admin', sysdate(), '', null, '登录账户解锁按钮');
+-- 消息队列台账按钮权限
+insert into sys_menu values('176', '消息队列台账查询', '175', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:mqlog:list',  '#',                'admin', sysdate(), '', null, '消息队列台账查询按钮');
+insert into sys_menu values('177', '消息队列台账详情', '175', '2', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:mqlog:query', '#',                'admin', sysdate(), '', null, '消息队列台账详情按钮');
+insert into sys_menu values('178', '消息队列台账删除', '175', '3', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:mqlog:remove', '#',                'admin', sysdate(), '', null, '消息队列台账删除按钮');
+insert into sys_menu values('179', '消息队列台账导出', '175', '4', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:mqlog:export', '#',                'admin', sysdate(), '', null, '消息队列台账导出按钮');
 
 insert into sys_role_menu values ('2', '1');
 insert into sys_role_menu values ('2', '2');
@@ -285,6 +291,11 @@ insert into sys_role_menu values ('2', '146');
 insert into sys_role_menu values ('2', '147');
 insert into sys_role_menu values ('2', '148');
 insert into sys_role_menu values ('2', '151');
+insert into sys_role_menu values ('2', '175');
+insert into sys_role_menu values ('2', '176');
+insert into sys_role_menu values ('2', '177');
+insert into sys_role_menu values ('2', '178');
+insert into sys_role_menu values ('2', '179');
 
 -- ----------------------------
 -- 8、角色和部门关联表  角色1-N部门
@@ -547,3 +558,55 @@ create table sys_job_log (
   create_time         datetime                                  comment '创建时间',
   primary key (job_log_id)
 ) engine=innodb comment = '定时任务调度日志表';
+
+
+-- ----------------------------
+-- 10.2、消息队列主台账
+-- ----------------------------
+drop table if exists sys_mq_message_log;
+create table sys_mq_message_log (
+  message_log_id     bigint(20)      not null auto_increment    comment '消息台账主键',
+  message_type       varchar(100)    default ''                 comment '消息类型',
+  stream_key         varchar(200)    default ''                 comment '原始Stream',
+  message_id         varchar(100)    default ''                 comment 'Redis Stream消息ID',
+  consumer_group     varchar(100)    default ''                 comment '消费者组',
+  business_key       varchar(200)    default ''                 comment '业务幂等键',
+  payload            text                                       comment '消息内容',
+  status             char(1)         default '0'                comment '状态（0执行中 1成功 2失败 3已跳过 4死信）',
+  retry_times        int(4)          default 0                  comment '已尝试次数',
+  max_retry_times    int(4)          default 0                  comment '最大重试次数',
+  first_consume_time datetime                                   comment '首次消费时间',
+  last_consume_time  datetime                                   comment '最后消费时间',
+  success_time       datetime                                   comment '成功时间',
+  dead_letter_time   datetime                                   comment '进入死信时间',
+  last_error_msg     varchar(2000)   default ''                 comment '最后错误信息',
+  create_time        datetime                                   comment '创建时间',
+  update_time        datetime                                   comment '更新时间',
+  primary key (message_log_id),
+  unique key uk_stream_message (stream_key, message_id),
+  key idx_sys_mq_message_log_type (message_type),
+  key idx_sys_mq_message_log_status (status),
+  key idx_sys_mq_message_log_business_key (business_key),
+  key idx_sys_mq_message_log_ct (create_time)
+) engine=innodb auto_increment=100 comment = '消息队列主台账';
+
+-- ----------------------------
+-- 10.3、消息队列执行明细
+-- ----------------------------
+drop table if exists sys_mq_message_log_detail;
+create table sys_mq_message_log_detail (
+  detail_id      bigint(20)      not null auto_increment    comment '执行明细主键',
+  message_log_id bigint(20)      not null                   comment '消息台账主键',
+  attempt_no     int(4)          default 0                  comment '执行次数',
+  consumer_name  varchar(100)    default ''                 comment '消费者名称',
+  status         char(1)         default '0'                comment '状态（0执行中 1成功 2失败 3已跳过）',
+  start_time     datetime                                   comment '开始时间',
+  end_time       datetime                                   comment '结束时间',
+  cost_time      bigint(20)      default 0                  comment '耗时毫秒',
+  error_msg      varchar(2000)   default ''                 comment '错误信息',
+  create_time    datetime                                   comment '创建时间',
+  primary key (detail_id),
+  key idx_sys_mq_message_log_detail_log_id (message_log_id),
+  key idx_sys_mq_message_log_detail_status (status),
+  key idx_sys_mq_message_log_detail_ct (create_time)
+) engine=innodb auto_increment=100 comment = '消息队列执行明细';

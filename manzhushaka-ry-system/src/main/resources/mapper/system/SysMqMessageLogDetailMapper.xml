@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.manzhushaka.system.mapper.SysMqMessageLogDetailMapper">
+
+    <resultMap type="SysMqMessageLogDetail" id="SysMqMessageLogDetailResult">
+        <id     property="detailId"      column="detail_id"        />
+        <result property="messageLogId"  column="message_log_id"   />
+        <result property="attemptNo"     column="attempt_no"       />
+        <result property="consumerName"  column="consumer_name"    />
+        <result property="status"        column="status"           />
+        <result property="startTime"     column="start_time"       />
+        <result property="endTime"       column="end_time"         />
+        <result property="costTime"      column="cost_time"        />
+        <result property="errorMsg"      column="error_msg"        />
+    </resultMap>
+
+    <insert id="insertMessageLogDetail" parameterType="SysMqMessageLogDetail" useGeneratedKeys="true" keyProperty="detailId">
+        insert into sys_mq_message_log_detail(message_log_id, attempt_no, consumer_name, status,
+                                              start_time, end_time, cost_time, error_msg, create_time)
+        values (#{messageLogId}, #{attemptNo}, #{consumerName}, #{status},
+                #{startTime}, #{endTime}, #{costTime}, #{errorMsg}, sysdate())
+    </insert>
+
+    <update id="updateMessageLogDetail" parameterType="SysMqMessageLogDetail">
+        update sys_mq_message_log_detail
+        <set>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="costTime != null">cost_time = #{costTime},</if>
+            <if test="errorMsg != null and errorMsg != ''">error_msg = #{errorMsg},</if>
+        </set>
+        where detail_id = #{detailId}
+    </update>
+
+    <select id="selectDetailListByMessageLogId" parameterType="Long" resultMap="SysMqMessageLogDetailResult">
+        select detail_id, message_log_id, attempt_no, consumer_name, status,
+               start_time, end_time, cost_time, error_msg
+        from sys_mq_message_log_detail
+        where message_log_id = #{messageLogId}
+        order by attempt_no asc, detail_id asc
+    </select>
+
+    <delete id="deleteDetailByMessageLogIds" parameterType="Long">
+        delete from sys_mq_message_log_detail where message_log_id in
+        <foreach collection="array" item="messageLogId" open="(" separator="," close=")">
+            #{messageLogId}
+        </foreach>
+    </delete>
+
+    <update id="cleanMessageLogDetail">
+        truncate table sys_mq_message_log_detail
+    </update>
+
+</mapper>
