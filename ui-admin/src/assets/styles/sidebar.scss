@@ -73,6 +73,29 @@
       width: 100% !important;
     }
 
+    .el-menu-item,
+    .el-sub-menu__title {
+      width: calc(100% - 12px);
+      margin: 3px 6px;
+      border-radius: var(--ui-radius-control);
+    }
+
+    .el-menu-item,
+    .el-sub-menu__title,
+    .menu-title,
+    .svg-icon {
+      color: var(--ui-sidebar-text, var(--ui-text-inverse)) !important;
+    }
+
+    .el-menu-item:hover,
+    .el-sub-menu__title:hover,
+    .sub-menu-title-noDropdown:hover {
+      .menu-title,
+      .svg-icon {
+        color: var(--ui-sidebar-text-hover, var(--ui-text-inverse)) !important;
+      }
+    }
+
     .el-menu-item, .menu-title {
       overflow: hidden !important;
       text-overflow: ellipsis !important;
@@ -83,18 +106,21 @@
 
     .el-menu-item .el-menu-tooltip__trigger {
       display: inline-block !important;
+      color: inherit;
+      border-radius: inherit;
     }
 
     // menu hover
     .sub-menu-title-noDropdown,
     .el-sub-menu__title {
       &:hover {
-        background-color: color-mix(in srgb, var(--ui-primary-soft) 70%, transparent);
+        background-color: var(--ui-sidebar-item-hover-bg, color-mix(in srgb, var(--ui-primary-soft) 70%, transparent));
+        color: var(--ui-sidebar-text-hover, var(--ui-text-inverse)) !important;
       }
     }
 
     & .theme-dark .is-active > .el-sub-menu__title {
-      color: vars.$base-menu-color-active !important;
+      color: var(--ui-sidebar-text-active, #{vars.$base-menu-color-active}) !important;
     }
 
     & .nest-menu .el-sub-menu>.el-sub-menu__title,
@@ -102,7 +128,8 @@
       min-width: var(--ui-layout-sidebar-width, 224px) !important;
 
       &:hover {
-        background-color: color-mix(in srgb, var(--ui-primary-soft) 70%, transparent);
+        background-color: var(--ui-sidebar-item-hover-bg, color-mix(in srgb, var(--ui-primary-soft) 70%, transparent));
+        color: var(--ui-sidebar-text-hover, var(--ui-text-inverse)) !important;
       }
     }
 
@@ -111,7 +138,18 @@
       background-color: var(--ui-bg-sidebar-deep);
 
       &:hover {
-        background-color: color-mix(in srgb, var(--ui-primary-soft) 70%, transparent) !important;
+        background-color: var(--ui-sidebar-item-hover-bg, color-mix(in srgb, var(--ui-primary-soft) 70%, transparent)) !important;
+        color: var(--ui-sidebar-text-hover, var(--ui-text-inverse)) !important;
+      }
+    }
+
+    .el-menu-item.is-active {
+      color: var(--ui-sidebar-text-active, var(--ui-text-inverse)) !important;
+      background-color: var(--ui-sidebar-item-active-bg, var(--ui-primary-soft)) !important;
+
+      .menu-title,
+      .svg-icon {
+        color: var(--ui-sidebar-text-active, var(--ui-text-inverse)) !important;
       }
     }
 
@@ -127,14 +165,19 @@
           content: '';
           position: absolute;
           inset: 0;
-          background-color: var(--ui-primary-soft);
+          background-color: var(--ui-sidebar-item-active-bg, var(--ui-primary-soft));
           pointer-events: none;
           z-index: 1;
         }
       }
 
       .el-sub-menu.is-active > .el-sub-menu__title {
-        color: var(--ui-primary) !important;
+        color: var(--ui-sidebar-text-active, var(--ui-text-inverse)) !important;
+
+        .menu-title,
+        .svg-icon {
+          color: var(--ui-sidebar-text-active, var(--ui-text-inverse)) !important;
+        }
       }
 
       .el-menu-item:not(.is-active),
@@ -153,7 +196,7 @@
         }
 
         &:hover::before {
-          background-color: color-mix(in srgb, var(--ui-primary-soft) 70%, transparent);
+          background-color: var(--ui-sidebar-item-hover-bg, color-mix(in srgb, var(--ui-primary-soft) 70%, transparent));
         }
       }
     }
@@ -189,8 +232,8 @@
       .el-menu-item:not(.is-active):hover,
       .submenu-title-noDropdown:hover,
       .el-sub-menu__title:hover {
-        background-color: color-mix(in srgb, var(--ui-primary-soft) 70%, transparent);
-        color: var(--ui-text-primary) !important;
+        background-color: var(--ui-sidebar-item-hover-bg, color-mix(in srgb, var(--ui-primary-soft) 70%, transparent));
+        color: var(--ui-sidebar-text-hover, var(--ui-text-primary)) !important;
       }
 
       .nest-menu .el-sub-menu > .el-sub-menu__title,
@@ -198,7 +241,7 @@
         background-color: var(--ui-bg-sidebar-deep);
 
         &:hover {
-          background-color: color-mix(in srgb, var(--ui-primary-soft) 70%, transparent);
+          background-color: var(--ui-sidebar-item-hover-bg, color-mix(in srgb, var(--ui-primary-soft) 70%, transparent));
         }
       }
     }
@@ -305,7 +348,8 @@
   .nest-menu .el-sub-menu>.el-sub-menu__title,
   .el-menu-item {
     &:hover {
-      background-color: color-mix(in srgb, var(--ui-primary-soft) 70%, transparent) !important;
+      background-color: var(--ui-sidebar-item-hover-bg, color-mix(in srgb, var(--ui-primary-soft) 70%, transparent)) !important;
+      color: var(--ui-sidebar-text-hover, var(--ui-text-inverse)) !important;
     }
   }
 

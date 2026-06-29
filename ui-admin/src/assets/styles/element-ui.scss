@@ -3,6 +3,12 @@
 .el-breadcrumb__inner,
 .el-breadcrumb__inner a {
   font-weight: 400 !important;
+  color: var(--ui-text-secondary) !important;
+}
+
+.el-breadcrumb__item:last-child .el-breadcrumb__inner {
+  color: var(--ui-text-primary) !important;
+  font-weight: 600 !important;
 }
 
 .el-upload {
@@ -54,6 +60,7 @@
   margin: 0 auto;
   border-radius: var(--ui-radius-panel, 8px);
   background: var(--ui-bg-panel);
+  border: 1px solid var(--ui-border);
 }
 
 // Dialog sizing
@@ -76,27 +83,39 @@
 .el-dialog__header {
   padding: 16px 20px;
   border-bottom: 1px solid var(--ui-border);
+  background: var(--ui-bg-panel-muted);
+}
+
+.el-dialog__title {
+  color: var(--ui-text-primary);
+  font-size: 15px;
+  font-weight: 700;
 }
 
 .el-dialog__body {
   padding: 20px;
+  color: var(--ui-text-regular);
 }
 
 .el-dialog__footer {
   padding: 12px 20px;
   border-top: 1px solid var(--ui-border);
+  background: var(--ui-bg-panel-muted);
 }
 
 // Drawer
 .el-drawer {
   border-radius: var(--ui-radius-panel, 8px);
   background: var(--ui-bg-panel);
+  border-left: 1px solid var(--ui-border);
 }
 
 .el-drawer__header {
   padding: 16px 20px;
   margin-bottom: 0 !important;
   border-bottom: 1px solid var(--ui-border);
+  background: var(--ui-bg-panel-muted);
+  color: var(--ui-text-primary);
 }
 
 .el-drawer__body {
@@ -146,23 +165,61 @@
 
 // Table header style
 .el-table th.el-table__cell {
-  background-color: var(--ui-bg-panel-soft) !important;
+  background-color: var(--ui-table-header-bg) !important;
   color: var(--ui-text-secondary);
-  font-weight: 500;
+  font-weight: 600;
+}
+
+.el-table {
+  color: var(--ui-text-regular);
+  border-radius: var(--ui-radius-panel);
+
+  .el-table__inner-wrapper::before {
+    background-color: var(--ui-table-border);
+  }
+
+  tr {
+    background: var(--ui-bg-panel);
+  }
+
+  td.el-table__cell {
+    border-bottom: 1px solid var(--ui-table-border);
+  }
+
+  .el-table__body tr:hover > td.el-table__cell {
+    background-color: var(--ui-table-row-hover-bg) !important;
+  }
+
+  .cell {
+    line-height: 22px;
+  }
 }
 
 // Pagination
 .el-pagination {
+  --el-pagination-bg-color: transparent;
+  --el-pagination-button-bg-color: transparent;
+  --el-pagination-hover-color: var(--ui-primary);
+  color: var(--ui-text-secondary);
+
   .el-pager li {
     border-radius: 6px !important;
     min-width: 30px;
     height: 30px;
     line-height: 30px;
     margin: 0 2px;
+    color: var(--ui-text-secondary);
+    background: transparent;
     
     &.is-active {
       background-color: var(--ui-primary);
-      color: #fff;
+      color: var(--ui-hero-text);
+      font-weight: 600;
+    }
+
+    &:hover:not(.is-active) {
+      background-color: var(--ui-bg-hover);
+      color: var(--ui-primary);
     }
   }
   
@@ -174,13 +231,24 @@
     border-radius: 6px !important;
     min-width: 30px;
     height: 30px;
+    background: transparent;
+
+    &:hover:not(:disabled) {
+      background-color: var(--ui-bg-hover);
+      color: var(--ui-primary);
+    }
   }
 }
 
 // Button style updates — size 10.6
 .el-button {
   border-radius: var(--ui-radius-control, 6px);
-  transition: background var(--ui-transition-fast), border-color var(--ui-transition-fast), color var(--ui-transition-fast);
+  font-weight: 500;
+  transition: background var(--ui-transition-fast), border-color var(--ui-transition-fast), color var(--ui-transition-fast), box-shadow var(--ui-transition-fast), transform var(--ui-transition-fast);
+
+  &:hover:not(.is-disabled) {
+    transform: translateY(-1px);
+  }
 }
 
 .el-button--small {
@@ -207,15 +275,28 @@
 // Form control height
 .el-input__wrapper {
   border-radius: var(--ui-radius-control, 6px);
+  background: var(--ui-bg-panel);
+  box-shadow: 0 0 0 1px var(--ui-border) inset;
+
+  &:hover {
+    box-shadow: 0 0 0 1px var(--ui-border-strong) inset;
+  }
 }
 
 .el-input__inner {
   height: var(--ui-form-control-height, 36px);
+  color: var(--ui-text-primary);
 }
 
 .el-select .el-select__wrapper {
   min-height: var(--ui-form-control-height, 36px);
   border-radius: var(--ui-radius-control, 6px);
+  background: var(--ui-bg-panel);
+  box-shadow: 0 0 0 1px var(--ui-border) inset;
+
+  &:hover {
+    box-shadow: 0 0 0 1px var(--ui-border-strong) inset;
+  }
 }
 
 // ============================================================
@@ -248,6 +329,7 @@
   max-height: calc(100vh - 96px);
   border-radius: var(--ui-radius-popover);
   box-shadow: var(--ui-shadow-popover);
+  overflow: hidden;
 }
 
 .el-overlay {

@@ -365,7 +365,7 @@ $tags-bar-height: 42px;
 .tags-view-container {
   height: $tags-bar-height;
   width: 100%;
-  background: var(--ui-bg-panel);
+  background: color-mix(in srgb, var(--ui-bg-panel) 86%, var(--ui-bg-panel-soft) 14%);
   border-bottom: 1px solid var(--ui-border);
   display: flex;
   align-items: center;
@@ -435,16 +435,17 @@ $tags-bar-height: 42px;
       &:last-of-type  { margin-right: 6px; }
 
       &:hover {
-        background: var(--ui-primary-soft);
+        background: var(--ui-bg-hover);
         color: var(--ui-text-primary);
       }
     }
   }
 
   &:not(.tags-view-container--chrome) .tags-view-wrapper .tags-view-item.active {
-    background-color: var(--ui-primary-soft);
+    background-color: var(--ui-bg-selected);
     color: var(--ui-primary);
-    border-color: var(--ui-primary);
+    border-color: color-mix(in srgb, var(--ui-primary) 40%, var(--ui-border));
+    font-weight: 600;
 
     &::before {
       content: '';
@@ -483,10 +484,10 @@ $tags-bar-height: 42px;
     transition: background 0.15s, color 0.15s;
     margin: 0 2px;
 
-    &:hover {
-      background: $btn-hover-bg;
-      color: $btn-hover-color;
-    }
+      &:hover {
+        background: var(--ui-bg-hover);
+        color: $btn-hover-color;
+      }
   }
 
   .tags-refresh-btn {
@@ -605,12 +606,12 @@ $tags-bar-height: 42px;
         }
 
         &:not(.active) + .tags-view-item:not(.active) {
-          border-left: 1px solid var(--ui-border);
+          border-left: 1px solid var(--ui-divider);
           padding-left: 11px;
         }
 
         &:hover:not(.active) {
-          background: var(--ui-primary-soft) !important;
+          background: var(--ui-bg-hover) !important;
           border-radius: 6px 6px 0 0;
           color: var(--ui-text-primary);
         }
@@ -624,7 +625,7 @@ $tags-bar-height: 42px;
           background: var(--chrome-tab-active-bg) !important;
           border: none !important;
           border-radius: var(--chrome-wing-r) var(--chrome-wing-r) 0 0;
-          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+          box-shadow: var(--ui-shadow-panel);
 
           &::before {
             box-shadow: calc(var(--chrome-wing-r) * 0.5) calc(var(--chrome-wing-r) * 0.5) 0 calc(var(--chrome-wing-r) * 0.5) var(--chrome-tab-active-bg);
@@ -665,10 +666,10 @@ $tags-bar-height: 42px;
       }
       
       &:hover {
-        background-color: var(--tags-close-hover, #b4bccc);
+        background-color: color-mix(in srgb, var(--ui-primary) 18%, transparent);
         
         .el-icon-close {
-          color: #fff;
+          color: var(--ui-primary);
         }
       }
     }

@@ -45,6 +45,9 @@ $navbar-tags-height: calc($navbar-height + $tags-height);
   width: 100%;
   position: relative;
   overflow: hidden;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--ui-bg-panel-soft) 46%, transparent) 0, transparent 220px),
+    var(--ui-bg-page);
 }
 
 .fixed-header + .app-main {
@@ -110,16 +113,21 @@ $navbar-tags-height: calc($navbar-height + $tags-height);
 
 <style lang="scss">
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background-color: #f1f1f1;
+  background-color: var(--ui-bg-panel-soft);
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #c0c0c0;
-  border-radius: 3px;
+  background-color: color-mix(in srgb, var(--ui-text-secondary) 34%, transparent);
+  border: 2px solid var(--ui-bg-panel-soft);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--ui-primary) 54%, transparent);
 }
 </style>

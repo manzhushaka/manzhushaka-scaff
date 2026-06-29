@@ -15,11 +15,13 @@
   --ui-radius-control: 6px;
   --ui-radius-panel: 8px;
   --ui-radius-popover: 8px;
+  --ui-radius-subtle: 4px;
   --ui-table-row-height: 48px;
   --ui-form-control-height: 36px;
 
   --ui-transition-fast: 160ms ease;
   --ui-transition-normal: 240ms ease;
+  --ui-focus-ring: 0 0 0 3px color-mix(in srgb, var(--ui-primary) 18%, transparent);
 }
 
 // 根节点基础文本和背景
@@ -37,17 +39,28 @@
   --ui-bg-page: #f4f8fb;
   --ui-bg-panel: #ffffff;
   --ui-bg-panel-soft: #edf6fb;
+  --ui-bg-panel-muted: #f8fbfd;
   --ui-bg-sidebar: #0f3b60;
   --ui-bg-sidebar-deep: #12202f;
-  --ui-bg-topbar: rgba(255, 255, 255, 0.86);
+  --ui-bg-topbar: rgba(255, 255, 255, 0.92);
+  --ui-bg-hover: rgba(14, 165, 233, 0.08);
+  --ui-bg-selected: rgba(14, 165, 233, 0.12);
 
   --ui-text-primary: #0f172a;
   --ui-text-regular: #334155;
   --ui-text-secondary: #64748b;
+  --ui-text-muted: #94a3b8;
   --ui-text-inverse: #eaf8ff;
+  --ui-sidebar-text: #d5ecfb;
+  --ui-sidebar-text-hover: #ffffff;
+  --ui-sidebar-text-active: #ffffff;
+  --ui-sidebar-item-hover-bg: rgba(125, 211, 252, 0.18);
+  --ui-sidebar-item-active-bg: rgba(14, 165, 233, 0.28);
+  --ui-sidebar-item-active-border: #7dd3fc;
 
   --ui-border: #d8e6ef;
   --ui-border-strong: #bfd7e6;
+  --ui-divider: rgba(15, 59, 96, 0.10);
 
   --ui-primary: #0ea5e9;
   --ui-primary-hover: #0284c7;
@@ -66,8 +79,20 @@
   --ui-chart-4: #8b5cf6;
   --ui-chart-5: #ec4899;
 
-  --ui-shadow-panel: 0 12px 28px rgba(15, 59, 96, 0.10);
-  --ui-shadow-popover: 0 18px 40px rgba(15, 59, 96, 0.14);
+  --ui-shadow-panel: 0 1px 2px rgba(15, 23, 42, 0.04), 0 10px 24px rgba(15, 59, 96, 0.08);
+  --ui-shadow-panel-hover: 0 2px 4px rgba(15, 23, 42, 0.05), 0 16px 34px rgba(15, 59, 96, 0.12);
+  --ui-shadow-popover: 0 18px 40px rgba(15, 59, 96, 0.16);
+  --ui-shadow-sidebar: 8px 0 24px rgba(15, 59, 96, 0.18);
+
+  --ui-hero-bg: linear-gradient(135deg, #0f3b60 0%, #0e7490 45%, #0ea5e9 100%);
+  --ui-hero-text: #ffffff;
+  --ui-hero-text-muted: rgba(255, 255, 255, 0.74);
+  --ui-hero-action-bg: rgba(255, 255, 255, 0.15);
+  --ui-hero-action-border: rgba(255, 255, 255, 0.24);
+
+  --ui-table-header-bg: #eef7fb;
+  --ui-table-row-hover-bg: #f7fbfe;
+  --ui-table-border: #dceaf2;
 
   // color-mix() 静态回退色值
   --ui-primary-light-3-static: #52c4f0;
@@ -84,17 +109,28 @@
   --ui-bg-page: #0e1218;
   --ui-bg-panel: #151b24;
   --ui-bg-panel-soft: #1e2633;
+  --ui-bg-panel-muted: #111821;
   --ui-bg-sidebar: #0a0d12;
   --ui-bg-sidebar-deep: #111720;
   --ui-bg-topbar: rgba(21, 27, 36, 0.90);
+  --ui-bg-hover: rgba(255, 183, 77, 0.10);
+  --ui-bg-selected: rgba(255, 183, 77, 0.16);
 
   --ui-text-primary: #f8fafc;
   --ui-text-regular: #cbd5e1;
   --ui-text-secondary: #94a3b8;
+  --ui-text-muted: #64748b;
   --ui-text-inverse: #101418;
+  --ui-sidebar-text: #cbd5e1;
+  --ui-sidebar-text-hover: #fff7ed;
+  --ui-sidebar-text-active: #fff7ed;
+  --ui-sidebar-item-hover-bg: rgba(255, 183, 77, 0.14);
+  --ui-sidebar-item-active-bg: rgba(255, 183, 77, 0.22);
+  --ui-sidebar-item-active-border: #ffb74d;
 
   --ui-border: rgba(255, 255, 255, 0.10);
   --ui-border-strong: rgba(255, 255, 255, 0.18);
+  --ui-divider: rgba(255, 255, 255, 0.08);
 
   --ui-primary: #ffb74d;
   --ui-primary-hover: #f59e0b;
@@ -113,8 +149,20 @@
   --ui-chart-4: #a78bfa;
   --ui-chart-5: #f472b6;
 
-  --ui-shadow-panel: 0 16px 36px rgba(0, 0, 0, 0.30);
+  --ui-shadow-panel: 0 1px 2px rgba(0, 0, 0, 0.20), 0 16px 36px rgba(0, 0, 0, 0.28);
+  --ui-shadow-panel-hover: 0 2px 4px rgba(0, 0, 0, 0.22), 0 22px 48px rgba(0, 0, 0, 0.36);
   --ui-shadow-popover: 0 22px 48px rgba(0, 0, 0, 0.42);
+  --ui-shadow-sidebar: 8px 0 24px rgba(0, 0, 0, 0.30);
+
+  --ui-hero-bg: linear-gradient(135deg, #111827 0%, #5c3d12 52%, #ffb74d 100%);
+  --ui-hero-text: #fff7ed;
+  --ui-hero-text-muted: rgba(255, 247, 237, 0.72);
+  --ui-hero-action-bg: rgba(255, 255, 255, 0.10);
+  --ui-hero-action-border: rgba(255, 255, 255, 0.18);
+
+  --ui-table-header-bg: #1f2937;
+  --ui-table-row-hover-bg: #1b2330;
+  --ui-table-border: rgba(255, 255, 255, 0.08);
 
   // color-mix() 静态回退色值
   --ui-primary-light-3-static: #ffd496;
@@ -131,17 +179,28 @@
   --ui-bg-page: #f7f1e6;
   --ui-bg-panel: #fffdf8;
   --ui-bg-panel-soft: #f2e6d4;
+  --ui-bg-panel-muted: #fbf5ea;
   --ui-bg-sidebar: #f4e9d8;
   --ui-bg-sidebar-deep: #ead8bd;
   --ui-bg-topbar: rgba(255, 253, 248, 0.90);
+  --ui-bg-hover: rgba(200, 139, 58, 0.10);
+  --ui-bg-selected: rgba(200, 139, 58, 0.16);
 
   --ui-text-primary: #2f2418;
   --ui-text-regular: #5c4630;
   --ui-text-secondary: #80664b;
+  --ui-text-muted: #9a8063;
   --ui-text-inverse: #fffaf0;
+  --ui-sidebar-text: #5c4630;
+  --ui-sidebar-text-hover: #2f2418;
+  --ui-sidebar-text-active: #2f2418;
+  --ui-sidebar-item-hover-bg: rgba(200, 139, 58, 0.16);
+  --ui-sidebar-item-active-bg: rgba(200, 139, 58, 0.24);
+  --ui-sidebar-item-active-border: #a96f24;
 
   --ui-border: #e7d6bd;
   --ui-border-strong: #d5bc93;
+  --ui-divider: rgba(108, 78, 38, 0.12);
 
   --ui-primary: #c88b3a;
   --ui-primary-hover: #a96f24;
@@ -160,8 +219,20 @@
   --ui-chart-4: #7c5cbf;
   --ui-chart-5: #b25f8a;
 
-  --ui-shadow-panel: 0 12px 28px rgba(108, 78, 38, 0.12);
+  --ui-shadow-panel: 0 1px 2px rgba(108, 78, 38, 0.05), 0 12px 28px rgba(108, 78, 38, 0.10);
+  --ui-shadow-panel-hover: 0 2px 4px rgba(108, 78, 38, 0.06), 0 18px 38px rgba(108, 78, 38, 0.16);
   --ui-shadow-popover: 0 18px 40px rgba(108, 78, 38, 0.18);
+  --ui-shadow-sidebar: 8px 0 24px rgba(108, 78, 38, 0.12);
+
+  --ui-hero-bg: linear-gradient(135deg, #7a4d18 0%, #c88b3a 55%, #f3c67b 100%);
+  --ui-hero-text: #fffaf0;
+  --ui-hero-text-muted: rgba(255, 250, 240, 0.76);
+  --ui-hero-action-bg: rgba(255, 255, 255, 0.18);
+  --ui-hero-action-border: rgba(255, 255, 255, 0.28);
+
+  --ui-table-header-bg: #f4ead9;
+  --ui-table-row-hover-bg: #fbf5ea;
+  --ui-table-border: #ead8bd;
 
   // color-mix() 静态回退色值
   --ui-primary-light-3-static: #dcaa62;
@@ -203,7 +274,10 @@
 
   --el-border-radius-base: var(--ui-radius-control);
   --el-fill-color-light: var(--ui-bg-panel-soft);
+  --el-fill-color-lighter: var(--ui-bg-panel-muted);
   --el-fill-color-blank: var(--ui-bg-panel);
+  --el-disabled-bg-color: var(--ui-bg-panel-soft);
+  --el-disabled-text-color: var(--ui-text-muted);
 }
 
 // ------------------------------------------------------------
@@ -213,6 +287,29 @@
   min-height: 100%;
   padding: var(--ui-layout-content-padding);
   background: var(--ui-bg-page);
+}
+
+.ui-page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.ui-page-title {
+  margin: 0;
+  color: var(--ui-text-primary);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.ui-page-desc {
+  margin: 4px 0 0;
+  color: var(--ui-text-secondary);
+  font-size: 13px;
+  line-height: 1.6;
 }
 
 .ui-filter-card,
@@ -225,13 +322,14 @@
 }
 
 .ui-filter-card {
-  padding: 16px;
-  background: var(--ui-bg-panel-soft);
+  padding: 14px 16px 6px;
+  background: var(--ui-bg-panel);
+  border-left: 3px solid var(--ui-primary);
 }
 
 .ui-filter-card .el-form-item {
   margin-right: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 // 操作工具条
@@ -240,7 +338,7 @@
   align-items: center;
   justify-content: space-between;
   min-height: 36px;
-  margin: 12px 0;
+  margin: 12px 0 10px;
   gap: 8px;
   flex-wrap: wrap;
 }
@@ -260,8 +358,8 @@
 
   .el-table th.el-table__cell {
     height: 44px;
-    background-color: var(--ui-bg-panel-soft) !important;
-    color: var(--ui-text-regular);
+    background-color: var(--ui-table-header-bg) !important;
+    color: var(--ui-text-secondary);
     font-size: 13px;
     font-weight: 600;
   }
@@ -269,7 +367,7 @@
   .el-table td.el-table__cell {
     height: var(--ui-table-row-height);
     color: var(--ui-text-regular);
-    border-bottom: 1px solid var(--ui-border);
+    border-bottom: 1px solid var(--ui-table-border);
   }
 
   .el-table__inner-wrapper::before {
@@ -283,6 +381,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--ui-text-secondary);
 }
 
 // 弹窗/抽屉主题 token 兼容
@@ -435,6 +534,13 @@
   --el-button-hover-border-color: var(--ui-primary-hover);
   --el-button-active-bg-color: var(--ui-primary-active);
   --el-button-active-border-color: var(--ui-primary-active);
+}
+
+.el-button:focus-visible,
+.el-input__wrapper.is-focus,
+.el-select__wrapper.is-focused,
+.el-textarea__inner:focus {
+  box-shadow: var(--ui-focus-ring) !important;
 }
 
 // ------------------------------------------------------------

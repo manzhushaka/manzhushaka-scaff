@@ -190,6 +190,7 @@ async function toggleTheme(event) {
   display: flex;
   align-items: center;
   box-sizing: border-box;
+  box-shadow: 0 1px 0 var(--ui-divider);
 
   .hamburger-container {
     line-height: 56px;
@@ -203,7 +204,7 @@ async function toggleTheme(event) {
     margin-right: 8px;
 
     &:hover {
-      background: var(--ui-primary-soft);
+      background: var(--ui-bg-hover);
     }
   }
 
@@ -260,7 +261,7 @@ async function toggleTheme(event) {
         cursor: pointer;
 
         &:hover {
-          background: var(--ui-primary-soft);
+          background: var(--ui-bg-hover);
           color: var(--ui-primary);
         }
       }
@@ -297,6 +298,16 @@ async function toggleTheme(event) {
         align-items: center;
         gap: 6px;
         position: relative;
+        min-height: 36px;
+        padding: 0 6px 0 4px;
+        border: 1px solid transparent;
+        border-radius: var(--ui-radius-control);
+        transition: background var(--ui-transition-fast), border-color var(--ui-transition-fast);
+
+        &:hover {
+          background: var(--ui-bg-hover);
+          border-color: var(--ui-border);
+        }
 
         .user-avatar {
           cursor: pointer;
@@ -304,6 +315,8 @@ async function toggleTheme(event) {
           height: 32px;
           border-radius: 50%;
           flex-shrink: 0;
+          border: 2px solid var(--ui-bg-panel);
+          box-shadow: 0 0 0 1px var(--ui-border);
         }
 
         .user-nickname{

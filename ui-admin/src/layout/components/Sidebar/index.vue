@@ -6,9 +6,9 @@
         :default-active="activeMenu"
         :collapse="isCollapse"
         background-color="var(--ui-bg-sidebar)"
-        text-color="var(--ui-text-inverse)"
+        text-color="var(--ui-sidebar-text)"
         :unique-opened="true"
-        active-text-color="var(--ui-text-inverse)"
+        active-text-color="var(--ui-sidebar-text-active)"
         :collapse-transition="false"
         mode="vertical"
       >
@@ -51,6 +51,7 @@ const activeMenu = computed(() => {
 <style lang="scss" scoped>
 .sidebar-container {
   background-color: var(--ui-bg-sidebar);
+  box-shadow: var(--ui-shadow-sidebar);
 
   .scrollbar-wrapper {
     background-color: var(--ui-bg-sidebar);
@@ -64,12 +65,18 @@ const activeMenu = computed(() => {
 
     .el-menu-item, .el-sub-menu__title {
       border-radius: 6px;
-      margin: 2px 4px;
-      width: calc(100% - 8px);
+      margin: 3px 6px;
+      width: calc(100% - 12px);
 
       &:hover {
-        background-color: color-mix(in srgb, var(--ui-primary-soft) 70%, transparent) !important;
+        background-color: var(--ui-sidebar-item-hover-bg) !important;
+        color: var(--ui-sidebar-text-hover) !important;
       }
+    }
+
+    .el-menu-item :deep(.el-menu-tooltip__trigger) {
+      border-radius: inherit;
+      color: inherit;
     }
 
     .el-menu-item {
@@ -77,8 +84,8 @@ const activeMenu = computed(() => {
       line-height: 44px !important;
 
       &.is-active {
-        color: var(--ui-primary) !important;
-        background-color: var(--ui-primary-soft) !important;
+        color: var(--ui-sidebar-text-active) !important;
+        background-color: var(--ui-sidebar-item-active-bg) !important;
         position: relative;
 
         &::before {
@@ -90,7 +97,7 @@ const activeMenu = computed(() => {
           width: 3px;
           height: 20px;
           border-radius: 999px;
-          background: var(--ui-primary);
+          background: var(--ui-sidebar-item-active-border);
           pointer-events: none;
           z-index: 2;
         }
