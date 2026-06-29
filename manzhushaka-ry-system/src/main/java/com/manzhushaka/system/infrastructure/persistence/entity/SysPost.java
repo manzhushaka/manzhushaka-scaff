@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.ibatis.type.Alias;
 import com.manzhushaka.common.annotation.Excel;
 import com.manzhushaka.common.annotation.Excel.ColumnType;
 import com.manzhushaka.common.core.domain.BaseEntity;
@@ -14,6 +15,7 @@ import com.manzhushaka.common.core.domain.BaseEntity;
  * 
  * @author manzhushaka
  */
+@Alias("PersistenceSysPost")
 public class SysPost extends BaseEntity
 {
     private static final long serialVersionUID = 1L;

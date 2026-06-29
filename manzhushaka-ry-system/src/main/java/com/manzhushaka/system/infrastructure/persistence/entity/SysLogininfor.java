@@ -2,6 +2,7 @@ package com.manzhushaka.system.infrastructure.persistence.entity;
 
 import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.apache.ibatis.type.Alias;
 import com.manzhushaka.common.annotation.Excel;
 import com.manzhushaka.common.annotation.Excel.ColumnType;
 import com.manzhushaka.common.core.domain.BaseEntity;
@@ -11,6 +12,7 @@ import com.manzhushaka.common.core.domain.BaseEntity;
  * 
  * @author manzhushaka
  */
+@Alias("PersistenceSysLogininfor")
 public class SysLogininfor extends BaseEntity
 {
     private static final long serialVersionUID = 1L;

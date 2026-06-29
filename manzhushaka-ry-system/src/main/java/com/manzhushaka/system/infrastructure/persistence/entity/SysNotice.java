@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.ibatis.type.Alias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.manzhushaka.common.core.domain.BaseEntity;
 import com.manzhushaka.common.xss.Xss;
@@ -13,6 +14,7 @@ import com.manzhushaka.common.xss.Xss;
  * 
  * @author manzhushaka
  */
+@Alias("PersistenceSysNotice")
 public class SysNotice extends BaseEntity
 {
     private static final long serialVersionUID = 1L;

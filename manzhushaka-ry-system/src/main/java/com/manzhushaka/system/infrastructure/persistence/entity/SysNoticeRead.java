@@ -3,12 +3,14 @@ package com.manzhushaka.system.infrastructure.persistence.entity;
 import java.util.Date;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.ibatis.type.Alias;
 
 /**
  * 公告已读记录表 sys_notice_read
  *
  * @author manzhushaka
  */
+@Alias("PersistenceSysNoticeRead")
 public class SysNoticeRead
 {
     /** 主键 */

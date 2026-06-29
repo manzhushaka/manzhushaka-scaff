@@ -2,12 +2,14 @@ package com.manzhushaka.system.infrastructure.persistence.entity;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.ibatis.type.Alias;
 
 /**
  * 角色和部门关联 sys_role_dept
  * 
  * @author manzhushaka
  */
+@Alias("PersistenceSysRoleDept")
 public class SysRoleDept
 {
     /** 角色ID */

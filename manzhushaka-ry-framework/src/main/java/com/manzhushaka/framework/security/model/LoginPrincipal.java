@@ -200,12 +200,57 @@ public class LoginPrincipal implements UserDetails, Serializable {
 
     // ========== Setter（供框架反射 / 刷新使用） ==========
 
+    /**
+     * 设置用户ID
+     *
+     * @param userId 用户ID
+     */
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    /**
+     * 设置部门ID
+     *
+     * @param deptId 部门ID
+     */
+    public void setDeptId(Long deptId) {
+        this.deptId = deptId;
+    }
+
+    /**
+     * 设置部门名称
+     *
+     * @param deptName 部门名称
+     */
+    public void setDeptName(String deptName) {
+        this.deptName = deptName;
+    }
+
+    /**
+     * 设置用户名
+     *
+     * @param username 用户名
+     */
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     public void setPassword(String password) {
         this.password = password;
     }
 
     public void setPermissions(Set<String> permissions) {
         this.permissions = permissions;
+    }
+
+    /**
+     * 设置角色键集合
+     *
+     * @param roleKeys 角色键集合
+     */
+    public void setRoleKeys(Set<String> roleKeys) {
+        this.roleKeys = roleKeys;
     }
 
     public void setLoginTime(Long loginTime) {
