@@ -6,10 +6,10 @@ import org.springframework.stereotype.Repository;
 import com.manzhushaka.system.domain.repository.RoleRepository;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysUserRole;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysRole;
-import com.manzhushaka.system.infrastructure.persistence.mapper.SysRoleMapper;
-import com.manzhushaka.system.infrastructure.persistence.mapper.SysUserRoleMapper;
-import com.manzhushaka.system.infrastructure.persistence.mapper.SysRoleMenuMapper;
-import com.manzhushaka.system.infrastructure.persistence.mapper.SysRoleDeptMapper;
+import com.manzhushaka.system.mapper.SysRoleMapper;
+import com.manzhushaka.system.mapper.SysUserRoleMapper;
+import com.manzhushaka.system.mapper.SysRoleDeptMapper;
+import com.manzhushaka.system.mapper.SysRoleMenuMapper;
 
 /**
  * 角色仓储实现
@@ -153,7 +153,7 @@ public class RoleRepositoryImpl implements RoleRepository
     @Override
     public int deleteAuthUser(SysUserRole userRole)
     {
-        return userRoleMapper.deleteUserRoleInfo(userRole);
+        return userRoleMapper.deleteUserRoleInfo(toDomainUserRole(userRole));
     }
 
     @Override
@@ -166,5 +166,20 @@ public class RoleRepositoryImpl implements RoleRepository
     public int insertAuthUsers(Long roleId, Long[] userIds)
     {
         return 0;
+    }
+
+    /**
+     * 转换为当前 MyBatis XML 绑定的用户角色关联对象。
+     *
+     * @param userRole 用户角色关联实体
+     * @return MyBatis XML 绑定对象
+     */
+    private com.manzhushaka.system.domain.SysUserRole toDomainUserRole(SysUserRole userRole)
+    {
+        com.manzhushaka.system.domain.SysUserRole domainUserRole =
+                new com.manzhushaka.system.domain.SysUserRole();
+        domainUserRole.setUserId(userRole.getUserId());
+        domainUserRole.setRoleId(userRole.getRoleId());
+        return domainUserRole;
     }
 }

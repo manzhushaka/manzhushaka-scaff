@@ -1,13 +1,15 @@
 package com.manzhushaka.system.infrastructure.persistence.repository;
 
 import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import com.manzhushaka.system.domain.repository.UserRepository;
+import com.manzhushaka.system.domain.SysUserRole;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
-import com.manzhushaka.system.infrastructure.persistence.mapper.SysUserMapper;
-import com.manzhushaka.system.infrastructure.persistence.mapper.SysUserRoleMapper;
+import com.manzhushaka.system.mapper.SysUserMapper;
+import com.manzhushaka.system.mapper.SysUserRoleMapper;
 
 /**
  * 用户仓储实现
@@ -150,9 +152,20 @@ public class UserRepositoryImpl implements UserRepository
     @Override
     public int insertUserAuth(Long userId, Long[] roleIds)
     {
-        // 先删除原有角色关联，再批量新增
         userRoleMapper.deleteUserRoleByUserId(userId);
-        return 1;
+        if (roleIds == null || roleIds.length == 0)
+        {
+            return 1;
+        }
+        List<SysUserRole> userRoleList = new ArrayList<>(roleIds.length);
+        for (Long roleId : roleIds)
+        {
+            SysUserRole userRole = new SysUserRole();
+            userRole.setUserId(userId);
+            userRole.setRoleId(roleId);
+            userRoleList.add(userRole);
+        }
+        return userRoleMapper.batchUserRole(userRoleList);
     }
 
     @Override
