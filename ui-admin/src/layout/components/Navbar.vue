@@ -33,8 +33,6 @@
         </el-tooltip>
       </template>
 
-      <theme-switcher class="right-menu-item hover-effect theme-switcher-entry" />
-
       <el-dropdown @command="handleCommand" class="avatar-container right-menu-item hover-effect" trigger="hover">
         <div class="avatar-wrapper">
           <img :src="userStore.avatar" class="user-avatar" />
@@ -78,8 +76,6 @@ import useUserStore from '@/store/modules/user'
 import useLockStore from '@/store/modules/lock'
 import useSettingsStore from '@/store/modules/settings'
 import HeaderNotice from './HeaderNotice'
-
-import ThemeSwitcher from '@/components/ThemeSwitcher'
 
 const route = useRoute()
 const router = useRouter()

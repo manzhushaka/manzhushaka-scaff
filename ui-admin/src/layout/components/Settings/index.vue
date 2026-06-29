@@ -1,14 +1,6 @@
 <template>
   <el-drawer v-model="showSettings" :withHeader="false" :lock-scroll="false" direction="rtl" size="300px">
 
-    <div class="setting-drawer-title">
-      <h3 class="drawer-title">主题选择</h3>
-    </div>
-    <div class="setting-drawer-block-checbox" style="margin-bottom: 20px;">
-      <ThemeSwitcher />
-    </div>
-    <el-divider />
-
     <h3 class="drawer-title">系统布局配置</h3>
 
     <div class="drawer-item">
@@ -80,7 +72,6 @@
 
 <script setup>
 import useSettingsStore from '@/store/modules/settings'
-import ThemeSwitcher from '@/components/ThemeSwitcher/index.vue'
 
 const { proxy } = getCurrentInstance()
 const settingsStore = useSettingsStore()
@@ -112,7 +103,6 @@ function saveSetting() {
     "sidebarLogo": storeSettings.value.sidebarLogo,
     "dynamicTitle": storeSettings.value.dynamicTitle,
     "footerVisible": storeSettings.value.footerVisible,
-    "brandTheme": storeSettings.value.brandTheme,
     "navType": storeSettings.value.navType
   }
   localStorage.setItem("layout-setting", JSON.stringify(layoutSetting))
@@ -136,50 +126,6 @@ defineExpose({
 </script>
 
 <style lang='scss' scoped>
-.setting-drawer-title {
-  margin-bottom: 12px;
-  color: var(--el-text-color-primary, rgba(0, 0, 0, 0.85));
-  line-height: 22px;
-  font-weight: bold;
-
-  .drawer-title {
-    font-size: 14px;
-  }
-}
-
-.setting-drawer-block-checbox {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  margin-top: 10px;
-  margin-bottom: 20px;
-
-  .setting-drawer-block-checbox-item {
-    position: relative;
-    margin-right: 16px;
-    border-radius: 2px;
-    cursor: pointer;
-
-    img {
-      width: 48px;
-      height: 48px;
-    }
-
-    .setting-drawer-block-checbox-selectIcon {
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: 100%;
-      height: 100%;
-      padding-top: 15px;
-      padding-left: 24px;
-      color: #1890ff;
-      font-weight: 700;
-      font-size: 14px;
-    }
-  }
-}
-
 .drawer-item {
   color: var(--el-text-color-regular, rgba(0, 0, 0, 0.65));
   padding: 12px 0;

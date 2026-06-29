@@ -8,12 +8,6 @@ const toggleDark = useToggle(isDark)
 
 const { sideTheme, showSettings, navType, tagsView, tagsViewPersist, tagsIcon, tagsViewStyle, fixedHeader, sidebarLogo, dynamicTitle, footerVisible, footerContent } = defaultSettings
 
-const BRAND_THEMES = ['cool-tower', 'amber-command', 'gold-ledger']
-
-function normalizeBrandTheme(theme) {
-  return BRAND_THEMES.includes(theme) ? theme : 'cool-tower'
-}
-
 function getStorageSetting() {
   try {
     return JSON.parse(localStorage.getItem('layout-setting')) || {}
@@ -42,8 +36,7 @@ const useSettingsStore = defineStore(
       dynamicTitle: storageSetting.dynamicTitle === undefined ? dynamicTitle : storageSetting.dynamicTitle,
       footerVisible: storageSetting.footerVisible === undefined ? footerVisible : storageSetting.footerVisible,
       footerContent: footerContent,
-      isDark: isDark.value,
-      brandTheme: normalizeBrandTheme(storageSetting.brandTheme)
+      isDark: isDark.value
     }),
     actions: {
       // 修改布局设置
@@ -65,15 +58,6 @@ const useSettingsStore = defineStore(
         nextTick(() => {
           handleThemeStyle(this.theme)
         })
-      },
-      // 设置品牌主题
-      setBrandTheme(theme) {
-        const nextTheme = normalizeBrandTheme(theme)
-        this.brandTheme = nextTheme
-
-        const storageSetting = getStorageSetting()
-        storageSetting.brandTheme = nextTheme
-        localStorage.setItem('layout-setting', JSON.stringify(storageSetting))
       }
     }
   })
