@@ -370,6 +370,7 @@ $tags-bar-height: 42px;
   display: flex;
   align-items: flex-end;
   overflow: hidden;
+  padding-bottom: 4px;
 
   $btn-width: 32px;
   $btn-color: var(--ui-text-secondary);
@@ -449,7 +450,6 @@ $tags-bar-height: 42px;
     color: var(--ui-primary);
     border-color: color-mix(in srgb, var(--ui-primary) 34%, var(--ui-border));
     font-weight: 600;
-    top: -4px;
     box-shadow: 0 -1px 0 color-mix(in srgb, var(--ui-primary) 10%, transparent);
 
     &::before {
