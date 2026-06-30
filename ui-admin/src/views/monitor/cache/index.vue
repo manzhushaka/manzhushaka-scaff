@@ -1,11 +1,14 @@
 <template>
   <div class="app-container">
-    <el-row :gutter="10">
+    <el-row :gutter="12">
       <el-col :span="24" class="card-box">
-        <el-card>
-          <template #header><Monitor style="width: 1em; height: 1em; vertical-align: middle;" /> <span style="vertical-align: middle;">基本信息</span></template>
-          <div class="el-table el-table--enable-row-hover el-table--medium">
-            <table cellspacing="0" style="width: 100%">
+        <section class="ui-panel-card cache-panel">
+          <div class="cache-panel__header">
+            <Monitor class="cache-panel__icon" />
+            <span>基本信息</span>
+          </div>
+          <div class="cache-info-table">
+            <table cellspacing="0">
               <tbody>
                 <tr>
                   <td class="el-table__cell is-leaf"><div class="cell">Redis版本</div></td>
@@ -40,25 +43,27 @@
               </tbody>
             </table>
           </div>
-        </el-card>
+        </section>
       </el-col>
 
-      <el-col :span="12" class="card-box">
-        <el-card>
-          <template #header><PieChart style="width: 1em; height: 1em; vertical-align: middle;" /> <span style="vertical-align: middle;">命令统计</span></template>
-          <div class="el-table el-table--enable-row-hover el-table--medium">
-            <div ref="commandstats" style="height: 420px" />
+      <el-col :xs="24" :sm="24" :md="12" class="card-box">
+        <section class="ui-panel-card cache-panel">
+          <div class="cache-panel__header">
+            <PieChart class="cache-panel__icon" />
+            <span>命令统计</span>
           </div>
-        </el-card>
+          <div ref="commandstats" class="cache-chart" />
+        </section>
       </el-col>
 
-      <el-col :span="12" class="card-box">
-        <el-card>
-          <template #header><Odometer style="width: 1em; height: 1em; vertical-align: middle;" /> <span style="vertical-align: middle;">内存信息</span></template>
-          <div class="el-table el-table--enable-row-hover el-table--medium">
-            <div ref="usedmemory" style="height: 420px" />
+      <el-col :xs="24" :sm="24" :md="12" class="card-box">
+        <section class="ui-panel-card cache-panel">
+          <div class="cache-panel__header">
+            <Odometer class="cache-panel__icon" />
+            <span>内存信息</span>
           </div>
-        </el-card>
+          <div ref="usedmemory" class="cache-chart" />
+        </section>
       </el-col>
     </el-row>
   </div>
@@ -130,3 +135,62 @@ function getList() {
 
 getList()
 </script>
+
+<style lang="scss" scoped>
+.cache-panel {
+  height: 100%;
+  padding: 0;
+  overflow: hidden;
+}
+
+.cache-panel__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  color: var(--ui-text-primary);
+  font-size: 14px;
+  font-weight: 700;
+  border-bottom: 1px solid var(--ui-border);
+  background: var(--ui-bg-panel-muted);
+}
+
+.cache-panel__icon {
+  width: 16px;
+  height: 16px;
+  color: var(--ui-primary);
+}
+
+.cache-info-table {
+  overflow-x: auto;
+
+  table {
+    width: 100%;
+    min-width: 960px;
+    border-collapse: collapse;
+  }
+
+  td {
+    height: 42px;
+    border-bottom: 1px solid var(--ui-table-border);
+    color: var(--ui-text-regular);
+  }
+
+  tr:last-child td {
+    border-bottom: 0;
+  }
+
+  td:nth-child(odd) {
+    width: 112px;
+    background: var(--ui-bg-panel-muted);
+    color: var(--ui-text-secondary);
+    font-weight: 600;
+  }
+}
+
+.cache-chart {
+  height: 420px;
+  min-height: 320px;
+}
+</style>

@@ -101,7 +101,7 @@
             <span>磁盘状态</span>
           </div>
           <div class="server-disk-table">
-            <el-table :data="server.sysFiles || []" style="width: 100%">
+            <el-table :data="server.sysFiles || []">
               <el-table-column label="盘符路径" prop="dirName" min-width="180" show-overflow-tooltip />
               <el-table-column label="文件系统" prop="sysTypeName" min-width="120" show-overflow-tooltip />
               <el-table-column label="盘符类型" prop="typeName" min-width="180" show-overflow-tooltip />

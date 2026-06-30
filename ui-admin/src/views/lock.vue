@@ -1,5 +1,5 @@
 <template>
-  <div class="lock-container">
+  <div class="lock-container" data-ui-theme="cool-tower">
     <!-- 动态粒子背景 -->
     <canvas ref="particleCanvas" class="particle-bg"></canvas>
 
@@ -11,7 +11,9 @@
     <div class="lock-card">
       <div class="avatar-wrap">
         <img :src="userStore.avatar" class="lock-avatar" @error="onAvatarError" />
-        <div class="lock-icon">🔒</div>
+        <div class="lock-icon">
+          <el-icon><Lock /></el-icon>
+        </div>
       </div>
       <div class="lock-username">{{ userStore.nickName }}</div>
       <div class="lock-hint">系统已锁定，请输入密码解锁</div>
@@ -19,7 +21,7 @@
       <div class="input-wrap" :class="{ shake: isShaking }">
         <input ref="passwordInput" v-model="password" type="password" placeholder="请输入登录密码" class="lock-input" @keydown.enter="handleUnlock" autocomplete="off" />
         <button class="unlock-btn" @click="handleUnlock" :disabled="loading">
-          <span v-if="!loading">→</span>
+          <el-icon v-if="!loading"><Right /></el-icon>
           <span v-else class="loading-dot">···</span>
         </button>
       </div>
@@ -176,7 +178,10 @@ onBeforeUnmount(() => {
 .lock-container {
   position: fixed;
   inset: 0;
-  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  background:
+    radial-gradient(circle at 18% 16%, rgba(125, 211, 252, 0.18) 0, transparent 30%),
+    radial-gradient(circle at 82% 18%, rgba(14, 165, 233, 0.20) 0, transparent 28%),
+    linear-gradient(135deg, #0b253a 0%, #0f3b60 48%, #12202f 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -220,13 +225,13 @@ onBeforeUnmount(() => {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 24px;
+  border-radius: var(--ui-radius-panel);
   padding: 40px 48px;
   width: 360px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+  box-shadow: var(--ui-shadow-popover);
 }
 
 .avatar-wrap {
@@ -318,9 +323,9 @@ onBeforeUnmount(() => {
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, var(--ui-primary) 0%, var(--ui-primary-active) 100%);
   border: none;
-  color: #fff;
+  color: var(--ui-text-inverse);
   font-size: 18px;
   cursor: pointer;
   transition: transform 0.2s, opacity 0.2s;
@@ -346,7 +351,7 @@ onBeforeUnmount(() => {
 
 .error-msg {
   margin-top: 14px;
-  color: #ff7675;
+  color: #fecaca;
   font-size: 13px;
   text-align: center;
   animation: fadeIn 0.3s ease;

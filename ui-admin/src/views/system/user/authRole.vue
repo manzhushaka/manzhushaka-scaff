@@ -1,5 +1,6 @@
 <template>
    <div class="app-container">
+      <section class="ui-panel-card auth-role-panel">
       <h4 class="form-header h4">基本信息</h4>
       <el-form :model="form" label-width="80px">
          <el-row>
@@ -15,8 +16,10 @@
             </el-col>
          </el-row>
       </el-form>
+      </section>
 
-      <h4 class="form-header h4">角色信息</h4>
+      <section class="ui-table-card auth-role-table">
+      <div class="auth-role-table__title">角色信息</div>
       <el-table v-loading="loading" :row-key="getRowKey" @row-click="clickRow" ref="roleRef" @selection-change="handleSelectionChange" :data="roles.slice((pageNum - 1) * pageSize, pageNum * pageSize)">
          <el-table-column label="序号" width="55" type="index" align="center">
             <template #default="scope">
@@ -35,9 +38,10 @@
       </el-table>
 
       <pagination v-show="total > 0" :total="total" v-model:page="pageNum" v-model:limit="pageSize" />
+      </section>
 
       <el-form label-width="100px">
-         <div style="text-align: center;margin-left:-120px;margin-top:30px;">
+         <div class="auth-role-footer">
             <el-button type="primary" @click="submitForm()">提交</el-button>
             <el-button @click="close()">返回</el-button>
          </div>
@@ -121,3 +125,34 @@ function submitForm() {
   }
 })()
 </script>
+
+<style lang="scss" scoped>
+.auth-role-panel {
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.auth-role-table {
+  overflow: hidden;
+}
+
+.auth-role-table__title {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  color: var(--ui-text-primary);
+  font-size: 14px;
+  font-weight: 700;
+  border-bottom: 1px solid var(--ui-border);
+  background: var(--ui-bg-panel-muted);
+}
+
+.auth-role-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+</style>

@@ -109,6 +109,21 @@ const activeMenu = computed(() => {
       height: 44px !important;
       line-height: 44px !important;
     }
+
+    :deep(.el-sub-menu__title) {
+      padding-right: 34px !important;
+    }
+
+    :deep(.el-sub-menu__icon-arrow) {
+      right: 14px !important;
+      color: var(--ui-sidebar-arrow-color, rgba(213, 236, 251, 0.78)) !important;
+      opacity: 1;
+      transition: color var(--ui-transition-fast), transform var(--ui-transition-normal);
+    }
+
+    :deep(.el-sub-menu.is-opened > .el-sub-menu__title .el-sub-menu__icon-arrow) {
+      transform: rotateZ(180deg);
+    }
   }
 }
 </style>

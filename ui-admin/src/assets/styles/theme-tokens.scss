@@ -83,6 +83,7 @@
   --ui-shadow-panel-hover: 0 2px 4px rgba(15, 23, 42, 0.05), 0 16px 34px rgba(15, 59, 96, 0.12);
   --ui-shadow-popover: 0 18px 40px rgba(15, 59, 96, 0.16);
   --ui-shadow-sidebar: 8px 0 24px rgba(15, 59, 96, 0.18);
+  --ui-shadow-subtle: 0 1px 2px rgba(15, 23, 42, 0.04);
 
   --ui-hero-bg: linear-gradient(135deg, #0f3b60 0%, #0e7490 45%, #0ea5e9 100%);
   --ui-hero-text: #ffffff;
@@ -146,7 +147,9 @@
 .app-container {
   min-height: 100%;
   padding: var(--ui-layout-content-padding);
-  background: var(--ui-bg-page);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--ui-bg-panel-soft) 54%, transparent) 0, transparent 260px),
+    var(--ui-bg-page);
 }
 
 .ui-page-head {
@@ -174,7 +177,9 @@
 
 .ui-filter-card,
 .ui-table-card,
-.ui-panel-card {
+.ui-panel-card,
+.ui-detail-card,
+.ui-tool-card {
   border: 1px solid var(--ui-border);
   border-radius: var(--ui-radius-panel);
   background: var(--ui-bg-panel);
@@ -202,6 +207,17 @@
   gap: 8px;
   flex-wrap: wrap;
 }
+
+.ui-action-bar .el-col {
+  width: auto;
+  max-width: none;
+  flex: 0 0 auto;
+}
+
+.ui-action-bar .top-right-btn {
+  margin-left: auto;
+}
+
 .ui-action-bar + .ui-table-card {
   border-radius: 0 0 var(--ui-radius-panel) var(--ui-radius-panel);
 }
@@ -209,6 +225,7 @@
 // 表格容器
 .ui-table-card {
   overflow: hidden;
+  padding: 0;
 
   .el-table {
     border: none;
@@ -233,6 +250,46 @@
   .el-table__inner-wrapper::before {
     display: none;
   }
+}
+
+.ui-panel-card,
+.ui-detail-card,
+.ui-tool-card {
+  padding: 16px;
+}
+
+.ui-card-header,
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 34px;
+  margin-bottom: 12px;
+  color: var(--ui-text-primary);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.ui-card-header-left,
+.panel-header-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.ui-card-header-icon,
+.panel-header-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--ui-primary);
+}
+
+.ui-detail-page {
+  padding: var(--ui-layout-content-padding);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--ui-bg-panel-soft) 56%, transparent) 0, transparent 220px),
+    var(--ui-bg-page);
 }
 
 // 空表格最小高度
@@ -387,6 +444,57 @@
   }
 }
 
+.detail-card {
+  border-color: var(--ui-border) !important;
+  border-radius: var(--ui-radius-panel) !important;
+  background: var(--ui-bg-panel) !important;
+  box-shadow: var(--ui-shadow-subtle);
+}
+
+.detail-card-title {
+  background: var(--ui-bg-panel-muted) !important;
+  color: var(--ui-text-primary) !important;
+  border-bottom-color: var(--ui-border) !important;
+}
+
+.detail-label,
+.info-label {
+  color: var(--ui-text-secondary) !important;
+}
+
+.detail-value,
+.info-value {
+  color: var(--ui-text-primary) !important;
+}
+
+.ui-entry-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 16% 18%, color-mix(in srgb, var(--ui-accent) 22%, transparent) 0, transparent 30%),
+    radial-gradient(circle at 82% 12%, color-mix(in srgb, var(--ui-primary) 18%, transparent) 0, transparent 28%),
+    linear-gradient(160deg, #eef7fb 0%, #dbeafe 42%, #f4f8fb 100%);
+  color: var(--ui-text-primary);
+}
+
+.ui-entry-card {
+  border: 1px solid color-mix(in srgb, var(--ui-border) 72%, rgba(255, 255, 255, 0.7));
+  border-radius: var(--ui-radius-panel);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: var(--ui-shadow-popover);
+  backdrop-filter: blur(16px);
+}
+
+.ui-empty-soft {
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ui-text-secondary);
+  background: var(--ui-bg-panel-muted);
+  border: 1px dashed var(--ui-border);
+  border-radius: var(--ui-radius-panel);
+}
+
 .el-button--primary {
   --el-button-bg-color: var(--ui-primary);
   --el-button-border-color: var(--ui-primary);
@@ -442,5 +550,19 @@
 @media (max-width: 991px) {
   :root {
     --ui-layout-content-padding: 12px;
+  }
+
+  .ui-filter-card {
+    padding: 12px 12px 4px;
+  }
+
+  .ui-action-bar {
+    align-items: flex-start;
+  }
+
+  .ui-action-bar .top-right-btn {
+    width: 100%;
+    margin-left: 0;
+    justify-content: flex-start;
   }
 }
