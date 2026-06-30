@@ -10,6 +10,11 @@ manzhushaka:
   profile: D:/manzhushaka/uploadPath
   # 获取ip地址开关
   addressEnabled: false
+  # 敏感字段加密
+  crypto:
+    enabled: ${SENSITIVE_FIELD_CRYPTO_ENABLED:false}
+    aes-key: ${SENSITIVE_FIELD_AES_KEY:}
+    hmac-key: ${SENSITIVE_FIELD_HMAC_KEY:}
 # 开发环境配置
 server:
   # 服务器的HTTP端口，默认为8080
