@@ -43,6 +43,7 @@ logs/
 *.xml.versionsBackup
 *.swp
 .superpowers/
+.worktrees/
 
 !*/build/*.java
 !*/build/*.html
