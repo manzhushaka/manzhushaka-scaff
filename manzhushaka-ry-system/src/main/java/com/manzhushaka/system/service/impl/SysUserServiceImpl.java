@@ -26,6 +26,8 @@ import com.manzhushaka.system.mapper.SysUserMapper;
 import com.manzhushaka.system.mapper.SysUserRoleMapper;
 import com.manzhushaka.system.service.ISysConfigService;
 import com.manzhushaka.system.service.ISysDeptService;
+import com.manzhushaka.common.crypto.SensitiveFieldCryptoHolder;
+import com.manzhushaka.system.infrastructure.persistence.support.SysUserSensitiveFieldSupport;
 import com.manzhushaka.system.service.ISysUserService;
 
 /**
@@ -164,7 +166,9 @@ public class SysUserServiceImpl implements ISysUserService
     public boolean checkPhoneUnique(SysUser user)
     {
         Long userId = StringUtils.isNull(user.getUserId()) ? -1L : user.getUserId();
-        SysUser info = userMapper.checkPhoneUnique(user.getPhonenumber());
+        SysUserSensitiveFieldSupport.fillHashes(user);
+        String phonenumberHash = user.getPhonenumberHash();
+        SysUser info = userMapper.checkPhoneUnique(phonenumberHash);
         if (StringUtils.isNotNull(info) && info.getUserId().longValue() != userId.longValue())
         {
             return UserConstants.NOT_UNIQUE;
@@ -182,7 +186,9 @@ public class SysUserServiceImpl implements ISysUserService
     public boolean checkEmailUnique(SysUser user)
     {
         Long userId = StringUtils.isNull(user.getUserId()) ? -1L : user.getUserId();
-        SysUser info = userMapper.checkEmailUnique(user.getEmail());
+        SysUserSensitiveFieldSupport.fillHashes(user);
+        String emailHash = user.getEmailHash();
+        SysUser info = userMapper.checkEmailUnique(emailHash);
         if (StringUtils.isNotNull(info) && info.getUserId().longValue() != userId.longValue())
         {
             return UserConstants.NOT_UNIQUE;
@@ -234,6 +240,8 @@ public class SysUserServiceImpl implements ISysUserService
     @Transactional
     public int insertUser(SysUser user)
     {
+        // 填充敏感字段检索摘要
+        SysUserSensitiveFieldSupport.fillHashes(user);
         // 新增用户信息
         int rows = userMapper.insertUser(user);
         // 新增用户与角色管理
@@ -243,13 +251,15 @@ public class SysUserServiceImpl implements ISysUserService
 
     /**
      * 注册用户信息
-     * 
+     *
      * @param user 用户信息
      * @return 结果
      */
     @Override
     public boolean registerUser(SysUser user)
     {
+        // 填充敏感字段检索摘要
+        SysUserSensitiveFieldSupport.fillHashes(user);
         return userMapper.insertUser(user) > 0;
     }
 
@@ -264,6 +274,8 @@ public class SysUserServiceImpl implements ISysUserService
     public int updateUser(SysUser user)
     {
         Long userId = user.getUserId();
+        // 填充敏感字段检索摘要
+        SysUserSensitiveFieldSupport.fillHashes(user);
         // 删除用户与角色关联
         userRoleMapper.deleteUserRoleByUserId(userId);
         // 新增用户与角色管理

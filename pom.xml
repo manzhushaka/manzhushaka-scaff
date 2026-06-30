@@ -47,6 +47,7 @@
         <jaxb-api.version>2.3.1</jaxb-api.version>
         <springdoc.version>3.0.3</springdoc.version>
         <archunit.version>1.4.0</archunit.version>
+        <jasypt-spring-boot.version>4.0.4</jasypt-spring-boot.version>
 
     </properties>
 
@@ -213,6 +214,15 @@
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-captcha</artifactId>
                 <version>${hutool.version}</version>
+            </dependency>
+
+            <!-- ========================================================= -->
+            <!-- 配置文件敏感信息密文解密                                    -->
+            <!-- ========================================================= -->
+            <dependency>
+                <groupId>com.github.ulisesbocchio</groupId>
+                <artifactId>jasypt-spring-boot-starter</artifactId>
+                <version>${jasypt-spring-boot.version}</version>
             </dependency>
 
             <!-- ========================================================= -->

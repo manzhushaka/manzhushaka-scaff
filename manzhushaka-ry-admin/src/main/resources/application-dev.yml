@@ -8,7 +8,7 @@ spring:
             master:
                 url: ${JDBC_MASTER_URL:jdbc:mysql://localhost:3306/manzhushaka-ry-scaff?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8}
                 username: ${JDBC_MASTER_USERNAME:root}
-                password: ${JDBC_MASTER_PASSWORD:1a2s3d4f}
+                password: ${JDBC_MASTER_PASSWORD:}
             # 从库数据源
             slave:
                 # 从数据源开关/默认关闭
