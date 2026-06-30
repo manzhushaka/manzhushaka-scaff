@@ -55,6 +55,10 @@ class RemovedFeatureRegressionTest
             "ui-admin/src/api/system/post.js",
             "ui-admin/src/views/system/post/index.vue");
 
+    private static final List<String> REMOVED_REQUEST_LOG_FRONTEND_FILES = List.of(
+            "ui-admin/src/api/monitor/requestLog.js",
+            "ui-admin/src/views/monitor/requestLog/index.vue");
+
     /**
      * 岗位管理相关后端类应已从类路径移除。
      */
@@ -118,6 +122,23 @@ class RemovedFeatureRegressionTest
     }
 
     /**
+     * 请求日志相关前端文件应已从仓库移除。
+     *
+     * @throws IOException 读取路径失败
+     */
+    @Test
+    void requestLogFrontendFilesShouldBeRemoved() throws IOException
+    {
+        Path root = repositoryRoot();
+        for (String relativePath : REMOVED_REQUEST_LOG_FRONTEND_FILES)
+        {
+            assertThat(Files.exists(root.resolve(relativePath)))
+                    .as("file should be absent: %s", relativePath)
+                    .isFalse();
+        }
+    }
+
+    /**
      * 初始化 SQL 不应再保留通知公告与若依官网初始化数据。
      *
      * @throws IOException 读取 SQL 文件失败
@@ -154,16 +175,19 @@ class RemovedFeatureRegressionTest
 
         assertThat(sql)
                 .contains("insert into sys_menu values('108',  '日志中心', '2'")
-                .contains("monitor/requestLog/index")
+                .contains("monitor/logCenter/index")
                 .contains("monitor/runtimeLog/index")
                 .contains("monitor/slowSql/index")
-                .contains("monitor/operlog/index")
-                .contains("monitor/logininfor/index")
-                .contains("monitor:requestlog:list")
+                .contains("monitor:logcenter:list")
                 .contains("monitor:runtimelog:list")
                 .contains("monitor:slowsql:list")
                 .contains("monitor:operlog:list")
                 .contains("monitor:logininfor:list")
+                .doesNotContain("monitor/operlog/index")
+                .doesNotContain("monitor/logininfor/index")
+                .doesNotContain("monitor/requestLog/index")
+                .doesNotContain("monitor:requestlog:list")
+                .doesNotContain("sys_request_log")
                 .contains("monitor:logininfor:unlock");
     }
 

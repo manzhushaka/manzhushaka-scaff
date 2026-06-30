@@ -90,8 +90,7 @@ const quickLinks = [
   { label: '角色管理', route: '/userAuth/role', icon: 'peoples', tone: 'success' },
   { label: '菜单管理', route: '/userAuth/menu', icon: 'tree-table', tone: 'warning' },
   { label: '服务监控', route: '/monitor/server', icon: 'server', tone: 'supplement' },
-  { label: '操作日志', route: '/system/log/operlog', icon: 'log', tone: 'primary' },
-  { label: '登录日志', route: '/system/log/logininfor', icon: 'logininfor', tone: 'success' },
+  { label: '统一日志', route: '/log/logCenter', icon: 'log', tone: 'primary' },
   { label: '缓存监控', route: '/monitor/cache', icon: 'redis', tone: 'warning' },
 ]
 

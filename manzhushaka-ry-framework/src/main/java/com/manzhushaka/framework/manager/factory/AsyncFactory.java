@@ -13,7 +13,6 @@ import com.manzhushaka.common.utils.ip.IpUtils;
 import com.manzhushaka.common.utils.spring.SpringUtils;
 import com.manzhushaka.framework.web.command.LoginAuditRecord;
 import com.manzhushaka.framework.web.command.OperationAuditRecord;
-import com.manzhushaka.framework.web.command.RequestLogRecord;
 import com.manzhushaka.framework.web.command.SlowSqlLogRecord;
 import com.manzhushaka.system.application.service.SystemAuditAppService;
 
@@ -84,29 +83,6 @@ public class AsyncFactory
                         operLog.operParam(), operLog.jsonResult(), operLog.status(),
                         operLog.errorMsg(), operLog.businessType(), operLog.title(),
                         operLog.operatorType(), operLog.costTime());
-            }
-        };
-    }
-
-    /**
-     * 请求日志记录。
-     *
-     * @param requestLog 请求日志信息
-     * @return 任务 task
-     */
-    public static TimerTask recordRequest(final RequestLogRecord requestLog)
-    {
-        return new TimerTask()
-        {
-            @Override
-            public void run()
-            {
-                SpringUtils.getBean(SystemAuditAppService.class).recordRequestLog(
-                        requestLog.requestUri(), requestLog.requestMethod(), requestLog.controllerMethod(),
-                        requestLog.queryString(), requestLog.requestParams(), requestLog.ipaddr(),
-                        requestLog.userName(), requestLog.statusCode(), requestLog.status(),
-                        requestLog.errorMsg(), requestLog.userAgent(), requestLog.costTime(),
-                        requestLog.requestTime());
             }
         };
     }
