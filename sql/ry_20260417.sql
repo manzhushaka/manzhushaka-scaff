@@ -146,11 +146,9 @@ insert into sys_menu values('103',  '部门管理', '160', '4', 'dept',       's
 insert into sys_menu values('105',  '字典管理', '1',   '5', 'dict',       'system/dict/index',        '', '', 1, 0, 'C', '0', '0', 'system:dict:list',        'dict',          'admin', sysdate(), '', null, '字典管理菜单');
 insert into sys_menu values('106',  '参数设置', '1',   '6', 'config',     'system/config/index',      '', '', 1, 0, 'C', '0', '0', 'system:config:list',      'edit',          'admin', sysdate(), '', null, '参数设置菜单');
 insert into sys_menu values('108',  '日志中心', '2',   '1', 'log',        '',                         '', '', 1, 0, 'M', '0', '0', '',                        'log',           'admin', sysdate(), '', null, '日志中心菜单');
-insert into sys_menu values('161',  '请求日志', '108', '1', 'requestLog', 'monitor/requestLog/index', '', '', 1, 0, 'C', '0', '0', 'monitor:requestlog:list', 'form',          'admin', sysdate(), '', null, '请求日志菜单');
+insert into sys_menu values('161',  '统一日志', '108', '1', 'logCenter',  'monitor/logCenter/index',  '', '', 1, 0, 'C', '0', '0', 'monitor:logcenter:list',  'log',           'admin', sysdate(), '', null, '统一日志菜单');
 insert into sys_menu values('162',  '运行日志', '108', '2', 'runtimeLog', 'monitor/runtimeLog/index', '', '', 1, 0, 'C', '0', '0', 'monitor:runtimelog:list', 'log',           'admin', sysdate(), '', null, '运行日志菜单');
 insert into sys_menu values('163',  '慢 SQL 日志', '108', '3', 'slowSql', 'monitor/slowSql/index',    '', '', 1, 0, 'C', '0', '0', 'monitor:slowsql:list',    'druid',         'admin', sysdate(), '', null, '慢 SQL 日志菜单');
-insert into sys_menu values('149',  '操作日志', '108', '4', 'operlog',    'monitor/operlog/index',    '', '', 1, 0, 'C', '0', '0', 'monitor:operlog:list',    'form',          'admin', sysdate(), '', null, '操作日志菜单');
-insert into sys_menu values('150',  '登录日志', '108', '5', 'logininfor', 'monitor/logininfor/index', '', '', 1, 0, 'C', '0', '0', 'monitor:logininfor:list', 'logininfor',    'admin', sysdate(), '', null, '登录日志菜单');
 insert into sys_menu values('175',  '消息队列台账', '108', '6', 'mqLog',     'monitor/mqLog/index',     '', '', 1, 0, 'C', '0', '0', 'monitor:mqlog:list',     'message',       'admin', sysdate(), '', null, '消息队列台账菜单');
 insert into sys_menu values('109',  '在线用户', '2',   '1', 'online',     'monitor/online/index',     '', '', 1, 0, 'C', '0', '0', 'monitor:online:list',     'online',        'admin', sysdate(), '', null, '在线用户菜单');
 insert into sys_menu values('110',  '定时任务', '2',   '2', 'job',        'monitor/job/index',        '', '', 1, 0, 'C', '0', '0', 'monitor:job:list',        'job',           'admin', sysdate(), '', null, '定时任务菜单');
@@ -211,10 +209,6 @@ insert into sys_menu values('135', '参数修改', '106', '2', '', null, '', '',
 insert into sys_menu values('136', '参数删除', '106', '3', '', null, '', '', 1, 0, 'F', '0', '0', 'system:config:remove',        '#',                'admin', sysdate(), '', null, '参数删除按钮');
 -- 监控模块按钮权限
 insert into sys_menu values('141', '在线查询', '109', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:online:list',         '#',                'admin', sysdate(), '', null, '在线查询按钮');
-insert into sys_menu values('164', '请求日志查询', '161', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:requestlog:list',  '#',                'admin', sysdate(), '', null, '请求日志查询按钮');
-insert into sys_menu values('165', '请求日志详情', '161', '2', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:requestlog:query', '#',                'admin', sysdate(), '', null, '请求日志详情按钮');
-insert into sys_menu values('166', '请求日志删除', '161', '3', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:requestlog:remove','#',                'admin', sysdate(), '', null, '请求日志删除按钮');
-insert into sys_menu values('167', '请求日志导出', '161', '4', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:requestlog:export','#',                'admin', sysdate(), '', null, '请求日志导出按钮');
 insert into sys_menu values('168', '运行日志查询', '162', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:runtimelog:list',  '#',                'admin', sysdate(), '', null, '运行日志查询按钮');
 insert into sys_menu values('169', '运行日志详情', '162', '2', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:runtimelog:query', '#',                'admin', sysdate(), '', null, '运行日志详情按钮');
 insert into sys_menu values('170', '运行日志下载', '162', '3', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:runtimelog:download', '#',              'admin', sysdate(), '', null, '运行日志下载按钮');
@@ -222,14 +216,14 @@ insert into sys_menu values('171', '慢 SQL 查询', '163', '1', '', null, '', '
 insert into sys_menu values('172', '慢 SQL 详情', '163', '2', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:slowsql:query',      '#',                'admin', sysdate(), '', null, '慢 SQL 详情按钮');
 insert into sys_menu values('173', '慢 SQL 删除', '163', '3', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:slowsql:remove',    '#',                'admin', sysdate(), '', null, '慢 SQL 删除按钮');
 insert into sys_menu values('174', '慢 SQL 导出', '163', '4', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:slowsql:export',    '#',                'admin', sysdate(), '', null, '慢 SQL 导出按钮');
-insert into sys_menu values('142', '操作日志查询', '149', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:operlog:list',       '#',                'admin', sysdate(), '', null, '操作日志查询按钮');
-insert into sys_menu values('143', '操作日志删除', '149', '2', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:operlog:remove',     '#',                'admin', sysdate(), '', null, '操作日志删除按钮');
-insert into sys_menu values('144', '操作日志导出', '149', '3', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:operlog:export',     '#',                'admin', sysdate(), '', null, '操作日志导出按钮');
-insert into sys_menu values('145', '操作日志详情', '149', '4', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:operlog:query',      '#',                'admin', sysdate(), '', null, '操作日志详情按钮');
-insert into sys_menu values('146', '登录日志查询', '150', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:list',    '#',                'admin', sysdate(), '', null, '登录日志查询按钮');
-insert into sys_menu values('147', '登录日志删除', '150', '2', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:remove',  '#',                'admin', sysdate(), '', null, '登录日志删除按钮');
-insert into sys_menu values('148', '登录日志导出', '150', '3', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:export',  '#',                'admin', sysdate(), '', null, '登录日志导出按钮');
-insert into sys_menu values('151', '登录账户解锁', '150', '4', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:unlock',  '#',                'admin', sysdate(), '', null, '登录账户解锁按钮');
+insert into sys_menu values('142', '操作日志查询', '161', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:operlog:list',       '#',                'admin', sysdate(), '', null, '操作日志查询按钮');
+insert into sys_menu values('143', '操作日志删除', '161', '2', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:operlog:remove',     '#',                'admin', sysdate(), '', null, '操作日志删除按钮');
+insert into sys_menu values('144', '操作日志导出', '161', '3', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:operlog:export',     '#',                'admin', sysdate(), '', null, '操作日志导出按钮');
+insert into sys_menu values('145', '操作日志详情', '161', '4', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:operlog:query',      '#',                'admin', sysdate(), '', null, '操作日志详情按钮');
+insert into sys_menu values('146', '登录日志查询', '161', '5', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:list',    '#',                'admin', sysdate(), '', null, '登录日志查询按钮');
+insert into sys_menu values('147', '登录日志删除', '161', '6', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:remove',  '#',                'admin', sysdate(), '', null, '登录日志删除按钮');
+insert into sys_menu values('148', '登录日志导出', '161', '7', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:export',  '#',                'admin', sysdate(), '', null, '登录日志导出按钮');
+insert into sys_menu values('151', '登录账户解锁', '161', '8', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:unlock',  '#',                'admin', sysdate(), '', null, '登录账户解锁按钮');
 -- 消息队列台账按钮权限
 insert into sys_menu values('176', '消息队列台账查询', '175', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:mqlog:list',  '#',                'admin', sysdate(), '', null, '消息队列台账查询按钮');
 insert into sys_menu values('177', '消息队列台账详情', '175', '2', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:mqlog:query', '#',                'admin', sysdate(), '', null, '消息队列台账详情按钮');
@@ -249,8 +243,6 @@ insert into sys_role_menu values ('2', '108');
 insert into sys_role_menu values ('2', '161');
 insert into sys_role_menu values ('2', '162');
 insert into sys_role_menu values ('2', '163');
-insert into sys_role_menu values ('2', '149');
-insert into sys_role_menu values ('2', '150');
 insert into sys_role_menu values ('2', '109');
 insert into sys_role_menu values ('2', '110');
 insert into sys_role_menu values ('2', '111');
@@ -276,10 +268,6 @@ insert into sys_role_menu values ('2', '134');
 insert into sys_role_menu values ('2', '135');
 insert into sys_role_menu values ('2', '136');
 insert into sys_role_menu values ('2', '141');
-insert into sys_role_menu values ('2', '164');
-insert into sys_role_menu values ('2', '165');
-insert into sys_role_menu values ('2', '166');
-insert into sys_role_menu values ('2', '167');
 insert into sys_role_menu values ('2', '168');
 insert into sys_role_menu values ('2', '169');
 insert into sys_role_menu values ('2', '170');
@@ -346,31 +334,6 @@ create table sys_oper_log (
   key idx_sys_oper_log_s  (status),
   key idx_sys_oper_log_ot (oper_time)
 ) engine=innodb auto_increment=100 comment = '操作日志记录';
-
--- ----------------------------
--- 10、请求日志记录
--- ----------------------------
-drop table if exists sys_request_log;
-create table sys_request_log (
-  request_id        bigint(20)      not null auto_increment    comment '请求日志主键',
-  request_uri       varchar(255)    default ''                 comment '请求地址',
-  request_method    varchar(10)     default ''                 comment '请求方式',
-  controller_method varchar(255)    default ''                 comment '控制器方法',
-  query_string      varchar(1000)   default ''                 comment 'URL查询参数',
-  request_params    varchar(2000)   default ''                 comment '请求参数',
-  ipaddr            varchar(128)    default ''                 comment '请求IP',
-  user_name         varchar(50)     default ''                 comment '用户账号',
-  status_code       int(4)          default 0                  comment 'HTTP状态码',
-  status            int(1)          default 0                  comment '状态（0正常 1异常）',
-  error_msg         varchar(2000)   default ''                 comment '错误消息',
-  user_agent        varchar(500)    default ''                 comment 'User-Agent',
-  cost_time         bigint(20)      default 0                  comment '消耗时间',
-  request_time      datetime                                   comment '请求时间',
-  primary key (request_id),
-  key idx_sys_request_log_rt (request_time),
-  key idx_sys_request_log_status (status),
-  key idx_sys_request_log_uri (request_uri)
-) engine=innodb auto_increment=100 comment = '请求日志记录';
 
 -- ----------------------------
 -- 10.1、慢 SQL 日志记录
