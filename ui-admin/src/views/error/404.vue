@@ -1,5 +1,5 @@
 <template>
-  <div class="wscn-http404-container">
+  <div class="wscn-http404-container ui-entry-page" data-ui-theme="cool-tower">
     <div class="wscn-http404">
       <div class="pic-404">
         <img class="pic-404__parent" src="@/assets/404_images/404.png" alt="404">
@@ -33,16 +33,24 @@ let message = computed(() => {
 
 <style lang="scss" scoped>
 .wscn-http404-container{
-  transform: translate(-50%,-50%);
-  position: absolute;
-  top: 40%;
-  left: 50%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
 }
 .wscn-http404 {
   position: relative;
-  width: 1200px;
-  padding: 0 50px;
+  width: 1060px;
+  max-width: 100%;
+  padding: 34px;
   overflow: hidden;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-panel);
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: var(--ui-shadow-popover);
+  backdrop-filter: blur(16px);
+
   .pic-404 {
     position: relative;
     float: left;
@@ -200,7 +208,7 @@ let message = computed(() => {
       width: 110px;
       height: 36px;
       background: var(--ui-primary);
-      border-radius: 100px;
+      border-radius: var(--ui-radius-control);
       text-align: center;
       color: var(--ui-text-inverse);
       opacity: 0;
@@ -221,6 +229,24 @@ let message = computed(() => {
         transform: translateY(0);
         opacity: 1;
       }
+    }
+  }
+}
+
+@media (max-width: 991px) {
+  .wscn-http404 {
+    display: flex;
+    flex-direction: column;
+
+    .pic-404,
+    .bullshit {
+      float: none;
+      width: 100%;
+    }
+
+    .pic-404 {
+      max-width: 420px;
+      margin: 0 auto;
     }
   }
 }

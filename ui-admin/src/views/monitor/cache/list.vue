@@ -1,17 +1,18 @@
 <template>
   <div class="app-container">
-    <el-row :gutter="10">
-      <el-col :span="8">
-        <el-card style="height: calc(100vh - 125px)">
+    <el-row :gutter="12" class="cache-list-grid">
+      <el-col :xs="24" :sm="24" :lg="8">
+        <el-card class="cache-list-card">
           <template #header>
-            <Collection style="width: 1em; height: 1em; vertical-align: middle;" /> <span style="vertical-align: middle;">缓存列表</span>
+            <div class="cache-list-card__header">
+              <span><Collection class="cache-list-card__icon" />缓存列表</span>
             <el-button
-              style="float: right; padding: 3px 0"
               link
               type="primary"
               icon="Refresh"
               @click="refreshCacheNames()"
             ></el-button>
+            </div>
           </template>
           <el-table
             v-loading="loading"
@@ -19,7 +20,6 @@
             :height="tableHeight"
             highlight-current-row
             @row-click="getCacheKeys"
-            style="width: 100%"
           >
             <el-table-column
               label="序号"
@@ -60,17 +60,18 @@
         </el-card>
       </el-col>
 
-      <el-col :span="8">
-        <el-card style="height: calc(100vh - 125px)">
+      <el-col :xs="24" :sm="24" :lg="8">
+        <el-card class="cache-list-card">
           <template #header>
-            <Key style="width: 1em; height: 1em; vertical-align: middle;" /> <span style="vertical-align: middle;">键名列表</span>
+            <div class="cache-list-card__header">
+              <span><Key class="cache-list-card__icon" />键名列表</span>
             <el-button
-              style="float: right; padding: 3px 0"
               link
               type="primary"
               icon="Refresh"
               @click="refreshCacheKeys()"
             ></el-button>
+            </div>
           </template>
           <el-table
             v-loading="subLoading"
@@ -78,7 +79,6 @@
             :height="tableHeight"
             highlight-current-row
             @row-click="handleCacheValue"
-            style="width: 100%"
           >
             <el-table-column
               label="序号"
@@ -111,18 +111,19 @@
         </el-card>
       </el-col>
 
-      <el-col :span="8">
-        <el-card :bordered="false" style="height: calc(100vh - 125px)">
+      <el-col :xs="24" :sm="24" :lg="8">
+        <el-card class="cache-list-card">
           <template #header>
-            <Document style="width: 1em; height: 1em; vertical-align: middle;" /> <span style="vertical-align: middle;">缓存内容</span>
+            <div class="cache-list-card__header">
+              <span><Document class="cache-list-card__icon" />缓存内容</span>
             <el-button
-              style="float: right; padding: 3px 0"
               link
               type="primary"
               icon="Refresh"
               @click="handleClearCacheAll()"
               >清理全部</el-button
             >
+            </div>
           </template>
           <el-form :model="cacheForm">
             <el-row :gutter="32">
@@ -244,3 +245,54 @@ function handleClearCacheAll() {
 
 getCacheNames()
 </script>
+
+<style lang="scss" scoped>
+.cache-list-grid {
+  min-height: calc(100vh - 126px);
+}
+
+.cache-list-card {
+  height: calc(100vh - 126px);
+  overflow: hidden;
+
+  :deep(.el-card__header) {
+    padding: 0 !important;
+  }
+
+  :deep(.el-card__body) {
+    height: calc(100% - 45px);
+    padding: 12px !important;
+    overflow: auto;
+  }
+}
+
+.cache-list-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  padding: 0 14px;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ui-text-primary);
+    font-weight: 700;
+  }
+}
+
+.cache-list-card__icon {
+  width: 16px;
+  height: 16px;
+  color: var(--ui-primary);
+}
+
+@media (max-width: 1199px) {
+  .cache-list-card {
+    height: auto;
+    min-height: 360px;
+    margin-bottom: 12px;
+  }
+}
+</style>

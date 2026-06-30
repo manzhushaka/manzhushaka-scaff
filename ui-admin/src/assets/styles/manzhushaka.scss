@@ -395,7 +395,7 @@
   flex: 1;
   min-width: 0;
   overflow: hidden;
-  background: var(--ui-bg-panel);
+  background: transparent;
 
   .content-inner {
     padding: 12px 16px;
@@ -489,4 +489,31 @@
 /* 表格右侧工具栏样式 */
 .top-right-btn {
   margin-left: auto;
+}
+
+.app-container > .el-card,
+.app-container .box-card {
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-panel);
+  background: var(--ui-bg-panel);
+  box-shadow: var(--ui-shadow-panel);
+}
+
+.app-container > .el-row,
+.app-container > .ui-page-head,
+.app-container > .ui-filter-card,
+.app-container > .ui-action-bar,
+.app-container > .ui-table-card,
+.app-container > .ui-panel-card {
+  position: relative;
+  z-index: 1;
+}
+
+.el-card__header {
+  color: var(--ui-text-primary);
+  font-weight: 700;
+}
+
+.el-card__body {
+  color: var(--ui-text-regular);
 }

@@ -108,36 +108,29 @@ function goRoute(path) {
 
 .welcome-panel {
   position: relative;
-  min-height: 172px;
-  padding: 28px;
-  border: 1px solid color-mix(in srgb, var(--ui-primary) 32%, transparent);
+  min-height: 104px;
+  padding: 18px 20px;
+  border: 1px solid var(--ui-border);
   border-radius: var(--ui-radius-panel);
-  background: var(--ui-hero-bg);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--ui-primary-soft) 70%, var(--ui-bg-panel)) 0, var(--ui-bg-panel) 58%),
+    var(--ui-bg-panel);
   box-shadow: var(--ui-shadow-panel);
   overflow: hidden;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
 
   &::before {
     content: '';
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(90deg, rgba(255, 255, 255, 0.14) 0, transparent 38%),
-      radial-gradient(circle at 88% 12%, rgba(255, 255, 255, 0.22) 0, transparent 28%);
+      linear-gradient(90deg, color-mix(in srgb, var(--ui-primary) 8%, transparent) 0, transparent 42%),
+      radial-gradient(circle at 92% 8%, color-mix(in srgb, var(--ui-accent) 18%, transparent) 0, transparent 24%);
     pointer-events: none;
   }
 
   &::after {
-    content: '';
-    position: absolute;
-    right: 28px;
-    bottom: -40px;
-    width: 240px;
-    height: 140px;
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    border-radius: 999px;
-    transform: rotate(-12deg);
-    pointer-events: none;
+    display: none;
   }
 
   @media (max-width: 768px) {
@@ -168,18 +161,18 @@ function goRoute(path) {
     height: 24px;
     padding: 0 9px;
     margin-bottom: 12px;
-    border: 1px solid var(--ui-hero-action-border);
+    border: 1px solid var(--ui-border);
     border-radius: var(--ui-radius-control);
-    background: var(--ui-hero-action-bg);
-    color: var(--ui-hero-text);
+    background: var(--ui-primary-soft);
+    color: var(--ui-primary-active);
     font-size: 12px;
     font-weight: 600;
   }
 
   .welcome-greeting {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 700;
-    color: var(--ui-hero-text);
+    color: var(--ui-text-primary);
     margin: 0 0 6px;
     line-height: 1.35;
 
@@ -189,12 +182,12 @@ function goRoute(path) {
   }
 
   .welcome-user {
-    color: var(--ui-hero-text);
+    color: var(--ui-primary-active);
   }
 
   .welcome-sub {
     font-size: 14px;
-    color: var(--ui-hero-text-muted);
+    color: var(--ui-text-secondary);
     margin: 0;
     line-height: 1.7;
   }
@@ -214,25 +207,25 @@ function goRoute(path) {
   padding: 0 18px;
   font-size: 13px;
   border-radius: var(--ui-radius-control);
-  background: var(--ui-hero-action-bg);
-  border: 1px solid var(--ui-hero-action-border);
-  color: var(--ui-hero-text);
+  background: var(--ui-bg-panel);
+  border: 1px solid var(--ui-border);
+  color: var(--ui-text-primary);
   transition: background var(--ui-transition-fast), transform var(--ui-transition-fast), border-color var(--ui-transition-fast);
 
   &:hover {
-    background: color-mix(in srgb, var(--ui-hero-action-bg) 72%, #ffffff 28%);
-    color: var(--ui-hero-text);
-    border-color: rgba(255, 255, 255, 0.36);
+    background: var(--ui-primary-soft);
+    color: var(--ui-primary-active);
+    border-color: color-mix(in srgb, var(--ui-primary) 34%, var(--ui-border));
     transform: translateY(-1px);
   }
 
   &.is-primary {
-    background: rgba(255, 255, 255, 0.92);
-    border-color: rgba(255, 255, 255, 0.92);
-    color: var(--ui-primary-active);
+    background: var(--ui-primary);
+    border-color: var(--ui-primary);
+    color: var(--ui-text-inverse);
 
     .action-icon {
-      color: var(--ui-primary-active);
+      color: var(--ui-text-inverse);
     }
   }
 
@@ -240,7 +233,7 @@ function goRoute(path) {
     width: 14px;
     height: 14px;
     margin-right: 4px;
-    color: var(--ui-hero-text);
+    color: currentColor;
   }
 }
 

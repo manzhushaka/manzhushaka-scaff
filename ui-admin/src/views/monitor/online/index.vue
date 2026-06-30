@@ -28,7 +28,6 @@
       <el-table
          v-loading="loading"
          :data="onlineList.slice((pageNum - 1) * pageSize, pageNum * pageSize)"
-         style="width: 100%;"
       >
          <el-table-column label="序号" width="50" type="index" align="center">
             <template #default="scope">

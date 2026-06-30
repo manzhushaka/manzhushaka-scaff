@@ -3,7 +3,7 @@
     <!-- 自定义标题 -->
     <template #header>
       <div class="drawer-head">
-        <el-icon style="color:#5b9bd5;margin-right:8px;"><List /></el-icon>
+        <el-icon class="drawer-head-icon"><List /></el-icon>
         <span class="drawer-head-name">{{ row.dictName }}</span>
         <span class="drawer-head-type">{{ row.dictType }}</span>
       </div>
@@ -112,6 +112,10 @@ function loadData() {
 .drawer-head {
   display: flex;
   align-items: center;
+}
+.drawer-head-icon {
+  margin-right: 8px;
+  color: var(--ui-primary);
 }
 .drawer-head-name {
   font-size: 16px;

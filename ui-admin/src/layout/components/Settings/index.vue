@@ -102,8 +102,7 @@ function saveSetting() {
     "fixedHeader": storeSettings.value.fixedHeader,
     "sidebarLogo": storeSettings.value.sidebarLogo,
     "dynamicTitle": storeSettings.value.dynamicTitle,
-    "footerVisible": storeSettings.value.footerVisible,
-    "navType": storeSettings.value.navType
+    "footerVisible": storeSettings.value.footerVisible
   }
   localStorage.setItem("layout-setting", JSON.stringify(layoutSetting))
   setTimeout(proxy.$modal.closeLoading(), 1000)

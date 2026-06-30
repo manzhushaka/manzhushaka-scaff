@@ -11,7 +11,6 @@
 
     <el-sub-menu
       v-else
-      ref="subMenu"
       :index="resolvePath(item.path)"
       teleported
     >

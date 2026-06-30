@@ -1,9 +1,9 @@
 <template>
-  <div v-loading="loading" :style="'height:' + height">
+  <div class="iframe-shell" v-loading="loading" :style="'height:' + height">
     <iframe 
       :src="url" 
       frameborder="no" 
-      style="width: 100%; height: 100%" 
+      class="iframe-shell__frame"
       scrolling="auto" />
   </div>
 </template>
@@ -29,3 +29,20 @@ onMounted(() => {
   }
 })
 </script>
+
+<style lang="scss" scoped>
+.iframe-shell {
+  overflow: hidden;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-panel);
+  background: var(--ui-bg-panel);
+  box-shadow: var(--ui-shadow-panel);
+}
+
+.iframe-shell__frame {
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: var(--ui-bg-panel);
+}
+</style>

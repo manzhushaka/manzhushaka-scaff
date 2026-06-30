@@ -1,5 +1,5 @@
 <template>
-  <div class="register">
+  <div class="register ui-entry-page" data-ui-theme="cool-tower">
     <el-form ref="registerRef" :model="registerForm" :rules="registerRules" class="register-form">
       <h3 class="title">{{ title }}</h3>
       <el-form-item prop="username">
@@ -63,7 +63,7 @@
           <span v-if="!loading">注 册</span>
           <span v-else>注 册 中...</span>
         </el-button>
-        <div style="float: right;">
+        <div class="register-login-link">
           <router-link class="link-type" :to="'/login'">使用已有账户登录</router-link>
         </div>
       </el-form-item>
@@ -159,21 +159,25 @@ getCode()
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100%;
-  background-image: url("../assets/images/login-background.jpg");
-  background-size: cover;
+  min-height: 100vh;
+  padding: 24px;
 }
 .title {
   margin: 0px auto 30px auto;
   text-align: center;
-  color: #707070;
+  color: var(--ui-text-primary);
+  font-weight: 700;
 }
 
 .register-form {
-  border-radius: 6px;
-  background: #ffffff;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-panel);
+  background: rgba(255, 255, 255, 0.84);
   width: 400px;
   padding: 25px 25px 5px 25px;
+  box-shadow: var(--ui-shadow-popover);
+  backdrop-filter: blur(16px);
+
   .el-input {
     height: 40px;
     input {
@@ -189,7 +193,7 @@ getCode()
 .register-tip {
   font-size: 13px;
   text-align: center;
-  color: #bfbfbf;
+  color: var(--ui-text-secondary);
 }
 .register-code {
   width: 33%;
@@ -207,13 +211,18 @@ getCode()
   bottom: 0;
   width: 100%;
   text-align: center;
-  color: #fff;
-  font-family: Arial;
+  color: var(--ui-text-secondary);
   font-size: 12px;
-  letter-spacing: 1px;
 }
 .register-code-img {
   height: 40px;
   padding-left: 12px;
+}
+
+.register-login-link {
+  width: 100%;
+  margin-top: 10px;
+  text-align: right;
+  font-size: 13px;
 }
 </style>

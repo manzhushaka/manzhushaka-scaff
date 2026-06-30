@@ -1,12 +1,11 @@
 import defaultSettings from '@/settings'
-import { useDark, useToggle } from '@vueuse/core'
 import { useDynamicTitle } from '@/utils/dynamicTitle'
-import { handleThemeStyle } from '@/utils/theme'
 
-const isDark = useDark()
-const toggleDark = useToggle(isDark)
+const UNIFIED_NAV_TYPE = 1
+const COOL_TOWER_THEME = '#0ea5e9'
+const COOL_TOWER_SIDE_THEME = 'theme-dark'
 
-const { sideTheme, showSettings, navType, tagsView, tagsViewPersist, tagsIcon, tagsViewStyle, fixedHeader, sidebarLogo, dynamicTitle, footerVisible, footerContent } = defaultSettings
+const { showSettings, tagsView, tagsViewPersist, tagsIcon, tagsViewStyle, fixedHeader, sidebarLogo, dynamicTitle, footerVisible, footerContent } = defaultSettings
 
 function getStorageSetting() {
   try {
@@ -23,10 +22,10 @@ const useSettingsStore = defineStore(
   {
     state: () => ({
       title: '',
-      theme: '#409EFF',
-      sideTheme: sideTheme,
+      theme: COOL_TOWER_THEME,
+      sideTheme: COOL_TOWER_SIDE_THEME,
       showSettings: showSettings,
-      navType: storageSetting.navType === undefined ? navType : storageSetting.navType,
+      navType: UNIFIED_NAV_TYPE,
       tagsView: storageSetting.tagsView === undefined ? tagsView : storageSetting.tagsView,
       tagsViewPersist: storageSetting.tagsViewPersist === undefined ? tagsViewPersist : storageSetting.tagsViewPersist,
       tagsIcon: storageSetting.tagsIcon === undefined ? tagsIcon : storageSetting.tagsIcon,
@@ -36,12 +35,19 @@ const useSettingsStore = defineStore(
       dynamicTitle: storageSetting.dynamicTitle === undefined ? dynamicTitle : storageSetting.dynamicTitle,
       footerVisible: storageSetting.footerVisible === undefined ? footerVisible : storageSetting.footerVisible,
       footerContent: footerContent,
-      isDark: isDark.value
+      isDark: false
     }),
     actions: {
       // 修改布局设置
       changeSetting(data) {
         const { key, value } = data
+        if (key === 'navType') {
+          this.navType = UNIFIED_NAV_TYPE
+          return
+        }
+        if (key === 'theme' || key === 'sideTheme' || key === 'isDark') {
+          return
+        }
         if (this.hasOwnProperty(key)) {
           this[key] = value
         }
@@ -50,14 +56,6 @@ const useSettingsStore = defineStore(
       setTitle(title) {
         this.title = title
         useDynamicTitle()
-      },
-      // 切换暗黑模式
-      toggleTheme() {
-        this.isDark = !this.isDark
-        toggleDark()
-        nextTick(() => {
-          handleThemeStyle(this.theme)
-        })
       }
     }
   })
