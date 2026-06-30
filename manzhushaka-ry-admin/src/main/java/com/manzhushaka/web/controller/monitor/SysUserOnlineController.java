@@ -19,6 +19,7 @@ import com.manzhushaka.common.core.page.TableDataInfo;
 import com.manzhushaka.common.core.redis.RedisCache;
 import com.manzhushaka.common.enums.BusinessType;
 import com.manzhushaka.common.utils.StringUtils;
+import com.manzhushaka.framework.security.model.LoginPrincipal;
 import com.manzhushaka.system.domain.SysUserOnline;
 import com.manzhushaka.system.service.ISysUserOnlineService;
 
@@ -37,6 +38,13 @@ public class SysUserOnlineController extends BaseController
     @Autowired
     private RedisCache redisCache;
 
+    /**
+     * 查询在线用户列表
+     *
+     * @param ipaddr IP 地址
+     * @param userName 用户名
+     * @return 在线用户分页结果
+     */
     @PreAuthorize("@ss.hasPermi('monitor:online:list')")
     @GetMapping("/list")
     public TableDataInfo list(String ipaddr, String userName)
@@ -46,8 +54,11 @@ public class SysUserOnlineController extends BaseController
         for (String key : keys)
         {
             Object cached = redisCache.getCacheObject(key);
-            com.manzhushaka.framework.security.model.LoginPrincipal user =
-                    (com.manzhushaka.framework.security.model.LoginPrincipal) cached;
+            LoginPrincipal user = LoginPrincipal.restore(cached);
+            if (user == null)
+            {
+                continue;
+            }
             if (StringUtils.isNotEmpty(ipaddr) && StringUtils.isNotEmpty(userName))
             {
                 userOnlineList.add(userOnlineService.selectOnlineByInfo(ipaddr, userName, user));

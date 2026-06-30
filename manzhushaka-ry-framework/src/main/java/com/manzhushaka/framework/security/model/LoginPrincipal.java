@@ -3,6 +3,7 @@ package com.manzhushaka.framework.security.model;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -11,6 +12,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.annotation.JSONField;
 
 /**
@@ -88,6 +90,36 @@ public class LoginPrincipal implements UserDetails, Serializable {
      */
     public static Builder builder() {
         return new Builder();
+    }
+
+    /**
+     * 从弱类型对象中恢复登录主体
+     *
+     * @param source 原始主体对象
+     * @return 恢复后的登录主体；无法恢复时返回 null
+     */
+    public static LoginPrincipal restore(Object source) {
+        try {
+            if (source == null) {
+                return null;
+            }
+            if (source instanceof LoginPrincipal) {
+                return (LoginPrincipal) source;
+            }
+            if (source instanceof CharSequence) {
+                String text = source.toString();
+                if (text.isBlank() || "anonymousUser".equals(text)) {
+                    return null;
+                }
+                return JSON.parseObject(text, LoginPrincipal.class);
+            }
+            if (source instanceof Map || LoginPrincipal.class.getName().equals(source.getClass().getName())) {
+                return JSON.parseObject(JSON.toJSONString(source), LoginPrincipal.class);
+            }
+        } catch (Exception ignored) {
+            return null;
+        }
+        return null;
     }
 
     // ========== 便捷方法 ==========

@@ -75,8 +75,7 @@ public class TokenService
                 // 解析对应的权限以及用户信息
                 String uuid = (String) claims.get(Constants.LOGIN_USER_KEY);
                 String userKey = getTokenKey(uuid);
-                LoginPrincipal user = redisCache.getCacheObject(userKey);
-                return user;
+                return getLoginPrincipalFromCache(userKey);
             }
             catch (Exception e)
             {
@@ -251,7 +250,7 @@ public class TokenService
         }
         for (String key : keys)
         {
-            LoginPrincipal loginPrincipal = redisCache.getCacheObject(key);
+            LoginPrincipal loginPrincipal = getLoginPrincipalFromCache(key);
             if (loginPrincipal == null || loginPrincipal.isAdmin())
             {
                 // 管理员拥有所有权限，跳过
@@ -272,5 +271,17 @@ public class TokenService
             refreshToken(loginPrincipal);
             log.info("角色[{}]权限变更，已刷新在线用户[{}]的权限缓存", roleId, loginPrincipal.getUsername());
         }
+    }
+
+    /**
+     * 从缓存中恢复登录主体
+     *
+     * @param userKey 用户缓存键
+     * @return 登录主体；不存在或无法恢复时返回 null
+     */
+    private LoginPrincipal getLoginPrincipalFromCache(String userKey)
+    {
+        Object cachedUser = redisCache.getCacheObject(userKey);
+        return LoginPrincipal.restore(cachedUser);
     }
 }

@@ -47,10 +47,11 @@ public final class SecurityContextHelper {
      */
     public static LoginPrincipal getPrincipal() {
         Authentication auth = getAuthentication();
-        if (auth == null || !(auth.getPrincipal() instanceof LoginPrincipal)) {
+        LoginPrincipal principal = auth == null ? null : LoginPrincipal.restore(auth.getPrincipal());
+        if (principal == null) {
             throw new ServiceException("获取用户信息异常", HttpStatus.UNAUTHORIZED);
         }
-        return (LoginPrincipal) auth.getPrincipal();
+        return principal;
     }
 
     /**
@@ -59,8 +60,8 @@ public final class SecurityContextHelper {
     public static LoginPrincipal getPrincipalQuietly() {
         try {
             Authentication auth = getAuthentication();
-            if (auth != null && auth.getPrincipal() instanceof LoginPrincipal) {
-                return (LoginPrincipal) auth.getPrincipal();
+            if (auth != null) {
+                return LoginPrincipal.restore(auth.getPrincipal());
             }
         } catch (Exception ignored) {
             // ignore
