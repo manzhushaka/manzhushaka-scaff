@@ -449,7 +449,7 @@ $tags-bar-height: 42px;
     color: var(--ui-primary);
     border-color: color-mix(in srgb, var(--ui-primary) 34%, var(--ui-border));
     font-weight: 600;
-    top: -2px;
+    top: -4px;
     box-shadow: 0 -1px 0 color-mix(in srgb, var(--ui-primary) 10%, transparent);
 
     &::before {
