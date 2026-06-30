@@ -333,11 +333,11 @@ public class SysUser extends BaseEntity
             .append("deptId", getDeptId())
             .append("userName", getUserName())
             .append("nickName", getNickName())
-            .append("email", getEmail())
-            .append("phonenumber", getPhonenumber())
+            .append("email", maskSensitive(getEmail()))
+            .append("phonenumber", maskSensitive(getPhonenumber()))
             .append("sex", getSex())
             .append("avatar", getAvatar())
-            .append("password", getPassword())
+            // password 属于敏感字段，toString 中跳过
             .append("status", getStatus())
             .append("delFlag", getDelFlag())
             .append("loginIp", getLoginIp())
@@ -350,5 +350,19 @@ public class SysUser extends BaseEntity
             .append("remark", getRemark())
             .append("dept", getDept())
             .toString();
+    }
+
+    /**
+     * 对敏感字段脱敏处理，仅显示前 3 位，其余用 * 替代
+     */
+    private static String maskSensitive(String value) {
+        if (value == null) {
+            return null;
+        }
+        int len = value.length();
+        if (len <= 3) {
+            return "***";
+        }
+        return value.substring(0, 3) + "***";
     }
 }

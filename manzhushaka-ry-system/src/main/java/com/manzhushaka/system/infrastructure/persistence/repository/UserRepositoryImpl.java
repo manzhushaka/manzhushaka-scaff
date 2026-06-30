@@ -188,10 +188,6 @@ public class UserRepositoryImpl implements UserRepository
     {
         SysUserSensitiveFieldSupport.fillHashes(user);
         String phonenumberHash = user.getPhonenumberHash();
-        if (StringUtils.isEmpty(phonenumberHash) && StringUtils.isNotEmpty(user.getPhonenumber()))
-        {
-            phonenumberHash = SensitiveFieldCryptoHolder.hash(user.getPhonenumber());
-        }
         SysUser sysUser = userMapper.checkPhoneUnique(phonenumberHash);
         return sysUser == null || sysUser.getUserId().equals(user.getUserId());
     }
@@ -201,10 +197,6 @@ public class UserRepositoryImpl implements UserRepository
     {
         SysUserSensitiveFieldSupport.fillHashes(user);
         String emailHash = user.getEmailHash();
-        if (StringUtils.isEmpty(emailHash) && StringUtils.isNotEmpty(user.getEmail()))
-        {
-            emailHash = SensitiveFieldCryptoHolder.hash(user.getEmail());
-        }
         SysUser sysUser = userMapper.checkEmailUnique(emailHash);
         return sysUser == null || sysUser.getUserId().equals(user.getUserId());
     }

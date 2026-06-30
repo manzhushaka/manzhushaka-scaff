@@ -106,7 +106,8 @@ token:
   # 令牌自定义标识
   header: Authorization
   # 令牌密钥，生产环境必须通过 TOKEN_SECRET 或 ENC(...) 注入
-  secret: ${TOKEN_SECRET:}
+  # 此占位值仅保障本地开发启动，生产环境必须覆盖
+  secret: ${TOKEN_SECRET:dev-change-me-in-production}
   # 令牌有效期（默认30分钟）
   expireTime: 30
 

@@ -168,10 +168,6 @@ public class SysUserServiceImpl implements ISysUserService
         Long userId = StringUtils.isNull(user.getUserId()) ? -1L : user.getUserId();
         SysUserSensitiveFieldSupport.fillHashes(user);
         String phonenumberHash = user.getPhonenumberHash();
-        if (StringUtils.isEmpty(phonenumberHash) && StringUtils.isNotEmpty(user.getPhonenumber()))
-        {
-            phonenumberHash = SensitiveFieldCryptoHolder.hash(user.getPhonenumber());
-        }
         SysUser info = userMapper.checkPhoneUnique(phonenumberHash);
         if (StringUtils.isNotNull(info) && info.getUserId().longValue() != userId.longValue())
         {
@@ -192,10 +188,6 @@ public class SysUserServiceImpl implements ISysUserService
         Long userId = StringUtils.isNull(user.getUserId()) ? -1L : user.getUserId();
         SysUserSensitiveFieldSupport.fillHashes(user);
         String emailHash = user.getEmailHash();
-        if (StringUtils.isEmpty(emailHash) && StringUtils.isNotEmpty(user.getEmail()))
-        {
-            emailHash = SensitiveFieldCryptoHolder.hash(user.getEmail());
-        }
         SysUser info = userMapper.checkEmailUnique(emailHash);
         if (StringUtils.isNotNull(info) && info.getUserId().longValue() != userId.longValue())
         {
