@@ -7,10 +7,12 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.manzhushaka.common.annotation.EncryptedField;
 import com.manzhushaka.common.annotation.Excel;
 import com.manzhushaka.common.annotation.Excel.ColumnType;
 import com.manzhushaka.common.annotation.Excel.Type;
 import com.manzhushaka.common.annotation.Excels;
+import com.manzhushaka.common.enums.EncryptedFieldType;
 import com.manzhushaka.common.core.domain.BaseEntity;
 import com.manzhushaka.common.xss.Xss;
 
@@ -41,11 +43,19 @@ public class SysUser extends BaseEntity
 
     /** 用户邮箱 */
     @Excel(name = "用户邮箱")
+    @EncryptedField(type = EncryptedFieldType.EMAIL, hashField = "emailHash")
     private String email;
+
+    /** 用户邮箱检索摘要 */
+    private String emailHash;
 
     /** 手机号码 */
     @Excel(name = "手机号码", cellType = ColumnType.TEXT)
+    @EncryptedField(type = EncryptedFieldType.PHONE, hashField = "phonenumberHash")
     private String phonenumber;
+
+    /** 手机号码检索摘要 */
+    private String phonenumberHash;
 
     /** 用户性别 */
     @Excel(name = "用户性别", readConverterExp = "0=男,1=女,2=未知")
@@ -164,6 +174,16 @@ public class SysUser extends BaseEntity
         this.email = email;
     }
 
+    public String getEmailHash()
+    {
+        return emailHash;
+    }
+
+    public void setEmailHash(String emailHash)
+    {
+        this.emailHash = emailHash;
+    }
+
     @Size(min = 0, max = 11, message = "手机号码长度不能超过11个字符")
     public String getPhonenumber()
     {
@@ -173,6 +193,16 @@ public class SysUser extends BaseEntity
     public void setPhonenumber(String phonenumber)
     {
         this.phonenumber = phonenumber;
+    }
+
+    public String getPhonenumberHash()
+    {
+        return phonenumberHash;
+    }
+
+    public void setPhonenumberHash(String phonenumberHash)
+    {
+        this.phonenumberHash = phonenumberHash;
     }
 
     public String getSex()

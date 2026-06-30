@@ -132,16 +132,16 @@ public interface SysUserMapper
     /**
      * 校验手机号码是否唯一
      *
-     * @param phonenumber 手机号码
+     * @param phonenumberHash 手机号码检索摘要
      * @return 结果
      */
-    public SysUser checkPhoneUnique(String phonenumber);
+    public SysUser checkPhoneUnique(@Param("phonenumberHash") String phonenumberHash);
 
     /**
      * 校验email是否唯一
      *
-     * @param email 用户邮箱
+     * @param emailHash 用户邮箱检索摘要
      * @return 结果
      */
-    public SysUser checkEmailUnique(String email);
+    public SysUser checkEmailUnique(@Param("emailHash") String emailHash);
 }

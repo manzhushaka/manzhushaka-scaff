@@ -7,7 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import com.manzhushaka.system.domain.repository.UserRepository;
 import com.manzhushaka.system.domain.SysUserRole;
+import com.manzhushaka.common.crypto.SensitiveFieldCryptoHolder;
+import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
+import com.manzhushaka.system.infrastructure.persistence.support.SysUserSensitiveFieldSupport;
 import com.manzhushaka.system.mapper.SysUserMapper;
 import com.manzhushaka.system.mapper.SysUserRoleMapper;
 
@@ -28,18 +31,21 @@ public class UserRepositoryImpl implements UserRepository
     @Override
     public List<SysUser> selectUserList(SysUser user)
     {
+        SysUserSensitiveFieldSupport.fillHashes(user);
         return userMapper.selectUserList(user);
     }
 
     @Override
     public List<SysUser> selectAllocatedList(SysUser user)
     {
+        SysUserSensitiveFieldSupport.fillHashes(user);
         return userMapper.selectAllocatedList(user);
     }
 
     @Override
     public List<SysUser> selectUnallocatedList(SysUser user)
     {
+        SysUserSensitiveFieldSupport.fillHashes(user);
         return userMapper.selectUnallocatedList(user);
     }
 
@@ -58,12 +64,14 @@ public class UserRepositoryImpl implements UserRepository
     @Override
     public int insertUser(SysUser user)
     {
+        SysUserSensitiveFieldSupport.fillHashes(user);
         return userMapper.insertUser(user);
     }
 
     @Override
     public int updateUser(SysUser user)
     {
+        SysUserSensitiveFieldSupport.fillHashes(user);
         return userMapper.updateUser(user);
     }
 
@@ -112,13 +120,13 @@ public class UserRepositoryImpl implements UserRepository
     @Override
     public SysUser checkPhoneUnique(String phonenumber)
     {
-        return userMapper.checkPhoneUnique(phonenumber);
+        return userMapper.checkPhoneUnique(SensitiveFieldCryptoHolder.hash(phonenumber));
     }
 
     @Override
     public SysUser checkEmailUnique(String email)
     {
-        return userMapper.checkEmailUnique(email);
+        return userMapper.checkEmailUnique(SensitiveFieldCryptoHolder.hash(email));
     }
 
     @Override
@@ -178,14 +186,26 @@ public class UserRepositoryImpl implements UserRepository
     @Override
     public boolean checkPhoneUnique(SysUser user)
     {
-        SysUser sysUser = userMapper.checkPhoneUnique(user.getPhonenumber());
+        SysUserSensitiveFieldSupport.fillHashes(user);
+        String phonenumberHash = user.getPhonenumberHash();
+        if (StringUtils.isEmpty(phonenumberHash) && StringUtils.isNotEmpty(user.getPhonenumber()))
+        {
+            phonenumberHash = SensitiveFieldCryptoHolder.hash(user.getPhonenumber());
+        }
+        SysUser sysUser = userMapper.checkPhoneUnique(phonenumberHash);
         return sysUser == null || sysUser.getUserId().equals(user.getUserId());
     }
 
     @Override
     public boolean checkEmailUnique(SysUser user)
     {
-        SysUser sysUser = userMapper.checkEmailUnique(user.getEmail());
+        SysUserSensitiveFieldSupport.fillHashes(user);
+        String emailHash = user.getEmailHash();
+        if (StringUtils.isEmpty(emailHash) && StringUtils.isNotEmpty(user.getEmail()))
+        {
+            emailHash = SensitiveFieldCryptoHolder.hash(user.getEmail());
+        }
+        SysUser sysUser = userMapper.checkEmailUnique(emailHash);
         return sysUser == null || sysUser.getUserId().equals(user.getUserId());
     }
 
