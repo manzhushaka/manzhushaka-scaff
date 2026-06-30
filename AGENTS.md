@@ -89,6 +89,7 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 - `cd ui-admin && npm install`：按 `package-lock.json` 安装前端依赖。
 - `cd ui-admin && npm run dev`：启动 Vite 开发服务。
 - `cd ui-admin && npm run build:prod`：构建生产前端包。
+- 如果有代码变更，最好执行 `codegraph sync .` 更新索引。
 
 ## Java 命名规范
 
