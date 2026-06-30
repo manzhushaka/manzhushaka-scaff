@@ -197,6 +197,16 @@
   margin-bottom: 8px;
 }
 
+.ui-filter-card .el-form-item__label,
+.ui-filter-card .el-form-item__content {
+  min-height: var(--ui-form-control-height);
+  line-height: var(--ui-form-control-height);
+}
+
+.ui-filter-card .el-form-item__label {
+  align-items: center;
+}
+
 // 操作工具条
 .ui-action-bar {
   display: flex;

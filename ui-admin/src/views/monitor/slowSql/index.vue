@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="78px" class="ui-filter-card">
+    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="96px" class="ui-filter-card slow-sql-filter">
       <el-form-item label="SQL关键字" prop="sqlText">
         <el-input v-model="queryParams.sqlText" placeholder="请输入 SQL 关键字" clearable style="width: 240px" @keyup.enter="handleQuery" />
       </el-form-item>
@@ -150,6 +150,10 @@ getList()
 </script>
 
 <style scoped>
+.slow-sql-filter :deep(.el-form-item__label) {
+  white-space: nowrap;
+}
+
 .sql-pre {
   margin: 0;
   white-space: pre-wrap;
