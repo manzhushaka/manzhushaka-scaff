@@ -91,10 +91,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 AND status = #{status}
             </if>
             <if test="params.beginTime != null and params.beginTime != ''">
-                AND create_time >= #{params.beginTime}
+                AND create_time &gt;= #{params.beginTime}
             </if>
             <if test="params.endTime != null and params.endTime != ''">
-                AND create_time <= #{params.endTime}
+                AND create_time &lt;= #{params.endTime}
             </if>
         </where>
         order by create_time desc, message_log_id desc
