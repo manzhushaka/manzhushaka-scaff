@@ -62,6 +62,12 @@
             <scope>test</scope>
         </dependency>
 
+    <!-- 配置文件敏感信息密文解密 -->
+    <dependency>
+        <groupId>com.github.ulisesbocchio</groupId>
+        <artifactId>jasypt-spring-boot-starter</artifactId>
+    </dependency>
+
     </dependencies>
 
     <build>
