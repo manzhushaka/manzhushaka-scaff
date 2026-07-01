@@ -1,6 +1,8 @@
 package com.manzhushaka.quartz.util;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.slf4j.Logger;
@@ -8,11 +10,13 @@ import org.slf4j.LoggerFactory;
 import com.manzhushaka.common.constant.Constants;
 import com.manzhushaka.common.constant.ScheduleConstants;
 import com.manzhushaka.common.utils.ExceptionUtil;
+import com.manzhushaka.common.utils.JobLog;
 import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.common.utils.bean.BeanUtils;
 import com.manzhushaka.common.utils.spring.SpringUtils;
 import com.manzhushaka.quartz.domain.SysJob;
 import com.manzhushaka.quartz.domain.SysJobLog;
+import com.manzhushaka.quartz.domain.SysJobLogDetail;
 import com.manzhushaka.quartz.service.ISysJobLogService;
 
 /**
@@ -59,6 +63,7 @@ public abstract class AbstractQuartzJob implements Job
     protected void before(JobExecutionContext context, SysJob sysJob)
     {
         threadLocal.set(new Date());
+        JobLog.start();
     }
 
     /**
@@ -71,6 +76,7 @@ public abstract class AbstractQuartzJob implements Job
     {
         Date startTime = threadLocal.get();
         threadLocal.remove();
+        List<JobLog.Line> processLines = JobLog.getLines();
 
         final SysJobLog sysJobLog = new SysJobLog();
         sysJobLog.setJobName(sysJob.getJobName());
@@ -91,8 +97,43 @@ public abstract class AbstractQuartzJob implements Job
             sysJobLog.setStatus(Constants.SUCCESS);
         }
 
-        // 写入数据库当中
-        SpringUtils.getBean(ISysJobLogService.class).addJobLog(sysJobLog);
+        try
+        {
+            // 写入数据库当中
+            ISysJobLogService jobLogService = SpringUtils.getBean(ISysJobLogService.class);
+            jobLogService.addJobLog(sysJobLog);
+            jobLogService.addJobLogDetails(buildJobLogDetails(sysJobLog.getJobLogId(), processLines));
+        }
+        finally
+        {
+            JobLog.clear();
+        }
+    }
+
+    /**
+     * 构建任务过程日志明细。
+     *
+     * @param jobLogId 任务日志ID
+     * @param processLines 过程日志行
+     * @return 任务过程日志明细列表
+     */
+    private List<SysJobLogDetail> buildJobLogDetails(Long jobLogId, List<JobLog.Line> processLines)
+    {
+        List<SysJobLogDetail> details = new ArrayList<>();
+        if (jobLogId == null || StringUtils.isEmpty(processLines))
+        {
+            return details;
+        }
+        for (JobLog.Line processLine : processLines)
+        {
+            SysJobLogDetail detail = new SysJobLogDetail();
+            detail.setJobLogId(jobLogId);
+            detail.setLogLevel(processLine.getLogLevel());
+            detail.setLogContent(processLine.getLogContent());
+            detail.setSortNo(processLine.getSortNo());
+            details.add(detail);
+        }
+        return details;
     }
 
     /**

@@ -67,6 +67,23 @@
             <div class="code-wrap"><pre class="code-pre">{{ form.invokeTarget || '（无）' }}</pre></div>
           </div>
         </div>
+        <!-- 过程日志 -->
+        <div class="detail-card">
+          <div class="detail-card-title">
+            <el-icon><Document /></el-icon> 过程日志
+          </div>
+          <div v-loading="processLogLoading" class="process-log-wrap">
+            <el-empty v-if="processLogList.length === 0" :image-size="80" description="暂无过程日志" />
+            <div v-else class="process-log-list">
+              <div v-for="item in processLogList" :key="item.detailId || item.sortNo" class="process-log-item">
+                <el-tag :type="getLogLevelType(item.logLevel)" size="small" class="process-log-level">
+                  {{ item.logLevel }}
+                </el-tag>
+                <pre class="process-log-content">{{ item.logContent }}</pre>
+              </div>
+            </div>
+          </div>
+        </div>
         <!-- 异常信息 -->
         <div class="detail-card" v-if="form.status == 1">
           <div class="detail-card-title error-title">
@@ -185,6 +202,8 @@
 </template>
 
 <script setup name="JobDetail">
+import { listJobLogDetail } from '@/api/monitor/jobLog'
+
 const props = defineProps({
   visible: { type: Boolean, default: false },
   row: { type: Object, default: () => ({}) },
@@ -203,15 +222,79 @@ const { proxy } = getCurrentInstance()
 const { sys_job_group } = useDict('sys_job_group')
 
 const form = computed(() => props.row || {})
+const processLogLoading = ref(false)
+const processLogList = ref([])
 
 const costTime = computed(() => {
   if (!form.value.startTime || !form.value.endTime) return 0
   return new Date(form.value.endTime).getTime() - new Date(form.value.startTime).getTime()
 })
+
+watch(
+  () => [props.visible, props.type, form.value.jobLogId],
+  ([visible, type, jobLogId]) => {
+    if (visible && type === 'log' && jobLogId) {
+      loadProcessLog(jobLogId)
+    } else {
+      processLogList.value = []
+    }
+  },
+  { immediate: true }
+)
+
+function loadProcessLog(jobLogId) {
+  processLogLoading.value = true
+  listJobLogDetail(jobLogId).then(response => {
+    processLogList.value = response.data || []
+  }).finally(() => {
+    processLogLoading.value = false
+  })
+}
+
+function getLogLevelType(logLevel) {
+  if (logLevel === 'ERROR') return 'danger'
+  if (logLevel === 'WARN') return 'warning'
+  return 'info'
+}
 </script>
 
 <style scoped>
 .detail-label {
   width: 80px;
+}
+
+.process-log-wrap {
+  min-height: 96px;
+}
+
+.process-log-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.process-log-item {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 10px 12px;
+  border: 1px solid var(--el-border-color-lighter);
+  border-radius: 6px;
+  background: var(--el-fill-color-blank);
+}
+
+.process-log-level {
+  width: 58px;
+  justify-content: center;
+}
+
+.process-log-content {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.6;
+  font-family: var(--ui-font-family-mono);
+  color: var(--el-text-color-primary);
 }
 </style>

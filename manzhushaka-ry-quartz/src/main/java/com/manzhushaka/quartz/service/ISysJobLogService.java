@@ -2,6 +2,7 @@ package com.manzhushaka.quartz.service;
 
 import java.util.List;
 import com.manzhushaka.quartz.domain.SysJobLog;
+import com.manzhushaka.quartz.domain.SysJobLogDetail;
 
 /**
  * 定时任务调度日志信息信息 服务层
@@ -31,7 +32,22 @@ public interface ISysJobLogService
      * 
      * @param jobLog 调度日志信息
      */
-    public void addJobLog(SysJobLog jobLog);
+    public SysJobLog addJobLog(SysJobLog jobLog);
+
+    /**
+     * 批量新增任务过程日志明细
+     *
+     * @param details 过程日志明细列表
+     */
+    public void addJobLogDetails(List<SysJobLogDetail> details);
+
+    /**
+     * 根据调度任务日志ID查询过程日志明细
+     *
+     * @param jobLogId 调度任务日志ID
+     * @return 过程日志明细集合
+     */
+    public List<SysJobLogDetail> selectJobLogDetailListByJobLogId(Long jobLogId);
 
     /**
      * 批量删除调度日志信息

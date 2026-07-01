@@ -224,6 +224,14 @@ insert into sys_menu values('146', '登录日志查询', '161', '5', '', null, '
 insert into sys_menu values('147', '登录日志删除', '161', '6', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:remove',  '#',                'admin', sysdate(), '', null, '登录日志删除按钮');
 insert into sys_menu values('148', '登录日志导出', '161', '7', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:export',  '#',                'admin', sysdate(), '', null, '登录日志导出按钮');
 insert into sys_menu values('151', '登录账户解锁', '161', '8', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:unlock',  '#',                'admin', sysdate(), '', null, '登录账户解锁按钮');
+-- 定时任务按钮权限
+insert into sys_menu values('180', '定时任务查询', '110', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:job:list',         '#',                'admin', sysdate(), '', null, '定时任务查询按钮');
+insert into sys_menu values('181', '定时任务详情', '110', '2', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:job:query',        '#',                'admin', sysdate(), '', null, '定时任务详情按钮');
+insert into sys_menu values('182', '定时任务新增', '110', '3', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:job:add',          '#',                'admin', sysdate(), '', null, '定时任务新增按钮');
+insert into sys_menu values('183', '定时任务修改', '110', '4', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:job:edit',         '#',                'admin', sysdate(), '', null, '定时任务修改按钮');
+insert into sys_menu values('184', '定时任务删除', '110', '5', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:job:remove',       '#',                'admin', sysdate(), '', null, '定时任务删除按钮');
+insert into sys_menu values('185', '定时任务导出', '110', '6', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:job:export',       '#',                'admin', sysdate(), '', null, '定时任务导出按钮');
+insert into sys_menu values('186', '定时任务状态', '110', '7', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:job:changeStatus', '#',                'admin', sysdate(), '', null, '定时任务状态按钮');
 -- 消息队列台账按钮权限
 insert into sys_menu values('176', '消息队列台账查询', '175', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:mqlog:list',  '#',                'admin', sysdate(), '', null, '消息队列台账查询按钮');
 insert into sys_menu values('177', '消息队列台账详情', '175', '2', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:mqlog:query', '#',                'admin', sysdate(), '', null, '消息队列台账详情按钮');
@@ -283,6 +291,13 @@ insert into sys_role_menu values ('2', '146');
 insert into sys_role_menu values ('2', '147');
 insert into sys_role_menu values ('2', '148');
 insert into sys_role_menu values ('2', '151');
+insert into sys_role_menu values ('2', '180');
+insert into sys_role_menu values ('2', '181');
+insert into sys_role_menu values ('2', '182');
+insert into sys_role_menu values ('2', '183');
+insert into sys_role_menu values ('2', '184');
+insert into sys_role_menu values ('2', '185');
+insert into sys_role_menu values ('2', '186');
 insert into sys_role_menu values ('2', '175');
 insert into sys_role_menu values ('2', '176');
 insert into sys_role_menu values ('2', '177');
@@ -525,6 +540,23 @@ create table sys_job_log (
   create_time         datetime                                  comment '创建时间',
   primary key (job_log_id)
 ) engine=innodb comment = '定时任务调度日志表';
+
+-- ----------------------------
+-- 16.1、定时任务调度过程日志明细表
+-- ----------------------------
+drop table if exists sys_job_log_detail;
+create table sys_job_log_detail (
+  detail_id           bigint(20)     not null auto_increment    comment '明细主键',
+  job_log_id          bigint(20)     not null                   comment '任务日志ID',
+  log_level           varchar(10)    not null                   comment '日志级别（INFO WARN ERROR）',
+  log_content         varchar(1000)  not null                   comment '日志内容',
+  sort_no             int(4)         default 0                  comment '排序号',
+  create_time         datetime                                  comment '创建时间',
+  primary key (detail_id),
+  key idx_sys_job_log_detail_log_id (job_log_id),
+  key idx_sys_job_log_detail_level (log_level),
+  key idx_sys_job_log_detail_ct (create_time)
+) engine=innodb comment = '定时任务调度过程日志明细表';
 
 
 -- ----------------------------

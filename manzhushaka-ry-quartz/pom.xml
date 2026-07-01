@@ -29,6 +29,20 @@
             <artifactId>manzhushaka-ry-common</artifactId>
         </dependency>
 
+        <!-- 测试依赖框架权限服务 -->
+        <dependency>
+            <groupId>com.manzhushaka</groupId>
+            <artifactId>manzhushaka-ry-framework</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- 测试框架 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
 </project>

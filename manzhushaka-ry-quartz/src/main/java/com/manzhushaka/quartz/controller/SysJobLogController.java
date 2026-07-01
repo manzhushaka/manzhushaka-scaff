@@ -17,6 +17,7 @@ import com.manzhushaka.common.core.page.TableDataInfo;
 import com.manzhushaka.common.enums.BusinessType;
 import com.manzhushaka.common.utils.poi.ExcelUtil;
 import com.manzhushaka.quartz.domain.SysJobLog;
+import com.manzhushaka.quartz.domain.SysJobLogDetail;
 import com.manzhushaka.quartz.service.ISysJobLogService;
 
 /**
@@ -64,6 +65,18 @@ public class SysJobLogController extends BaseController
     public AjaxResult getInfo(@PathVariable Long jobLogId)
     {
         return success(jobLogService.selectJobLogById(jobLogId));
+    }
+
+    /**
+     * 根据调度编号获取过程日志明细
+     */
+    @PreAuthorize("@ss.hasPermi('monitor:job:query')")
+    @Log(title = "任务调度日志明细", businessType = BusinessType.OTHER)
+    @GetMapping(value = "/{jobLogId}/details")
+    public AjaxResult detailList(@PathVariable Long jobLogId)
+    {
+        List<SysJobLogDetail> list = jobLogService.selectJobLogDetailListByJobLogId(jobLogId);
+        return success(list);
     }
 
 
