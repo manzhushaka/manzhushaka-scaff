@@ -11,12 +11,12 @@
     <!-- version : 项目版本号                                              -->
     <!-- ================================================================= -->
     <groupId>com.manzhushaka</groupId>
-    <artifactId>manzhushaka-ry</artifactId>
+    <artifactId>manzhushaka-scaff</artifactId>
     <version>3.9.2</version>
 
-    <name>manzhushaka-ry</name>                 <!-- 项目显示名称 -->
+    <name>manzhushaka-scaff</name>                 <!-- 项目显示名称 -->
     <url>http://www.manzhushaka.vip</url>       <!-- 项目官网地址 -->
-    <description>若依管理系统</description>      <!-- 项目简短描述 -->
+    <description>manzhushaka 脚手架后台管理系统</description>      <!-- 项目简短描述 -->
 
     <!-- ================================================================= -->
     <!-- 属性定义：集中管理所有版本号，方便统一升级                        -->
@@ -232,28 +232,28 @@
             <!-- 定时任务模块：基于 Quartz 的任务调度 -->
             <dependency>
                 <groupId>com.manzhushaka</groupId>
-                <artifactId>manzhushaka-ry-quartz</artifactId>
+                <artifactId>manzhushaka-quartz</artifactId>
                 <version>${manzhushaka.version}</version>
             </dependency>
 
             <!-- 核心框架模块：封装安全认证、权限控制、AOP 切面、全局配置等 -->
             <dependency>
                 <groupId>com.manzhushaka</groupId>
-                <artifactId>manzhushaka-ry-framework</artifactId>
+                <artifactId>manzhushaka-framework</artifactId>
                 <version>${manzhushaka.version}</version>
             </dependency>
 
             <!-- 系统管理模块：用户管理、角色管理、菜单管理、部门管理等基础功能 -->
             <dependency>
                 <groupId>com.manzhushaka</groupId>
-                <artifactId>manzhushaka-ry-system</artifactId>
+                <artifactId>manzhushaka-system</artifactId>
                 <version>${manzhushaka.version}</version>
             </dependency>
 
             <!-- 通用工具模块：常量定义、通用工具类、自定义注解、异常定义等 -->
             <dependency>
                 <groupId>com.manzhushaka</groupId>
-                <artifactId>manzhushaka-ry-common</artifactId>
+                <artifactId>manzhushaka-common</artifactId>
                 <version>${manzhushaka.version}</version>
             </dependency>
 
@@ -289,11 +289,11 @@
     <!-- 构建时执行 mvn install 会自动包含所有模块。                       -->
     <!-- ================================================================= -->
     <modules>
-        <module>manzhushaka-ry-admin</module>      <!-- Web 启动层：Controller、全局异常处理、配置入口 -->
-        <module>manzhushaka-ry-framework</module>  <!-- 核心框架层：安全、AOP、配置、拦截器 -->
-        <module>manzhushaka-ry-system</module>     <!-- 系统业务层：用户、角色、菜单、部门等业务实现 -->
-        <module>manzhushaka-ry-quartz</module>     <!-- 定时任务层：Quartz 任务调度管理 -->
-        <module>manzhushaka-ry-common</module>     <!-- 通用工具层：常量、工具类、通用注解 -->
+        <module>manzhushaka-admin</module>      <!-- Web 启动层：Controller、全局异常处理、配置入口 -->
+        <module>manzhushaka-framework</module>  <!-- 核心框架层：安全、AOP、配置、拦截器 -->
+        <module>manzhushaka-system</module>     <!-- 系统业务层：用户、角色、菜单、部门等业务实现 -->
+        <module>manzhushaka-quartz</module>     <!-- 定时任务层：Quartz 任务调度管理 -->
+        <module>manzhushaka-common</module>     <!-- 通用工具层：常量、工具类、通用注解 -->
     </modules>
 
     <!-- ================================================================= -->

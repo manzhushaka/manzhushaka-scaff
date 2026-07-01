@@ -1,4 +1,4 @@
-# manzhushaka-ry 业务域模块化迁移第二阶段实现计划
+# manzhushaka-scaff 业务域模块化迁移第二阶段实现计划
 
 > **面向 AI 代理的工作者：** 必需子技能：使用 `superpowers:subagent-driven-development`（推荐）或 `superpowers:executing-plans` 逐任务实现此计划。步骤使用复选框（`- [ ]`）语法来跟踪进度。
 
@@ -14,7 +14,7 @@
 
 本计划是对以下文档的续篇：
 
-- [2026-06-28-domain-modularization-migration-plan.md](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/docs/superpowers/plans/2026-06-28-domain-modularization-migration-plan.md)
+- [2026-06-28-domain-modularization-migration-plan.md](/Users/manzhushaka/CodexProject/manzhushaka-scaff/docs/superpowers/plans/2026-06-28-domain-modularization-migration-plan.md)
 
 适用前提：
 
@@ -48,16 +48,16 @@
 但仍然有以下残留问题，正是第二阶段的核心范围：
 
 1. `menu/dept/dict/profile` 仍在 Controller 层直接使用持久化实体。
-2. `SysProfileController` 仍通过 [SysUserConverter.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/service/SysUserConverter.java) 在 `common` 版和 `system` 版 `SysUser` 之间来回转换。
+2. `SysProfileController` 仍通过 [SysUserConverter.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/service/SysUserConverter.java) 在 `common` 版和 `system` 版 `SysUser` 之间来回转换。
 3. `framework` 中仍大量依赖 `common.core.domain.entity.SysUser/SysRole/...`，例如：
-   - [UserDetailsServiceImpl.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/service/UserDetailsServiceImpl.java)
-   - [SysPermissionService.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/service/SysPermissionService.java)
-   - [SysPasswordService.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/service/SysPasswordService.java)
-   - [DataScopeAspect.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/aspectj/DataScopeAspect.java)
+   - [UserDetailsServiceImpl.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/service/UserDetailsServiceImpl.java)
+   - [SysPermissionService.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/service/SysPermissionService.java)
+   - [SysPasswordService.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/service/SysPasswordService.java)
+   - [DataScopeAspect.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-framework/src/main/java/com/manzhushaka/framework/aspectj/DataScopeAspect.java)
 4. `common` 中仍保留系统业务实体与登录请求模型：
    - `SysUser`、`SysRole`、`SysMenu`、`SysDept`、`SysDictType`、`SysDictData`
    - `LoginBody`、`RegisterBody`
-5. `common` 中的 [LoginUser.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/model/LoginUser.java)、[SecurityUtils.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/utils/SecurityUtils.java)、[TreeSelect.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/TreeSelect.java)、[DictUtils.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/utils/DictUtils.java) 仍然建立在 `common` 版业务实体之上。
+5. `common` 中的 [LoginUser.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/model/LoginUser.java)、[SecurityUtils.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/utils/SecurityUtils.java)、[TreeSelect.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/TreeSelect.java)、[DictUtils.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/utils/DictUtils.java) 仍然建立在 `common` 版业务实体之上。
 
 因此，第二阶段的范围明确为三大块：
 
@@ -88,31 +88,31 @@
 
 ### 5.1 需要重点改造的 Controller
 
-- [SysMenuController.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysMenuController.java)
-- [SysDeptController.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysDeptController.java)
-- [SysDictTypeController.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysDictTypeController.java)
-- [SysDictDataController.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysDictDataController.java)
-- [SysProfileController.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysProfileController.java)
+- [SysMenuController.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysMenuController.java)
+- [SysDeptController.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysDeptController.java)
+- [SysDictTypeController.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysDictTypeController.java)
+- [SysDictDataController.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysDictDataController.java)
+- [SysProfileController.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysProfileController.java)
 
 ### 5.2 需要重点改造的 `framework` 文件
 
-- [UserDetailsServiceImpl.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/service/UserDetailsServiceImpl.java)
-- [SysPermissionService.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/service/SysPermissionService.java)
-- [SysPasswordService.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/service/SysPasswordService.java)
-- [SysRegisterService.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/service/SysRegisterService.java)
-- [PermissionService.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/service/PermissionService.java)
-- [SysUserConverter.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/service/SysUserConverter.java)
-- [DataScopeAspect.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/aspectj/DataScopeAspect.java)
-- [LogAspect.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/aspectj/LogAspect.java)
+- [UserDetailsServiceImpl.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/service/UserDetailsServiceImpl.java)
+- [SysPermissionService.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/service/SysPermissionService.java)
+- [SysPasswordService.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/service/SysPasswordService.java)
+- [SysRegisterService.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/service/SysRegisterService.java)
+- [PermissionService.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/service/PermissionService.java)
+- [SysUserConverter.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/service/SysUserConverter.java)
+- [DataScopeAspect.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-framework/src/main/java/com/manzhushaka/framework/aspectj/DataScopeAspect.java)
+- [LogAspect.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-framework/src/main/java/com/manzhushaka/framework/aspectj/LogAspect.java)
 
 ### 5.3 `common` 中需要收口的遗留文件
 
-- [LoginUser.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/model/LoginUser.java)
-- [SecurityUtils.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/utils/SecurityUtils.java)
-- [TreeSelect.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/TreeSelect.java)
-- [DictUtils.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/utils/DictUtils.java)
-- [LoginBody.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/model/LoginBody.java)
-- [RegisterBody.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/model/RegisterBody.java)
+- [LoginUser.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/model/LoginUser.java)
+- [SecurityUtils.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/utils/SecurityUtils.java)
+- [TreeSelect.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/TreeSelect.java)
+- [DictUtils.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/utils/DictUtils.java)
+- [LoginBody.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/model/LoginBody.java)
+- [RegisterBody.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/model/RegisterBody.java)
 
 ## 6. 分任务实施蓝图
 
@@ -120,23 +120,23 @@
 
 **文件：**
 
-- 修改：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysMenuController.java`
-- 修改：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysDeptController.java`
-- 修改：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysDictTypeController.java`
-- 修改：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysDictDataController.java`
-- 修改：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysProfileController.java`
-- 创建：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/dto/system/menu/*`
-- 创建：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/dto/system/dept/*`
-- 创建：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/dto/system/dict/*`
-- 创建：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/dto/system/profile/*`
-- 创建：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/vo/system/menu/*`
-- 创建：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/vo/system/dept/*`
-- 创建：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/vo/system/dict/*`
-- 创建：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/vo/system/profile/*`
-- 创建：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/converter/system/menu/*`
-- 创建：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/converter/system/dept/*`
-- 创建：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/converter/system/dict/*`
-- 创建：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/converter/system/profile/*`
+- 修改：`manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysMenuController.java`
+- 修改：`manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysDeptController.java`
+- 修改：`manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysDictTypeController.java`
+- 修改：`manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysDictDataController.java`
+- 修改：`manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysProfileController.java`
+- 创建：`manzhushaka-admin/src/main/java/com/manzhushaka/web/dto/system/menu/*`
+- 创建：`manzhushaka-admin/src/main/java/com/manzhushaka/web/dto/system/dept/*`
+- 创建：`manzhushaka-admin/src/main/java/com/manzhushaka/web/dto/system/dict/*`
+- 创建：`manzhushaka-admin/src/main/java/com/manzhushaka/web/dto/system/profile/*`
+- 创建：`manzhushaka-admin/src/main/java/com/manzhushaka/web/vo/system/menu/*`
+- 创建：`manzhushaka-admin/src/main/java/com/manzhushaka/web/vo/system/dept/*`
+- 创建：`manzhushaka-admin/src/main/java/com/manzhushaka/web/vo/system/dict/*`
+- 创建：`manzhushaka-admin/src/main/java/com/manzhushaka/web/vo/system/profile/*`
+- 创建：`manzhushaka-admin/src/main/java/com/manzhushaka/web/converter/system/menu/*`
+- 创建：`manzhushaka-admin/src/main/java/com/manzhushaka/web/converter/system/dept/*`
+- 创建：`manzhushaka-admin/src/main/java/com/manzhushaka/web/converter/system/dict/*`
+- 创建：`manzhushaka-admin/src/main/java/com/manzhushaka/web/converter/system/profile/*`
 
 - [ ] **步骤 1：先为 `menu`、`dept`、`dict`、`profile` 定义请求 DTO**
 
@@ -233,7 +233,7 @@ public interface SystemDictAppService { ... }
 public interface SystemProfileAppService { ... }
 ```
 
-其中 `SystemProfileAppService` 需要吸收 [SysProfileController.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysProfileController.java) 当前的资料修改、密码修改、头像上传编排逻辑。
+其中 `SystemProfileAppService` 需要吸收 [SysProfileController.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysProfileController.java) 当前的资料修改、密码修改、头像上传编排逻辑。
 
 预期：`admin` 不再直接调 `ISysMenuService`、`ISysDeptService`、`ISysDictTypeService`、`ISysDictDataService`、`ISysUserService` 组合编排个人信息逻辑。
 
@@ -276,11 +276,11 @@ public AjaxResult updateProfile(@RequestBody com.manzhushaka.system.infrastructu
 
 创建测试：
 
-- `manzhushaka-ry-admin/src/test/java/com/manzhushaka/web/controller/system/SysMenuControllerTest.java`
-- `manzhushaka-ry-admin/src/test/java/com/manzhushaka/web/controller/system/SysDeptControllerTest.java`
-- `manzhushaka-ry-admin/src/test/java/com/manzhushaka/web/controller/system/SysDictTypeControllerTest.java`
-- `manzhushaka-ry-admin/src/test/java/com/manzhushaka/web/controller/system/SysDictDataControllerTest.java`
-- `manzhushaka-ry-admin/src/test/java/com/manzhushaka/web/controller/system/SysProfileControllerTest.java`
+- `manzhushaka-admin/src/test/java/com/manzhushaka/web/controller/system/SysMenuControllerTest.java`
+- `manzhushaka-admin/src/test/java/com/manzhushaka/web/controller/system/SysDeptControllerTest.java`
+- `manzhushaka-admin/src/test/java/com/manzhushaka/web/controller/system/SysDictTypeControllerTest.java`
+- `manzhushaka-admin/src/test/java/com/manzhushaka/web/controller/system/SysDictDataControllerTest.java`
+- `manzhushaka-admin/src/test/java/com/manzhushaka/web/controller/system/SysProfileControllerTest.java`
 
 至少验证：
 
@@ -291,7 +291,7 @@ public AjaxResult updateProfile(@RequestBody com.manzhushaka.system.infrastructu
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-admin -am test
+mvn -pl manzhushaka-admin -am test
 ```
 
 预期：剩余系统管理入口全部并入新边界。
@@ -299,7 +299,7 @@ mvn -pl manzhushaka-ry-admin -am test
 - [ ] **步骤 7：Commit**
 
 ```bash
-git add manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/dto/system manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/vo/system manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/converter/system manzhushaka-ry-system/src/main/java/com/manzhushaka/system/application manzhushaka-ry-admin/src/test/java
+git add manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system manzhushaka-admin/src/main/java/com/manzhushaka/web/dto/system manzhushaka-admin/src/main/java/com/manzhushaka/web/vo/system manzhushaka-admin/src/main/java/com/manzhushaka/web/converter/system manzhushaka-system/src/main/java/com/manzhushaka/system/application manzhushaka-admin/src/test/java
 git commit -m "refactor: complete http boundary for menu dept dict and profile"
 ```
 
@@ -307,12 +307,12 @@ git commit -m "refactor: complete http boundary for menu dept dict and profile"
 
 **文件：**
 
-- 修改：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/service/UserDetailsServiceImpl.java`
-- 修改：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/service/SysPermissionService.java`
-- 修改：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/service/SysPasswordService.java`
-- 修改：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/service/SysRegisterService.java`
-- 修改：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/service/PermissionService.java`
-- 删除：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/service/SysUserConverter.java`
+- 修改：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/service/UserDetailsServiceImpl.java`
+- 修改：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/service/SysPermissionService.java`
+- 修改：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/service/SysPasswordService.java`
+- 修改：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/service/SysRegisterService.java`
+- 修改：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/service/PermissionService.java`
+- 删除：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/service/SysUserConverter.java`
 
 - [ ] **步骤 1：统一 `framework` 使用 `system.infrastructure.persistence.entity` 版用户模型**
 
@@ -362,7 +362,7 @@ SysUserConverter.toSystem(sysUser)
 运行：
 
 ```bash
-rg -n "SysUserConverter|toCommon\\(|toSystem\\(" manzhushaka-ry-admin/src/main/java manzhushaka-ry-framework/src/main/java manzhushaka-ry-system/src/main/java
+rg -n "SysUserConverter|toCommon\\(|toSystem\\(" manzhushaka-admin/src/main/java manzhushaka-framework/src/main/java manzhushaka-system/src/main/java
 ```
 
 预期：无任何生产代码引用。
@@ -383,13 +383,13 @@ rg -n "SysUserConverter|toCommon\\(|toSystem\\(" manzhushaka-ry-admin/src/main/j
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-framework -am test
+mvn -pl manzhushaka-framework -am test
 ```
 
 - [ ] **步骤 7：Commit**
 
 ```bash
-git add manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/service manzhushaka-ry-framework/src/test/java
+git add manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/service manzhushaka-framework/src/test/java
 git commit -m "refactor: remove common-system user model bridge in framework"
 ```
 
@@ -397,16 +397,16 @@ git commit -m "refactor: remove common-system user model bridge in framework"
 
 **文件：**
 
-- 修改：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/model/LoginUser.java`
-- 修改：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/utils/SecurityUtils.java`
-- 修改：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/aspectj/DataScopeAspect.java`
-- 修改：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/aspectj/LogAspect.java`
-- 修改：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysLoginController.java`
-- 修改：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysProfileController.java`
+- 修改：`manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/model/LoginUser.java`
+- 修改：`manzhushaka-common/src/main/java/com/manzhushaka/common/utils/SecurityUtils.java`
+- 修改：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/aspectj/DataScopeAspect.java`
+- 修改：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/aspectj/LogAspect.java`
+- 修改：`manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysLoginController.java`
+- 修改：`manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysProfileController.java`
 
 - [ ] **步骤 1：让 `LoginUser` 持有统一用户类型**
 
-当前 [LoginUser.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/model/LoginUser.java) 仍然持有 `common.core.domain.entity.SysUser`。
+当前 [LoginUser.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/model/LoginUser.java) 仍然持有 `common.core.domain.entity.SysUser`。
 
 将其改为统一用户模型，例如：
 
@@ -478,7 +478,7 @@ mvn clean package -DskipTests
 - [ ] **步骤 6：Commit**
 
 ```bash
-git add manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/model/LoginUser.java manzhushaka-ry-common/src/main/java/com/manzhushaka/common/utils/SecurityUtils.java manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/aspectj manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system
+git add manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/model/LoginUser.java manzhushaka-common/src/main/java/com/manzhushaka/common/utils/SecurityUtils.java manzhushaka-framework/src/main/java/com/manzhushaka/framework/aspectj manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system
 git commit -m "refactor: unify security user model across common and framework"
 ```
 
@@ -486,20 +486,20 @@ git commit -m "refactor: unify security user model across common and framework"
 
 **文件：**
 
-- 修改：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/TreeSelect.java`
-- 修改：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/utils/DictUtils.java`
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/ISysDeptService.java`
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/ISysMenuService.java`
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/impl/SysDeptServiceImpl.java`
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/impl/SysMenuServiceImpl.java`
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/impl/SysDictTypeServiceImpl.java`
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/impl/SysDictDataServiceImpl.java`
+- 修改：`manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/TreeSelect.java`
+- 修改：`manzhushaka-common/src/main/java/com/manzhushaka/common/utils/DictUtils.java`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/service/ISysDeptService.java`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/service/ISysMenuService.java`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/service/impl/SysDeptServiceImpl.java`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/service/impl/SysMenuServiceImpl.java`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/service/impl/SysDictTypeServiceImpl.java`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/service/impl/SysDictDataServiceImpl.java`
 
 - [ ] **步骤 1：确认保留哪一个 `TreeSelect`**
 
 当前仓库同时存在：
 
-- [common/core/domain/TreeSelect.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/TreeSelect.java)
+- [common/core/domain/TreeSelect.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/TreeSelect.java)
 - `system/infrastructure/persistence/TreeSelect.java`
 
 第二阶段要做出明确决策：
@@ -523,14 +523,14 @@ public TreeSelect(SysMenu menu)
 同步搜索：
 
 ```bash
-rg -n "new TreeSelect|buildDeptTreeSelect|buildMenuTreeSelect" manzhushaka-ry-system/src/main/java manzhushaka-ry-admin/src/main/java
+rg -n "new TreeSelect|buildDeptTreeSelect|buildMenuTreeSelect" manzhushaka-system/src/main/java manzhushaka-admin/src/main/java
 ```
 
 确认调用链可编译。
 
 - [ ] **步骤 3：改造 `DictUtils`**
 
-当前 [DictUtils.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/utils/DictUtils.java) 仍使用 `common` 版 `SysDictData`。
+当前 [DictUtils.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/utils/DictUtils.java) 仍使用 `common` 版 `SysDictData`。
 
 将其统一为 `system.infrastructure.persistence.entity.SysDictData`，并同步调整：
 
@@ -554,13 +554,13 @@ rg -n "new TreeSelect|buildDeptTreeSelect|buildMenuTreeSelect" manzhushaka-ry-sy
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-system -am test
+mvn -pl manzhushaka-system -am test
 ```
 
 - [ ] **步骤 5：Commit**
 
 ```bash
-git add manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/TreeSelect.java manzhushaka-ry-common/src/main/java/com/manzhushaka/common/utils/DictUtils.java manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure
+git add manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/TreeSelect.java manzhushaka-common/src/main/java/com/manzhushaka/common/utils/DictUtils.java manzhushaka-system/src/main/java/com/manzhushaka/system/service manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure
 git commit -m "refactor: align tree and dict utilities with unified system model"
 ```
 
@@ -568,8 +568,8 @@ git commit -m "refactor: align tree and dict utilities with unified system model
 
 **文件：**
 
-- 修改：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/model/LoginBody.java`
-- 修改：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/model/RegisterBody.java`
+- 修改：`manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/model/LoginBody.java`
+- 修改：`manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/model/RegisterBody.java`
 - 修改：所有仍引用 `common.core.domain.entity` 生产代码的文件
 
 - [ ] **步骤 1：清零 `LoginBody`、`RegisterBody` 的生产代码引用**
@@ -577,7 +577,7 @@ git commit -m "refactor: align tree and dict utilities with unified system model
 运行：
 
 ```bash
-rg -n "LoginBody|RegisterBody" manzhushaka-ry-admin/src/main/java manzhushaka-ry-framework/src/main/java manzhushaka-ry-system/src/main/java
+rg -n "LoginBody|RegisterBody" manzhushaka-admin/src/main/java manzhushaka-framework/src/main/java manzhushaka-system/src/main/java
 ```
 
 预期：无任何生产代码命中。
@@ -587,7 +587,7 @@ rg -n "LoginBody|RegisterBody" manzhushaka-ry-admin/src/main/java manzhushaka-ry
 运行：
 
 ```bash
-rg -n "common\\.core\\.domain\\.entity\\.(SysUser|SysRole|SysMenu|SysDept|SysDictType|SysDictData)" manzhushaka-ry-admin/src/main/java manzhushaka-ry-framework/src/main/java manzhushaka-ry-system/src/main/java
+rg -n "common\\.core\\.domain\\.entity\\.(SysUser|SysRole|SysMenu|SysDept|SysDictType|SysDictData)" manzhushaka-admin/src/main/java manzhushaka-framework/src/main/java manzhushaka-system/src/main/java
 ```
 
 目标不是立刻删除 `common` 中这些类，而是把生产代码引用收敛到 `0`。
@@ -607,15 +607,15 @@ rg -n "common\\.core\\.domain\\.entity\\.(SysUser|SysRole|SysMenu|SysDept|SysDic
 运行：
 
 ```bash
-rg -n "@RequestBody\\s+Sys(Menu|Dept|DictType|DictData|User)" manzhushaka-ry-admin/src/main/java
+rg -n "@RequestBody\\s+Sys(Menu|Dept|DictType|DictData|User)" manzhushaka-admin/src/main/java
 ```
 
 ```bash
-rg -n "SysUserConverter|toCommon\\(|toSystem\\(" manzhushaka-ry-admin/src/main/java manzhushaka-ry-framework/src/main/java manzhushaka-ry-system/src/main/java
+rg -n "SysUserConverter|toCommon\\(|toSystem\\(" manzhushaka-admin/src/main/java manzhushaka-framework/src/main/java manzhushaka-system/src/main/java
 ```
 
 ```bash
-rg -n "common\\.core\\.domain\\.entity\\.(SysUser|SysRole|SysMenu|SysDept|SysDictType|SysDictData)" manzhushaka-ry-admin/src/main/java manzhushaka-ry-framework/src/main/java manzhushaka-ry-system/src/main/java
+rg -n "common\\.core\\.domain\\.entity\\.(SysUser|SysRole|SysMenu|SysDept|SysDictType|SysDictData)" manzhushaka-admin/src/main/java manzhushaka-framework/src/main/java manzhushaka-system/src/main/java
 ```
 
 预期：
@@ -627,7 +627,7 @@ rg -n "common\\.core\\.domain\\.entity\\.(SysUser|SysRole|SysMenu|SysDept|SysDic
 - [ ] **步骤 5：Commit**
 
 ```bash
-git add README.md manzhushaka-ry-admin/src/main/java manzhushaka-ry-framework/src/main/java manzhushaka-ry-system/src/main/java manzhushaka-ry-common/src/main/java
+git add README.md manzhushaka-admin/src/main/java manzhushaka-framework/src/main/java manzhushaka-system/src/main/java manzhushaka-common/src/main/java
 git commit -m "chore: eliminate remaining production references to legacy common entities"
 ```
 
@@ -659,15 +659,15 @@ git commit -m "chore: eliminate remaining production references to legacy common
 6. 下列命令应全部无结果：
 
 ```bash
-rg -n "SysUserConverter|toCommon\\(|toSystem\\(" manzhushaka-ry-admin/src/main/java manzhushaka-ry-framework/src/main/java manzhushaka-ry-system/src/main/java
+rg -n "SysUserConverter|toCommon\\(|toSystem\\(" manzhushaka-admin/src/main/java manzhushaka-framework/src/main/java manzhushaka-system/src/main/java
 ```
 
 ```bash
-rg -n "@RequestBody\\s+Sys(Menu|Dept|DictType|DictData|User)" manzhushaka-ry-admin/src/main/java
+rg -n "@RequestBody\\s+Sys(Menu|Dept|DictType|DictData|User)" manzhushaka-admin/src/main/java
 ```
 
 ```bash
-rg -n "common\\.core\\.domain\\.entity\\.(SysUser|SysRole|SysMenu|SysDept|SysDictType|SysDictData)" manzhushaka-ry-admin/src/main/java manzhushaka-ry-framework/src/main/java manzhushaka-ry-system/src/main/java
+rg -n "common\\.core\\.domain\\.entity\\.(SysUser|SysRole|SysMenu|SysDept|SysDictType|SysDictData)" manzhushaka-admin/src/main/java manzhushaka-framework/src/main/java manzhushaka-system/src/main/java
 ```
 
 7. 手工回归通过以下功能：

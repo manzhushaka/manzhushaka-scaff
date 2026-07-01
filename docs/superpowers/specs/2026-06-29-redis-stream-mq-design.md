@@ -38,9 +38,9 @@
 
 模块划分如下：
 
-- `manzhushaka-ry-framework`：Redis Stream 消费容器、发布器、抽象模板处理器、retry/dead-letter 调度器。
-- `manzhushaka-ry-system`：消息台账主表、执行明细表、Mapper、XML、Service。
-- `manzhushaka-ry-admin`：消息队列台账 Controller。
+- `manzhushaka-framework`：Redis Stream 消费容器、发布器、抽象模板处理器、retry/dead-letter 调度器。
+- `manzhushaka-system`：消息台账主表、执行明细表、Mapper、XML、Service。
+- `manzhushaka-admin`：消息队列台账 Controller。
 - `ui-admin`：消息队列台账 API 和页面。
 - `sql/manzhushaka_db_init.sql`：新增表、菜单、按钮权限和必要角色授权。
 

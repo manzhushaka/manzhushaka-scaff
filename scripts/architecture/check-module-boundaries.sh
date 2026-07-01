@@ -35,19 +35,19 @@ echo ""
 check \
     "common.core.domain.entity 引用已清除" \
     "common\\.core\\.domain\\.entity\\." \
-    "manzhushaka-ry-admin/src/main/java manzhushaka-ry-framework/src/main/java manzhushaka-ry-system/src/main/java manzhushaka-ry-common/src/main/java"
+    "manzhushaka-admin/src/main/java manzhushaka-framework/src/main/java manzhushaka-system/src/main/java manzhushaka-common/src/main/java"
 
 # Rule 2: Admin controllers should not depend on persistence entities directly
 check \
     "admin controller 不引用 infrastructure.persistence.entity" \
     "infrastructure\\.persistence\\.entity" \
-    "manzhushaka-ry-admin/src/main/java"
+    "manzhushaka-admin/src/main/java"
 
 # Rule 3: System application layer should not depend on web DTO/VO
 check \
     "system application 不引用 web.dto / web.vo" \
     "web\\.dto|web\\.vo" \
-    "manzhushaka-ry-system/src/main/java"
+    "manzhushaka-system/src/main/java"
 
 echo ""
 if [ $VIOLATIONS -eq 0 ]; then

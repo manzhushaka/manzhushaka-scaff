@@ -228,18 +228,18 @@
 
 后端预计涉及：
 
-- `manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/config/ResourcesConfig.java`
-- `manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/interceptor/RequestLogInterceptor.java`
-- `manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/manager/factory/AsyncFactory.java`
-- `manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/command/RequestLogRecord.java`
-- `manzhushaka-ry-system/src/main/java/com/manzhushaka/system/application/service/SystemAuditAppService.java`
-- `manzhushaka-ry-system/src/main/java/com/manzhushaka/system/application/service/impl/SystemAuditAppServiceImpl.java`
-- `manzhushaka-ry-system/src/main/java/com/manzhushaka/system/domain/SysRequestLog.java`
-- `manzhushaka-ry-system/src/main/java/com/manzhushaka/system/mapper/SysRequestLogMapper.java`
-- `manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/ISysRequestLogService.java`
-- `manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/impl/SysRequestLogServiceImpl.java`
-- `manzhushaka-ry-system/src/main/resources/mapper/system/SysRequestLogMapper.xml`
-- `manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/monitor/SysRequestLogController.java`
+- `manzhushaka-framework/src/main/java/com/manzhushaka/framework/config/ResourcesConfig.java`
+- `manzhushaka-framework/src/main/java/com/manzhushaka/framework/interceptor/RequestLogInterceptor.java`
+- `manzhushaka-framework/src/main/java/com/manzhushaka/framework/manager/factory/AsyncFactory.java`
+- `manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/command/RequestLogRecord.java`
+- `manzhushaka-system/src/main/java/com/manzhushaka/system/application/service/SystemAuditAppService.java`
+- `manzhushaka-system/src/main/java/com/manzhushaka/system/application/service/impl/SystemAuditAppServiceImpl.java`
+- `manzhushaka-system/src/main/java/com/manzhushaka/system/domain/SysRequestLog.java`
+- `manzhushaka-system/src/main/java/com/manzhushaka/system/mapper/SysRequestLogMapper.java`
+- `manzhushaka-system/src/main/java/com/manzhushaka/system/service/ISysRequestLogService.java`
+- `manzhushaka-system/src/main/java/com/manzhushaka/system/service/impl/SysRequestLogServiceImpl.java`
+- `manzhushaka-system/src/main/resources/mapper/system/SysRequestLogMapper.xml`
+- `manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/monitor/SysRequestLogController.java`
 - 请求日志相关测试文件
 
 前端预计涉及：

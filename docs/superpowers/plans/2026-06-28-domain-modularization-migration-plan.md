@@ -1,10 +1,10 @@
-# manzhushaka-ry 业务域模块化迁移实现计划
+# manzhushaka-scaff 业务域模块化迁移实现计划
 
 > **面向 AI 代理的工作者：** 必需子技能：使用 `superpowers:subagent-driven-development`（推荐）或 `superpowers:executing-plans` 逐任务实现此计划。步骤使用复选框（`- [ ]`）语法来跟踪进度。
 
 **目标：** 将当前若依改造仓库从“`common/system/framework` 交叉持有业务对象”的结构，迁移为“`admin` 统一承接 HTTP，业务域各自持久化，各模块边界清晰”的单体多模块架构，并为后续新增 `member/order/content` 等业务域建立稳定模板。
 
-**架构：** `manzhushaka-ry-admin` 统一承接 `Controller + HTTP DTO/VO + Converter`；`manzhushaka-ry-system` 等业务域模块各自拥有 `application/domain/infrastructure`；`manzhushaka-ry-common` 只保留真正通用能力；`manzhushaka-ry-framework` 聚焦安全、AOP、Redis、日志等跨领域基础设施，不再长期直接耦合业务实现细节。
+**架构：** `manzhushaka-admin` 统一承接 `Controller + HTTP DTO/VO + Converter`；`manzhushaka-system` 等业务域模块各自拥有 `application/domain/infrastructure`；`manzhushaka-common` 只保留真正通用能力；`manzhushaka-framework` 聚焦安全、AOP、Redis、日志等跨领域基础设施，不再长期直接耦合业务实现细节。
 
 **技术栈：** Java 17、Spring Boot 4、Spring Security、MyBatis、Druid、Redis、Quartz、Maven 多模块工程
 
@@ -14,35 +14,35 @@
 
 当前仓库已经具备多模块形态，但模块边界仍然偏“若依默认分层”，存在以下结构性问题：
 
-1. `admin` 中的 Controller 直接使用业务实体作为 HTTP 入参和出参，例如 [SysUserController.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysUserController.java) 和 [SysRoleController.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysRoleController.java)。
-2. `common` 中混入了系统业务实体，例如 [SysUser.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysUser.java)、[SysRole.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysRole.java)、[SysMenu.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysMenu.java)。
-3. `system` 模块同时持有部分业务对象、Mapper、Service，但对象分布不统一。`SysPost`、`SysNotice` 等在 [manzhushaka-ry-system/src/main/java/com/manzhushaka/system/domain](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-system/src/main/java/com/manzhushaka/system/domain)，而 `SysUser`、`SysRole` 等却在 `common`。
-4. `framework` 目前直接依赖 `system` 模块，见 [manzhushaka-ry-framework/pom.xml](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-framework/pom.xml)。例如 [AsyncFactory.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/manager/factory/AsyncFactory.java) 和 [LogAspect.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/aspectj/LogAspect.java) 直接引用 `system` 的日志领域对象。
-5. 登录和注册请求体仍然放在 `common`，例如 [LoginBody.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/model/LoginBody.java) 和 [RegisterBody.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/model/RegisterBody.java)。这与“HTTP DTO/VO 统一归 `admin`”的目标不一致。
-6. MyBatis 配置默认扫描 `com.manzhushaka.**.domain` 作为别名包，见 [application.yml](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-admin/src/main/resources/application.yml)。后续若持久化实体迁移至 `infrastructure/persistence/entity`，必须同步调整配置。
+1. `admin` 中的 Controller 直接使用业务实体作为 HTTP 入参和出参，例如 [SysUserController.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysUserController.java) 和 [SysRoleController.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysRoleController.java)。
+2. `common` 中混入了系统业务实体，例如 [SysUser.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysUser.java)、[SysRole.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysRole.java)、[SysMenu.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysMenu.java)。
+3. `system` 模块同时持有部分业务对象、Mapper、Service，但对象分布不统一。`SysPost`、`SysNotice` 等在 [manzhushaka-system/src/main/java/com/manzhushaka/system/domain](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-system/src/main/java/com/manzhushaka/system/domain)，而 `SysUser`、`SysRole` 等却在 `common`。
+4. `framework` 目前直接依赖 `system` 模块，见 [manzhushaka-framework/pom.xml](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-framework/pom.xml)。例如 [AsyncFactory.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-framework/src/main/java/com/manzhushaka/framework/manager/factory/AsyncFactory.java) 和 [LogAspect.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-framework/src/main/java/com/manzhushaka/framework/aspectj/LogAspect.java) 直接引用 `system` 的日志领域对象。
+5. 登录和注册请求体仍然放在 `common`，例如 [LoginBody.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/model/LoginBody.java) 和 [RegisterBody.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/model/RegisterBody.java)。这与“HTTP DTO/VO 统一归 `admin`”的目标不一致。
+6. MyBatis 配置默认扫描 `com.manzhushaka.**.domain` 作为别名包，见 [application.yml](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-admin/src/main/resources/application.yml)。后续若持久化实体迁移至 `infrastructure/persistence/entity`，必须同步调整配置。
 
-这些问题决定了本次迁移不能简单通过新增一个 `manzhushaka-ry-db` 模块来“收口”。正确方向是：按业务域各自持久化，按入口层统一收口 HTTP。
+这些问题决定了本次迁移不能简单通过新增一个 `manzhushaka-scaff-db` 模块来“收口”。正确方向是：按业务域各自持久化，按入口层统一收口 HTTP。
 
 ## 2. 迁移完成后的目标结构
 
 ### 2.1 Maven 模块结构
 
 ```text
-manzhushaka-ry-admin
-manzhushaka-ry-common
-manzhushaka-ry-framework
-manzhushaka-ry-system
-manzhushaka-ry-quartz
+manzhushaka-admin
+manzhushaka-common
+manzhushaka-framework
+manzhushaka-system
+manzhushaka-quartz
 
 # 后续新增业务域时按相同模板扩展
-manzhushaka-ry-member
-manzhushaka-ry-order
-manzhushaka-ry-content
+manzhushaka-scaff-member
+manzhushaka-scaff-order
+manzhushaka-scaff-content
 ```
 
 ### 2.2 `admin` 模块职责
 
-`manzhushaka-ry-admin` 只做以下事情：
+`manzhushaka-admin` 只做以下事情：
 
 - Controller
 - HTTP 请求 DTO
@@ -61,7 +61,7 @@ manzhushaka-ry-content
 
 ### 2.3 业务域模块职责
 
-每个业务域模块，例如 `manzhushaka-ry-system`、未来的 `manzhushaka-ry-order`，统一采用以下内部结构：
+每个业务域模块，例如 `manzhushaka-system`、未来的 `manzhushaka-scaff-order`，统一采用以下内部结构：
 
 ```text
 com.manzhushaka.<domain>
@@ -92,7 +92,7 @@ com.manzhushaka.<domain>
 
 ### 2.4 `common` 模块职责
 
-`manzhushaka-ry-common` 只保留真正的通用能力：
+`manzhushaka-common` 只保留真正的通用能力：
 
 - `BaseEntity`、`TreeEntity`
 - 通用异常
@@ -114,7 +114,7 @@ com.manzhushaka.<domain>
 
 ### 2.5 `framework` 模块职责
 
-`manzhushaka-ry-framework` 聚焦跨领域基础设施：
+`manzhushaka-framework` 聚焦跨领域基础设施：
 
 - Security
 - AOP
@@ -143,50 +143,50 @@ com.manzhushaka.<domain>
 
 ### 4.1 父工程与模块依赖
 
-- [pom.xml](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/pom.xml)
-- [manzhushaka-ry-admin/pom.xml](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-admin/pom.xml)
-- [manzhushaka-ry-framework/pom.xml](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-framework/pom.xml)
-- [manzhushaka-ry-system/pom.xml](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-system/pom.xml)
-- [manzhushaka-ry-common/pom.xml](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/pom.xml)
+- [pom.xml](/Users/manzhushaka/CodexProject/manzhushaka-scaff/pom.xml)
+- [manzhushaka-admin/pom.xml](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-admin/pom.xml)
+- [manzhushaka-framework/pom.xml](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-framework/pom.xml)
+- [manzhushaka-system/pom.xml](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-system/pom.xml)
+- [manzhushaka-common/pom.xml](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/pom.xml)
 
 ### 4.2 HTTP 入口层
 
-- [manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system)
-- [manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/monitor](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/monitor)
-- [manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/common](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/common)
+- [manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system)
+- [manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/monitor](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/monitor)
+- [manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/common](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/common)
 
 重点 Controller：
 
-- [SysUserController.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysUserController.java)
-- [SysRoleController.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysRoleController.java)
-- [SysLoginController.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysLoginController.java)
-- [SysRegisterController.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysRegisterController.java)
+- [SysUserController.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysUserController.java)
+- [SysRoleController.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysRoleController.java)
+- [SysLoginController.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysLoginController.java)
+- [SysRegisterController.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysRegisterController.java)
 
 ### 4.3 `system` 业务实现与持久化
 
-- [manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service)
-- [manzhushaka-ry-system/src/main/java/com/manzhushaka/system/mapper](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-system/src/main/java/com/manzhushaka/system/mapper)
-- [manzhushaka-ry-system/src/main/resources/mapper/system](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-system/src/main/resources/mapper/system)
-- [manzhushaka-ry-system/src/main/java/com/manzhushaka/system/domain](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-system/src/main/java/com/manzhushaka/system/domain)
+- [manzhushaka-system/src/main/java/com/manzhushaka/system/service](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-system/src/main/java/com/manzhushaka/system/service)
+- [manzhushaka-system/src/main/java/com/manzhushaka/system/mapper](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-system/src/main/java/com/manzhushaka/system/mapper)
+- [manzhushaka-system/src/main/resources/mapper/system](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-system/src/main/resources/mapper/system)
+- [manzhushaka-system/src/main/java/com/manzhushaka/system/domain](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-system/src/main/java/com/manzhushaka/system/domain)
 
 ### 4.4 `common` 中待回收的业务对象
 
-- [SysUser.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysUser.java)
-- [SysRole.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysRole.java)
-- [SysMenu.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysMenu.java)
-- [SysDept.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysDept.java)
-- [SysDictType.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysDictType.java)
-- [SysDictData.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysDictData.java)
-- [LoginBody.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/model/LoginBody.java)
-- [RegisterBody.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/model/RegisterBody.java)
+- [SysUser.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysUser.java)
+- [SysRole.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysRole.java)
+- [SysMenu.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysMenu.java)
+- [SysDept.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysDept.java)
+- [SysDictType.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysDictType.java)
+- [SysDictData.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysDictData.java)
+- [LoginBody.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/model/LoginBody.java)
+- [RegisterBody.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/model/RegisterBody.java)
 
 ### 4.5 基础设施耦合点
 
-- [AsyncFactory.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/manager/factory/AsyncFactory.java)
-- [LogAspect.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/aspectj/LogAspect.java)
-- [MyBatisConfig.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/config/MyBatisConfig.java)
-- [ApplicationConfig.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/config/ApplicationConfig.java)
-- [application.yml](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-admin/src/main/resources/application.yml)
+- [AsyncFactory.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-framework/src/main/java/com/manzhushaka/framework/manager/factory/AsyncFactory.java)
+- [LogAspect.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-framework/src/main/java/com/manzhushaka/framework/aspectj/LogAspect.java)
+- [MyBatisConfig.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-framework/src/main/java/com/manzhushaka/framework/config/MyBatisConfig.java)
+- [ApplicationConfig.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-framework/src/main/java/com/manzhushaka/framework/config/ApplicationConfig.java)
+- [application.yml](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-admin/src/main/resources/application.yml)
 
 ## 5. 迁移原则
 
@@ -206,17 +206,17 @@ com.manzhushaka.<domain>
 **涉及文件：**
 
 - 修改：`pom.xml`
-- 修改：`manzhushaka-ry-admin/pom.xml`
-- 修改：`manzhushaka-ry-framework/pom.xml`
-- 修改：`manzhushaka-ry-system/pom.xml`
-- 修改：`manzhushaka-ry-common/pom.xml`
-- 创建：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/dto/`
-- 创建：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/vo/`
-- 创建：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/converter/`
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/application/`
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/domain/model/`
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/domain/repository/`
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/`
+- 修改：`manzhushaka-admin/pom.xml`
+- 修改：`manzhushaka-framework/pom.xml`
+- 修改：`manzhushaka-system/pom.xml`
+- 修改：`manzhushaka-common/pom.xml`
+- 创建：`manzhushaka-admin/src/main/java/com/manzhushaka/web/dto/`
+- 创建：`manzhushaka-admin/src/main/java/com/manzhushaka/web/vo/`
+- 创建：`manzhushaka-admin/src/main/java/com/manzhushaka/web/converter/`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/application/`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/domain/model/`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/domain/repository/`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/`
 
 - [ ] **步骤 1：在父 POM 中补齐测试基线依赖规划**
 
@@ -235,7 +235,7 @@ com.manzhushaka.<domain>
 
 - [ ] **步骤 2：在业务模块中引入最小测试依赖**
 
-在 `manzhushaka-ry-system/pom.xml` 和 `manzhushaka-ry-admin/pom.xml` 中按需引入：
+在 `manzhushaka-system/pom.xml` 和 `manzhushaka-admin/pom.xml` 中按需引入：
 
 ```xml
 <dependency>
@@ -252,28 +252,28 @@ com.manzhushaka.<domain>
 创建以下空目录并保留包注释文件或占位类：
 
 ```text
-manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/dto/system
-manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/vo/system
-manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/converter/system
-manzhushaka-ry-system/src/main/java/com/manzhushaka/system/application/service
-manzhushaka-ry-system/src/main/java/com/manzhushaka/system/application/command
-manzhushaka-ry-system/src/main/java/com/manzhushaka/system/application/query
-manzhushaka-ry-system/src/main/java/com/manzhushaka/system/domain/model
-manzhushaka-ry-system/src/main/java/com/manzhushaka/system/domain/repository
-manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/entity
-manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/mapper
-manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/repository
-manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/converter
+manzhushaka-admin/src/main/java/com/manzhushaka/web/dto/system
+manzhushaka-admin/src/main/java/com/manzhushaka/web/vo/system
+manzhushaka-admin/src/main/java/com/manzhushaka/web/converter/system
+manzhushaka-system/src/main/java/com/manzhushaka/system/application/service
+manzhushaka-system/src/main/java/com/manzhushaka/system/application/command
+manzhushaka-system/src/main/java/com/manzhushaka/system/application/query
+manzhushaka-system/src/main/java/com/manzhushaka/system/domain/model
+manzhushaka-system/src/main/java/com/manzhushaka/system/domain/repository
+manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/entity
+manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/mapper
+manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/repository
+manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/converter
 ```
 
 预期：为后续迁移提供确定落点，避免边改边想路径。
 
 - [ ] **步骤 4：记录架构约束到 README 或开发规范附录**
 
-在 [README.md](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/README.md) 或新增开发文档中补充：
+在 [README.md](/Users/manzhushaka/CodexProject/manzhushaka-scaff/README.md) 或新增开发文档中补充：
 
 ```markdown
-- Controller 与 HTTP DTO/VO 统一放在 `manzhushaka-ry-admin`
+- Controller 与 HTTP DTO/VO 统一放在 `manzhushaka-admin`
 - 业务域各自持久化，不新增统一 `db` 模块
 - `common` 不承载业务实体
 ```
@@ -299,7 +299,7 @@ mvn clean package -DskipTests
 - [ ] **步骤 6：Commit**
 
 ```bash
-git add pom.xml manzhushaka-ry-admin/pom.xml manzhushaka-ry-system/pom.xml manzhushaka-ry-common/pom.xml manzhushaka-ry-framework/pom.xml README.md manzhushaka-ry-admin/src/main/java/com/manzhushaka/web manzhushaka-ry-system/src/main/java/com/manzhushaka/system
+git add pom.xml manzhushaka-admin/pom.xml manzhushaka-system/pom.xml manzhushaka-common/pom.xml manzhushaka-framework/pom.xml README.md manzhushaka-admin/src/main/java/com/manzhushaka/web manzhushaka-system/src/main/java/com/manzhushaka/system
 git commit -m "chore: establish domain modularization skeleton"
 ```
 
@@ -309,12 +309,12 @@ git commit -m "chore: establish domain modularization skeleton"
 
 **涉及文件：**
 
-- 修改：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysLoginController.java`
-- 修改：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysRegisterController.java`
-- 修改：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/service/SysRegisterService.java`
-- 创建：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/dto/system/LoginRequest.java`
-- 创建：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/dto/system/RegisterRequest.java`
-- 创建：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/converter/system/AuthAdminConverter.java`
+- 修改：`manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysLoginController.java`
+- 修改：`manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysRegisterController.java`
+- 修改：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/service/SysRegisterService.java`
+- 创建：`manzhushaka-admin/src/main/java/com/manzhushaka/web/dto/system/LoginRequest.java`
+- 创建：`manzhushaka-admin/src/main/java/com/manzhushaka/web/dto/system/RegisterRequest.java`
+- 创建：`manzhushaka-admin/src/main/java/com/manzhushaka/web/converter/system/AuthAdminConverter.java`
 - 保留旧文件待兼容：`LoginBody.java`、`RegisterBody.java`
 
 - [ ] **步骤 1：为登录和注册 DTO 创建新对象**
@@ -407,7 +407,7 @@ public String register(RegisterCommand command)
 
 创建测试：
 
-`manzhushaka-ry-admin/src/test/java/com/manzhushaka/web/converter/system/AuthAdminConverterTest.java`
+`manzhushaka-admin/src/test/java/com/manzhushaka/web/converter/system/AuthAdminConverterTest.java`
 
 至少验证：
 
@@ -417,7 +417,7 @@ public String register(RegisterCommand command)
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-admin -am test
+mvn -pl manzhushaka-admin -am test
 ```
 
 预期：转换器行为被固定下来。
@@ -427,7 +427,7 @@ mvn -pl manzhushaka-ry-admin -am test
 搜索：
 
 ```bash
-rg -n "LoginBody|RegisterBody" manzhushaka-ry-admin manzhushaka-ry-framework manzhushaka-ry-system
+rg -n "LoginBody|RegisterBody" manzhushaka-admin manzhushaka-framework manzhushaka-system
 ```
 
 预期：除兼容期保留文件本身外，不再有业务代码引用它们。
@@ -435,7 +435,7 @@ rg -n "LoginBody|RegisterBody" manzhushaka-ry-admin manzhushaka-ry-framework man
 - [ ] **步骤 7：Commit**
 
 ```bash
-git add manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysLoginController.java manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysRegisterController.java manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/dto/system manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/converter/system manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/service/SysRegisterService.java manzhushaka-ry-admin/src/test/java/com/manzhushaka/web/converter/system/AuthAdminConverterTest.java
+git add manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysLoginController.java manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysRegisterController.java manzhushaka-admin/src/main/java/com/manzhushaka/web/dto/system manzhushaka-admin/src/main/java/com/manzhushaka/web/converter/system manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/service/SysRegisterService.java manzhushaka-admin/src/test/java/com/manzhushaka/web/converter/system/AuthAdminConverterTest.java
 git commit -m "refactor: move auth http dto into admin module"
 ```
 
@@ -447,13 +447,13 @@ git commit -m "refactor: move auth http dto into admin module"
 
 - 修改：`SysUserController.java`
 - 修改：`SysRoleController.java`
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/application/service/SystemUserAppService.java`
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/application/service/SystemRoleAppService.java`
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/application/command/...`
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/application/query/...`
-- 创建：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/dto/system/user/...`
-- 创建：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/vo/system/user/...`
-- 创建：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/converter/system/user/...`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/application/service/SystemUserAppService.java`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/application/service/SystemRoleAppService.java`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/application/command/...`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/application/query/...`
+- 创建：`manzhushaka-admin/src/main/java/com/manzhushaka/web/dto/system/user/...`
+- 创建：`manzhushaka-admin/src/main/java/com/manzhushaka/web/vo/system/user/...`
+- 创建：`manzhushaka-admin/src/main/java/com/manzhushaka/web/converter/system/user/...`
 
 - [ ] **步骤 1：为用户和角色试点定义 Command/Query**
 
@@ -550,13 +550,13 @@ public AjaxResult resetPwd(@RequestBody SysUser user)
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-admin -am test
+mvn -pl manzhushaka-admin -am test
 ```
 
 - [ ] **步骤 7：Commit**
 
 ```bash
-git add manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysUserController.java manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysRoleController.java manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/dto manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/vo manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/converter manzhushaka-ry-system/src/main/java/com/manzhushaka/system/application manzhushaka-ry-admin/src/test/java
+git add manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysUserController.java manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysRoleController.java manzhushaka-admin/src/main/java/com/manzhushaka/web/dto manzhushaka-admin/src/main/java/com/manzhushaka/web/vo manzhushaka-admin/src/main/java/com/manzhushaka/web/converter manzhushaka-system/src/main/java/com/manzhushaka/system/application manzhushaka-admin/src/test/java
 git commit -m "refactor: introduce system application layer for user and role"
 ```
 
@@ -566,8 +566,8 @@ git commit -m "refactor: introduce system application layer for user and role"
 
 **涉及文件：**
 
-- 修改：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/entity/*`
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/domain/model/*` 或 `infrastructure/persistence/entity/*`
+- 修改：`manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/entity/*`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/domain/model/*` 或 `infrastructure/persistence/entity/*`
 - 修改：所有 import 这些类的文件
 - 修改：MyBatis Mapper 与 XML 引用
 
@@ -586,7 +586,7 @@ git commit -m "refactor: introduce system application layer for user and role"
 
 - [ ] **步骤 2：修改 `system` 中的 Mapper 引用**
 
-例如 [SysUserMapper.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-system/src/main/java/com/manzhushaka/system/mapper/SysUserMapper.java) 当前引用 `common.core.domain.entity.SysUser`，应改为新的 `system` 包路径。
+例如 [SysUserMapper.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-system/src/main/java/com/manzhushaka/system/mapper/SysUserMapper.java) 当前引用 `common.core.domain.entity.SysUser`，应改为新的 `system` 包路径。
 
 同理处理：
 
@@ -601,7 +601,7 @@ git commit -m "refactor: introduce system application layer for user and role"
 使用：
 
 ```bash
-rg -n "common\\.core\\.domain\\.entity\\.(SysUser|SysRole|SysMenu|SysDept|SysDictType|SysDictData)" manzhushaka-ry-admin/src/main/java manzhushaka-ry-framework/src/main/java manzhushaka-ry-system/src/main/java
+rg -n "common\\.core\\.domain\\.entity\\.(SysUser|SysRole|SysMenu|SysDept|SysDictType|SysDictData)" manzhushaka-admin/src/main/java manzhushaka-framework/src/main/java manzhushaka-system/src/main/java
 ```
 
 逐一改为 `system` 中的新包路径。
@@ -622,7 +622,7 @@ mybatis:
   typeAliasesPackage: com.manzhushaka.**.domain,com.manzhushaka.**.infrastructure.persistence.entity
 ```
 
-必要时同步确认 [MyBatisConfig.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/config/MyBatisConfig.java) 扫描逻辑兼容。
+必要时同步确认 [MyBatisConfig.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-framework/src/main/java/com/manzhushaka/framework/config/MyBatisConfig.java) 扫描逻辑兼容。
 
 - [ ] **步骤 5：删除或清空 `common` 中对应业务实体**
 
@@ -655,7 +655,7 @@ mvn clean package -DskipTests
 - [ ] **步骤 7：Commit**
 
 ```bash
-git add manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/entity manzhushaka-ry-system/src/main/java/com/manzhushaka/system manzhushaka-ry-admin/src/main/java manzhushaka-ry-framework/src/main/java manzhushaka-ry-admin/src/main/resources/application.yml
+git add manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/entity manzhushaka-system/src/main/java/com/manzhushaka/system manzhushaka-admin/src/main/java manzhushaka-framework/src/main/java manzhushaka-admin/src/main/resources/application.yml
 git commit -m "refactor: move system business entities out of common"
 ```
 
@@ -665,11 +665,11 @@ git commit -m "refactor: move system business entities out of common"
 
 **涉及文件：**
 
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/mapper/*`
-- 修改：`manzhushaka-ry-system/src/main/resources/mapper/system/*`
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/mapper/*`
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/domain/repository/*`
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/repository/*`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/mapper/*`
+- 修改：`manzhushaka-system/src/main/resources/mapper/system/*`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/mapper/*`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/domain/repository/*`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/repository/*`
 
 - [ ] **步骤 1：为仓储定义接口**
 
@@ -713,8 +713,8 @@ public class UserRepositoryImpl implements UserRepository {
 可保留 `resources/mapper/system` 物理路径，也可迁移为：
 
 ```text
-manzhushaka-ry-system/src/main/resources/mapper/system/user/
-manzhushaka-ry-system/src/main/resources/mapper/system/role/
+manzhushaka-system/src/main/resources/mapper/system/user/
+manzhushaka-system/src/main/resources/mapper/system/role/
 ```
 
 不建议此阶段大改命名，只要确保 `mapperLocations: classpath*:mapper/**/*Mapper.xml` 仍能扫描到。
@@ -739,13 +739,13 @@ manzhushaka-ry-system/src/main/resources/mapper/system/role/
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-system -am test
+mvn -pl manzhushaka-system -am test
 ```
 
 - [ ] **步骤 7：Commit**
 
 ```bash
-git add manzhushaka-ry-system/src/main/java/com/manzhushaka/system manzhushaka-ry-system/src/main/resources/mapper/system
+git add manzhushaka-system/src/main/java/com/manzhushaka/system manzhushaka-system/src/main/resources/mapper/system
 git commit -m "refactor: isolate system persistence under infrastructure"
 ```
 
@@ -755,7 +755,7 @@ git commit -m "refactor: isolate system persistence under infrastructure"
 
 **涉及文件：**
 
-- 修改：`manzhushaka-ry-framework/pom.xml`
+- 修改：`manzhushaka-framework/pom.xml`
 - 修改：`AsyncFactory.java`
 - 修改：`LogAspect.java`
 - 修改：`SysLoginService.java`
@@ -793,7 +793,7 @@ void recordOperation(OperationAuditCommand command);
 
 预期：减少 `framework` 对 `system` 领域模型结构的敏感度。
 
-- [ ] **步骤 4：评估是否需要新增 `manzhushaka-ry-system-api`**
+- [ ] **步骤 4：评估是否需要新增 `manzhushaka-system-api`**
 
 只有当以下条件同时满足时才抽：
 
@@ -818,7 +818,7 @@ void recordOperation(OperationAuditCommand command);
 - [ ] **步骤 6：Commit**
 
 ```bash
-git add manzhushaka-ry-framework/pom.xml manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework manzhushaka-ry-system/src/main/java/com/manzhushaka/system
+git add manzhushaka-framework/pom.xml manzhushaka-framework/src/main/java/com/manzhushaka/framework manzhushaka-system/src/main/java/com/manzhushaka/system
 git commit -m "refactor: decouple framework from system internals"
 ```
 
@@ -829,8 +829,8 @@ git commit -m "refactor: decouple framework from system internals"
 **涉及文件：**
 
 - 修改：`pom.xml`
-- 创建：`manzhushaka-ry-member/pom.xml`
-- 创建：`manzhushaka-ry-order/pom.xml`
+- 创建：`manzhushaka-scaff-member/pom.xml`
+- 创建：`manzhushaka-scaff-order/pom.xml`
 - 创建：模块骨架目录与 README
 
 - [ ] **步骤 1：新增业务域模块模板**
@@ -838,8 +838,8 @@ git commit -m "refactor: decouple framework from system internals"
 在父 `pom.xml` 中新增模块声明，例如：
 
 ```xml
-<module>manzhushaka-ry-member</module>
-<module>manzhushaka-ry-order</module>
+<module>manzhushaka-scaff-member</module>
+<module>manzhushaka-scaff-order</module>
 ```
 
 并创建最小模块骨架。
@@ -883,7 +883,7 @@ com.manzhushaka.web.converter.member
 - [ ] **步骤 5：Commit**
 
 ```bash
-git add pom.xml manzhushaka-ry-member manzhushaka-ry-order README.md
+git add pom.xml manzhushaka-scaff-member manzhushaka-scaff-order README.md
 git commit -m "feat: add domain module templates for future business areas"
 ```
 
@@ -938,15 +938,15 @@ git commit -m "feat: add domain module templates for future business areas"
 每次提交前至少运行：
 
 ```bash
-rg -n "common\\.core\\.domain\\.entity\\.(SysUser|SysRole|SysMenu|SysDept|SysDictType|SysDictData)" manzhushaka-ry-admin/src/main/java manzhushaka-ry-framework/src/main/java manzhushaka-ry-system/src/main/java
+rg -n "common\\.core\\.domain\\.entity\\.(SysUser|SysRole|SysMenu|SysDept|SysDictType|SysDictData)" manzhushaka-admin/src/main/java manzhushaka-framework/src/main/java manzhushaka-system/src/main/java
 ```
 
 ```bash
-rg -n "@RequestBody\\s+Sys(User|Role|Menu|Dept|DictType|DictData)" manzhushaka-ry-admin/src/main/java
+rg -n "@RequestBody\\s+Sys(User|Role|Menu|Dept|DictType|DictData)" manzhushaka-admin/src/main/java
 ```
 
 ```bash
-rg -n "new Sys(Logininfor|OperLog)|import com\\.manzhushaka\\.system\\.mapper" manzhushaka-ry-framework/src/main/java
+rg -n "new Sys(Logininfor|OperLog)|import com\\.manzhushaka\\.system\\.mapper" manzhushaka-framework/src/main/java
 ```
 
 预期：
@@ -976,7 +976,7 @@ rg -n "new Sys(Logininfor|OperLog)|import com\\.manzhushaka\\.system\\.mapper" m
 
 本计划明确不做以下事情：
 
-- 不引入统一 `manzhushaka-ry-db` 模块
+- 不引入统一 `manzhushaka-scaff-db` 模块
 - 不在本轮中拆分为微服务
 - 不重写所有历史业务逻辑
 - 不一次性替换全部 `ISys*Service` 接口

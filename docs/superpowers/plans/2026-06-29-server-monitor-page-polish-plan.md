@@ -28,7 +28,7 @@ getServer().then(response => {
 - 只有成功分支关闭 loading，接口失败、超时或权限异常时可能留下遮罩。
 - 模板仍使用 `el-card + 原生 table + el-table 内部 class + inline style`，视觉没有完全接入当前项目的 `ui-panel-card`、`ui-table-card` 和 `--ui-*` token。
 
-后端 `manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/domain/Server.java` 中 `setCpuInfo()` 存在：
+后端 `manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/domain/Server.java` 中 `setCpuInfo()` 存在：
 
 ```java
 long[] prevTicks = processor.getSystemCpuLoadTicks();
@@ -62,7 +62,7 @@ long[] ticks = processor.getSystemCpuLoadTicks();
 **文件：**
 
 - 读取：`ui-admin/src/views/monitor/server/index.vue`
-- 读取：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/domain/Server.java`
+- 读取：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/domain/Server.java`
 
 - [ ] **步骤 1：确认当前页面仍使用全屏 loading**
 
@@ -85,7 +85,7 @@ proxy.$modal.closeLoading()
 运行：
 
 ```bash
-rg -n "OSHI_WAIT_SECOND|Util\\.sleep" manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/domain/Server.java
+rg -n "OSHI_WAIT_SECOND|Util\\.sleep" manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/domain/Server.java
 ```
 
 预期输出包含：
@@ -100,7 +100,7 @@ Util.sleep(OSHI_WAIT_SECOND);
 检查：
 
 ```bash
-git diff -- manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/monitor/ServerController.java manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/domain/Server.java
+git diff -- manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/monitor/ServerController.java manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/domain/Server.java
 ```
 
 预期：执行本计划前后，上述两个后端文件都不产生本轮 diff。
@@ -680,7 +680,7 @@ Local: http://localhost:80/
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-admin -am spring-boot:run
+mvn -pl manzhushaka-admin -am spring-boot:run
 ```
 
 预期：后端启动完成，并能响应 `/monitor/server`。如果本地数据库、Redis 或配置缺失导致后端无法启动，在最终回复中明确说明未完成浏览器联调，并保留前端构建验证结果。
@@ -755,7 +755,7 @@ cd ui-admin && npm run build:prod
 运行：
 
 ```bash
-rg -n "monitor:server:list|/monitor/server|monitor/server/index" sql/manzhushaka_db_init.sql manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/monitor/ServerController.java ui-admin/src/api/monitor/server.js ui-admin/src/views/monitor/server/index.vue
+rg -n "monitor:server:list|/monitor/server|monitor/server/index" sql/manzhushaka_db_init.sql manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/monitor/ServerController.java ui-admin/src/api/monitor/server.js ui-admin/src/views/monitor/server/index.vue
 ```
 
 预期：

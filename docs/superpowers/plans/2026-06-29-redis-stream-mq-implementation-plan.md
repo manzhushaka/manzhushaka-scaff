@@ -21,61 +21,61 @@
 
 ### System 台账层
 
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/domain/SysMqMessageLog.java`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/domain/SysMqMessageLog.java`
   - 台账主表实体，继承 `BaseEntity`，手写 getter、setter、`toString()`。
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/domain/SysMqMessageLogDetail.java`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/domain/SysMqMessageLogDetail.java`
   - 台账明细表实体，继承 `BaseEntity`，手写 getter、setter、`toString()`。
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/domain/SysMqMessageStatusEnum.java`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/domain/SysMqMessageStatusEnum.java`
   - 主表状态枚举，定义执行中、成功、失败、已跳过、死信。
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/domain/SysMqMessageDetailStatusEnum.java`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/domain/SysMqMessageDetailStatusEnum.java`
   - 明细状态枚举，定义执行中、成功、失败、已跳过。
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/mapper/SysMqMessageLogMapper.java`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/mapper/SysMqMessageLogMapper.java`
   - 主表 Mapper 接口。
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/mapper/SysMqMessageLogDetailMapper.java`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/mapper/SysMqMessageLogDetailMapper.java`
   - 明细表 Mapper 接口。
-- 创建：`manzhushaka-ry-system/src/main/resources/mapper/system/SysMqMessageLogMapper.xml`
+- 创建：`manzhushaka-system/src/main/resources/mapper/system/SysMqMessageLogMapper.xml`
   - 主表 MyBatis 映射。
-- 创建：`manzhushaka-ry-system/src/main/resources/mapper/system/SysMqMessageLogDetailMapper.xml`
+- 创建：`manzhushaka-system/src/main/resources/mapper/system/SysMqMessageLogDetailMapper.xml`
   - 明细表 MyBatis 映射。
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/ISysMqMessageLogService.java`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/service/ISysMqMessageLogService.java`
   - 台账写入、查询、删除、清空和明细查询服务接口。
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/impl/SysMqMessageLogServiceImpl.java`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/service/impl/SysMqMessageLogServiceImpl.java`
   - 台账服务实现，处理 `streamKey + messageId` 幂等创建。
-- 创建：`manzhushaka-ry-system/src/test/java/com/manzhushaka/system/service/SysMqMessageLogServiceTest.java`
+- 创建：`manzhushaka-system/src/test/java/com/manzhushaka/system/service/SysMqMessageLogServiceTest.java`
   - Service 层 Mockito 单测。
 
 ### Framework MQ 层
 
-- 创建：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamRecord.java`
+- 创建：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamRecord.java`
   - 框架内部的 Redis Stream 记录模型。
-- 创建：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamGateway.java`
+- 创建：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamGateway.java`
   - Redis Stream 底层操作接口，隔离 Spring Data Redis API。
-- 创建：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamGatewayImpl.java`
+- 创建：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamGatewayImpl.java`
   - 基于 `RedisTemplate<Object, Object>` 的 Stream 操作实现。
-- 创建：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessagePublisher.java`
+- 创建：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessagePublisher.java`
   - 业务发布入口。
-- 创建：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessageHandler.java`
+- 创建：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessageHandler.java`
   - handler 接口，声明 stream、group、retry、dead-letter 和执行入口。
-- 创建：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/AbstractRedisStreamMessageHandler.java`
+- 创建：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/AbstractRedisStreamMessageHandler.java`
   - 模板方法父类，统一台账、幂等、重试、死信、ACK。
-- 创建：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessageHandlerRegistry.java`
+- 创建：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessageHandlerRegistry.java`
   - 收集全部 handler，按 stream 和 messageType 建索引。
-- 创建：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessageListenerRegistrar.java`
+- 创建：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessageListenerRegistrar.java`
   - 启动 `StreamMessageListenerContainer` 并注册消费者组监听。
-- 创建：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamRetryScheduler.java`
+- 创建：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamRetryScheduler.java`
   - 扫描 retry stream，到达 `nextRetryTime` 后重新投递。
-- 创建：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/config/RedisStreamMqConfig.java`
+- 创建：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/config/RedisStreamMqConfig.java`
   - MQ 配置类，创建 listener container 并启用 scheduling。
-- 创建：`manzhushaka-ry-framework/src/test/java/com/manzhushaka/framework/mq/RedisStreamMessagePublisherTest.java`
-- 创建：`manzhushaka-ry-framework/src/test/java/com/manzhushaka/framework/mq/AbstractRedisStreamMessageHandlerTest.java`
-- 创建：`manzhushaka-ry-framework/src/test/java/com/manzhushaka/framework/mq/RedisStreamRetrySchedulerTest.java`
-- 创建：`manzhushaka-ry-framework/src/test/java/com/manzhushaka/framework/mq/RedisStreamMessageHandlerRegistryTest.java`
+- 创建：`manzhushaka-framework/src/test/java/com/manzhushaka/framework/mq/RedisStreamMessagePublisherTest.java`
+- 创建：`manzhushaka-framework/src/test/java/com/manzhushaka/framework/mq/AbstractRedisStreamMessageHandlerTest.java`
+- 创建：`manzhushaka-framework/src/test/java/com/manzhushaka/framework/mq/RedisStreamRetrySchedulerTest.java`
+- 创建：`manzhushaka-framework/src/test/java/com/manzhushaka/framework/mq/RedisStreamMessageHandlerRegistryTest.java`
 
 ### Admin 接口层
 
-- 创建：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/monitor/SysMqMessageLogController.java`
+- 创建：`manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/monitor/SysMqMessageLogController.java`
   - 消息队列台账 Controller。
-- 创建：`manzhushaka-ry-admin/src/test/java/com/manzhushaka/web/controller/monitor/SysMqMessageLogControllerTest.java`
+- 创建：`manzhushaka-admin/src/test/java/com/manzhushaka/web/controller/monitor/SysMqMessageLogControllerTest.java`
   - Controller 单测。
 
 ### Frontend 页面
@@ -95,15 +95,15 @@
 ## 任务 1：实现 MQ 台账实体、枚举和 Service
 
 **文件：**
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/domain/SysMqMessageLog.java`
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/domain/SysMqMessageLogDetail.java`
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/domain/SysMqMessageStatusEnum.java`
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/domain/SysMqMessageDetailStatusEnum.java`
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/mapper/SysMqMessageLogMapper.java`
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/mapper/SysMqMessageLogDetailMapper.java`
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/ISysMqMessageLogService.java`
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/impl/SysMqMessageLogServiceImpl.java`
-- 创建：`manzhushaka-ry-system/src/test/java/com/manzhushaka/system/service/SysMqMessageLogServiceTest.java`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/domain/SysMqMessageLog.java`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/domain/SysMqMessageLogDetail.java`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/domain/SysMqMessageStatusEnum.java`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/domain/SysMqMessageDetailStatusEnum.java`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/mapper/SysMqMessageLogMapper.java`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/mapper/SysMqMessageLogDetailMapper.java`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/service/ISysMqMessageLogService.java`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/service/impl/SysMqMessageLogServiceImpl.java`
+- 创建：`manzhushaka-system/src/test/java/com/manzhushaka/system/service/SysMqMessageLogServiceTest.java`
 
 - [ ] **步骤 1：编写失败的 Service 单测**
 
@@ -237,7 +237,7 @@ class SysMqMessageLogServiceTest {
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-system -Dtest=SysMqMessageLogServiceTest test
+mvn -pl manzhushaka-system -Dtest=SysMqMessageLogServiceTest test
 ```
 
 预期：FAIL，原因是 `SysMqMessageLog`、`SysMqMessageLogServiceImpl`、Mapper 等类型不存在。
@@ -493,7 +493,7 @@ public class SysMqMessageLogServiceImpl implements ISysMqMessageLogService {
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-system -Dtest=SysMqMessageLogServiceTest test
+mvn -pl manzhushaka-system -Dtest=SysMqMessageLogServiceTest test
 ```
 
 预期：PASS。
@@ -501,15 +501,15 @@ mvn -pl manzhushaka-ry-system -Dtest=SysMqMessageLogServiceTest test
 - [ ] **步骤 8：Commit**
 
 ```bash
-git add manzhushaka-ry-system/src/main/java/com/manzhushaka/system/domain/SysMqMessageLog.java \
-  manzhushaka-ry-system/src/main/java/com/manzhushaka/system/domain/SysMqMessageLogDetail.java \
-  manzhushaka-ry-system/src/main/java/com/manzhushaka/system/domain/SysMqMessageStatusEnum.java \
-  manzhushaka-ry-system/src/main/java/com/manzhushaka/system/domain/SysMqMessageDetailStatusEnum.java \
-  manzhushaka-ry-system/src/main/java/com/manzhushaka/system/mapper/SysMqMessageLogMapper.java \
-  manzhushaka-ry-system/src/main/java/com/manzhushaka/system/mapper/SysMqMessageLogDetailMapper.java \
-  manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/ISysMqMessageLogService.java \
-  manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/impl/SysMqMessageLogServiceImpl.java \
-  manzhushaka-ry-system/src/test/java/com/manzhushaka/system/service/SysMqMessageLogServiceTest.java
+git add manzhushaka-system/src/main/java/com/manzhushaka/system/domain/SysMqMessageLog.java \
+  manzhushaka-system/src/main/java/com/manzhushaka/system/domain/SysMqMessageLogDetail.java \
+  manzhushaka-system/src/main/java/com/manzhushaka/system/domain/SysMqMessageStatusEnum.java \
+  manzhushaka-system/src/main/java/com/manzhushaka/system/domain/SysMqMessageDetailStatusEnum.java \
+  manzhushaka-system/src/main/java/com/manzhushaka/system/mapper/SysMqMessageLogMapper.java \
+  manzhushaka-system/src/main/java/com/manzhushaka/system/mapper/SysMqMessageLogDetailMapper.java \
+  manzhushaka-system/src/main/java/com/manzhushaka/system/service/ISysMqMessageLogService.java \
+  manzhushaka-system/src/main/java/com/manzhushaka/system/service/impl/SysMqMessageLogServiceImpl.java \
+  manzhushaka-system/src/test/java/com/manzhushaka/system/service/SysMqMessageLogServiceTest.java
 git commit -m "feat(mq): add message ledger domain service"
 ```
 
@@ -518,8 +518,8 @@ git commit -m "feat(mq): add message ledger domain service"
 ## 任务 2：实现 MyBatis XML 和初始化 SQL
 
 **文件：**
-- 创建：`manzhushaka-ry-system/src/main/resources/mapper/system/SysMqMessageLogMapper.xml`
-- 创建：`manzhushaka-ry-system/src/main/resources/mapper/system/SysMqMessageLogDetailMapper.xml`
+- 创建：`manzhushaka-system/src/main/resources/mapper/system/SysMqMessageLogMapper.xml`
+- 创建：`manzhushaka-system/src/main/resources/mapper/system/SysMqMessageLogDetailMapper.xml`
 - 修改：`sql/manzhushaka_db_init.sql`
 
 - [ ] **步骤 1：创建主表 Mapper XML**
@@ -648,7 +648,7 @@ create table sys_mq_message_log_detail (
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-system -DskipTests compile
+mvn -pl manzhushaka-system -DskipTests compile
 ```
 
 预期：BUILD SUCCESS。
@@ -666,8 +666,8 @@ rg -n "sys_mq_message_log|monitor:mqlog|消息队列台账" sql/manzhushaka_db_i
 - [ ] **步骤 7：Commit**
 
 ```bash
-git add manzhushaka-ry-system/src/main/resources/mapper/system/SysMqMessageLogMapper.xml \
-  manzhushaka-ry-system/src/main/resources/mapper/system/SysMqMessageLogDetailMapper.xml \
+git add manzhushaka-system/src/main/resources/mapper/system/SysMqMessageLogMapper.xml \
+  manzhushaka-system/src/main/resources/mapper/system/SysMqMessageLogDetailMapper.xml \
   sql/manzhushaka_db_init.sql
 git commit -m "feat(mq): add message ledger persistence"
 ```
@@ -677,11 +677,11 @@ git commit -m "feat(mq): add message ledger persistence"
 ## 任务 3：实现 Redis Stream Gateway 与发布器
 
 **文件：**
-- 创建：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamRecord.java`
-- 创建：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamGateway.java`
-- 创建：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamGatewayImpl.java`
-- 创建：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessagePublisher.java`
-- 创建：`manzhushaka-ry-framework/src/test/java/com/manzhushaka/framework/mq/RedisStreamMessagePublisherTest.java`
+- 创建：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamRecord.java`
+- 创建：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamGateway.java`
+- 创建：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamGatewayImpl.java`
+- 创建：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessagePublisher.java`
+- 创建：`manzhushaka-framework/src/test/java/com/manzhushaka/framework/mq/RedisStreamMessagePublisherTest.java`
 
 - [ ] **步骤 1：编写失败的发布器单测**
 
@@ -733,7 +733,7 @@ class RedisStreamMessagePublisherTest {
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-framework -Dtest=RedisStreamMessagePublisherTest test
+mvn -pl manzhushaka-framework -Dtest=RedisStreamMessagePublisherTest test
 ```
 
 预期：FAIL，原因是 MQ 类不存在。
@@ -859,7 +859,7 @@ public class RedisStreamMessagePublisher {
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-framework -Dtest=RedisStreamMessagePublisherTest test
+mvn -pl manzhushaka-framework -Dtest=RedisStreamMessagePublisherTest test
 ```
 
 预期：PASS。
@@ -867,11 +867,11 @@ mvn -pl manzhushaka-ry-framework -Dtest=RedisStreamMessagePublisherTest test
 - [ ] **步骤 8：Commit**
 
 ```bash
-git add manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamRecord.java \
-  manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamGateway.java \
-  manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamGatewayImpl.java \
-  manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessagePublisher.java \
-  manzhushaka-ry-framework/src/test/java/com/manzhushaka/framework/mq/RedisStreamMessagePublisherTest.java
+git add manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamRecord.java \
+  manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamGateway.java \
+  manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamGatewayImpl.java \
+  manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessagePublisher.java \
+  manzhushaka-framework/src/test/java/com/manzhushaka/framework/mq/RedisStreamMessagePublisherTest.java
 git commit -m "feat(mq): add redis stream gateway publisher"
 ```
 
@@ -880,9 +880,9 @@ git commit -m "feat(mq): add redis stream gateway publisher"
 ## 任务 4：实现模板方法 handler
 
 **文件：**
-- 创建：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessageHandler.java`
-- 创建：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/AbstractRedisStreamMessageHandler.java`
-- 创建：`manzhushaka-ry-framework/src/test/java/com/manzhushaka/framework/mq/AbstractRedisStreamMessageHandlerTest.java`
+- 创建：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessageHandler.java`
+- 创建：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/AbstractRedisStreamMessageHandler.java`
+- 创建：`manzhushaka-framework/src/test/java/com/manzhushaka/framework/mq/AbstractRedisStreamMessageHandlerTest.java`
 
 - [ ] **步骤 1：编写失败的模板方法单测**
 
@@ -979,7 +979,7 @@ private static class TestHandler extends AbstractRedisStreamMessageHandler {
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-framework -Dtest=AbstractRedisStreamMessageHandlerTest test
+mvn -pl manzhushaka-framework -Dtest=AbstractRedisStreamMessageHandlerTest test
 ```
 
 预期：FAIL，原因是 handler 接口和模板父类不存在。
@@ -1080,7 +1080,7 @@ body.put("nextRetryTime", String.valueOf(System.currentTimeMillis() + retryInter
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-framework -Dtest=AbstractRedisStreamMessageHandlerTest test
+mvn -pl manzhushaka-framework -Dtest=AbstractRedisStreamMessageHandlerTest test
 ```
 
 预期：PASS。
@@ -1088,9 +1088,9 @@ mvn -pl manzhushaka-ry-framework -Dtest=AbstractRedisStreamMessageHandlerTest te
 - [ ] **步骤 6：Commit**
 
 ```bash
-git add manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessageHandler.java \
-  manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/AbstractRedisStreamMessageHandler.java \
-  manzhushaka-ry-framework/src/test/java/com/manzhushaka/framework/mq/AbstractRedisStreamMessageHandlerTest.java
+git add manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessageHandler.java \
+  manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/AbstractRedisStreamMessageHandler.java \
+  manzhushaka-framework/src/test/java/com/manzhushaka/framework/mq/AbstractRedisStreamMessageHandlerTest.java
 git commit -m "feat(mq): add redis stream handler template"
 ```
 
@@ -1099,12 +1099,12 @@ git commit -m "feat(mq): add redis stream handler template"
 ## 任务 5：实现 handler 注册、监听容器和 retry 调度
 
 **文件：**
-- 创建：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessageHandlerRegistry.java`
-- 创建：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessageListenerRegistrar.java`
-- 创建：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamRetryScheduler.java`
-- 创建：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/config/RedisStreamMqConfig.java`
-- 创建：`manzhushaka-ry-framework/src/test/java/com/manzhushaka/framework/mq/RedisStreamMessageHandlerRegistryTest.java`
-- 创建：`manzhushaka-ry-framework/src/test/java/com/manzhushaka/framework/mq/RedisStreamRetrySchedulerTest.java`
+- 创建：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessageHandlerRegistry.java`
+- 创建：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessageListenerRegistrar.java`
+- 创建：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamRetryScheduler.java`
+- 创建：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/config/RedisStreamMqConfig.java`
+- 创建：`manzhushaka-framework/src/test/java/com/manzhushaka/framework/mq/RedisStreamMessageHandlerRegistryTest.java`
+- 创建：`manzhushaka-framework/src/test/java/com/manzhushaka/framework/mq/RedisStreamRetrySchedulerTest.java`
 
 - [ ] **步骤 1：编写 Registry 失败测试**
 
@@ -1163,7 +1163,7 @@ void retrySchedulerShouldRequeueDueMessages() {
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-framework -Dtest=RedisStreamMessageHandlerRegistryTest,RedisStreamRetrySchedulerTest test
+mvn -pl manzhushaka-framework -Dtest=RedisStreamMessageHandlerRegistryTest,RedisStreamRetrySchedulerTest test
 ```
 
 预期：FAIL，原因是 registry 和 scheduler 不存在。
@@ -1255,7 +1255,7 @@ import org.springframework.data.redis.stream.StreamMessageListenerContainer;
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-framework -Dtest=RedisStreamMessageHandlerRegistryTest,RedisStreamRetrySchedulerTest test
+mvn -pl manzhushaka-framework -Dtest=RedisStreamMessageHandlerRegistryTest,RedisStreamRetrySchedulerTest test
 ```
 
 预期：PASS。
@@ -1265,7 +1265,7 @@ mvn -pl manzhushaka-ry-framework -Dtest=RedisStreamMessageHandlerRegistryTest,Re
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-framework -DskipTests compile
+mvn -pl manzhushaka-framework -DskipTests compile
 ```
 
 预期：BUILD SUCCESS。
@@ -1273,12 +1273,12 @@ mvn -pl manzhushaka-ry-framework -DskipTests compile
 - [ ] **步骤 10：Commit**
 
 ```bash
-git add manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessageHandlerRegistry.java \
-  manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessageListenerRegistrar.java \
-  manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamRetryScheduler.java \
-  manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/config/RedisStreamMqConfig.java \
-  manzhushaka-ry-framework/src/test/java/com/manzhushaka/framework/mq/RedisStreamMessageHandlerRegistryTest.java \
-  manzhushaka-ry-framework/src/test/java/com/manzhushaka/framework/mq/RedisStreamRetrySchedulerTest.java
+git add manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessageHandlerRegistry.java \
+  manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessageListenerRegistrar.java \
+  manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamRetryScheduler.java \
+  manzhushaka-framework/src/main/java/com/manzhushaka/framework/config/RedisStreamMqConfig.java \
+  manzhushaka-framework/src/test/java/com/manzhushaka/framework/mq/RedisStreamMessageHandlerRegistryTest.java \
+  manzhushaka-framework/src/test/java/com/manzhushaka/framework/mq/RedisStreamRetrySchedulerTest.java
 git commit -m "feat(mq): register redis stream consumers"
 ```
 
@@ -1287,8 +1287,8 @@ git commit -m "feat(mq): register redis stream consumers"
 ## 任务 6：实现消息队列台账 Controller
 
 **文件：**
-- 创建：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/monitor/SysMqMessageLogController.java`
-- 创建：`manzhushaka-ry-admin/src/test/java/com/manzhushaka/web/controller/monitor/SysMqMessageLogControllerTest.java`
+- 创建：`manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/monitor/SysMqMessageLogController.java`
+- 创建：`manzhushaka-admin/src/test/java/com/manzhushaka/web/controller/monitor/SysMqMessageLogControllerTest.java`
 
 - [ ] **步骤 1：编写失败的 Controller 单测**
 
@@ -1372,7 +1372,7 @@ class SysMqMessageLogControllerTest {
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-admin -Dtest=SysMqMessageLogControllerTest test
+mvn -pl manzhushaka-admin -Dtest=SysMqMessageLogControllerTest test
 ```
 
 预期：FAIL，原因是 Controller 不存在。
@@ -1420,7 +1420,7 @@ public AjaxResult clean()
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-admin -Dtest=SysMqMessageLogControllerTest test
+mvn -pl manzhushaka-admin -Dtest=SysMqMessageLogControllerTest test
 ```
 
 预期：PASS。
@@ -1428,8 +1428,8 @@ mvn -pl manzhushaka-ry-admin -Dtest=SysMqMessageLogControllerTest test
 - [ ] **步骤 5：Commit**
 
 ```bash
-git add manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/monitor/SysMqMessageLogController.java \
-  manzhushaka-ry-admin/src/test/java/com/manzhushaka/web/controller/monitor/SysMqMessageLogControllerTest.java
+git add manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/monitor/SysMqMessageLogController.java \
+  manzhushaka-admin/src/test/java/com/manzhushaka/web/controller/monitor/SysMqMessageLogControllerTest.java
 git commit -m "feat(mq): add message ledger controller"
 ```
 
@@ -1591,7 +1591,7 @@ git commit -m "feat(mq): add message ledger page"
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-system test
+mvn -pl manzhushaka-system test
 ```
 
 预期：BUILD SUCCESS。
@@ -1601,7 +1601,7 @@ mvn -pl manzhushaka-ry-system test
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-framework test
+mvn -pl manzhushaka-framework test
 ```
 
 预期：BUILD SUCCESS。
@@ -1611,7 +1611,7 @@ mvn -pl manzhushaka-ry-framework test
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-admin test
+mvn -pl manzhushaka-admin test
 ```
 
 预期：BUILD SUCCESS，`AdminBoundaryArchTest` 不应出现 controller 依赖 Mapper 或持久化实体违规。
@@ -1641,7 +1641,7 @@ cd ui-admin && npm run build:prod
 运行：
 
 ```bash
-rg -n "monitor:mqlog:(list|query|remove|export)" manzhushaka-ry-admin ui-admin sql/manzhushaka_db_init.sql
+rg -n "monitor:mqlog:(list|query|remove|export)" manzhushaka-admin ui-admin sql/manzhushaka_db_init.sql
 ```
 
 预期：能同时看到 Controller、Vue 页面和 SQL 菜单按钮权限。
@@ -1651,7 +1651,7 @@ rg -n "monitor:mqlog:(list|query|remove|export)" manzhushaka-ry-admin ui-admin s
 运行：
 
 ```bash
-rg -n "payload|lastErrorMsg|errorMsg|toString|substring" manzhushaka-ry-system/src/main/java/com/manzhushaka/system/domain/SysMqMessageLog*.java manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq
+rg -n "payload|lastErrorMsg|errorMsg|toString|substring" manzhushaka-system/src/main/java/com/manzhushaka/system/domain/SysMqMessageLog*.java manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq
 ```
 
 预期：实体 `toString()` 对 payload/error 字段截断，模板对异常信息截断。
@@ -1661,7 +1661,7 @@ rg -n "payload|lastErrorMsg|errorMsg|toString|substring" manzhushaka-ry-system/s
 如果步骤 1-7 暴露出必须修复的问题，修复后提交：
 
 ```bash
-git add manzhushaka-ry-admin manzhushaka-ry-framework manzhushaka-ry-system ui-admin sql/manzhushaka_db_init.sql
+git add manzhushaka-admin manzhushaka-framework manzhushaka-system ui-admin sql/manzhushaka_db_init.sql
 git commit -m "test(mq): verify redis stream message ledger"
 ```
 
@@ -1679,7 +1679,7 @@ git commit -m "test(mq): verify redis stream message ledger"
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-admin -am spring-boot:run
+mvn -pl manzhushaka-admin -am spring-boot:run
 ```
 
 预期：后端启动成功；如果本机没有 Redis 或 MySQL，记录缺失服务名称，不修改代码绕过真实依赖。
@@ -1733,7 +1733,7 @@ retryIntervalSeconds = 1
 如果步骤 4 为手工验证创建了临时生产代码，验证结束后删除临时 handler，并确认：
 
 ```bash
-rg -n "test_mq|TestMq" manzhushaka-ry-*
+rg -n "test_mq|TestMq" manzhushaka-scaff-*
 ```
 
 预期：没有临时生产代码残留。

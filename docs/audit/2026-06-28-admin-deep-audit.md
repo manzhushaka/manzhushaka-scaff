@@ -265,7 +265,7 @@ system:user:resetPwd
 ### 证据
 
 - `ui-admin/src/views/monitor/druid/index.vue:12` iframe 指向 `/dev-api/druid/login.html`。
-- `manzhushaka-ry-admin/src/main/resources/application-dev.yml:45` 默认 `DRUID_STAT_VIEW_SERVLET_ENABLED:false`。
+- `manzhushaka-admin/src/main/resources/application-dev.yml:45` 默认 `DRUID_STAT_VIEW_SERVLET_ENABLED:false`。
 - `.codex-run/screenshots/deep-ui/route-数据监控菜单页.png`。
 
 ### 根因
@@ -295,8 +295,8 @@ Druid 监控 Servlet 在开发配置中默认关闭，导致 `/druid/*` 下没�
 ### 证据
 
 - `ui-admin/src/views/tool/swagger/index.vue:8` iframe 指向 `/dev-api/swagger-ui/index.html`。
-- `manzhushaka-ry-admin/src/main/resources/application.yml:123-125` 中 `springdoc.swagger-ui.enabled` 默认是 `false`，路径配置为 `/swagger-ui.html`。
-- `manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/config/ResourcesConfig.java:36-39` 仍把 `/swagger-ui/**` 映射到旧的 `springfox-swagger-ui` webjar。
+- `manzhushaka-admin/src/main/resources/application.yml:123-125` 中 `springdoc.swagger-ui.enabled` 默认是 `false`，路径配置为 `/swagger-ui.html`。
+- `manzhushaka-framework/src/main/java/com/manzhushaka/framework/config/ResourcesConfig.java:36-39` 仍把 `/swagger-ui/**` 映射到旧的 `springfox-swagger-ui` webjar。
 - `.codex-run/screenshots/deep-ui/route-系统接口菜单页.png`。
 
 ### 根因
@@ -371,8 +371,8 @@ No bean named 'bizReviewTask' available
 
 ### 证据
 
-- 代码中仅存在 `@Component("ryTask")`：`manzhushaka-ry-quartz/src/main/java/com/manzhushaka/quartz/task/ManzhushakaRyTask.java`。
-- `sql/manzhushaka_db_init.sql:525-527` 初始化的 3 个任务均是 `ryTask.*`，不包含 `bizReviewTask`。
+- 代码中仅存在 `@Component("scaffTask")`：`manzhushaka-quartz/src/main/java/com/manzhushaka/quartz/task/ManzhushakaScaffTask.java`。
+- `sql/manzhushaka_db_init.sql:525-527` 初始化的 3 个任务均是 `scaffTask.*`，不包含 `bizReviewTask`。
 
 ### 根因
 
@@ -392,8 +392,8 @@ OpenAPI 配置只扫描 `com.manzhushaka.web.controller.tool`，并且 `TestCont
 
 ### 证据
 
-- `manzhushaka-ry-admin/src/main/resources/application.yml:127-131` 只扫描 tool 包。
-- `manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/tool/TestController.java:41-43` 列表接口有权限。
+- `manzhushaka-admin/src/main/resources/application.yml:127-131` 只扫描 tool 包。
+- `manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/tool/TestController.java:41-43` 列表接口有权限。
 - `TestController.java:51-96` 详情、新增、更新、删除接口无权限注解。
 - `tool:test:list` 不在 `sql/manzhushaka_db_init.sql` 的 `sys_menu.perms` 中。
 

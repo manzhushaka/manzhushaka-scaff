@@ -75,7 +75,7 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 
 ## 项目结构与模块边界
 
-- 后端是 Maven 多模块工程：`manzhushaka-ry-admin` 为 Web 启动层、Controller、HTTP DTO/VO 和全局异常入口；`manzhushaka-ry-framework` 为安全、配置、AOP、拦截器等框架能力；`manzhushaka-ry-system` 为系统业务；`manzhushaka-ry-quartz` 为定时任务；`manzhushaka-ry-common` 仅放通用工具、常量、注解和基础能力。
+- 后端是 Maven 多模块工程：`manzhushaka-admin` 为 Web 启动层、Controller、HTTP DTO/VO 和全局异常入口；`manzhushaka-framework` 为安全、配置、AOP、拦截器等框架能力；`manzhushaka-system` 为系统业务；`manzhushaka-quartz` 为定时任务；`manzhushaka-common` 仅放通用工具、常量、注解和基础能力。
 - Java 源码放在 `src/main/java`，资源放在 `src/main/resources`，测试放在 `src/test/java`。
 - 前端位于 `ui-admin/src`：页面在 `views`，组件在 `components`，接口在 `api`，状态在 `store`，路由在 `router`，资源和样式在 `assets`。
 - SQL 脚本放在 `sql`，文档放在 `doc` 和 `docs`。
@@ -96,7 +96,7 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 
 - `mvn clean package`：构建全部后端模块。
 - `mvn test`：运行单元测试和 ArchUnit 架构测试。
-- `mvn -pl manzhushaka-ry-admin -am spring-boot:run`：启动后端服务。
+- `mvn -pl manzhushaka-admin -am spring-boot:run`：启动后端服务。
 - `cd ui-admin && npm install`：按 `package-lock.json` 安装前端依赖。
 - `cd ui-admin && npm run dev`：启动 Vite 开发服务。
 - `cd ui-admin && npm run build:prod`：构建生产前端包。
@@ -178,8 +178,8 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 
 - 当前仓库后端数据模型默认采用显式手写 `getXxx`、`setXxx`、`toString()` 的方式，不默认引入或使用 Lombok。
 - 持久化实体优先放在对应模块的 `infrastructure/persistence/entity` 目录；仓库仍保留部分 `domain` 旧模型，新增或迁移前先读取真实调用链路和同目录风格。
-- `dto`、`query`、`request` 表示接口入参或查询条件，当前主要位于 `manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/dto` 和业务模块 `application/query`；默认手写访问器和必要的 `toString()`。
-- `vo`、`response` 表示接口出参或页面展示模型，当前主要位于 `manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/vo` 和业务模块 `domain/vo`；默认手写访问器和必要的 `toString()`。
+- `dto`、`query`、`request` 表示接口入参或查询条件，当前主要位于 `manzhushaka-admin/src/main/java/com/manzhushaka/web/dto` 和业务模块 `application/query`；默认手写访问器和必要的 `toString()`。
+- `vo`、`response` 表示接口出参或页面展示模型，当前主要位于 `manzhushaka-admin/src/main/java/com/manzhushaka/web/vo` 和业务模块 `domain/vo`；默认手写访问器和必要的 `toString()`。
 - 新增模型类或调整模型字段时，必须同步检查字段注释、getter、setter、`toString()`、XML `resultMap`、查询条件、转换器、VO 映射、前端接口字段和表单回写。
 - 实体、DTO、VO 的 `toString()` 不得输出密码、Token、密钥、验证码、证件号、手机号、请求快照、响应快照、消息载荷等敏感或超长字段；必要时显式省略或脱敏。
 - 当前仓库未使用 MyBatis-Plus 注解作为主映射方式；新增字段默认优先维护 MyBatis XML、实体属性和 SQL 脚本，除非任务已明确引入并验证 MyBatis-Plus 链路。
@@ -358,7 +358,7 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 
 ## 日志规约
 
-- `manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller` 下所有 Controller HTTP 接口方法必须添加操作日志注解 `@Log`，全限定名为 `com.manzhushaka.common.annotation.Log`。
+- `manzhushaka-admin/src/main/java/com/manzhushaka/web/controller` 下所有 Controller HTTP 接口方法必须添加操作日志注解 `@Log`，全限定名为 `com.manzhushaka.common.annotation.Log`。
 - `@Log.title` 使用清晰的业务模块或操作名称，例如 `"用户管理"`、`"菜单管理"`。
 - `@Log.businessType` 必须按实际动作选择 `com.manzhushaka.common.enums.BusinessType`，例如 `INSERT`、`UPDATE`、`DELETE`、`EXPORT`、`IMPORT`、`GRANT`、`CLEAN`、`FORCE`、`OTHER`。
 - 涉及密码、Token、密钥、验证码、文件内容、请求快照、响应快照、大体量响应等敏感或超长数据时，必须通过 `isSaveRequestData = false`、`isSaveResponseData = false` 或 `excludeParamNames` 避免落库。
@@ -411,7 +411,7 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 - 短信、邮件、电话、下单、支付等平台资源必须做防重放限制，例如数量限制、疲劳度控制、验证码。
 - 发帖、评论、即时消息等 UGC 场景需要防刷和违禁词过滤。
 - 不提交本地密钥、数据库密码、生产 Redis 配置、Token 或个人敏感信息。
-- 运行前检查 `manzhushaka-ry-admin/src/main/resources/application*.yml`。
+- 运行前检查 `manzhushaka-admin/src/main/resources/application*.yml`。
 
 ## MySQL 建表规约
 
@@ -570,10 +570,10 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 
 | 层                                 | 模块                       | 包路径                                                   |
 | ---------------------------------- | -------------------------- | -------------------------------------------------------- |
-| 基础设施（网关、发布器、处理框架） | `manzhushaka-ry-framework` | `com.manzhushaka.framework.mq`                           |
-| 配置（容器 Bean、调度开关）        | `manzhushaka-ry-framework` | `com.manzhushaka.framework.config`                       |
-| 台账（实体、Mapper、Service）      | `manzhushaka-ry-system`    | 现有`domain`、`mapper`、`service` 目录                   |
-| 管理接口（Controller）             | `manzhushaka-ry-admin`     | `com.manzhushaka.web.controller.monitor`                 |
+| 基础设施（网关、发布器、处理框架） | `manzhushaka-framework` | `com.manzhushaka.framework.mq`                           |
+| 配置（容器 Bean、调度开关）        | `manzhushaka-framework` | `com.manzhushaka.framework.config`                       |
+| 台账（实体、Mapper、Service）      | `manzhushaka-system`    | 现有`domain`、`mapper`、`service` 目录                   |
+| 管理接口（Controller）             | `manzhushaka-admin`     | `com.manzhushaka.web.controller.monitor`                 |
 | 前端页面                           | `ui-admin`                 | `api/monitor/mqLog.js` + `views/monitor/mqLog/index.vue` |
 
 ### 核心概念与术语
@@ -605,7 +605,7 @@ Handler 接收到消息 → PROCESSING (0)
 
 ### 框架层基础设施
 
-#### RedisStreamGateway ([`RedisStreamGateway.java`](manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamGateway.java))
+#### RedisStreamGateway ([`RedisStreamGateway.java`](manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamGateway.java))
 
 网关接口封装了对 Redis Stream 的 5 个核心操作：
 
@@ -617,7 +617,7 @@ Handler 接收到消息 → PROCESSING (0)
 
 实现类 `RedisStreamGatewayImpl` 使用 `RedisTemplate<Object, Object>` 操作。**注意**：`range()` 方法在 Spring Data Redis 4 中使用 `Range.unbounded()` 而非 `StreamOffset`，且因泛型兼容性需要使用 raw types。
 
-#### RedisStreamMessagePublisher ([`RedisStreamMessagePublisher.java`](manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessagePublisher.java))
+#### RedisStreamMessagePublisher ([`RedisStreamMessagePublisher.java`](manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessagePublisher.java))
 
 发布器组件，构造包含标准字段的 body 并调用 `gateway.add()` 写入 Stream。发布的 body 固定包含以下字段：
 
@@ -630,7 +630,7 @@ retryTimes   — 重试次数（初始为 "0"，由 RetryScheduler 递增）
 
 ### 模板方法处理器
 
-#### RedisStreamMessageHandler 接口 ([`RedisStreamMessageHandler.java`](manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessageHandler.java))
+#### RedisStreamMessageHandler 接口 ([`RedisStreamMessageHandler.java`](manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessageHandler.java))
 
 所有消息处理器必须实现此接口，定义以下契约：
 
@@ -645,7 +645,7 @@ retryTimes   — 重试次数（初始为 "0"，由 RetryScheduler 递增）
 - `deadLetterStreamKey()`：死信流 Key，默认 `mq:dead:{messageType}`
 - `handle(RedisStreamRecord)`：处理器主入口
 
-#### AbstractRedisStreamMessageHandler 抽象基类 ([`AbstractRedisStreamMessageHandler.java`](manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/AbstractRedisStreamMessageHandler.java))
+#### AbstractRedisStreamMessageHandler 抽象基类 ([`AbstractRedisStreamMessageHandler.java`](manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/AbstractRedisStreamMessageHandler.java))
 
 提供完整的模板方法实现 `handle()`，调用链如下：
 
@@ -691,20 +691,20 @@ protected void doHandle(RedisStreamRecord record) {
 
 ### 处理器注册与监听
 
-#### RedisStreamMessageHandlerRegistry ([`RedisStreamMessageHandlerRegistry.java`](manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessageHandlerRegistry.java))
+#### RedisStreamMessageHandlerRegistry ([`RedisStreamMessageHandlerRegistry.java`](manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessageHandlerRegistry.java))
 
 - 构造时自动收集所有 `RedisStreamMessageHandler` Bean
 - 构建 `streamKey → Handler` 和 `messageType → Handler` 两个索引
 - 启动时检查 `messageType` 和 `streamKey` 是否全局唯一，重复则抛出 `IllegalStateException`
 
-#### RedisStreamMessageListenerRegistrar ([`RedisStreamMessageListenerRegistrar.java`](manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessageListenerRegistrar.java))
+#### RedisStreamMessageListenerRegistrar ([`RedisStreamMessageListenerRegistrar.java`](manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessageListenerRegistrar.java))
 
 - 实现 `SmartLifecycle`，在 Spring 容器启动完成后自动注册所有 Listener
 - 为每个 Handler 执行 `createGroupIfAbsent()`（幂等）
 - 注册 `StreamMessageListenerContainer.receive()` 回调，自动 ACK
 - 应用关闭时自动取消订阅并停止容器
 
-#### RedisStreamRetryScheduler ([`RedisStreamRetryScheduler.java`](manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamRetryScheduler.java))
+#### RedisStreamRetryScheduler ([`RedisStreamRetryScheduler.java`](manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamRetryScheduler.java))
 
 - `@Scheduled(fixedDelay = 5000L)` 每隔 5 秒扫描一次
 - 遍历所有 Handler 的 retryStreamKey
@@ -714,7 +714,7 @@ protected void doHandle(RedisStreamRecord record) {
 
 ### 配置
 
-在 [`RedisStreamMqConfig.java`](manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMqConfig.java) 中定义：
+在 [`RedisStreamMqConfig.java`](manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMqConfig.java) 中定义：
 
 - `@Configuration` + `@EnableScheduling` 启用调度
 - `StreamMessageListenerContainer<String, MapRecord<String, String, String>>` Bean，`pollTimeout` 为 2 秒

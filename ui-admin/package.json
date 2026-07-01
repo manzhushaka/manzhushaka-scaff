@@ -1,8 +1,8 @@
 {
-  "name": "manzhushaka",
+  "name": "manzhushaka-scaff",
   "version": "3.9.2",
-  "description": "若依管理系统",
-  "author": "若依",
+  "description": "manzhushaka 脚手架后台管理系统",
+  "author": "manzhushaka",
   "license": "MIT",
   "type": "module",
   "scripts": {
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://gitee.com/y_project/RuoYi-Vue.git"
+    "url": ""
   },
   "dependencies": {
     "@element-plus/icons-vue": "2.3.2",

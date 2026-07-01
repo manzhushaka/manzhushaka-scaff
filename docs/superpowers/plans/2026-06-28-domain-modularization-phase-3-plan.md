@@ -1,4 +1,4 @@
-# manzhushaka-ry 业务域模块化迁移第三阶段实现计划
+# manzhushaka-scaff 业务域模块化迁移第三阶段实现计划
 
 > **面向 AI 代理的工作者：** 必需子技能：使用 `superpowers:subagent-driven-development`（推荐）或 `superpowers:executing-plans` 逐任务实现此计划。步骤使用复选框（`- [ ]`）语法来跟踪进度。
 
@@ -14,8 +14,8 @@
 
 本计划是以下两份文档的续篇：
 
-- [2026-06-28-domain-modularization-migration-plan.md](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/docs/superpowers/plans/2026-06-28-domain-modularization-migration-plan.md)
-- [2026-06-28-domain-modularization-phase-2-plan.md](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/docs/superpowers/plans/2026-06-28-domain-modularization-phase-2-plan.md)
+- [2026-06-28-domain-modularization-migration-plan.md](/Users/manzhushaka/CodexProject/manzhushaka-scaff/docs/superpowers/plans/2026-06-28-domain-modularization-migration-plan.md)
+- [2026-06-28-domain-modularization-phase-2-plan.md](/Users/manzhushaka/CodexProject/manzhushaka-scaff/docs/superpowers/plans/2026-06-28-domain-modularization-phase-2-plan.md)
 
 适用前提：
 
@@ -30,11 +30,11 @@
 结合当前仓库现状，第三阶段要解决的不是“再迁几个 Controller”，而是下面 4 类真正决定架构是否能稳定下来的问题：
 
 1. 安全会话模型仍然挂在 `common`：
-   - [LoginUser.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/model/LoginUser.java)
-   - [SecurityUtils.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/utils/SecurityUtils.java)
+   - [LoginUser.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/model/LoginUser.java)
+   - [SecurityUtils.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/utils/SecurityUtils.java)
 2. `common` 中仍有系统专属的树结构与字典工具：
-   - [TreeSelect.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/TreeSelect.java)
-   - [DictUtils.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/utils/DictUtils.java)
+   - [TreeSelect.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/TreeSelect.java)
+   - [DictUtils.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/utils/DictUtils.java)
 3. `common` 仍保留系统业务实体与旧 HTTP 模型：
    - `SysUser`、`SysRole`、`SysMenu`、`SysDept`、`SysDictType`、`SysDictData`
    - `LoginBody`、`RegisterBody`
@@ -111,32 +111,32 @@
 
 ### 5.1 需要重点处理的安全上下文文件
 
-- [TokenService.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/service/TokenService.java)
-- [UserDetailsServiceImpl.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/service/UserDetailsServiceImpl.java)
-- [JwtAuthenticationTokenFilter.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/security/filter/JwtAuthenticationTokenFilter.java)
-- [LogoutSuccessHandlerImpl.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/security/handle/LogoutSuccessHandlerImpl.java)
-- [DataScopeAspect.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/aspectj/DataScopeAspect.java)
-- [LogAspect.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/aspectj/LogAspect.java)
-- [BaseController.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/controller/BaseController.java)
+- [TokenService.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/service/TokenService.java)
+- [UserDetailsServiceImpl.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/service/UserDetailsServiceImpl.java)
+- [JwtAuthenticationTokenFilter.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-framework/src/main/java/com/manzhushaka/framework/security/filter/JwtAuthenticationTokenFilter.java)
+- [LogoutSuccessHandlerImpl.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-framework/src/main/java/com/manzhushaka/framework/security/handle/LogoutSuccessHandlerImpl.java)
+- [DataScopeAspect.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-framework/src/main/java/com/manzhushaka/framework/aspectj/DataScopeAspect.java)
+- [LogAspect.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-framework/src/main/java/com/manzhushaka/framework/aspectj/LogAspect.java)
+- [BaseController.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/controller/BaseController.java)
 
 ### 5.2 需要重点处理的系统专属共享对象
 
-- [TreeSelect.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/TreeSelect.java)
-- [TreeSelect.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/TreeSelect.java)
-- [DictUtils.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/utils/DictUtils.java)
-- [DictUtils.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/DictUtils.java)
-- [ExcelUtil.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/utils/poi/ExcelUtil.java)
+- [TreeSelect.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/TreeSelect.java)
+- [TreeSelect.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/TreeSelect.java)
+- [DictUtils.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/utils/DictUtils.java)
+- [DictUtils.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/DictUtils.java)
+- [ExcelUtil.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/utils/poi/ExcelUtil.java)
 
 ### 5.3 需要最终删除的 `common` 遗留文件
 
-- [SysUser.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysUser.java)
-- [SysRole.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysRole.java)
-- [SysMenu.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysMenu.java)
-- [SysDept.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysDept.java)
-- [SysDictType.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysDictType.java)
-- [SysDictData.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysDictData.java)
-- [LoginBody.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/model/LoginBody.java)
-- [RegisterBody.java](/Users/manzhushaka/CodexProject/manzhushaka-ry-scaff/manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/model/RegisterBody.java)
+- [SysUser.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysUser.java)
+- [SysRole.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysRole.java)
+- [SysMenu.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysMenu.java)
+- [SysDept.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysDept.java)
+- [SysDictType.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysDictType.java)
+- [SysDictData.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysDictData.java)
+- [LoginBody.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/model/LoginBody.java)
+- [RegisterBody.java](/Users/manzhushaka/CodexProject/manzhushaka-scaff/manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/model/RegisterBody.java)
 
 ## 6. 分任务实施蓝图
 
@@ -144,20 +144,20 @@
 
 **文件：**
 
-- 创建：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/utils/security/PasswordUtils.java`
-- 创建：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/security/model/LoginPrincipal.java`
-- 创建：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/security/context/SecurityContextHelper.java`
-- 修改：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/service/TokenService.java`
-- 修改：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/service/UserDetailsServiceImpl.java`
-- 修改：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/security/filter/JwtAuthenticationTokenFilter.java`
-- 修改：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/security/handle/LogoutSuccessHandlerImpl.java`
-- 修改：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/aspectj/DataScopeAspect.java`
-- 修改：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/aspectj/LogAspect.java`
-- 修改：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/controller/BaseController.java`
-- 删除：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/model/LoginUser.java`
-- 删除：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/utils/SecurityUtils.java`
-- 测试：`manzhushaka-ry-framework/src/test/java/com/manzhushaka/framework/security/context/SecurityContextHelperTest.java`
-- 测试：`manzhushaka-ry-framework/src/test/java/com/manzhushaka/framework/security/model/LoginPrincipalTest.java`
+- 创建：`manzhushaka-common/src/main/java/com/manzhushaka/common/utils/security/PasswordUtils.java`
+- 创建：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/security/model/LoginPrincipal.java`
+- 创建：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/security/context/SecurityContextHelper.java`
+- 修改：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/service/TokenService.java`
+- 修改：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/service/UserDetailsServiceImpl.java`
+- 修改：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/security/filter/JwtAuthenticationTokenFilter.java`
+- 修改：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/security/handle/LogoutSuccessHandlerImpl.java`
+- 修改：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/aspectj/DataScopeAspect.java`
+- 修改：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/aspectj/LogAspect.java`
+- 修改：`manzhushaka-common/src/main/java/com/manzhushaka/common/core/controller/BaseController.java`
+- 删除：`manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/model/LoginUser.java`
+- 删除：`manzhushaka-common/src/main/java/com/manzhushaka/common/utils/SecurityUtils.java`
+- 测试：`manzhushaka-framework/src/test/java/com/manzhushaka/framework/security/context/SecurityContextHelperTest.java`
+- 测试：`manzhushaka-framework/src/test/java/com/manzhushaka/framework/security/model/LoginPrincipalTest.java`
 
 - [ ] **步骤 1：先写失败测试，锁定新登录态模型行为**
 
@@ -258,8 +258,8 @@ if (!PasswordUtils.matches(oldPassword, encodedPassword)) {
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-framework,manzhushaka-ry-common -am test
-rg -n "common\\.core\\.domain\\.model\\.LoginUser|common\\.utils\\.SecurityUtils" manzhushaka-ry-admin/src/main/java manzhushaka-ry-framework/src/main/java manzhushaka-ry-system/src/main/java manzhushaka-ry-common/src/main/java
+mvn -pl manzhushaka-framework,manzhushaka-common -am test
+rg -n "common\\.core\\.domain\\.model\\.LoginUser|common\\.utils\\.SecurityUtils" manzhushaka-admin/src/main/java manzhushaka-framework/src/main/java manzhushaka-system/src/main/java manzhushaka-common/src/main/java
 ```
 
 预期：
@@ -270,7 +270,7 @@ rg -n "common\\.core\\.domain\\.model\\.LoginUser|common\\.utils\\.SecurityUtils
 - [ ] **步骤 5：Commit**
 
 ```bash
-git add manzhushaka-ry-common/src/main/java/com/manzhushaka/common/utils/security manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/security manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/service manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/aspectj manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/controller manzhushaka-ry-framework/src/test/java
+git add manzhushaka-common/src/main/java/com/manzhushaka/common/utils/security manzhushaka-framework/src/main/java/com/manzhushaka/framework/security manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/service manzhushaka-framework/src/main/java/com/manzhushaka/framework/aspectj manzhushaka-common/src/main/java/com/manzhushaka/common/core/controller manzhushaka-framework/src/test/java
 git commit -m "refactor: move security context model out of common"
 ```
 
@@ -278,16 +278,16 @@ git commit -m "refactor: move security context model out of common"
 
 **文件：**
 
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/application/result/auth/AuthUserProfileResult.java`
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/application/service/SystemSecurityQueryService.java`
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/application/service/impl/SystemSecurityQueryServiceImpl.java`
-- 修改：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/service/UserDetailsServiceImpl.java`
-- 修改：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/service/SysPermissionService.java`
-- 修改：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/service/TokenService.java`
-- 修改：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysLoginController.java`
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/ISysUserOnlineService.java`
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/impl/SysUserOnlineServiceImpl.java`
-- 测试：`manzhushaka-ry-system/src/test/java/com/manzhushaka/system/application/service/SystemSecurityQueryServiceTest.java`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/application/result/auth/AuthUserProfileResult.java`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/application/service/SystemSecurityQueryService.java`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/application/service/impl/SystemSecurityQueryServiceImpl.java`
+- 修改：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/service/UserDetailsServiceImpl.java`
+- 修改：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/service/SysPermissionService.java`
+- 修改：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/service/TokenService.java`
+- 修改：`manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysLoginController.java`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/service/ISysUserOnlineService.java`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/service/impl/SysUserOnlineServiceImpl.java`
+- 测试：`manzhushaka-system/src/test/java/com/manzhushaka/system/application/service/SystemSecurityQueryServiceTest.java`
 
 - [ ] **步骤 1：先写失败测试，锁定系统认证查询契约**
 
@@ -359,8 +359,8 @@ ajax.put("permissions", profile.permissions());
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-system,manzhushaka-ry-framework,manzhushaka-ry-admin -am test
-rg -n "SysUserConverter|toCommon\\(|toSystem\\(" manzhushaka-ry-admin/src/main/java manzhushaka-ry-framework/src/main/java manzhushaka-ry-system/src/main/java
+mvn -pl manzhushaka-system,manzhushaka-framework,manzhushaka-admin -am test
+rg -n "SysUserConverter|toCommon\\(|toSystem\\(" manzhushaka-admin/src/main/java manzhushaka-framework/src/main/java manzhushaka-system/src/main/java
 ```
 
 预期：
@@ -371,7 +371,7 @@ rg -n "SysUserConverter|toCommon\\(|toSystem\\(" manzhushaka-ry-admin/src/main/j
 - [ ] **步骤 5：Commit**
 
 ```bash
-git add manzhushaka-ry-system/src/main/java/com/manzhushaka/system/application manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/service manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system manzhushaka-ry-system/src/test/java
+git add manzhushaka-system/src/main/java/com/manzhushaka/system/application manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/service manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system manzhushaka-system/src/test/java
 git commit -m "refactor: expose stable system security query contract"
 ```
 
@@ -379,25 +379,25 @@ git commit -m "refactor: expose stable system security query contract"
 
 **文件：**
 
-- 创建：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/spi/DictResolver.java`
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/dict/SystemDictResolver.java`
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/dict/SystemDictCacheSupport.java`
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/application/result/shared/TreeNodeResult.java`
-- 创建：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/vo/system/shared/TreeSelectVo.java`
-- 创建：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/converter/system/shared/TreeSelectAdminConverter.java`
-- 修改：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/utils/poi/ExcelUtil.java`
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/impl/SysDictTypeServiceImpl.java`
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/impl/SysDictDataServiceImpl.java`
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/ISysMenuService.java`
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/ISysDeptService.java`
-- 修改：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysMenuController.java`
-- 修改：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysDeptController.java`
-- 删除：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/TreeSelect.java`
-- 删除：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/utils/DictUtils.java`
-- 删除：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/TreeSelect.java`
-- 删除：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/DictUtils.java`
-- 测试：`manzhushaka-ry-common/src/test/java/com/manzhushaka/common/utils/poi/ExcelUtilDictResolverTest.java`
-- 测试：`manzhushaka-ry-admin/src/test/java/com/manzhushaka/web/converter/system/shared/TreeSelectAdminConverterTest.java`
+- 创建：`manzhushaka-common/src/main/java/com/manzhushaka/common/spi/DictResolver.java`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/dict/SystemDictResolver.java`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/dict/SystemDictCacheSupport.java`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/application/result/shared/TreeNodeResult.java`
+- 创建：`manzhushaka-admin/src/main/java/com/manzhushaka/web/vo/system/shared/TreeSelectVo.java`
+- 创建：`manzhushaka-admin/src/main/java/com/manzhushaka/web/converter/system/shared/TreeSelectAdminConverter.java`
+- 修改：`manzhushaka-common/src/main/java/com/manzhushaka/common/utils/poi/ExcelUtil.java`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/service/impl/SysDictTypeServiceImpl.java`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/service/impl/SysDictDataServiceImpl.java`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/service/ISysMenuService.java`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/service/ISysDeptService.java`
+- 修改：`manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysMenuController.java`
+- 修改：`manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysDeptController.java`
+- 删除：`manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/TreeSelect.java`
+- 删除：`manzhushaka-common/src/main/java/com/manzhushaka/common/utils/DictUtils.java`
+- 删除：`manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/TreeSelect.java`
+- 删除：`manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/DictUtils.java`
+- 测试：`manzhushaka-common/src/test/java/com/manzhushaka/common/utils/poi/ExcelUtilDictResolverTest.java`
+- 测试：`manzhushaka-admin/src/test/java/com/manzhushaka/web/converter/system/shared/TreeSelectAdminConverterTest.java`
 
 - [ ] **步骤 1：先写失败测试，锁定字典解析与树节点转换**
 
@@ -488,8 +488,8 @@ public class TreeSelectVo {
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-common,manzhushaka-ry-system,manzhushaka-ry-admin -am test
-rg -n "common\\.core\\.domain\\.TreeSelect|common\\.utils\\.DictUtils|system\\.infrastructure\\.persistence\\.TreeSelect|system\\.infrastructure\\.persistence\\.DictUtils" manzhushaka-ry-admin/src/main/java manzhushaka-ry-framework/src/main/java manzhushaka-ry-system/src/main/java manzhushaka-ry-common/src/main/java
+mvn -pl manzhushaka-common,manzhushaka-system,manzhushaka-admin -am test
+rg -n "common\\.core\\.domain\\.TreeSelect|common\\.utils\\.DictUtils|system\\.infrastructure\\.persistence\\.TreeSelect|system\\.infrastructure\\.persistence\\.DictUtils" manzhushaka-admin/src/main/java manzhushaka-framework/src/main/java manzhushaka-system/src/main/java manzhushaka-common/src/main/java
 ```
 
 预期：上述 4 类旧对象在生产代码中均不再被引用。
@@ -497,7 +497,7 @@ rg -n "common\\.core\\.domain\\.TreeSelect|common\\.utils\\.DictUtils|system\\.i
 - [ ] **步骤 5：Commit**
 
 ```bash
-git add manzhushaka-ry-common/src/main/java/com/manzhushaka/common/spi manzhushaka-ry-common/src/main/java/com/manzhushaka/common/utils/poi manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/dict manzhushaka-ry-system/src/main/java/com/manzhushaka/system/application/result manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/vo/system/shared manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/converter/system/shared manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system manzhushaka-ry-common/src/test/java manzhushaka-ry-admin/src/test/java
+git add manzhushaka-common/src/main/java/com/manzhushaka/common/spi manzhushaka-common/src/main/java/com/manzhushaka/common/utils/poi manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/dict manzhushaka-system/src/main/java/com/manzhushaka/system/application/result manzhushaka-admin/src/main/java/com/manzhushaka/web/vo/system/shared manzhushaka-admin/src/main/java/com/manzhushaka/web/converter/system/shared manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system manzhushaka-common/src/test/java manzhushaka-admin/src/test/java
 git commit -m "refactor: remove common tree and dict coupling"
 ```
 
@@ -505,16 +505,16 @@ git commit -m "refactor: remove common tree and dict coupling"
 
 **文件：**
 
-- 删除：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysUser.java`
-- 删除：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysRole.java`
-- 删除：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysMenu.java`
-- 删除：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysDept.java`
-- 删除：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysDictType.java`
-- 删除：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysDictData.java`
-- 删除：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/model/LoginBody.java`
-- 删除：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain/model/RegisterBody.java`
+- 删除：`manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysUser.java`
+- 删除：`manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysRole.java`
+- 删除：`manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysMenu.java`
+- 删除：`manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysDept.java`
+- 删除：`manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysDictType.java`
+- 删除：`manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/entity/SysDictData.java`
+- 删除：`manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/model/LoginBody.java`
+- 删除：`manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain/model/RegisterBody.java`
 - 修改：所有仍有 `common.core.domain.entity.*` 或旧登录模型引用的生产代码
-- 测试：`manzhushaka-ry-admin/src/test/java/com/manzhushaka/architecture/LegacyCommonReferenceTest.java`
+- 测试：`manzhushaka-admin/src/test/java/com/manzhushaka/architecture/LegacyCommonReferenceTest.java`
 
 - [ ] **步骤 1：先增加失败检查，禁止生产代码再引用旧 `common` 业务对象**
 
@@ -537,7 +537,7 @@ void should_not_reference_legacy_common_entities() {
 删除前先用命令确认：
 
 ```bash
-rg -n "common\\.core\\.domain\\.entity\\.(SysUser|SysRole|SysMenu|SysDept|SysDictType|SysDictData)|common\\.core\\.domain\\.model\\.(LoginBody|RegisterBody)" manzhushaka-ry-admin/src/main/java manzhushaka-ry-framework/src/main/java manzhushaka-ry-system/src/main/java manzhushaka-ry-common/src/main/java
+rg -n "common\\.core\\.domain\\.entity\\.(SysUser|SysRole|SysMenu|SysDept|SysDictType|SysDictData)|common\\.core\\.domain\\.model\\.(LoginBody|RegisterBody)" manzhushaka-admin/src/main/java manzhushaka-framework/src/main/java manzhushaka-system/src/main/java manzhushaka-common/src/main/java
 ```
 
 预期：只有待删除文件自身或测试代码命中。
@@ -549,7 +549,7 @@ rg -n "common\\.core\\.domain\\.entity\\.(SysUser|SysRole|SysMenu|SysDept|SysDic
 运行：
 
 ```bash
-rg -n "common\\.core\\.domain\\.entity\\.|common\\.core\\.domain\\.model\\.(LoginBody|RegisterBody|LoginUser)" manzhushaka-ry-admin/src/main/java manzhushaka-ry-framework/src/main/java manzhushaka-ry-system/src/main/java manzhushaka-ry-common/src/main/java
+rg -n "common\\.core\\.domain\\.entity\\.|common\\.core\\.domain\\.model\\.(LoginBody|RegisterBody|LoginUser)" manzhushaka-admin/src/main/java manzhushaka-framework/src/main/java manzhushaka-system/src/main/java manzhushaka-common/src/main/java
 ```
 
 预期：无生产代码命中。
@@ -557,7 +557,7 @@ rg -n "common\\.core\\.domain\\.entity\\.|common\\.core\\.domain\\.model\\.(Logi
 - [ ] **步骤 4：Commit**
 
 ```bash
-git add manzhushaka-ry-common/src/main/java/com/manzhushaka/common/core/domain manzhushaka-ry-admin/src/test/java
+git add manzhushaka-common/src/main/java/com/manzhushaka/common/core/domain manzhushaka-admin/src/test/java
 git commit -m "refactor: delete legacy system objects from common"
 ```
 
@@ -566,12 +566,12 @@ git commit -m "refactor: delete legacy system objects from common"
 **文件：**
 
 - 修改：`pom.xml`
-- 修改：`manzhushaka-ry-admin/pom.xml`
-- 修改：`manzhushaka-ry-framework/pom.xml`
-- 修改：`manzhushaka-ry-system/pom.xml`
-- 创建：`manzhushaka-ry-admin/src/test/java/com/manzhushaka/architecture/AdminBoundaryArchTest.java`
-- 创建：`manzhushaka-ry-framework/src/test/java/com/manzhushaka/architecture/FrameworkBoundaryArchTest.java`
-- 创建：`manzhushaka-ry-system/src/test/java/com/manzhushaka/architecture/SystemBoundaryArchTest.java`
+- 修改：`manzhushaka-admin/pom.xml`
+- 修改：`manzhushaka-framework/pom.xml`
+- 修改：`manzhushaka-system/pom.xml`
+- 创建：`manzhushaka-admin/src/test/java/com/manzhushaka/architecture/AdminBoundaryArchTest.java`
+- 创建：`manzhushaka-framework/src/test/java/com/manzhushaka/architecture/FrameworkBoundaryArchTest.java`
+- 创建：`manzhushaka-system/src/test/java/com/manzhushaka/architecture/SystemBoundaryArchTest.java`
 - 创建：`scripts/architecture/check-module-boundaries.sh`
 
 - [ ] **步骤 1：在测试依赖中加入 ArchUnit**
@@ -623,9 +623,9 @@ noClasses()
 #!/usr/bin/env bash
 set -euo pipefail
 
-rg -n "common\\.core\\.domain\\.entity\\." manzhushaka-ry-admin/src/main/java manzhushaka-ry-framework/src/main/java manzhushaka-ry-system/src/main/java && exit 1 || true
-rg -n "infrastructure\\.persistence\\.entity" manzhushaka-ry-admin/src/main/java && exit 1 || true
-rg -n "web\\.dto|web\\.vo" manzhushaka-ry-system/src/main/java && exit 1 || true
+rg -n "common\\.core\\.domain\\.entity\\." manzhushaka-admin/src/main/java manzhushaka-framework/src/main/java manzhushaka-system/src/main/java && exit 1 || true
+rg -n "infrastructure\\.persistence\\.entity" manzhushaka-admin/src/main/java && exit 1 || true
+rg -n "web\\.dto|web\\.vo" manzhushaka-system/src/main/java && exit 1 || true
 ```
 
 - [ ] **步骤 4：执行全量验证**
@@ -634,7 +634,7 @@ rg -n "web\\.dto|web\\.vo" manzhushaka-ry-system/src/main/java && exit 1 || true
 
 ```bash
 bash scripts/architecture/check-module-boundaries.sh
-mvn -pl manzhushaka-ry-common,manzhushaka-ry-framework,manzhushaka-ry-system,manzhushaka-ry-admin -am test
+mvn -pl manzhushaka-common,manzhushaka-framework,manzhushaka-system,manzhushaka-admin -am test
 ```
 
 预期：
@@ -646,7 +646,7 @@ mvn -pl manzhushaka-ry-common,manzhushaka-ry-framework,manzhushaka-ry-system,man
 - [ ] **步骤 5：Commit**
 
 ```bash
-git add pom.xml manzhushaka-ry-admin/pom.xml manzhushaka-ry-framework/pom.xml manzhushaka-ry-system/pom.xml manzhushaka-ry-admin/src/test/java manzhushaka-ry-framework/src/test/java manzhushaka-ry-system/src/test/java scripts/architecture
+git add pom.xml manzhushaka-admin/pom.xml manzhushaka-framework/pom.xml manzhushaka-system/pom.xml manzhushaka-admin/src/test/java manzhushaka-framework/src/test/java manzhushaka-system/src/test/java scripts/architecture
 git commit -m "test: add architecture guardrails for module boundaries"
 ```
 
@@ -663,9 +663,9 @@ git commit -m "test: add architecture guardrails for module boundaries"
 建议用以下命令做最终验收：
 
 ```bash
-rg -n "common\\.core\\.domain\\.entity\\.|common\\.core\\.domain\\.model\\.LoginUser|common\\.utils\\.SecurityUtils|common\\.utils\\.DictUtils|common\\.core\\.domain\\.TreeSelect" manzhushaka-ry-admin/src/main/java manzhushaka-ry-framework/src/main/java manzhushaka-ry-system/src/main/java manzhushaka-ry-common/src/main/java
+rg -n "common\\.core\\.domain\\.entity\\.|common\\.core\\.domain\\.model\\.LoginUser|common\\.utils\\.SecurityUtils|common\\.utils\\.DictUtils|common\\.core\\.domain\\.TreeSelect" manzhushaka-admin/src/main/java manzhushaka-framework/src/main/java manzhushaka-system/src/main/java manzhushaka-common/src/main/java
 bash scripts/architecture/check-module-boundaries.sh
-mvn -pl manzhushaka-ry-common,manzhushaka-ry-framework,manzhushaka-ry-system,manzhushaka-ry-admin -am test
+mvn -pl manzhushaka-common,manzhushaka-framework,manzhushaka-system,manzhushaka-admin -am test
 ```
 
 ## 8. 风险与执行顺序建议

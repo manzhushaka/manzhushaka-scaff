@@ -1,6 +1,6 @@
-# manzhushaka-ry-scaff
+# manzhushaka-scaff
 
-`manzhushaka-ry-scaff` 是基于 RuoYi / RuoYi-Vue 体系二次开发的前后端分离后台脚手架。后端采用 `Spring Boot 4 + Spring Security + MyBatis`，前端采用 `Vue 3 + Element Plus + Vite`，当前仓库已按 `com.manzhushaka` 包名和 `manzhushaka-ry-*` Maven 多模块结构继续演进。
+`manzhushaka-scaff` 是基于 RuoYi / RuoYi-Vue 体系二次开发的前后端分离后台脚手架。后端采用 `Spring Boot 4 + Spring Security + MyBatis`，前端采用 `Vue 3 + Element Plus + Vite`，当前仓库已按 `com.manzhushaka` 包名和 `manzhushaka-*` Maven 多模块结构继续演进。
 
 本仓库不是若依官方原版。README 以当前代码状态为准，用于本地开发、模块理解和后续二次开发。
 
@@ -8,7 +8,7 @@
 
 - 保留后台基础能力：登录认证、验证码、用户、角色、菜单、部门、字典、参数、操作日志、登录日志、在线用户、服务监控、缓存监控、Druid 监控和 Quartz 定时任务。
 - 前端入口在 `ui-admin`，使用 Vue 3、Element Plus、Pinia、Vue Router 4 和 Axios。
-- 后端入口在 `manzhushaka-ry-admin`，当前启动类为 `com.manzhushaka.ManzhushakaRyApplication`。
+- 后端入口在 `manzhushaka-admin`，当前启动类为 `com.manzhushaka.ManzhushakaScaffApplication`。
 - 系统业务正在从若依传统分层向更清晰的应用层、领域层、基础设施层拆分；新增代码应优先遵守 `AGENTS.md` 中的模块边界。
 - 当前仓库已移除或正在清理若依原版中的岗位管理、通知公告、在线构建器等旧入口，文档和菜单不再把它们作为内置能力描述。
 
@@ -44,11 +44,11 @@
 
 ```text
 .
-├── manzhushaka-ry-admin        # Web 启动层，Controller、HTTP DTO/VO、全局入口
-├── manzhushaka-ry-framework    # 框架能力，安全、配置、AOP、拦截器、验证码等
-├── manzhushaka-ry-system       # 系统业务，用户、角色、菜单、部门、字典、参数等
-├── manzhushaka-ry-quartz       # Quartz 定时任务
-├── manzhushaka-ry-common       # 通用工具、常量、注解、异常和基础能力
+├── manzhushaka-admin        # Web 启动层，Controller、HTTP DTO/VO、全局入口
+├── manzhushaka-framework    # 框架能力，安全、配置、AOP、拦截器、验证码等
+├── manzhushaka-system       # 系统业务，用户、角色、菜单、部门、字典、参数等
+├── manzhushaka-quartz       # Quartz 定时任务
+├── manzhushaka-common       # 通用工具、常量、注解、异常和基础能力
 ├── ui-admin                    # Vue 3 管理端
 ├── sql                         # 初始化脚本和增量修复脚本
 ├── doc                         # 原始项目文档
@@ -73,14 +73,14 @@
 创建数据库，默认配置使用：
 
 ```sql
-CREATE DATABASE `manzhushaka-ry-scaff` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+CREATE DATABASE `manzhushaka-scaff` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 ```
 
 导入基础脚本：
 
 ```bash
-mysql -uroot -p manzhushaka-ry-scaff < sql/manzhushaka_db_init.sql
-mysql -uroot -p manzhushaka-ry-scaff < sql/quartz.sql
+mysql -uroot -p manzhushaka-scaff < sql/manzhushaka_db_init.sql
+mysql -uroot -p manzhushaka-scaff < sql/quartz.sql
 ```
 
 如果是在已经导入过旧版若依数据的库上升级，请按实际需要查看并执行 `sql` 目录下的增量清理脚本，例如移除岗位、通知公告、在线构建器菜单的脚本。全新数据库通常优先以 `manzhushaka_db_init.sql` 和 `quartz.sql` 为准。
@@ -89,15 +89,15 @@ mysql -uroot -p manzhushaka-ry-scaff < sql/quartz.sql
 
 重点检查：
 
-- `manzhushaka-ry-admin/src/main/resources/application.yml`
-- `manzhushaka-ry-admin/src/main/resources/application-dev.yml`
+- `manzhushaka-admin/src/main/resources/application.yml`
+- `manzhushaka-admin/src/main/resources/application-dev.yml`
 
 常用环境变量：
 
 | 变量 | 默认值 | 说明 |
 | --- | --- | --- |
 | `SPRING_PROFILES_ACTIVE` | `dev` | Spring Profile |
-| `JDBC_MASTER_URL` | `jdbc:mysql://localhost:3306/manzhushaka-ry-scaff...` | 主库连接 |
+| `JDBC_MASTER_URL` | `jdbc:mysql://localhost:3306/manzhushaka-scaff...` | 主库连接 |
 | `JDBC_MASTER_USERNAME` | `root` | 主库用户名 |
 | `JDBC_MASTER_PASSWORD` | `1a2s3d4f` | 主库密码 |
 | `JDBC_SLAVE_ENABLED` | `false` | 是否启用从库 |
@@ -116,14 +116,14 @@ mysql -uroot -p manzhushaka-ry-scaff < sql/quartz.sql
 在仓库根目录执行：
 
 ```bash
-mvn -pl manzhushaka-ry-admin -am spring-boot:run
+mvn -pl manzhushaka-admin -am spring-boot:run
 ```
 
 也可以先构建再运行：
 
 ```bash
 mvn clean package -DskipTests
-java -jar manzhushaka-ry-admin/target/manzhushaka-ry-admin.jar
+java -jar manzhushaka-admin/target/manzhushaka-admin.jar
 ```
 
 ### 4. 启动前端
@@ -158,7 +158,7 @@ mvn clean package
 mvn test
 
 # 仅启动 Web 模块及其依赖
-mvn -pl manzhushaka-ry-admin -am spring-boot:run
+mvn -pl manzhushaka-admin -am spring-boot:run
 
 # 检查模块边界
 bash scripts/architecture/check-module-boundaries.sh
@@ -188,20 +188,20 @@ npm run build:stage
 
 几个高频约定：
 
-- Controller、HTTP DTO/VO 和全局 HTTP 入口放在 `manzhushaka-ry-admin`。
-- 框架能力放在 `manzhushaka-ry-framework`。
-- 系统业务放在 `manzhushaka-ry-system`，新增持久化实体优先放到 `infrastructure/persistence/entity`。
-- `manzhushaka-ry-common` 只放通用基础能力，不承载业务实体。
+- Controller、HTTP DTO/VO 和全局 HTTP 入口放在 `manzhushaka-admin`。
+- 框架能力放在 `manzhushaka-framework`。
+- 系统业务放在 `manzhushaka-system`，新增持久化实体优先放到 `infrastructure/persistence/entity`。
+- `manzhushaka-common` 只放通用基础能力，不承载业务实体。
 - 新增页面、按钮、接口权限时，需要同步维护前端 `v-hasPermi`、后端 `@PreAuthorize`、`sql/manzhushaka_db_init.sql` 中的 `sys_menu` 和必要的 `sys_role_menu`。
 - 新增或调整数据库结构、基础数据、默认菜单时，需要同步维护 `sql` 目录下的初始化或增量脚本。
-- `manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller` 下的 HTTP 接口方法需要同时满足权限注解和 `@Log` 操作日志规范。
+- `manzhushaka-admin/src/main/java/com/manzhushaka/web/controller` 下的 HTTP 接口方法需要同时满足权限注解和 `@Log` 操作日志规范。
 
 ## 关键入口
 
-- 后端启动类：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/ManzhushakaRyApplication.java`
-- 后端主配置：`manzhushaka-ry-admin/src/main/resources/application.yml`
-- 开发数据源配置：`manzhushaka-ry-admin/src/main/resources/application-dev.yml`
-- MyBatis 映射：`manzhushaka-ry-system/src/main/resources/mapper`
+- 后端启动类：`manzhushaka-admin/src/main/java/com/manzhushaka/ManzhushakaScaffApplication.java`
+- 后端主配置：`manzhushaka-admin/src/main/resources/application.yml`
+- 开发数据源配置：`manzhushaka-admin/src/main/resources/application-dev.yml`
+- MyBatis 映射：`manzhushaka-system/src/main/resources/mapper`
 - 前端环境配置：`ui-admin/.env.development`、`ui-admin/.env.production`
 - 前端代理配置：`ui-admin/vite.config.js`
 - 前端路由：`ui-admin/src/router/index.js`

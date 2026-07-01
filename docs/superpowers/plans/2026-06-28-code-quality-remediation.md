@@ -18,7 +18,7 @@
 
 1. **安全默认值偏宽。** `SecurityConfig` 匿名放行 Druid 和 Swagger，`application-dev.yml` 默认启用 Druid 且默认密码为 `123456`，不适合作为可直接启动的默认基线。
 2. **权限闭环不完整。** 多个接口仅依赖登录态，没有按仓库规范显式声明 `@PreAuthorize` 或 `@Anonymous`；初始化 SQL 里 `sys_role_menu` 引用了大量不存在的菜单 ID。
-3. **新旧分层并存。** `manzhushaka-ry-system` 同时存在 `domain`、`service/mapper` 旧路径，以及 `application`、`domain/repository`、`infrastructure/persistence` 新路径；`MapperScan("com.manzhushaka.**.mapper")` 会扫到两套 Mapper，维护成本和误用风险偏高。
+3. **新旧分层并存。** `manzhushaka-system` 同时存在 `domain`、`service/mapper` 旧路径，以及 `application`、`domain/repository`、`infrastructure/persistence` 新路径；`MapperScan("com.manzhushaka.**.mapper")` 会扫到两套 Mapper，维护成本和误用风险偏高。
 4. **大文件和大组件偏多。** 后端 `ExcelUtil`、`SysMenuServiceImpl`、`SysUserServiceImpl` 超过合理单文件复杂度；前端 `TreePanel`、`TagsView`、`system/role`、`system/menu` 等文件超过 500 行，状态、视图、交互混在一起。
 5. **测试保护不足。** `mvn test` 能通过，但 ArchUnit 测试报告显示 `Tests run: 0`，架构规则没有真正执行。业务单元测试数量也偏少。
 6. **前端错误处理不统一。** `request.js` 仍有 `console.log`，多处 `.catch(() => {})` 静默吞错，上传组件没有 `on-error` 处理，排障和用户反馈都偏弱。
@@ -29,29 +29,29 @@
 
 ### 后端安全与权限
 
-- 修改：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/config/SecurityConfig.java`
-- 修改：`manzhushaka-ry-admin/src/main/resources/application.yml`
-- 修改：`manzhushaka-ry-admin/src/main/resources/application-dev.yml`
-- 修改：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/tool/TestController.java`
-- 修改：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysNoticeController.java`
-- 修改：`manzhushaka-ry-system/src/main/resources/mapper/system/SysNoticeMapper.xml`
+- 修改：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/config/SecurityConfig.java`
+- 修改：`manzhushaka-admin/src/main/resources/application.yml`
+- 修改：`manzhushaka-admin/src/main/resources/application-dev.yml`
+- 修改：`manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/tool/TestController.java`
+- 修改：`manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysNoticeController.java`
+- 修改：`manzhushaka-system/src/main/resources/mapper/system/SysNoticeMapper.xml`
 - 修改：`sql/manzhushaka_db_init.sql`
 
 ### 测试工具链
 
 - 修改：`pom.xml`
-- 修改：`manzhushaka-ry-admin/src/test/java/com/manzhushaka/architecture/AdminBoundaryArchTest.java`
-- 修改：`manzhushaka-ry-framework/src/test/java/com/manzhushaka/architecture/FrameworkBoundaryArchTest.java`
-- 修改：`manzhushaka-ry-system/src/test/java/com/manzhushaka/architecture/SystemBoundaryArchTest.java`
-- 创建：`manzhushaka-ry-admin/src/test/java/com/manzhushaka/web/controller/system/SysNoticeControllerTest.java`
+- 修改：`manzhushaka-admin/src/test/java/com/manzhushaka/architecture/AdminBoundaryArchTest.java`
+- 修改：`manzhushaka-framework/src/test/java/com/manzhushaka/architecture/FrameworkBoundaryArchTest.java`
+- 修改：`manzhushaka-system/src/test/java/com/manzhushaka/architecture/SystemBoundaryArchTest.java`
+- 创建：`manzhushaka-admin/src/test/java/com/manzhushaka/web/controller/system/SysNoticeControllerTest.java`
 
 ### 架构边界治理
 
-- 修改：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/config/ApplicationConfig.java`
-- 修改：`manzhushaka-ry-admin/src/main/resources/application.yml`
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/application/service/impl/SystemUserAppServiceImpl.java`
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/impl/SysUserServiceImpl.java`
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/repository/UserRepositoryImpl.java`
+- 修改：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/config/ApplicationConfig.java`
+- 修改：`manzhushaka-admin/src/main/resources/application.yml`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/application/service/impl/SystemUserAppServiceImpl.java`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/service/impl/SysUserServiceImpl.java`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/repository/UserRepositoryImpl.java`
 
 ### 前端质量
 
@@ -67,9 +67,9 @@
 ## 任务 1：收紧 Druid 和 Swagger 暴露面
 
 **文件：**
-- 修改：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/config/SecurityConfig.java:103-108`
-- 修改：`manzhushaka-ry-admin/src/main/resources/application.yml:120-131`
-- 修改：`manzhushaka-ry-admin/src/main/resources/application-dev.yml:44-51`
+- 修改：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/config/SecurityConfig.java:103-108`
+- 修改：`manzhushaka-admin/src/main/resources/application.yml:120-131`
+- 修改：`manzhushaka-admin/src/main/resources/application-dev.yml:44-51`
 
 - [ ] **步骤 1：调整安全白名单**
 
@@ -109,7 +109,7 @@ spring:
 - [ ] **步骤 4：Commit**
 
 ```bash
-git add manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/config/SecurityConfig.java manzhushaka-ry-admin/src/main/resources/application.yml manzhushaka-ry-admin/src/main/resources/application-dev.yml
+git add manzhushaka-framework/src/main/java/com/manzhushaka/framework/config/SecurityConfig.java manzhushaka-admin/src/main/resources/application.yml manzhushaka-admin/src/main/resources/application-dev.yml
 git commit -m "fix(安全): 收紧 Druid 和 Swagger 默认暴露面"
 ```
 
@@ -118,7 +118,7 @@ git commit -m "fix(安全): 收紧 Druid 和 Swagger 默认暴露面"
 ## 任务 2：移除或隔离测试 Controller
 
 **文件：**
-- 修改：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/tool/TestController.java`
+- 修改：`manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/tool/TestController.java`
 
 - [ ] **步骤 1：选择隔离方式**
 
@@ -145,14 +145,14 @@ public R<List<UserEntity>> userList()
 
 - [ ] **步骤 3：运行验证**
 
-运行：`mvn -pl manzhushaka-ry-admin -am test`
+运行：`mvn -pl manzhushaka-admin -am test`
 
 预期：后端测试通过；生产 profile 下 `/test/user/list` 不可访问。
 
 - [ ] **步骤 4：Commit**
 
 ```bash
-git add manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/tool/TestController.java
+git add manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/tool/TestController.java
 git commit -m "fix(安全): 隔离测试用户接口"
 ```
 
@@ -161,10 +161,10 @@ git commit -m "fix(安全): 隔离测试用户接口"
 ## 任务 3：修复公告状态绕过和富文本净化
 
 **文件：**
-- 修改：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysNoticeController.java:56-60`
-- 修改：`manzhushaka-ry-system/src/main/resources/mapper/system/SysNoticeMapper.xml:25-28`
+- 修改：`manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysNoticeController.java:56-60`
+- 修改：`manzhushaka-system/src/main/resources/mapper/system/SysNoticeMapper.xml:25-28`
 - 修改：`ui-admin/src/layout/components/HeaderNotice/DetailView.vue:45`
-- 创建：`manzhushaka-ry-admin/src/test/java/com/manzhushaka/web/controller/system/SysNoticeControllerTest.java`
+- 创建：`manzhushaka-admin/src/test/java/com/manzhushaka/web/controller/system/SysNoticeControllerTest.java`
 
 - [ ] **步骤 1：拆分前台详情和后台详情语义**
 
@@ -233,7 +233,7 @@ void getPublishedInfoShouldNotReturnClosedNotice()
 
 - [ ] **步骤 5：运行验证**
 
-运行：`mvn -pl manzhushaka-ry-admin -am test`
+运行：`mvn -pl manzhushaka-admin -am test`
 
 运行：`cd ui-admin && npm run build:prod`
 
@@ -242,7 +242,7 @@ void getPublishedInfoShouldNotReturnClosedNotice()
 - [ ] **步骤 6：Commit**
 
 ```bash
-git add manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysNoticeController.java manzhushaka-ry-system/src/main/resources/mapper/system/SysNoticeMapper.xml ui-admin/src/layout/components/HeaderNotice/DetailView.vue ui-admin/package.json ui-admin/package-lock.json manzhushaka-ry-admin/src/test/java/com/manzhushaka/web/controller/system/SysNoticeControllerTest.java
+git add manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/system/SysNoticeController.java manzhushaka-system/src/main/resources/mapper/system/SysNoticeMapper.xml ui-admin/src/layout/components/HeaderNotice/DetailView.vue ui-admin/package.json ui-admin/package-lock.json manzhushaka-admin/src/test/java/com/manzhushaka/web/controller/system/SysNoticeControllerTest.java
 git commit -m "fix(公告): 限制前台公告详情并净化富文本"
 ```
 
@@ -253,7 +253,7 @@ git commit -m "fix(公告): 限制前台公告详情并净化富文本"
 **文件：**
 - 修改：`sql/manzhushaka_db_init.sql:162-299`
 - 修改：`ui-admin/src/views/monitor/operlog/index.vue:139`
-- 修改：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/monitor/SysOperlogController.java`
+- 修改：`manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/monitor/SysOperlogController.java`
 
 - [ ] **步骤 1：补齐缺失菜单记录**
 
@@ -305,7 +305,7 @@ PY
 - [ ] **步骤 4：Commit**
 
 ```bash
-git add sql/manzhushaka_db_init.sql ui-admin/src/views/monitor/operlog/index.vue manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/monitor/SysOperlogController.java
+git add sql/manzhushaka_db_init.sql ui-admin/src/views/monitor/operlog/index.vue manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/monitor/SysOperlogController.java
 git commit -m "fix(权限): 补齐菜单按钮权限初始化数据"
 ```
 
@@ -315,9 +315,9 @@ git commit -m "fix(权限): 补齐菜单按钮权限初始化数据"
 
 **文件：**
 - 修改：`pom.xml`
-- 修改：`manzhushaka-ry-admin/src/test/java/com/manzhushaka/architecture/AdminBoundaryArchTest.java`
-- 修改：`manzhushaka-ry-framework/src/test/java/com/manzhushaka/architecture/FrameworkBoundaryArchTest.java`
-- 修改：`manzhushaka-ry-system/src/test/java/com/manzhushaka/architecture/SystemBoundaryArchTest.java`
+- 修改：`manzhushaka-admin/src/test/java/com/manzhushaka/architecture/AdminBoundaryArchTest.java`
+- 修改：`manzhushaka-framework/src/test/java/com/manzhushaka/architecture/FrameworkBoundaryArchTest.java`
+- 修改：`manzhushaka-system/src/test/java/com/manzhushaka/architecture/SystemBoundaryArchTest.java`
 
 - [ ] **步骤 1：升级 Surefire 插件**
 
@@ -347,7 +347,7 @@ git commit -m "fix(权限): 补齐菜单按钮权限初始化数据"
 - [ ] **步骤 4：Commit**
 
 ```bash
-git add pom.xml manzhushaka-ry-admin/src/test/java/com/manzhushaka/architecture/AdminBoundaryArchTest.java manzhushaka-ry-framework/src/test/java/com/manzhushaka/architecture/FrameworkBoundaryArchTest.java manzhushaka-ry-system/src/test/java/com/manzhushaka/architecture/SystemBoundaryArchTest.java
+git add pom.xml manzhushaka-admin/src/test/java/com/manzhushaka/architecture/AdminBoundaryArchTest.java manzhushaka-framework/src/test/java/com/manzhushaka/architecture/FrameworkBoundaryArchTest.java manzhushaka-system/src/test/java/com/manzhushaka/architecture/SystemBoundaryArchTest.java
 git commit -m "test(架构): 修复 ArchUnit 测试执行"
 ```
 
@@ -356,11 +356,11 @@ git commit -m "test(架构): 修复 ArchUnit 测试执行"
 ## 任务 6：收敛 System 模块 Mapper 和实体扫描边界
 
 **文件：**
-- 修改：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/config/ApplicationConfig.java:16`
-- 修改：`manzhushaka-ry-admin/src/main/resources/application.yml:107`
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/application/service/impl/SystemUserAppServiceImpl.java`
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/impl/SysUserServiceImpl.java`
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/repository/UserRepositoryImpl.java`
+- 修改：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/config/ApplicationConfig.java:16`
+- 修改：`manzhushaka-admin/src/main/resources/application.yml:107`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/application/service/impl/SystemUserAppServiceImpl.java`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/service/impl/SysUserServiceImpl.java`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/repository/UserRepositoryImpl.java`
 
 - [ ] **步骤 1：确定目标边界**
 
@@ -385,14 +385,14 @@ git commit -m "test(架构): 修复 ArchUnit 测试执行"
 
 - [ ] **步骤 4：运行验证**
 
-运行：`mvn -pl manzhushaka-ry-system,manzhushaka-ry-admin -am test`
+运行：`mvn -pl manzhushaka-system,manzhushaka-admin -am test`
 
 预期：用户、角色、菜单相关编译和测试通过；Mapper 注入无二义性。
 
 - [ ] **步骤 5：Commit**
 
 ```bash
-git add manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/config/ApplicationConfig.java manzhushaka-ry-admin/src/main/resources/application.yml manzhushaka-ry-system/src/main/java/com/manzhushaka/system/application/service/impl/SystemUserAppServiceImpl.java manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/impl/SysUserServiceImpl.java manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/repository/UserRepositoryImpl.java
+git add manzhushaka-framework/src/main/java/com/manzhushaka/framework/config/ApplicationConfig.java manzhushaka-admin/src/main/resources/application.yml manzhushaka-system/src/main/java/com/manzhushaka/system/application/service/impl/SystemUserAppServiceImpl.java manzhushaka-system/src/main/java/com/manzhushaka/system/service/impl/SysUserServiceImpl.java manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/repository/UserRepositoryImpl.java
 git commit -m "refactor(system): 收敛用户模块持久化边界"
 ```
 

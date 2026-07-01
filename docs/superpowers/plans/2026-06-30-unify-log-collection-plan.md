@@ -14,25 +14,25 @@
 
 ### 删除或停用的后端文件
 
-- 删除：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/interceptor/RequestLogInterceptor.java`
-- 删除：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/command/RequestLogRecord.java`
-- 修改：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/config/ResourcesConfig.java`
-- 修改：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/manager/factory/AsyncFactory.java`
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/application/service/SystemAuditAppService.java`
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/application/service/impl/SystemAuditAppServiceImpl.java`
-- 删除：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/domain/SysRequestLog.java`
-- 删除：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/mapper/SysRequestLogMapper.java`
-- 删除：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/ISysRequestLogService.java`
-- 删除：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/impl/SysRequestLogServiceImpl.java`
-- 删除：`manzhushaka-ry-system/src/main/resources/mapper/system/SysRequestLogMapper.xml`
-- 删除：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/monitor/SysRequestLogController.java`
-- 删除：`manzhushaka-ry-framework/src/test/java/com/manzhushaka/framework/interceptor/RequestLogInterceptorTest.java`
+- 删除：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/interceptor/RequestLogInterceptor.java`
+- 删除：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/command/RequestLogRecord.java`
+- 修改：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/config/ResourcesConfig.java`
+- 修改：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/manager/factory/AsyncFactory.java`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/application/service/SystemAuditAppService.java`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/application/service/impl/SystemAuditAppServiceImpl.java`
+- 删除：`manzhushaka-system/src/main/java/com/manzhushaka/system/domain/SysRequestLog.java`
+- 删除：`manzhushaka-system/src/main/java/com/manzhushaka/system/mapper/SysRequestLogMapper.java`
+- 删除：`manzhushaka-system/src/main/java/com/manzhushaka/system/service/ISysRequestLogService.java`
+- 删除：`manzhushaka-system/src/main/java/com/manzhushaka/system/service/impl/SysRequestLogServiceImpl.java`
+- 删除：`manzhushaka-system/src/main/resources/mapper/system/SysRequestLogMapper.xml`
+- 删除：`manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/monitor/SysRequestLogController.java`
+- 删除：`manzhushaka-framework/src/test/java/com/manzhushaka/framework/interceptor/RequestLogInterceptorTest.java`
 
 ### 保留并复用的后端文件
 
-- 保留：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/aspectj/LogAspect.java`
-- 保留：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/monitor/SysOperlogController.java`
-- 保留：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/monitor/SysLogininforController.java`
+- 保留：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/aspectj/LogAspect.java`
+- 保留：`manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/monitor/SysOperlogController.java`
+- 保留：`manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/monitor/SysLogininforController.java`
 
 ### 前端相关文件
 
@@ -52,16 +52,16 @@
 
 **文件：**
 
-- 删除：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/interceptor/RequestLogInterceptor.java`
-- 删除：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/command/RequestLogRecord.java`
-- 修改：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/config/ResourcesConfig.java`
+- 删除：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/interceptor/RequestLogInterceptor.java`
+- 删除：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/command/RequestLogRecord.java`
+- 修改：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/config/ResourcesConfig.java`
 
 - [ ] **步骤 1：确认请求日志拦截器仅由 `ResourcesConfig` 注册**
 
 运行：
 
 ```bash
-rg -n "RequestLogInterceptor|addInterceptor\\(requestLogInterceptor\\)" manzhushaka-ry-framework/src/main/java
+rg -n "RequestLogInterceptor|addInterceptor\\(requestLogInterceptor\\)" manzhushaka-framework/src/main/java
 ```
 
 预期输出包含：
@@ -102,8 +102,8 @@ registry.addInterceptor(repeatSubmitInterceptor).addPathPatterns("/**");
 删除：
 
 ```text
-manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/interceptor/RequestLogInterceptor.java
-manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/command/RequestLogRecord.java
+manzhushaka-framework/src/main/java/com/manzhushaka/framework/interceptor/RequestLogInterceptor.java
+manzhushaka-framework/src/main/java/com/manzhushaka/framework/web/command/RequestLogRecord.java
 ```
 
 - [ ] **步骤 4：运行编译范围检查**
@@ -111,7 +111,7 @@ manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/web/command/Req
 运行：
 
 ```bash
-rg -n "RequestLogInterceptor|RequestLogRecord" manzhushaka-ry-framework/src/main/java manzhushaka-ry-admin/src/main/java manzhushaka-ry-system/src/main/java
+rg -n "RequestLogInterceptor|RequestLogRecord" manzhushaka-framework/src/main/java manzhushaka-admin/src/main/java manzhushaka-system/src/main/java
 ```
 
 预期：只剩下待后续任务清理的少量引用，不再出现拦截器注册代码。
@@ -120,9 +120,9 @@ rg -n "RequestLogInterceptor|RequestLogRecord" manzhushaka-ry-framework/src/main
 
 **文件：**
 
-- 修改：`manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/manager/factory/AsyncFactory.java`
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/application/service/SystemAuditAppService.java`
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/application/service/impl/SystemAuditAppServiceImpl.java`
+- 修改：`manzhushaka-framework/src/main/java/com/manzhushaka/framework/manager/factory/AsyncFactory.java`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/application/service/SystemAuditAppService.java`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/application/service/impl/SystemAuditAppServiceImpl.java`
 
 - [ ] **步骤 1：删除 `AsyncFactory.recordRequest(...)`**
 
@@ -190,7 +190,7 @@ private ISysRequestLogService requestLogService;
 运行：
 
 ```bash
-rg -n "recordRequestLog|recordRequest\\(" manzhushaka-ry-framework/src/main/java manzhushaka-ry-system/src/main/java
+rg -n "recordRequestLog|recordRequest\\(" manzhushaka-framework/src/main/java manzhushaka-system/src/main/java
 ```
 
 预期：无结果。
@@ -199,19 +199,19 @@ rg -n "recordRequestLog|recordRequest\\(" manzhushaka-ry-framework/src/main/java
 
 **文件：**
 
-- 删除：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/domain/SysRequestLog.java`
-- 删除：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/mapper/SysRequestLogMapper.java`
-- 删除：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/ISysRequestLogService.java`
-- 删除：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/impl/SysRequestLogServiceImpl.java`
-- 删除：`manzhushaka-ry-system/src/main/resources/mapper/system/SysRequestLogMapper.xml`
-- 删除：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/monitor/SysRequestLogController.java`
+- 删除：`manzhushaka-system/src/main/java/com/manzhushaka/system/domain/SysRequestLog.java`
+- 删除：`manzhushaka-system/src/main/java/com/manzhushaka/system/mapper/SysRequestLogMapper.java`
+- 删除：`manzhushaka-system/src/main/java/com/manzhushaka/system/service/ISysRequestLogService.java`
+- 删除：`manzhushaka-system/src/main/java/com/manzhushaka/system/service/impl/SysRequestLogServiceImpl.java`
+- 删除：`manzhushaka-system/src/main/resources/mapper/system/SysRequestLogMapper.xml`
+- 删除：`manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/monitor/SysRequestLogController.java`
 
 - [ ] **步骤 1：确认请求日志领域文件完整列表**
 
 运行：
 
 ```bash
-rg --files manzhushaka-ry-system/src/main/java manzhushaka-ry-system/src/main/resources manzhushaka-ry-admin/src/main/java | rg "SysRequestLog|requestLog"
+rg --files manzhushaka-system/src/main/java manzhushaka-system/src/main/resources manzhushaka-admin/src/main/java | rg "SysRequestLog|requestLog"
 ```
 
 预期输出包含上述 6 个文件。
@@ -221,12 +221,12 @@ rg --files manzhushaka-ry-system/src/main/java manzhushaka-ry-system/src/main/re
 删除：
 
 ```text
-manzhushaka-ry-system/src/main/java/com/manzhushaka/system/domain/SysRequestLog.java
-manzhushaka-ry-system/src/main/java/com/manzhushaka/system/mapper/SysRequestLogMapper.java
-manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/ISysRequestLogService.java
-manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/impl/SysRequestLogServiceImpl.java
-manzhushaka-ry-system/src/main/resources/mapper/system/SysRequestLogMapper.xml
-manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/monitor/SysRequestLogController.java
+manzhushaka-system/src/main/java/com/manzhushaka/system/domain/SysRequestLog.java
+manzhushaka-system/src/main/java/com/manzhushaka/system/mapper/SysRequestLogMapper.java
+manzhushaka-system/src/main/java/com/manzhushaka/system/service/ISysRequestLogService.java
+manzhushaka-system/src/main/java/com/manzhushaka/system/service/impl/SysRequestLogServiceImpl.java
+manzhushaka-system/src/main/resources/mapper/system/SysRequestLogMapper.xml
+manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/monitor/SysRequestLogController.java
 ```
 
 - [ ] **步骤 3：删除请求日志相关测试文件**
@@ -234,7 +234,7 @@ manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/monitor/SysReq
 若存在请求日志专属测试文件，删除它们。对当前已定位文件，先删除：
 
 ```text
-manzhushaka-ry-framework/src/test/java/com/manzhushaka/framework/interceptor/RequestLogInterceptorTest.java
+manzhushaka-framework/src/test/java/com/manzhushaka/framework/interceptor/RequestLogInterceptorTest.java
 ```
 
 - [ ] **步骤 4：运行全仓残余引用扫描**
@@ -242,7 +242,7 @@ manzhushaka-ry-framework/src/test/java/com/manzhushaka/framework/interceptor/Req
 运行：
 
 ```bash
-rg -n "SysRequestLog|requestLog|RequestLogInterceptor" manzhushaka-ry-admin manzhushaka-ry-framework manzhushaka-ry-system ui-admin sql
+rg -n "SysRequestLog|requestLog|RequestLogInterceptor" manzhushaka-admin manzhushaka-framework manzhushaka-system ui-admin sql
 ```
 
 预期：只剩前端请求日志页、请求日志 API、SQL 和文档中的引用，供后续任务继续清理。
@@ -575,7 +575,7 @@ cd ui-admin && npm run build:prod
 运行：
 
 ```bash
-rg -n "SysRequestLog|RequestLogInterceptor|monitor/requestLog|requestlog|sys_request_log" manzhushaka-ry-admin manzhushaka-ry-framework manzhushaka-ry-system ui-admin sql
+rg -n "SysRequestLog|RequestLogInterceptor|monitor/requestLog|requestlog|sys_request_log" manzhushaka-admin manzhushaka-framework manzhushaka-system ui-admin sql
 ```
 
 预期：业务代码与初始化 SQL 中无残余实现引用；若只剩设计文档引用，属于可接受结果。
@@ -595,7 +595,7 @@ git status --short
 运行：
 
 ```bash
-git add manzhushaka-ry-framework manzhushaka-ry-system manzhushaka-ry-admin ui-admin sql docs/superpowers/specs/2026-06-30-unify-log-collection-design.md docs/superpowers/plans/2026-06-30-unify-log-collection-plan.md
+git add manzhushaka-framework manzhushaka-system manzhushaka-admin ui-admin sql docs/superpowers/specs/2026-06-30-unify-log-collection-design.md docs/superpowers/plans/2026-06-30-unify-log-collection-plan.md
 git commit -m "refactor(日志中心): 收敛请求日志采集并统一日志入口"
 ```
 

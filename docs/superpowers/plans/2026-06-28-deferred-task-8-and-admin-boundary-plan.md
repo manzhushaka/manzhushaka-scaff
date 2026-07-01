@@ -42,7 +42,7 @@ wc -l ui-admin/src/components/TreePanel/index.vue ui-admin/src/views/system/role
 
 当前规则文件：
 
-- `manzhushaka-ry-admin/src/test/java/com/manzhushaka/architecture/AdminBoundaryArchTest.java`
+- `manzhushaka-admin/src/test/java/com/manzhushaka/architecture/AdminBoundaryArchTest.java`
 
 当前规则意图：
 
@@ -52,7 +52,7 @@ wc -l ui-admin/src/components/TreePanel/index.vue ui-admin/src/views/system/role
 验证命令：
 
 ```bash
-mvn -pl manzhushaka-ry-admin -am -Dtest=AdminBoundaryArchTest -Dsurefire.failIfNoSpecifiedTests=false test
+mvn -pl manzhushaka-admin -am -Dtest=AdminBoundaryArchTest -Dsurefire.failIfNoSpecifiedTests=false test
 ```
 
 当前结果：
@@ -77,7 +77,7 @@ Rule 'no classes that reside in a package '..web.controller..' should depend on 
 
 ```bash
 rg -n "com\\.manzhushaka\\.system\\.(infrastructure\\.persistence\\.entity|mapper|domain)" \
-  manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller
+  manzhushaka-admin/src/main/java/com/manzhushaka/web/controller
 ```
 
 这不是单点测试误报，而是 `admin` 层仍然暴露 `system.infrastructure.persistence.entity` 和部分旧 `system.domain` 模型的结构性问题。它应该放入 `docs/superpowers/plans/2026-06-28-domain-modularization-phase-2-plan.md` 的 HTTP 边界收口中系统处理。
@@ -328,9 +328,9 @@ git commit -m "refactor(前端): 拆分角色管理页面逻辑"
 
 修改：
 
-- `manzhushaka-ry-admin/src/test/java/com/manzhushaka/architecture/AdminBoundaryArchTest.java`
-- `manzhushaka-ry-admin/src/test/resources/archunit.properties`
-- `manzhushaka-ry-admin/src/test/resources/archunit/frozen/*`
+- `manzhushaka-admin/src/test/java/com/manzhushaka/architecture/AdminBoundaryArchTest.java`
+- `manzhushaka-admin/src/test/resources/archunit.properties`
+- `manzhushaka-admin/src/test/resources/archunit/frozen/*`
 
 把 Entity 规则拆成「冻结 Entity」和「严格 Mapper」两条：
 
@@ -370,7 +370,7 @@ public class AdminBoundaryArchTest {
 }
 ```
 
-新增 `manzhushaka-ry-admin/src/test/resources/archunit.properties`：
+新增 `manzhushaka-admin/src/test/resources/archunit.properties`：
 
 ```properties
 freeze.store.default.path=src/test/resources/archunit/frozen
@@ -381,13 +381,13 @@ freeze.store.default.allowStoreUpdate=true
 首次运行生成冻结文件：
 
 ```bash
-mvn -pl manzhushaka-ry-admin -am -Dtest=AdminBoundaryArchTest -Dsurefire.failIfNoSpecifiedTests=false test
+mvn -pl manzhushaka-admin -am -Dtest=AdminBoundaryArchTest -Dsurefire.failIfNoSpecifiedTests=false test
 ```
 
 检查生成内容：
 
 ```bash
-find manzhushaka-ry-admin/src/test/resources/archunit/frozen -type f -maxdepth 1 -print
+find manzhushaka-admin/src/test/resources/archunit/frozen -type f -maxdepth 1 -print
 ```
 
 确认冻结文件只记录当前已知违规后，把 `allowStoreCreation` 改为 `false`：
@@ -409,7 +409,7 @@ freeze.store.default.allowStoreUpdate=true
 再次运行：
 
 ```bash
-mvn -pl manzhushaka-ry-admin -am -Dtest=AdminBoundaryArchTest -Dsurefire.failIfNoSpecifiedTests=false test
+mvn -pl manzhushaka-admin -am -Dtest=AdminBoundaryArchTest -Dsurefire.failIfNoSpecifiedTests=false test
 ```
 
 预期：
@@ -422,9 +422,9 @@ mvn -pl manzhushaka-ry-admin -am -Dtest=AdminBoundaryArchTest -Dsurefire.failIfN
 提交：
 
 ```bash
-git add manzhushaka-ry-admin/src/test/java/com/manzhushaka/architecture/AdminBoundaryArchTest.java \
-  manzhushaka-ry-admin/src/test/resources/archunit.properties \
-  manzhushaka-ry-admin/src/test/resources/archunit/frozen
+git add manzhushaka-admin/src/test/java/com/manzhushaka/architecture/AdminBoundaryArchTest.java \
+  manzhushaka-admin/src/test/resources/archunit.properties \
+  manzhushaka-admin/src/test/resources/archunit/frozen
 git commit -m "test(架构): 冻结 Admin Controller 存量边界违规"
 ```
 
@@ -468,22 +468,22 @@ static final ArchRule CONTROLLER_SHOULD_NOT_DEPEND_ON_ENTITY =
 
 需要新增或补齐：
 
-- `manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/dto/system/menu/*`
-- `manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/dto/system/dept/*`
-- `manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/dto/system/dict/*`
-- `manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/dto/system/profile/*`
-- `manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/vo/system/menu/*`
-- `manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/vo/system/dept/*`
-- `manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/vo/system/dict/*`
-- `manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/vo/system/profile/*`
-- `manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/converter/system/menu/*`
-- `manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/converter/system/dept/*`
-- `manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/converter/system/dict/*`
-- `manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/converter/system/profile/*`
-- `manzhushaka-ry-system/src/main/java/com/manzhushaka/system/application/service/SystemMenuAppService.java`
-- `manzhushaka-ry-system/src/main/java/com/manzhushaka/system/application/service/SystemDeptAppService.java`
-- `manzhushaka-ry-system/src/main/java/com/manzhushaka/system/application/service/SystemDictAppService.java`
-- `manzhushaka-ry-system/src/main/java/com/manzhushaka/system/application/service/SystemProfileAppService.java`
+- `manzhushaka-admin/src/main/java/com/manzhushaka/web/dto/system/menu/*`
+- `manzhushaka-admin/src/main/java/com/manzhushaka/web/dto/system/dept/*`
+- `manzhushaka-admin/src/main/java/com/manzhushaka/web/dto/system/dict/*`
+- `manzhushaka-admin/src/main/java/com/manzhushaka/web/dto/system/profile/*`
+- `manzhushaka-admin/src/main/java/com/manzhushaka/web/vo/system/menu/*`
+- `manzhushaka-admin/src/main/java/com/manzhushaka/web/vo/system/dept/*`
+- `manzhushaka-admin/src/main/java/com/manzhushaka/web/vo/system/dict/*`
+- `manzhushaka-admin/src/main/java/com/manzhushaka/web/vo/system/profile/*`
+- `manzhushaka-admin/src/main/java/com/manzhushaka/web/converter/system/menu/*`
+- `manzhushaka-admin/src/main/java/com/manzhushaka/web/converter/system/dept/*`
+- `manzhushaka-admin/src/main/java/com/manzhushaka/web/converter/system/dict/*`
+- `manzhushaka-admin/src/main/java/com/manzhushaka/web/converter/system/profile/*`
+- `manzhushaka-system/src/main/java/com/manzhushaka/system/application/service/SystemMenuAppService.java`
+- `manzhushaka-system/src/main/java/com/manzhushaka/system/application/service/SystemDeptAppService.java`
+- `manzhushaka-system/src/main/java/com/manzhushaka/system/application/service/SystemDictAppService.java`
+- `manzhushaka-system/src/main/java/com/manzhushaka/system/application/service/SystemProfileAppService.java`
 
 迁移方向：
 
@@ -583,10 +583,10 @@ noClasses()
 
 ```bash
 rg -n "com\\.manzhushaka\\.system\\.infrastructure\\.persistence\\.entity" \
-  manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller
+  manzhushaka-admin/src/main/java/com/manzhushaka/web/controller
 
 rg -n "com\\.manzhushaka\\.system\\.mapper" \
-  manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller
+  manzhushaka-admin/src/main/java/com/manzhushaka/web/controller
 ```
 
 然后把 `AdminBoundaryArchTest` 改回普通强规则：
@@ -603,13 +603,13 @@ static final ArchRule CONTROLLER_SHOULD_NOT_DEPEND_ON_ENTITY =
 删除冻结文件：
 
 ```bash
-rm -rf manzhushaka-ry-admin/src/test/resources/archunit/frozen
+rm -rf manzhushaka-admin/src/test/resources/archunit/frozen
 ```
 
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-admin -am -Dtest=AdminBoundaryArchTest -Dsurefire.failIfNoSpecifiedTests=false test
+mvn -pl manzhushaka-admin -am -Dtest=AdminBoundaryArchTest -Dsurefire.failIfNoSpecifiedTests=false test
 mvn test
 ```
 

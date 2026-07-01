@@ -4,7 +4,7 @@
 
 **目标：** 为启动配置中的敏感值接入密文解密能力，并为业务敏感字段提供可测试、可迁移、可查询的存储加密基础设施。
 
-**架构：** 配置文件加密由 `jasypt-spring-boot-starter` 负责，只在应用启动读取配置时解密 `ENC(...)`。业务字段加密独立放在 `manzhushaka-ry-common`，通过 AES-GCM 加密器、HMAC 检索摘要和 MyBatis TypeHandler 接入持久化层；试点字段先限定为 `sys_user.email` 和 `sys_user.phonenumber`，并用额外 hash 列承载精确查询。
+**架构：** 配置文件加密由 `jasypt-spring-boot-starter` 负责，只在应用启动读取配置时解密 `ENC(...)`。业务字段加密独立放在 `manzhushaka-common`，通过 AES-GCM 加密器、HMAC 检索摘要和 MyBatis TypeHandler 接入持久化层；试点字段先限定为 `sys_user.email` 和 `sys_user.phonenumber`，并用额外 hash 列承载精确查询。
 
 **技术栈：** Spring Boot 4.0.6、Jasypt Spring Boot Starter 4.0.4、Spring Security Crypto、Java JCA AES/GCM/NoPadding、HmacSHA256、MyBatis XML、JUnit 5。
 
@@ -14,52 +14,52 @@
 
 - 修改：`pom.xml`
   - 新增 `jasypt-spring-boot.version` 属性，并在 `dependencyManagement` 中管理配置解密 starter 版本。
-- 修改：`manzhushaka-ry-admin/pom.xml`
+- 修改：`manzhushaka-admin/pom.xml`
   - 引入 `com.github.ulisesbocchio:jasypt-spring-boot-starter`，让启动模块具备 `ENC(...)` 配置解密能力。
-- 修改：`manzhushaka-ry-admin/src/main/resources/application.yml`
+- 修改：`manzhushaka-admin/src/main/resources/application.yml`
   - 添加 `jasypt.encryptor` 配置，密钥只从环境变量或启动参数读取。
   - 将 `token.secret` 的默认明文改成环境变量占位，示例密文只放注释。
-- 修改：`manzhushaka-ry-admin/src/main/resources/application-dev.yml`
+- 修改：`manzhushaka-admin/src/main/resources/application-dev.yml`
   - 将数据库、Druid 控制台等敏感默认值改成环境变量占位或空默认值。
-- 创建：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/annotation/EncryptedField.java`
+- 创建：`manzhushaka-common/src/main/java/com/manzhushaka/common/annotation/EncryptedField.java`
   - 标记需要存储加密的字段，支持指定 hash companion 字段名。
-- 创建：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/enums/EncryptedFieldType.java`
+- 创建：`manzhushaka-common/src/main/java/com/manzhushaka/common/enums/EncryptedFieldType.java`
   - 标识字段类型，先支持 `GENERAL`、`EMAIL`、`PHONE`。
-- 创建：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/crypto/CryptoProperties.java`
+- 创建：`manzhushaka-common/src/main/java/com/manzhushaka/common/crypto/CryptoProperties.java`
   - 从 `manzhushaka.crypto` 前缀绑定字段加密配置。
-- 创建：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/crypto/SensitiveFieldEncryptor.java`
+- 创建：`manzhushaka-common/src/main/java/com/manzhushaka/common/crypto/SensitiveFieldEncryptor.java`
   - 定义字段加密、解密、hash 计算接口。
-- 创建：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/crypto/AesGcmSensitiveFieldEncryptor.java`
+- 创建：`manzhushaka-common/src/main/java/com/manzhushaka/common/crypto/AesGcmSensitiveFieldEncryptor.java`
   - 实现 AES-GCM 随机 IV 可逆加密和 HmacSHA256 检索摘要。
-- 创建：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/crypto/SensitiveFieldCryptoHolder.java`
+- 创建：`manzhushaka-common/src/main/java/com/manzhushaka/common/crypto/SensitiveFieldCryptoHolder.java`
   - 为 MyBatis TypeHandler 提供静态委托入口，由 Spring 初始化。
-- 创建：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/crypto/NoopSensitiveFieldEncryptor.java`
+- 创建：`manzhushaka-common/src/main/java/com/manzhushaka/common/crypto/NoopSensitiveFieldEncryptor.java`
   - 在字段加密未启用时显式拒绝写入敏感字段，避免 hash 列落入明文。
-- 创建：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/config/CryptoConfig.java`
+- 创建：`manzhushaka-common/src/main/java/com/manzhushaka/common/config/CryptoConfig.java`
   - 注册 `CryptoProperties` 和 `SensitiveFieldEncryptor`。
-- 创建：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/mybatis/typehandler/EncryptedStringTypeHandler.java`
+- 创建：`manzhushaka-common/src/main/java/com/manzhushaka/common/mybatis/typehandler/EncryptedStringTypeHandler.java`
   - MyBatis 字符串字段加解密 TypeHandler。
-- 创建：`manzhushaka-ry-common/src/test/java/com/manzhushaka/common/crypto/AesGcmSensitiveFieldEncryptorTest.java`
+- 创建：`manzhushaka-common/src/test/java/com/manzhushaka/common/crypto/AesGcmSensitiveFieldEncryptorTest.java`
   - 验证密文格式、随机 IV、解密、hash 稳定性、非法密钥失败。
-- 创建：`manzhushaka-ry-common/src/test/java/com/manzhushaka/common/mybatis/typehandler/EncryptedStringTypeHandlerTest.java`
+- 创建：`manzhushaka-common/src/test/java/com/manzhushaka/common/mybatis/typehandler/EncryptedStringTypeHandlerTest.java`
   - 验证 TypeHandler 写入密文、读取明文、空值透传。
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/entity/SysUser.java`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/entity/SysUser.java`
   - 为 `email`、`phonenumber` 增加 `@EncryptedField` 标记，并新增 `emailHash`、`phonenumberHash` 字段及普通访问器。
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/support/SysUserSensitiveFieldSupport.java`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/support/SysUserSensitiveFieldSupport.java`
   - 在 service/repository 边界为用户邮箱、手机号填充检索 hash，避免在实体 setter 中加入业务逻辑。
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/mapper/SysUserMapper.java`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/mapper/SysUserMapper.java`
   - 将邮箱、手机号唯一性校验参数改成 hash 语义，并使用 `@Param` 固定 XML 参数名。
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/mapper/SysUserMapper.java`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/mapper/SysUserMapper.java`
   - 同步 legacy mapper 接口的方法签名和 Javadoc，避免双 mapper 包语义漂移。
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/impl/SysUserServiceImpl.java`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/service/impl/SysUserServiceImpl.java`
   - 唯一性校验改为读取 `SysUser` 上已生成的 hash。
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/repository/UserRepositoryImpl.java`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/repository/UserRepositoryImpl.java`
   - 仓储层字符串校验入口先计算 hash，再调用 mapper。
-- 修改：`manzhushaka-ry-system/src/main/resources/mapper/system/SysUserMapper.xml`
+- 修改：`manzhushaka-system/src/main/resources/mapper/system/SysUserMapper.xml`
   - 为 `email`、`phonenumber` result 和参数绑定接入 `EncryptedStringTypeHandler`。
   - `checkEmailUnique`、`checkPhoneUnique` 改为使用 hash 精确匹配。
   - 列表手机号查询第一阶段降级为精确查询或后端明确拒绝模糊查询，本计划选择精确查询。
-- 创建：`manzhushaka-ry-system/src/test/java/com/manzhushaka/system/infrastructure/persistence/support/SysUserSensitiveFieldSupportTest.java`
+- 创建：`manzhushaka-system/src/test/java/com/manzhushaka/system/infrastructure/persistence/support/SysUserSensitiveFieldSupportTest.java`
   - 验证用户邮箱、手机号 hash 由 support 类统一填充。
 - 修改：`sql/manzhushaka_db_init.sql`
   - 为 `sys_user` 增加 `email_hash`、`phonenumber_hash` 字段和普通索引。
@@ -83,14 +83,14 @@
 
 **文件：**
 - 修改：`pom.xml`
-- 修改：`manzhushaka-ry-admin/pom.xml`
+- 修改：`manzhushaka-admin/pom.xml`
 
 - [ ] **步骤 1：编写依赖缺失验证**
 
 运行：
 
 ```bash
-rg -n "jasypt-spring-boot-starter|jasypt-spring-boot.version" pom.xml manzhushaka-ry-admin/pom.xml
+rg -n "jasypt-spring-boot-starter|jasypt-spring-boot.version" pom.xml manzhushaka-admin/pom.xml
 ```
 
 预期：没有输出，说明当前没有直接接入配置解密 starter。
@@ -116,7 +116,7 @@ rg -n "jasypt-spring-boot-starter|jasypt-spring-boot.version" pom.xml manzhushak
 
 - [ ] **步骤 3：在 admin 启动模块引入 starter**
 
-在 `manzhushaka-ry-admin/pom.xml` 的 `<dependencies>` 中加入：
+在 `manzhushaka-admin/pom.xml` 的 `<dependencies>` 中加入：
 
 ```xml
 <!-- 配置文件敏感信息密文解密 -->
@@ -131,7 +131,7 @@ rg -n "jasypt-spring-boot-starter|jasypt-spring-boot.version" pom.xml manzhushak
 运行：
 
 ```bash
-rg -n "jasypt-spring-boot-starter|jasypt-spring-boot.version" pom.xml manzhushaka-ry-admin/pom.xml
+rg -n "jasypt-spring-boot-starter|jasypt-spring-boot.version" pom.xml manzhushaka-admin/pom.xml
 ```
 
 预期：能看到父 POM 的版本属性、dependencyManagement 和 admin 模块依赖。
@@ -141,7 +141,7 @@ rg -n "jasypt-spring-boot-starter|jasypt-spring-boot.version" pom.xml manzhushak
 运行：
 
 ```bash
-mvn -o -pl manzhushaka-ry-admin -am dependency:tree -Dincludes=com.github.ulisesbocchio:*,org.jasypt:*
+mvn -o -pl manzhushaka-admin -am dependency:tree -Dincludes=com.github.ulisesbocchio:*,org.jasypt:*
 ```
 
 预期：输出包含 `com.github.ulisesbocchio:jasypt-spring-boot-starter:jar:4.0.4`、`com.github.ulisesbocchio:jasypt-spring-boot:jar:4.0.4` 和 `org.jasypt:jasypt:jar:1.9.3`。如果本地 Maven 因公司仓库离线解析失败，记录失败原因，并用本机 `~/.m2/repository` 中已有 jar 作为辅助证据。
@@ -149,7 +149,7 @@ mvn -o -pl manzhushaka-ry-admin -am dependency:tree -Dincludes=com.github.ulises
 - [ ] **步骤 6：Commit**
 
 ```bash
-git add pom.xml manzhushaka-ry-admin/pom.xml
+git add pom.xml manzhushaka-admin/pom.xml
 git commit -m "feat: 接入配置文件密文解密依赖"
 ```
 
@@ -158,22 +158,22 @@ git commit -m "feat: 接入配置文件密文解密依赖"
 ### 任务 2：调整配置文件敏感值写法
 
 **文件：**
-- 修改：`manzhushaka-ry-admin/src/main/resources/application.yml`
-- 修改：`manzhushaka-ry-admin/src/main/resources/application-dev.yml`
+- 修改：`manzhushaka-admin/src/main/resources/application.yml`
+- 修改：`manzhushaka-admin/src/main/resources/application-dev.yml`
 
 - [ ] **步骤 1：记录当前敏感配置**
 
 运行：
 
 ```bash
-rg -n "password:|secret:|username:|login-password|JDBC_|TOKEN_|REDIS_" manzhushaka-ry-admin/src/main/resources/application*.yml
+rg -n "password:|secret:|username:|login-password|JDBC_|TOKEN_|REDIS_" manzhushaka-admin/src/main/resources/application*.yml
 ```
 
 预期：能看到 `token.secret`、Redis 密码、JDBC 用户名密码、Druid 控制台账号密码。
 
 - [ ] **步骤 2：配置 Jasypt 密钥来源**
 
-在 `manzhushaka-ry-admin/src/main/resources/application.yml` 中新增：
+在 `manzhushaka-admin/src/main/resources/application.yml` 中新增：
 
 ```yaml
 # 配置文件敏感信息密文解密
@@ -200,11 +200,11 @@ token:
 
 - [ ] **步骤 4：收敛开发库密码默认值**
 
-将 `manzhushaka-ry-admin/src/main/resources/application-dev.yml` 中主库配置改为：
+将 `manzhushaka-admin/src/main/resources/application-dev.yml` 中主库配置改为：
 
 ```yaml
 master:
-    url: ${JDBC_MASTER_URL:jdbc:mysql://localhost:3306/manzhushaka-ry-scaff?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8}
+    url: ${JDBC_MASTER_URL:jdbc:mysql://localhost:3306/manzhushaka-scaff?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8}
     username: ${JDBC_MASTER_USERNAME:root}
     password: ${JDBC_MASTER_PASSWORD:}
 ```
@@ -216,7 +216,7 @@ master:
 运行：
 
 ```bash
-rg -n "1a2s3d4f|abcdefghijklmnopqrstuvwxyz" manzhushaka-ry-admin/src/main/resources/application*.yml
+rg -n "1a2s3d4f|abcdefghijklmnopqrstuvwxyz" manzhushaka-admin/src/main/resources/application*.yml
 ```
 
 预期：没有输出。
@@ -226,7 +226,7 @@ rg -n "1a2s3d4f|abcdefghijklmnopqrstuvwxyz" manzhushaka-ry-admin/src/main/resour
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-admin -am test -DskipTests
+mvn -pl manzhushaka-admin -am test -DskipTests
 ```
 
 预期：Maven 编译阶段通过。如果公司 Maven 仓库连接失败，记录具体仓库和 artifact 错误。
@@ -234,7 +234,7 @@ mvn -pl manzhushaka-ry-admin -am test -DskipTests
 - [ ] **步骤 7：Commit**
 
 ```bash
-git add manzhushaka-ry-admin/src/main/resources/application.yml manzhushaka-ry-admin/src/main/resources/application-dev.yml
+git add manzhushaka-admin/src/main/resources/application.yml manzhushaka-admin/src/main/resources/application-dev.yml
 git commit -m "chore: 收敛敏感配置明文默认值"
 ```
 
@@ -243,17 +243,17 @@ git commit -m "chore: 收敛敏感配置明文默认值"
 ### 任务 3：实现字段加密核心能力
 
 **文件：**
-- 创建：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/enums/EncryptedFieldType.java`
-- 创建：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/annotation/EncryptedField.java`
-- 创建：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/crypto/CryptoProperties.java`
-- 创建：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/crypto/SensitiveFieldEncryptor.java`
-- 创建：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/crypto/AesGcmSensitiveFieldEncryptor.java`
-- 创建：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/config/CryptoConfig.java`
-- 测试：`manzhushaka-ry-common/src/test/java/com/manzhushaka/common/crypto/AesGcmSensitiveFieldEncryptorTest.java`
+- 创建：`manzhushaka-common/src/main/java/com/manzhushaka/common/enums/EncryptedFieldType.java`
+- 创建：`manzhushaka-common/src/main/java/com/manzhushaka/common/annotation/EncryptedField.java`
+- 创建：`manzhushaka-common/src/main/java/com/manzhushaka/common/crypto/CryptoProperties.java`
+- 创建：`manzhushaka-common/src/main/java/com/manzhushaka/common/crypto/SensitiveFieldEncryptor.java`
+- 创建：`manzhushaka-common/src/main/java/com/manzhushaka/common/crypto/AesGcmSensitiveFieldEncryptor.java`
+- 创建：`manzhushaka-common/src/main/java/com/manzhushaka/common/config/CryptoConfig.java`
+- 测试：`manzhushaka-common/src/test/java/com/manzhushaka/common/crypto/AesGcmSensitiveFieldEncryptorTest.java`
 
 - [ ] **步骤 1：编写失败测试**
 
-创建 `manzhushaka-ry-common/src/test/java/com/manzhushaka/common/crypto/AesGcmSensitiveFieldEncryptorTest.java`：
+创建 `manzhushaka-common/src/test/java/com/manzhushaka/common/crypto/AesGcmSensitiveFieldEncryptorTest.java`：
 
 ```java
 package com.manzhushaka.common.crypto;
@@ -329,14 +329,14 @@ class AesGcmSensitiveFieldEncryptorTest {
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-common -Dtest=AesGcmSensitiveFieldEncryptorTest test
+mvn -pl manzhushaka-common -Dtest=AesGcmSensitiveFieldEncryptorTest test
 ```
 
 预期：FAIL，编译错误包含 `cannot find symbol`，因为加密类尚未创建。
 
 - [ ] **步骤 3：创建字段类型枚举**
 
-创建 `manzhushaka-ry-common/src/main/java/com/manzhushaka/common/enums/EncryptedFieldType.java`：
+创建 `manzhushaka-common/src/main/java/com/manzhushaka/common/enums/EncryptedFieldType.java`：
 
 ```java
 package com.manzhushaka.common.enums;
@@ -360,7 +360,7 @@ public enum EncryptedFieldType {
 
 - [ ] **步骤 4：创建字段加密注解**
 
-创建 `manzhushaka-ry-common/src/main/java/com/manzhushaka/common/annotation/EncryptedField.java`：
+创建 `manzhushaka-common/src/main/java/com/manzhushaka/common/annotation/EncryptedField.java`：
 
 ```java
 package com.manzhushaka.common.annotation;
@@ -398,7 +398,7 @@ public @interface EncryptedField {
 
 - [ ] **步骤 5：创建配置属性类**
 
-创建 `manzhushaka-ry-common/src/main/java/com/manzhushaka/common/crypto/CryptoProperties.java`：
+创建 `manzhushaka-common/src/main/java/com/manzhushaka/common/crypto/CryptoProperties.java`：
 
 ```java
 package com.manzhushaka.common.crypto;
@@ -450,7 +450,7 @@ public class CryptoProperties {
 
 - [ ] **步骤 6：创建加密接口**
 
-创建 `manzhushaka-ry-common/src/main/java/com/manzhushaka/common/crypto/SensitiveFieldEncryptor.java`：
+创建 `manzhushaka-common/src/main/java/com/manzhushaka/common/crypto/SensitiveFieldEncryptor.java`：
 
 ```java
 package com.manzhushaka.common.crypto;
@@ -498,7 +498,7 @@ public interface SensitiveFieldEncryptor {
 
 - [ ] **步骤 7：实现 AES-GCM 加密器**
 
-创建 `manzhushaka-ry-common/src/main/java/com/manzhushaka/common/crypto/AesGcmSensitiveFieldEncryptor.java`：
+创建 `manzhushaka-common/src/main/java/com/manzhushaka/common/crypto/AesGcmSensitiveFieldEncryptor.java`：
 
 ```java
 package com.manzhushaka.common.crypto;
@@ -611,7 +611,7 @@ public class AesGcmSensitiveFieldEncryptor implements SensitiveFieldEncryptor {
 
 - [ ] **步骤 8：注册 Spring Bean**
 
-创建 `manzhushaka-ry-common/src/main/java/com/manzhushaka/common/config/CryptoConfig.java`：
+创建 `manzhushaka-common/src/main/java/com/manzhushaka/common/config/CryptoConfig.java`：
 
 ```java
 package com.manzhushaka.common.config;
@@ -652,7 +652,7 @@ public class CryptoConfig {
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-common -Dtest=AesGcmSensitiveFieldEncryptorTest test
+mvn -pl manzhushaka-common -Dtest=AesGcmSensitiveFieldEncryptorTest test
 ```
 
 预期：`Tests run: 4, Failures: 0, Errors: 0`。
@@ -660,13 +660,13 @@ mvn -pl manzhushaka-ry-common -Dtest=AesGcmSensitiveFieldEncryptorTest test
 - [ ] **步骤 10：Commit**
 
 ```bash
-git add manzhushaka-ry-common/src/main/java/com/manzhushaka/common/enums/EncryptedFieldType.java \
-  manzhushaka-ry-common/src/main/java/com/manzhushaka/common/annotation/EncryptedField.java \
-  manzhushaka-ry-common/src/main/java/com/manzhushaka/common/crypto/CryptoProperties.java \
-  manzhushaka-ry-common/src/main/java/com/manzhushaka/common/crypto/SensitiveFieldEncryptor.java \
-  manzhushaka-ry-common/src/main/java/com/manzhushaka/common/crypto/AesGcmSensitiveFieldEncryptor.java \
-  manzhushaka-ry-common/src/main/java/com/manzhushaka/common/config/CryptoConfig.java \
-  manzhushaka-ry-common/src/test/java/com/manzhushaka/common/crypto/AesGcmSensitiveFieldEncryptorTest.java
+git add manzhushaka-common/src/main/java/com/manzhushaka/common/enums/EncryptedFieldType.java \
+  manzhushaka-common/src/main/java/com/manzhushaka/common/annotation/EncryptedField.java \
+  manzhushaka-common/src/main/java/com/manzhushaka/common/crypto/CryptoProperties.java \
+  manzhushaka-common/src/main/java/com/manzhushaka/common/crypto/SensitiveFieldEncryptor.java \
+  manzhushaka-common/src/main/java/com/manzhushaka/common/crypto/AesGcmSensitiveFieldEncryptor.java \
+  manzhushaka-common/src/main/java/com/manzhushaka/common/config/CryptoConfig.java \
+  manzhushaka-common/src/test/java/com/manzhushaka/common/crypto/AesGcmSensitiveFieldEncryptorTest.java
 git commit -m "feat: 增加敏感字段加密核心能力"
 ```
 
@@ -675,14 +675,14 @@ git commit -m "feat: 增加敏感字段加密核心能力"
 ### 任务 4：实现 MyBatis 字段加解密 TypeHandler
 
 **文件：**
-- 创建：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/crypto/SensitiveFieldCryptoHolder.java`
-- 创建：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/crypto/NoopSensitiveFieldEncryptor.java`
-- 创建：`manzhushaka-ry-common/src/main/java/com/manzhushaka/common/mybatis/typehandler/EncryptedStringTypeHandler.java`
-- 测试：`manzhushaka-ry-common/src/test/java/com/manzhushaka/common/mybatis/typehandler/EncryptedStringTypeHandlerTest.java`
+- 创建：`manzhushaka-common/src/main/java/com/manzhushaka/common/crypto/SensitiveFieldCryptoHolder.java`
+- 创建：`manzhushaka-common/src/main/java/com/manzhushaka/common/crypto/NoopSensitiveFieldEncryptor.java`
+- 创建：`manzhushaka-common/src/main/java/com/manzhushaka/common/mybatis/typehandler/EncryptedStringTypeHandler.java`
+- 测试：`manzhushaka-common/src/test/java/com/manzhushaka/common/mybatis/typehandler/EncryptedStringTypeHandlerTest.java`
 
 - [ ] **步骤 1：编写失败测试**
 
-创建 `manzhushaka-ry-common/src/test/java/com/manzhushaka/common/mybatis/typehandler/EncryptedStringTypeHandlerTest.java`：
+创建 `manzhushaka-common/src/test/java/com/manzhushaka/common/mybatis/typehandler/EncryptedStringTypeHandlerTest.java`：
 
 ```java
 package com.manzhushaka.common.mybatis.typehandler;
@@ -747,14 +747,14 @@ class EncryptedStringTypeHandlerTest {
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-common -Dtest=EncryptedStringTypeHandlerTest test
+mvn -pl manzhushaka-common -Dtest=EncryptedStringTypeHandlerTest test
 ```
 
 预期：FAIL，编译错误包含 `SensitiveFieldCryptoHolder` 或 `EncryptedStringTypeHandler` 不存在。
 
 - [ ] **步骤 3：实现静态委托 Holder**
 
-创建 `manzhushaka-ry-common/src/main/java/com/manzhushaka/common/crypto/SensitiveFieldCryptoHolder.java`：
+创建 `manzhushaka-common/src/main/java/com/manzhushaka/common/crypto/SensitiveFieldCryptoHolder.java`：
 
 ```java
 package com.manzhushaka.common.crypto;
@@ -812,7 +812,7 @@ public class SensitiveFieldCryptoHolder implements InitializingBean {
 
 - [ ] **步骤 4：实现未启用加密时的显式策略**
 
-创建 `manzhushaka-ry-common/src/main/java/com/manzhushaka/common/crypto/NoopSensitiveFieldEncryptor.java`：
+创建 `manzhushaka-common/src/main/java/com/manzhushaka/common/crypto/NoopSensitiveFieldEncryptor.java`：
 
 ```java
 package com.manzhushaka.common.crypto;
@@ -858,7 +858,7 @@ public enum NoopSensitiveFieldEncryptor implements SensitiveFieldEncryptor {
 
 - [ ] **步骤 5：实现 TypeHandler**
 
-创建 `manzhushaka-ry-common/src/main/java/com/manzhushaka/common/mybatis/typehandler/EncryptedStringTypeHandler.java`：
+创建 `manzhushaka-common/src/main/java/com/manzhushaka/common/mybatis/typehandler/EncryptedStringTypeHandler.java`：
 
 ```java
 package com.manzhushaka.common.mybatis.typehandler;
@@ -942,7 +942,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-common -Dtest=EncryptedStringTypeHandlerTest test
+mvn -pl manzhushaka-common -Dtest=EncryptedStringTypeHandlerTest test
 ```
 
 预期：`Tests run: 5, Failures: 0, Errors: 0`。
@@ -950,10 +950,10 @@ mvn -pl manzhushaka-ry-common -Dtest=EncryptedStringTypeHandlerTest test
 - [ ] **步骤 8：Commit**
 
 ```bash
-git add manzhushaka-ry-common/src/main/java/com/manzhushaka/common/crypto/SensitiveFieldCryptoHolder.java \
-  manzhushaka-ry-common/src/main/java/com/manzhushaka/common/crypto/NoopSensitiveFieldEncryptor.java \
-  manzhushaka-ry-common/src/main/java/com/manzhushaka/common/mybatis/typehandler/EncryptedStringTypeHandler.java \
-  manzhushaka-ry-common/src/test/java/com/manzhushaka/common/mybatis/typehandler/EncryptedStringTypeHandlerTest.java
+git add manzhushaka-common/src/main/java/com/manzhushaka/common/crypto/SensitiveFieldCryptoHolder.java \
+  manzhushaka-common/src/main/java/com/manzhushaka/common/crypto/NoopSensitiveFieldEncryptor.java \
+  manzhushaka-common/src/main/java/com/manzhushaka/common/mybatis/typehandler/EncryptedStringTypeHandler.java \
+  manzhushaka-common/src/test/java/com/manzhushaka/common/mybatis/typehandler/EncryptedStringTypeHandlerTest.java
 git commit -m "feat: 增加 MyBatis 敏感字段加解密处理器"
 ```
 
@@ -962,18 +962,18 @@ git commit -m "feat: 增加 MyBatis 敏感字段加解密处理器"
 ### 任务 5：用户邮箱和手机号接入加密与 hash 查询
 
 **文件：**
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/entity/SysUser.java`
-- 创建：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/support/SysUserSensitiveFieldSupport.java`
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/mapper/SysUserMapper.java`
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/mapper/SysUserMapper.java`
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/impl/SysUserServiceImpl.java`
-- 修改：`manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/repository/UserRepositoryImpl.java`
-- 修改：`manzhushaka-ry-system/src/main/resources/mapper/system/SysUserMapper.xml`
-- 测试：`manzhushaka-ry-system/src/test/java/com/manzhushaka/system/infrastructure/persistence/support/SysUserSensitiveFieldSupportTest.java`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/entity/SysUser.java`
+- 创建：`manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/support/SysUserSensitiveFieldSupport.java`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/mapper/SysUserMapper.java`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/mapper/SysUserMapper.java`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/service/impl/SysUserServiceImpl.java`
+- 修改：`manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/repository/UserRepositoryImpl.java`
+- 修改：`manzhushaka-system/src/main/resources/mapper/system/SysUserMapper.xml`
+- 测试：`manzhushaka-system/src/test/java/com/manzhushaka/system/infrastructure/persistence/support/SysUserSensitiveFieldSupportTest.java`
 
 - [ ] **步骤 1：编写失败测试**
 
-创建 `manzhushaka-ry-system/src/test/java/com/manzhushaka/system/infrastructure/persistence/support/SysUserSensitiveFieldSupportTest.java`：
+创建 `manzhushaka-system/src/test/java/com/manzhushaka/system/infrastructure/persistence/support/SysUserSensitiveFieldSupportTest.java`：
 
 ```java
 package com.manzhushaka.system.infrastructure.persistence.support;
@@ -1046,7 +1046,7 @@ class SysUserSensitiveFieldSupportTest {
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-system -Dtest=SysUserSensitiveFieldSupportTest test
+mvn -pl manzhushaka-system -Dtest=SysUserSensitiveFieldSupportTest test
 ```
 
 预期：FAIL，编译错误包含 `SysUserSensitiveFieldSupport`、`getEmailHash` 或 `getPhonenumberHash` 不存在。
@@ -1124,7 +1124,7 @@ public void setPhonenumberHash(String phonenumberHash)
 
 - [ ] **步骤 4：创建 SysUser hash 填充支持类**
 
-创建 `manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/support/SysUserSensitiveFieldSupport.java`：
+创建 `manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/support/SysUserSensitiveFieldSupport.java`：
 
 ```java
 package com.manzhushaka.system.infrastructure.persistence.support;
@@ -1229,7 +1229,7 @@ phonenumber 后加入：
 
 - [ ] **步骤 8：修改 mapper 接口参数语义**
 
-修改 `manzhushaka-ry-system/src/main/java/com/manzhushaka/system/mapper/SysUserMapper.java` 和 `manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/mapper/SysUserMapper.java`：
+修改 `manzhushaka-system/src/main/java/com/manzhushaka/system/mapper/SysUserMapper.java` 和 `manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/mapper/SysUserMapper.java`：
 
 ```java
 /**
@@ -1269,7 +1269,7 @@ public SysUser checkEmailUnique(@Param("emailHash") String emailHash);
 
 - [ ] **步骤 10：修改 service 和 repository 调用点**
 
-在 `manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/impl/SysUserServiceImpl.java` 中新增 import：
+在 `manzhushaka-system/src/main/java/com/manzhushaka/system/service/impl/SysUserServiceImpl.java` 中新增 import：
 
 ```java
 import com.manzhushaka.common.crypto.SensitiveFieldCryptoHolder;
@@ -1322,7 +1322,7 @@ public boolean checkEmailUnique(SysUser user)
 }
 ```
 
-在 `manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/repository/UserRepositoryImpl.java` 中新增 import：
+在 `manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/repository/UserRepositoryImpl.java` 中新增 import：
 
 ```java
 import com.manzhushaka.common.crypto.SensitiveFieldCryptoHolder;
@@ -1408,7 +1408,7 @@ AND u.phonenumber_hash = #{phonenumberHash}
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-system -Dtest=SysUserSensitiveFieldSupportTest test
+mvn -pl manzhushaka-system -Dtest=SysUserSensitiveFieldSupportTest test
 ```
 
 预期：`Tests run: 2, Failures: 0, Errors: 0`。
@@ -1418,7 +1418,7 @@ mvn -pl manzhushaka-ry-system -Dtest=SysUserSensitiveFieldSupportTest test
 运行：
 
 ```bash
-rg -n "email_hash|phonenumber_hash|EncryptedStringTypeHandler|phonenumber like" manzhushaka-ry-system/src/main/resources/mapper/system/SysUserMapper.xml
+rg -n "email_hash|phonenumber_hash|EncryptedStringTypeHandler|phonenumber like" manzhushaka-system/src/main/resources/mapper/system/SysUserMapper.xml
 ```
 
 预期：能看到 `email_hash`、`phonenumber_hash`、`EncryptedStringTypeHandler`；不再出现 `phonenumber like`。
@@ -1426,14 +1426,14 @@ rg -n "email_hash|phonenumber_hash|EncryptedStringTypeHandler|phonenumber like" 
 - [ ] **步骤 14：Commit**
 
 ```bash
-git add manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/entity/SysUser.java \
-  manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/support/SysUserSensitiveFieldSupport.java \
-  manzhushaka-ry-system/src/main/java/com/manzhushaka/system/mapper/SysUserMapper.java \
-  manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/mapper/SysUserMapper.java \
-  manzhushaka-ry-system/src/main/java/com/manzhushaka/system/service/impl/SysUserServiceImpl.java \
-  manzhushaka-ry-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/repository/UserRepositoryImpl.java \
-  manzhushaka-ry-system/src/main/resources/mapper/system/SysUserMapper.xml \
-  manzhushaka-ry-system/src/test/java/com/manzhushaka/system/infrastructure/persistence/support/SysUserSensitiveFieldSupportTest.java
+git add manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/entity/SysUser.java \
+  manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/support/SysUserSensitiveFieldSupport.java \
+  manzhushaka-system/src/main/java/com/manzhushaka/system/mapper/SysUserMapper.java \
+  manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/mapper/SysUserMapper.java \
+  manzhushaka-system/src/main/java/com/manzhushaka/system/service/impl/SysUserServiceImpl.java \
+  manzhushaka-system/src/main/java/com/manzhushaka/system/infrastructure/persistence/repository/UserRepositoryImpl.java \
+  manzhushaka-system/src/main/resources/mapper/system/SysUserMapper.xml \
+  manzhushaka-system/src/test/java/com/manzhushaka/system/infrastructure/persistence/support/SysUserSensitiveFieldSupportTest.java
 git commit -m "feat: 用户敏感字段接入存储加密"
 ```
 
@@ -1498,7 +1498,7 @@ git commit -m "chore: 同步用户敏感字段初始化 SQL"
 ### 任务 7：补充运行配置和安全文档
 
 **文件：**
-- 修改：`manzhushaka-ry-admin/src/main/resources/application.yml`
+- 修改：`manzhushaka-admin/src/main/resources/application.yml`
 - 创建：`docs/security/sensitive-encryption.md`
 
 - [ ] **步骤 1：添加字段加密配置占位**
@@ -1563,7 +1563,7 @@ export SENSITIVE_FIELD_HMAC_KEY='<base64-encoded-32-byte-key>'
 运行：
 
 ```bash
-rg -n "0123456789abcdef|1a2s3d4f|abcdefghijklmnopqrstuvwxyz|change-me" docs/security/sensitive-encryption.md manzhushaka-ry-admin/src/main/resources/application.yml
+rg -n "0123456789abcdef|1a2s3d4f|abcdefghijklmnopqrstuvwxyz|change-me" docs/security/sensitive-encryption.md manzhushaka-admin/src/main/resources/application.yml
 ```
 
 预期：只允许 `change-me` 出现在文档示例中；不得出现真实仓库旧密码或旧 token secret。
@@ -1571,7 +1571,7 @@ rg -n "0123456789abcdef|1a2s3d4f|abcdefghijklmnopqrstuvwxyz|change-me" docs/secu
 - [ ] **步骤 4：Commit**
 
 ```bash
-git add manzhushaka-ry-admin/src/main/resources/application.yml docs/security/sensitive-encryption.md
+git add manzhushaka-admin/src/main/resources/application.yml docs/security/sensitive-encryption.md
 git commit -m "docs: 补充敏感信息加密运行说明"
 ```
 
@@ -1588,7 +1588,7 @@ git commit -m "docs: 补充敏感信息加密运行说明"
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-common test
+mvn -pl manzhushaka-common test
 ```
 
 预期：common 模块测试全部通过。
@@ -1598,7 +1598,7 @@ mvn -pl manzhushaka-ry-common test
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-system -am test
+mvn -pl manzhushaka-system -am test
 ```
 
 预期：system 及依赖模块测试全部通过。
@@ -1608,7 +1608,7 @@ mvn -pl manzhushaka-ry-system -am test
 运行：
 
 ```bash
-mvn -pl manzhushaka-ry-admin -am test
+mvn -pl manzhushaka-admin -am test
 ```
 
 预期：admin 聚合测试通过。若公司 Maven 仓库连接重置，记录失败命令、错误仓库、artifact 和本地已完成的子模块测试结果。
@@ -1628,7 +1628,7 @@ rg -n "1a2s3d4f|abcdefghijklmnopqrstuvwxyz|SENSITIVE_FIELD_AES_KEY:([A-Za-z0-9+/
 运行：
 
 ```bash
-rg -n "email|phonenumber|password|token|secret" manzhushaka-ry-framework/src/main/java/com/manzhushaka/framework/interceptor manzhushaka-ry-system/src/main/java manzhushaka-ry-admin/src/main/java
+rg -n "email|phonenumber|password|token|secret" manzhushaka-framework/src/main/java/com/manzhushaka/framework/interceptor manzhushaka-system/src/main/java manzhushaka-admin/src/main/java
 ```
 
 预期：请求日志已有敏感参数脱敏；新增代码没有直接打印明文邮箱、手机号、密钥、密文全文。
@@ -1649,7 +1649,7 @@ git diff --check
 如果任务 1-7 已经逐步 commit，且任务 8 只产生验证记录，不需要额外 commit。若修复了验证中发现的问题，按实际文件执行：
 
 ```bash
-git add pom.xml manzhushaka-ry-admin/pom.xml manzhushaka-ry-common manzhushaka-ry-system sql/manzhushaka_db_init.sql docs/security/sensitive-encryption.md
+git add pom.xml manzhushaka-admin/pom.xml manzhushaka-common manzhushaka-system sql/manzhushaka_db_init.sql docs/security/sensitive-encryption.md
 git commit -m "fix: 修正敏感信息加密回归问题"
 ```
 
