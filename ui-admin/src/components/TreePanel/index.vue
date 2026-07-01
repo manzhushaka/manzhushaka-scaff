@@ -58,7 +58,7 @@
         <template #default="{ node, data }">
           <slot name="node" :node="node" :data="data">
             <span class="tree-node">
-              <el-icon class="node-icon">
+              <el-icon class="node-icon" :class="data.children && data.children.length ? 'folder-icon' : 'leaf-icon'">
                 <Folder v-if="data.children && data.children.length" />
                 <Document v-else />
               </el-icon>
@@ -477,8 +477,40 @@ onBeforeUnmount(() => {
 }
 
 .tree-search {
-  padding: 10px 10px 4px;
+  padding: 12px 14px 8px;
   flex-shrink: 0;
+
+  :deep(.el-input) {
+    width: 100%;
+  }
+
+  :deep(.el-input__wrapper) {
+    min-height: 36px;
+    border-radius: 7px;
+    background: var(--ui-bg-panel-soft, #f6f9fc);
+    box-shadow: 0 0 0 1px var(--ui-border, #dcdfe6) inset;
+    transition: box-shadow 0.2s ease, background 0.2s ease;
+
+    &:hover {
+      box-shadow: 0 0 0 1px var(--ui-border-strong, #c7d2df) inset;
+    }
+
+    &.is-focus {
+      background: var(--ui-bg-panel, #ffffff);
+      box-shadow: var(--ui-focus-ring, 0 0 0 2px rgba(64, 158, 255, 0.18)) !important;
+    }
+  }
+
+  :deep(.el-input__prefix) {
+    color: var(--ui-text-muted, #a8abb2);
+    margin-right: 6px;
+  }
+
+  :deep(.el-input__inner) {
+    height: 36px;
+    background: transparent;
+    color: var(--ui-text-primary, #303133);
+  }
 }
 
 .tree-wrap {
@@ -504,13 +536,25 @@ onBeforeUnmount(() => {
   }
 
   :deep(.el-tree-node__content) {
-    height: 32px;
+    height: 34px;
     border-radius: 4px;
     margin-bottom: 1px;
+    padding-right: 8px;
 
     &:hover {
       background: #f0f7ff;
     }
+  }
+
+  :deep(.el-tree-node__expand-icon) {
+    flex: 0 0 18px;
+    width: 18px;
+    margin-right: 2px;
+    color: var(--ui-text-muted, #a8abb2);
+  }
+
+  :deep(.el-tree-node__expand-icon.is-leaf) {
+    color: transparent;
   }
 
   :deep(.el-tree-node.is-current > .el-tree-node__content) {
@@ -527,14 +571,26 @@ onBeforeUnmount(() => {
 .tree-node {
   display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: 13px;
+  gap: 7px;
+  min-width: 0;
+  font-size: 14px;
+  line-height: 1;
   overflow: hidden;
 
   .node-icon {
-    font-size: 14px;
-    color: #f5a623;
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
     flex-shrink: 0;
+  }
+
+  .folder-icon {
+    color: #f59e0b;
+  }
+
+  .leaf-icon {
+    color: #f59e0b;
+    font-size: 15px;
   }
 
   .node-label {

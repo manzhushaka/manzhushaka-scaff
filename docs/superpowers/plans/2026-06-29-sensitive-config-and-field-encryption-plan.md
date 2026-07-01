@@ -61,7 +61,7 @@
   - 列表手机号查询第一阶段降级为精确查询或后端明确拒绝模糊查询，本计划选择精确查询。
 - 创建：`manzhushaka-ry-system/src/test/java/com/manzhushaka/system/infrastructure/persistence/support/SysUserSensitiveFieldSupportTest.java`
   - 验证用户邮箱、手机号 hash 由 support 类统一填充。
-- 修改：`sql/ry_20260417.sql`
+- 修改：`sql/manzhushaka_db_init.sql`
   - 为 `sys_user` 增加 `email_hash`、`phonenumber_hash` 字段和普通索引。
   - 保留原 `email`、`phonenumber` 列名，长度扩大到能容纳密文。
 - 创建：`docs/security/sensitive-encryption.md`
@@ -1442,14 +1442,14 @@ git commit -m "feat: 用户敏感字段接入存储加密"
 ### 任务 6：同步初始化 SQL
 
 **文件：**
-- 修改：`sql/ry_20260417.sql`
+- 修改：`sql/manzhushaka_db_init.sql`
 
 - [ ] **步骤 1：定位 sys_user 表结构**
 
 运行：
 
 ```bash
-rg -n "create table sys_user|email|phonenumber" sql/ry_20260417.sql
+rg -n "create table sys_user|email|phonenumber" sql/manzhushaka_db_init.sql
 ```
 
 预期：能看到 `sys_user` 的 `email varchar(50)` 和 `phonenumber varchar(11)`。
@@ -1481,7 +1481,7 @@ rg -n "create table sys_user|email|phonenumber" sql/ry_20260417.sql
 运行：
 
 ```bash
-rg -n "insert into sys_user|sys_user values|email_hash|phonenumber_hash" sql/ry_20260417.sql
+rg -n "insert into sys_user|sys_user values|email_hash|phonenumber_hash" sql/manzhushaka_db_init.sql
 ```
 
 预期：如果初始化 SQL 使用全列 insert，需要同步补齐 `email_hash`、`phonenumber_hash` 的值；如果明确列名 insert，不需要补值。
@@ -1489,7 +1489,7 @@ rg -n "insert into sys_user|sys_user values|email_hash|phonenumber_hash" sql/ry_
 - [ ] **步骤 5：Commit**
 
 ```bash
-git add sql/ry_20260417.sql
+git add sql/manzhushaka_db_init.sql
 git commit -m "chore: 同步用户敏感字段初始化 SQL"
 ```
 
@@ -1649,7 +1649,7 @@ git diff --check
 如果任务 1-7 已经逐步 commit，且任务 8 只产生验证记录，不需要额外 commit。若修复了验证中发现的问题，按实际文件执行：
 
 ```bash
-git add pom.xml manzhushaka-ry-admin/pom.xml manzhushaka-ry-common manzhushaka-ry-system sql/ry_20260417.sql docs/security/sensitive-encryption.md
+git add pom.xml manzhushaka-ry-admin/pom.xml manzhushaka-ry-common manzhushaka-ry-system sql/manzhushaka_db_init.sql docs/security/sensitive-encryption.md
 git commit -m "fix: 修正敏感信息加密回归问题"
 ```
 

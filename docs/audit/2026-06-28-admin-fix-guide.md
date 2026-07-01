@@ -90,7 +90,7 @@ node .codex-run/static-audit.cjs
 
 ### 菜单 SQL 修复要点
 
-在 `sql/ry_20260417.sql` 中补齐当前 live 路由。至少包括：
+在 `sql/manzhushaka_db_init.sql` 中补齐当前 live 路由。至少包括：
 
 - 业务目录：以旧换新、商品管理、导入与导出。
 - 业务菜单：交易流水、订单包管理、审核管理、订单资料、安装信息管理、补贴结算、退货退款台账、资料规则、接入方管理、品牌管理、资料转存任务。
@@ -212,7 +212,7 @@ public class TestController {
 @DeleteMapping("/{userId}")
 ```
 
-同时在 `sql/ry_20260417.sql` 增加 `tool:test:*` 菜单权限。
+同时在 `sql/manzhushaka_db_init.sql` 增加 `tool:test:*` 菜单权限。
 
 ### 验证方式
 

@@ -14,7 +14,7 @@
 - `数据监控` 和 `系统接口` iframe 页面当前不可用，后端资源未挂载或文档 UI 未启用。
 - 首页快捷入口中 `操作日志`、`登录日志` 指向旧路由，点击后进入 404。
 - 移动端表格页面可访问，但 `用户管理` 在 390 px 宽度下表格区域被压缩到约 136 px，属于明显布局问题。
-- `sql/ry_20260417.sql` 与当前数据库菜单不一致；多个前端按钮权限和后端接口权限没有进入初始化菜单权限数据。
+- `sql/manzhushaka_db_init.sql` 与当前数据库菜单不一致；多个前端按钮权限和后端接口权限没有进入初始化菜单权限数据。
 - 多个接口没有显式 `@PreAuthorize` 或 `@Anonymous`，虽然会被 `SecurityConfig.anyRequest().authenticated()` 保护，但不符合仓库“裸接口”约束。
 
 ## 审计范围
@@ -106,7 +106,7 @@
 
 ### 现象
 
-当前登录后 `/getRouters` 返回 42 个菜单/路由节点，但 `sql/ry_20260417.sql` 只初始化到部分系统菜单和按钮权限。静态审计发现 19 个当前 live 路由不在初始化 SQL 中。
+当前登录后 `/getRouters` 返回 42 个菜单/路由节点，但 `sql/manzhushaka_db_init.sql` 只初始化到部分系统菜单和按钮权限。静态审计发现 19 个当前 live 路由不在初始化 SQL 中。
 
 典型缺失：
 
@@ -116,8 +116,8 @@
 
 ### 证据
 
-- `sql/ry_20260417.sql:167-182` 只初始化系统管理、系统监控、表单构建等菜单。
-- `sql/ry_20260417.sql:215-249` 只初始化到部分系统管理和监控按钮权限。
+- `sql/manzhushaka_db_init.sql:167-182` 只初始化系统管理、系统监控、表单构建等菜单。
+- `sql/manzhushaka_db_init.sql:215-249` 只初始化到部分系统管理和监控按钮权限。
 - `.codex-run/static-audit.json`：`liveNotInSql` 为 19。
 
 ### 根因
@@ -126,7 +126,7 @@
 
 ### 影响
 
-- 新环境执行 `sql/ry_20260417.sql` 后菜单会缺失。
+- 新环境执行 `sql/manzhushaka_db_init.sql` 后菜单会缺失。
 - 初始化库与开发库表现不同，测试和交付不可复现。
 - 权限按钮可能在某些环境不可见，或者后端接口权限存在但角色没有授权数据。
 
@@ -136,7 +136,7 @@
 
 ### 现象
 
-静态审计发现后端 Controller 和前端按钮使用了权限字符串，但 `sql/ry_20260417.sql` 中缺少对应 `sys_menu.perms`。
+静态审计发现后端 Controller 和前端按钮使用了权限字符串，但 `sql/manzhushaka_db_init.sql` 中缺少对应 `sys_menu.perms`。
 
 后端权限存在但 SQL 缺失的权限：
 
@@ -372,7 +372,7 @@ No bean named 'bizReviewTask' available
 ### 证据
 
 - 代码中仅存在 `@Component("ryTask")`：`manzhushaka-ry-quartz/src/main/java/com/manzhushaka/quartz/task/ManzhushakaRyTask.java`。
-- `sql/ry_20260417.sql:525-527` 初始化的 3 个任务均是 `ryTask.*`，不包含 `bizReviewTask`。
+- `sql/manzhushaka_db_init.sql:525-527` 初始化的 3 个任务均是 `ryTask.*`，不包含 `bizReviewTask`。
 
 ### 根因
 
@@ -395,7 +395,7 @@ OpenAPI 配置只扫描 `com.manzhushaka.web.controller.tool`，并且 `TestCont
 - `manzhushaka-ry-admin/src/main/resources/application.yml:127-131` 只扫描 tool 包。
 - `manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/tool/TestController.java:41-43` 列表接口有权限。
 - `TestController.java:51-96` 详情、新增、更新、删除接口无权限注解。
-- `tool:test:list` 不在 `sql/ry_20260417.sql` 的 `sys_menu.perms` 中。
+- `tool:test:list` 不在 `sql/manzhushaka_db_init.sql` 的 `sys_menu.perms` 中。
 
 ### 根因
 

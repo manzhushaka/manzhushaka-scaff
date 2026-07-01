@@ -40,12 +40,12 @@
     </el-row>
 
     <div class="ui-table-card">
-      <el-table v-loading="loading" :data="mqLogList" @selection-change="handleSelectionChange">
+      <el-table v-loading="loading" :data="mqLogList" style="width: 100%" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="50" align="center" />
         <el-table-column label="编号" align="center" prop="messageLogId" width="90" />
-        <el-table-column label="消息类型" prop="messageType" width="160" :show-overflow-tooltip="true" />
-        <el-table-column label="Stream" prop="streamKey" width="200" :show-overflow-tooltip="true" />
-        <el-table-column label="业务Key" prop="businessKey" width="180" :show-overflow-tooltip="true" />
+        <el-table-column label="消息类型" prop="messageType" min-width="170" :show-overflow-tooltip="true" />
+        <el-table-column label="Stream" prop="streamKey" min-width="260" :show-overflow-tooltip="true" />
+        <el-table-column label="业务Key" prop="businessKey" min-width="220" :show-overflow-tooltip="true" />
         <el-table-column label="状态" align="center" prop="status" width="100">
           <template #default="scope">
             <dict-tag :options="mqStatusOptions" :value="scope.row.status" />

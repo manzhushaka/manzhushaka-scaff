@@ -35,7 +35,7 @@
 - 修改：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/tool/TestController.java`
 - 修改：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/system/SysNoticeController.java`
 - 修改：`manzhushaka-ry-system/src/main/resources/mapper/system/SysNoticeMapper.xml`
-- 修改：`sql/ry_20260417.sql`
+- 修改：`sql/manzhushaka_db_init.sql`
 
 ### 测试工具链
 
@@ -251,7 +251,7 @@ git commit -m "fix(公告): 限制前台公告详情并净化富文本"
 ## 任务 4：补齐菜单和按钮权限初始化 SQL
 
 **文件：**
-- 修改：`sql/ry_20260417.sql:162-299`
+- 修改：`sql/manzhushaka_db_init.sql:162-299`
 - 修改：`ui-admin/src/views/monitor/operlog/index.vue:139`
 - 修改：`manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/monitor/SysOperlogController.java`
 
@@ -292,7 +292,7 @@ public AjaxResult getInfo(@PathVariable Long operId)
 python3 - <<'PY'
 import re
 from pathlib import Path
-s = Path('sql/ry_20260417.sql').read_text()
+s = Path('sql/manzhushaka_db_init.sql').read_text()
 menus = set(re.findall(r"insert into sys_menu values\('([^']+)'", s))
 refs = set(re.findall(r"insert into sys_role_menu values \('2', '([^']+)'\)", s))
 missing = sorted(refs - menus, key=lambda x: int(x) if x.isdigit() else x)
@@ -305,7 +305,7 @@ PY
 - [ ] **步骤 4：Commit**
 
 ```bash
-git add sql/ry_20260417.sql ui-admin/src/views/monitor/operlog/index.vue manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/monitor/SysOperlogController.java
+git add sql/manzhushaka_db_init.sql ui-admin/src/views/monitor/operlog/index.vue manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/monitor/SysOperlogController.java
 git commit -m "fix(权限): 补齐菜单按钮权限初始化数据"
 ```
 

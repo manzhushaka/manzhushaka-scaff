@@ -89,7 +89,7 @@ const quickLinks = [
   { label: '用户管理', route: '/userAuth/user', icon: 'user', tone: 'primary' },
   { label: '角色管理', route: '/userAuth/role', icon: 'peoples', tone: 'success' },
   { label: '菜单管理', route: '/userAuth/menu', icon: 'tree-table', tone: 'warning' },
-  { label: '服务监控', route: '/monitor/server', icon: 'server', tone: 'supplement' },
+  { label: '宿主机监控', route: '/monitor/server', icon: 'server', tone: 'supplement' },
   { label: '统一日志', route: '/log/logCenter', icon: 'log', tone: 'primary' },
   { label: '缓存监控', route: '/monitor/cache', icon: 'redis', tone: 'warning' },
 ]
@@ -102,13 +102,25 @@ function goRoute(path) {
 <style lang="scss" scoped>
 .dashboard {
   min-height: 100%;
-  padding: 0;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 24px;
+  box-sizing: border-box;
+
+  @media (max-width: 1200px) {
+    padding: 20px;
+  }
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
 }
 
 .welcome-panel {
   position: relative;
-  min-height: 104px;
-  padding: 18px 20px;
+  min-height: 118px;
+  padding: 24px 28px;
   border: 1px solid var(--ui-border);
   border-radius: var(--ui-radius-panel);
   background:
@@ -116,7 +128,7 @@ function goRoute(path) {
     var(--ui-bg-panel);
   box-shadow: var(--ui-shadow-panel);
   overflow: hidden;
-  margin-bottom: 14px;
+  margin-bottom: 20px;
 
   &::before {
     content: '';
@@ -133,7 +145,7 @@ function goRoute(path) {
   }
 
   @media (max-width: 768px) {
-    padding: 20px 18px;
+    padding: 20px;
   }
 }
 
@@ -143,6 +155,7 @@ function goRoute(path) {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 24px;
 
   @media (max-width: 768px) {
     flex-direction: column;
@@ -194,7 +207,8 @@ function goRoute(path) {
 
 .welcome-actions {
   display: flex;
-  gap: 8px;
+  gap: 10px;
+  flex-shrink: 0;
 
   @media (max-width: 768px) {
     flex-wrap: wrap;
@@ -238,22 +252,26 @@ function goRoute(path) {
 
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 12px;
-  margin-bottom: 18px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 20px;
+
+  @media (max-width: 1100px) {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
 
   @media (max-width: 480px) {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 }
 
 .kpi-card {
   display: flex;
   align-items: center;
-  gap: 13px;
-  min-height: 96px;
-  padding: 16px;
+  gap: 16px;
+  min-height: 106px;
+  padding: 20px;
   border: 1px solid var(--ui-border);
   border-radius: var(--ui-radius-panel);
   background: var(--ui-bg-panel);
@@ -331,7 +349,7 @@ function goRoute(path) {
   justify-content: space-between;
   align-items: center;
   min-height: 52px;
-  padding: 14px 16px;
+  padding: 16px 20px;
   border-bottom: 1px solid var(--ui-divider);
   background: var(--ui-bg-panel-muted);
 }
@@ -352,20 +370,25 @@ function goRoute(path) {
 }
 
 .panel-body {
-  padding: 14px 16px 16px;
+  padding: 20px;
 }
 
 .quick-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 9px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .quick-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px;
+  gap: 12px;
+  min-height: 58px;
+  padding: 14px 16px;
   border-radius: var(--ui-radius-control);
   border: 1px solid var(--ui-border);
   background: var(--ui-bg-panel);

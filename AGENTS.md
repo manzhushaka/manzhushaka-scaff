@@ -1,4 +1,4 @@
-# Repository Guidelines
+Repository Guidelines
 
 每次回答问题前，都先说问候语：“你好，我是 manzhushaka (≧▽≦)”，并在说完问候语后换行。
 
@@ -10,11 +10,12 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 
 ## 总纲领
 
-| 原则 | 解决的问题 |
-| --- | --- |
-| 编码前思考 | 错误假设、隐藏困惑、缺少权衡 |
-| 简洁优先 | 过度复杂、臃肿抽象 |
-| 精准修改 | 无关编辑、触碰不应碰的代码 |
+
+| 原则         | 解决的问题                     |
+| ------------ | ------------------------------ |
+| 编码前思考   | 错误假设、隐藏困惑、缺少权衡   |
+| 简洁优先     | 过度复杂、臃肿抽象             |
+| 精准修改     | 无关编辑、触碰不应碰的代码     |
 | 目标驱动执行 | 通过测试优先、可验证的成功标准 |
 
 ## 编码前思考
@@ -57,11 +58,12 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 
 先定义成功标准，再循环验证直到达成。把指令式任务转化为可验证目标。
 
-| 用户说法 | 应转化为 |
-| --- | --- |
-| 添加验证 | 为无效输入编写测试，然后让测试通过 |
+
+| 用户说法 | 应转化为                            |
+| -------- | ----------------------------------- |
+| 添加验证 | 为无效输入编写测试，然后让测试通过  |
 | 修复 bug | 编写重现 bug 的测试，然后让测试通过 |
-| 重构 X | 确保重构前后测试都能通过 |
+| 重构 X   | 确保重构前后测试都能通过            |
 
 多步骤任务应说明简短计划，并为每步绑定验证方式：
 
@@ -78,7 +80,7 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 - 前端位于 `ui-admin/src`：页面在 `views`，组件在 `components`，接口在 `api`，状态在 `store`，路由在 `router`，资源和样式在 `assets`。
 - SQL 脚本放在 `sql`，文档放在 `doc` 和 `docs`。
 - 业务域各自持久化，不新增统一 `db` 模块；`common` 禁止承载业务实体。
-- 新功能如果需要调整数据库结构、基础数据或默认配置，必须同步调整 `sql` 目录下的初始化脚本，当前主初始化脚本为 `sql/ry_20260417.sql`；若后续任务明确引入 `sql/manzhushaka_init.sql`，再同步维护该文件。
+- 新功能如果需要调整数据库结构、基础数据或默认配置，必须同步调整 `sql` 目录下的初始化脚本，当前主初始化脚本为 `sql/manzhushaka_db_init.sql`；若后续任务明确引入 `sql/manzhushaka_init.sql`，再同步维护该文件。
 - 新增菜单、按钮权限或角色默认授权时，必须同步维护 `sys_menu` 和必要的 `sys_role_menu` 初始化 SQL，不能只改前端路由或后端接口。
 
 ## 前端页面顶部说明条规范
@@ -294,7 +296,7 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 
 ## 菜单、按钮与接口权限约束
 
-- 每个新增页面的菜单必须在 `sql/ry_20260417.sql` 的 `sys_menu` 初始化数据中登记，菜单权限字段使用 `perms`。
+- 每个新增页面的菜单必须在 `sql/manzhushaka_db_init.sql` 的 `sys_menu` 初始化数据中登记，菜单权限字段使用 `perms`。
 - 新增菜单时，按需同步 `sys_role_menu` 默认授权关系，确保初始化数据库后菜单可按预期访问。
 - 每个页面上的业务按钮都必须配置权限字符串，前端使用 `v-hasPermi="['模块:资源:动作']"`，例如 `v-hasPermi="['system:user:add']"`。
 - 按钮权限字符串必须与 `sys_menu.perms` 和后端接口权限保持一致；常见动作使用 `list`、`query`、`add`、`edit`、`remove`、`export`、`import`，不要在同域中混用 `update`、`delete` 等新风格。
@@ -308,7 +310,7 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 - 新增页面时至少要有一个 `C` 菜单承载页面入口，配置路由名称、路由路径、前端组件路径和页面级权限标识；不要把页面入口建成 `F`。
 - 新增页面内查询、新增、修改、删除、导出等操作时，默认在该 `C` 菜单下补齐对应 `F` 按钮和权限字符串；不要把纯按钮权限建成 `C`。
 - 新建业务菜单默认先放到一级 `M` 目录下；如果当前业务没有合适的一级目录，先创建一个 `M` 目录，再在目录下创建业务 `C` 菜单。
-- 新增菜单时默认联动检查 `sql/ry_20260417.sql`、后端 `menuType` 和 `perms`、父子关系、排序、显示状态、前端页面 `v-hasPermi`、后端接口 `@PreAuthorize` 和必要的角色默认授权。
+- 新增菜单时默认联动检查 `sql/manzhushaka_db_init.sql`、后端 `menuType` 和 `perms`、父子关系、排序、显示状态、前端页面 `v-hasPermi`、后端接口 `@PreAuthorize` 和必要的角色默认授权。
 
 ## 其他编程要求
 
@@ -565,25 +567,27 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 
 本仓库使用 Redis Stream 作为异步消息中间件，采用"框架层基础设施 + 系统层台账记录 + 模板方法处理器"的架构。相关文件统一放在以下路径：
 
-| 层 | 模块 | 包路径 |
-| --- | --- | --- |
-| 基础设施（网关、发布器、处理框架） | `manzhushaka-ry-framework` | `com.manzhushaka.framework.mq` |
-| 配置（容器 Bean、调度开关） | `manzhushaka-ry-framework` | `com.manzhushaka.framework.config` |
-| 台账（实体、Mapper、Service） | `manzhushaka-ry-system` | 现有 `domain`、`mapper`、`service` 目录 |
-| 管理接口（Controller） | `manzhushaka-ry-admin` | `com.manzhushaka.web.controller.monitor` |
-| 前端页面 | `ui-admin` | `api/monitor/mqLog.js` + `views/monitor/mqLog/index.vue` |
+
+| 层                                 | 模块                       | 包路径                                                   |
+| ---------------------------------- | -------------------------- | -------------------------------------------------------- |
+| 基础设施（网关、发布器、处理框架） | `manzhushaka-ry-framework` | `com.manzhushaka.framework.mq`                           |
+| 配置（容器 Bean、调度开关）        | `manzhushaka-ry-framework` | `com.manzhushaka.framework.config`                       |
+| 台账（实体、Mapper、Service）      | `manzhushaka-ry-system`    | 现有`domain`、`mapper`、`service` 目录                   |
+| 管理接口（Controller）             | `manzhushaka-ry-admin`     | `com.manzhushaka.web.controller.monitor`                 |
+| 前端页面                           | `ui-admin`                 | `api/monitor/mqLog.js` + `views/monitor/mqLog/index.vue` |
 
 ### 核心概念与术语
 
-| 术语 | 含义 |
-| --- | --- |
-| Stream | Redis Stream 的 Key，每种消息类型一个独立的 Stream |
-| Consumer Group | 每个 Stream 对应的消费者组，使用 Stream 名称作为组名 |
-| 消息类型 (`messageType`) | 每种消息类型对应一个 Stream、一个 Handler、一套重试/死信策略 |
-| 台账 (`SysMqMessageLog`) | 每条消息的处理记录的主表，记录消息元数据、状态和重试信息 |
-| 明细 (`SysMqMessageLogDetail`) | 每次尝试处理的详细记录，包括开始时间、耗时、错误消息 |
+
+| 术语                              | 含义                                                            |
+| --------------------------------- | --------------------------------------------------------------- |
+| Stream                            | Redis Stream 的 Key，每种消息类型一个独立的 Stream              |
+| Consumer Group                    | 每个 Stream 对应的消费者组，使用 Stream 名称作为组名            |
+| 消息类型 (`messageType`)          | 每种消息类型对应一个 Stream、一个 Handler、一套重试/死信策略    |
+| 台账 (`SysMqMessageLog`)          | 每条消息的处理记录的主表，记录消息元数据、状态和重试信息        |
+| 明细 (`SysMqMessageLogDetail`)    | 每次尝试处理的详细记录，包括开始时间、耗时、错误消息            |
 | 重试流 (`mq:retry:{messageType}`) | 保存需要重试的消息，`nextRetryTime` 到达后重新投递到原始 Stream |
-| 死信流 (`mq:dead:{messageType}`) | 保存超过最大重试次数的消息，仅作归档不自动处理 |
+| 死信流 (`mq:dead:{messageType}`)  | 保存超过最大重试次数的消息，仅作归档不自动处理                  |
 
 ### 消息状态流转
 
@@ -719,39 +723,41 @@ protected void doHandle(RedisStreamRecord record) {
 
 #### SysMqMessageLog（主台账实体）
 
-| 字段 | 类型 | 说明 |
-| --- | --- | --- |
-| `messageLogId` | Long | 主键 |
-| `messageType` | String | 消息类型 |
-| `streamKey` | String | Stream 名称 |
-| `messageId` | String | Redis Stream 消息 ID |
-| `consumerGroup` | String | 消费者组 |
-| `businessKey` | String | 业务 Key（用于幂等） |
-| `payload` | String | 消息内容 |
-| `status` | String | 状态码（枚举值） |
-| `retryTimes` | Integer | 当前重试次数 |
-| `maxRetryTimes` | Integer | 最大重试次数 |
-| `firstConsumeTime` | Date | 首次消费时间 |
-| `lastConsumeTime` | Date | 最后消费时间 |
-| `successTime` | Date | 成功时间 |
-| `deadLetterTime` | Date | 死信时间 |
-| `lastErrorMsg` | String | 最后错误消息 |
+
+| 字段               | 类型    | 说明                 |
+| ------------------ | ------- | -------------------- |
+| `messageLogId`     | Long    | 主键                 |
+| `messageType`      | String  | 消息类型             |
+| `streamKey`        | String  | Stream 名称          |
+| `messageId`        | String  | Redis Stream 消息 ID |
+| `consumerGroup`    | String  | 消费者组             |
+| `businessKey`      | String  | 业务 Key（用于幂等） |
+| `payload`          | String  | 消息内容             |
+| `status`           | String  | 状态码（枚举值）     |
+| `retryTimes`       | Integer | 当前重试次数         |
+| `maxRetryTimes`    | Integer | 最大重试次数         |
+| `firstConsumeTime` | Date    | 首次消费时间         |
+| `lastConsumeTime`  | Date    | 最后消费时间         |
+| `successTime`      | Date    | 成功时间             |
+| `deadLetterTime`   | Date    | 死信时间             |
+| `lastErrorMsg`     | String  | 最后错误消息         |
 
 **约束**：`toString()` 必须截断 `payload` 和 `lastErrorMsg` 字段，防止超长内容撑爆日志。
 
 #### SysMqMessageLogDetail（明细实体）
 
-| 字段 | 类型 | 说明 |
-| --- | --- | --- |
-| `detailId` | Long | 主键 |
-| `messageLogId` | Long | 关联主台账 |
-| `attemptNo` | Integer | 尝试次数序号 |
-| `consumerName` | String | 消费者名称 |
-| `status` | String | 状态码 |
-| `startTime` | Date | 开始时间 |
-| `endTime` | Date | 结束时间 |
-| `costTime` | Long | 耗时（毫秒） |
-| `errorMsg` | String | 错误消息 |
+
+| 字段           | 类型    | 说明         |
+| -------------- | ------- | ------------ |
+| `detailId`     | Long    | 主键         |
+| `messageLogId` | Long    | 关联主台账   |
+| `attemptNo`    | Integer | 尝试次数序号 |
+| `consumerName` | String  | 消费者名称   |
+| `status`       | String  | 状态码       |
+| `startTime`    | Date    | 开始时间     |
+| `endTime`      | Date    | 结束时间     |
+| `costTime`     | Long    | 耗时（毫秒） |
+| `errorMsg`     | String  | 错误消息     |
 
 ### 开发流程：新增一个消息类型
 
@@ -815,7 +821,7 @@ public void sendDemoMessage(String businessKey, String payload) {
 - 重试调度中的 body 操作必须 `new HashMap<>(record.getBody())` 复制后再修改
 - `payload`、`lastErrorMsg`、`errorMsg` 等字段在 `toString()` 中必须截断，避免打印超长内容
 - Controller 层接口必须同步添加 `@Log` 和 `@PreAuthorize`，前端页面同步添加 `v-hasPermi`
-- 新增 MQ 相关 SQL（建表、菜单、权限）必须同步维护 `sql/ry_20260417.sql`
+- 新增 MQ 相关 SQL（建表、菜单、权限）必须同步维护 `sql/manzhushaka_db_init.sql`
 
 ### 系统支持边界补充
 
@@ -825,6 +831,6 @@ public void sendDemoMessage(String businessKey, String payload) {
 ## 系统支持边界
 
 - 当前 Agent 可支持：读取真实调用链路、对照 `AGENTS.md`、检查 git diff、运行 `rg`、Maven 测试、前端构建和本地脚本，辅助发现权限、SQL、脱敏、异常和模型字段的显性遗漏。
-- 当前项目可支持：`@PreAuthorize` 接口鉴权、`@Anonymous` 匿名声明、`v-hasPermi` 按钮显隐、`M/C/F` 菜单路由过滤、`@Sensitive` JSON 脱敏、全局 `ServiceException` 处理、MyBatis XML 映射和 `sql/ry_20260417.sql` 初始化。
+- 当前项目可支持：`@PreAuthorize` 接口鉴权、`@Anonymous` 匿名声明、`v-hasPermi` 按钮显隐、`M/C/F` 菜单路由过滤、`@Sensitive` JSON 脱敏、全局 `ServiceException` 处理、MyBatis XML 映射和 `sql/manzhushaka_db_init.sql` 初始化。
 - 当前无法完全自动保证：业务语义正确性、生产配置真实性、初始化库角色授权是否符合实际组织策略、敏感字段是否已被产品允许展示、权限码命名是否满足所有运营约定、UI 手工体验和跨环境数据库迁移风险。
 - 当前不支持或未接入：`sql/manzhushaka_init.sql` 作为现有主初始化脚本、`@SensitiveField` 注解、`v-permission` 指令、`DIR/MENU/BUTTON` 字符串落库、默认 MyBatis-Plus 实体注解、默认 Lombok 模型生成。

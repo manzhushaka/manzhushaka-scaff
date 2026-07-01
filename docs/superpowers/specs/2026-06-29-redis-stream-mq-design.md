@@ -42,7 +42,7 @@
 - `manzhushaka-ry-system`：消息台账主表、执行明细表、Mapper、XML、Service。
 - `manzhushaka-ry-admin`：消息队列台账 Controller。
 - `ui-admin`：消息队列台账 API 和页面。
-- `sql/ry_20260417.sql`：新增表、菜单、按钮权限和必要角色授权。
+- `sql/manzhushaka_db_init.sql`：新增表、菜单、按钮权限和必要角色授权。
 
 数据流如下：
 

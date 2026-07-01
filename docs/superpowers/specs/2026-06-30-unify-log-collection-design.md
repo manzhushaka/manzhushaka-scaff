@@ -24,7 +24,7 @@
 - 保留 `@Log` 注解采集的操作日志链路。
 - 保留当前登录日志链路和登录日志相关接口。
 - 将前端日志入口收敛为一个统一日志页面，在页面内展示「操作日志 / 登录日志」两个标签页。
-- 同步维护 `sql/ry_20260417.sql` 中的菜单、按钮权限和请求日志表定义。
+- 同步维护 `sql/manzhushaka_db_init.sql` 中的菜单、按钮权限和请求日志表定义。
 
 本规格不包含：
 
@@ -149,7 +149,7 @@
 
 ### 删除
 
-- `sys_request_log` 表定义从 `sql/ry_20260417.sql` 中移除
+- `sys_request_log` 表定义从 `sql/manzhushaka_db_init.sql` 中移除
 - 请求日志对应的 Mapper XML、实体、Service、Controller 全部移除
 
 本轮不做数据迁移，也不尝试把历史 `sys_request_log` 数据导入其他表。已有数据库实例如果已经建过该表，允许表物理存在但不再被应用使用；初始化 SQL 不再继续创建它。
@@ -254,7 +254,7 @@
 
 SQL 预计涉及：
 
-- `sql/ry_20260417.sql`
+- `sql/manzhushaka_db_init.sql`
 
 ## 验证标准
 

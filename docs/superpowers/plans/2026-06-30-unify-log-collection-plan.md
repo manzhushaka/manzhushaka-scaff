@@ -46,7 +46,7 @@
 
 ### SQL 文件
 
-- 修改：`sql/ry_20260417.sql`
+- 修改：`sql/manzhushaka_db_init.sql`
 
 ## 任务 1：删除后端请求日志采集入口
 
@@ -251,7 +251,7 @@ rg -n "SysRequestLog|requestLog|RequestLogInterceptor" manzhushaka-ry-admin manz
 
 **文件：**
 
-- 修改：`sql/ry_20260417.sql`
+- 修改：`sql/manzhushaka_db_init.sql`
 
 - [ ] **步骤 1：删除请求日志页面菜单与按钮权限**
 
@@ -296,7 +296,7 @@ create table sys_request_log (
 运行：
 
 ```bash
-rg -n "requestlog|请求日志|sys_request_log|monitor/requestLog" sql/ry_20260417.sql
+rg -n "requestlog|请求日志|sys_request_log|monitor/requestLog" sql/manzhushaka_db_init.sql
 ```
 
 预期：无结果。
@@ -533,7 +533,7 @@ ui-admin/src/views/monitor/logCenter/index.vue
 运行：
 
 ```bash
-rg -n "monitor/operlog/index|monitor/logininfor/index|/system/log/operlog|/system/log/logininfor" ui-admin/src sql/ry_20260417.sql
+rg -n "monitor/operlog/index|monitor/logininfor/index|/system/log/operlog|/system/log/logininfor" ui-admin/src sql/manzhushaka_db_init.sql
 ```
 
 预期：除计划中的兼容性引用外，页面级入口均已改为统一日志页。

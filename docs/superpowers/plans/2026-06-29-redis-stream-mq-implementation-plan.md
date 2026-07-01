@@ -87,7 +87,7 @@
 
 ### SQL
 
-- 修改：`sql/ry_20260417.sql`
+- 修改：`sql/manzhushaka_db_init.sql`
   - 新增菜单、按钮权限、角色默认授权、`sys_mq_message_log` 和 `sys_mq_message_log_detail` 表。
 
 ---
@@ -520,7 +520,7 @@ git commit -m "feat(mq): add message ledger domain service"
 **文件：**
 - 创建：`manzhushaka-ry-system/src/main/resources/mapper/system/SysMqMessageLogMapper.xml`
 - 创建：`manzhushaka-ry-system/src/main/resources/mapper/system/SysMqMessageLogDetailMapper.xml`
-- 修改：`sql/ry_20260417.sql`
+- 修改：`sql/manzhushaka_db_init.sql`
 
 - [ ] **步骤 1：创建主表 Mapper XML**
 
@@ -658,7 +658,7 @@ mvn -pl manzhushaka-ry-system -DskipTests compile
 运行：
 
 ```bash
-rg -n "sys_mq_message_log|monitor:mqlog|消息队列台账" sql/ry_20260417.sql
+rg -n "sys_mq_message_log|monitor:mqlog|消息队列台账" sql/manzhushaka_db_init.sql
 ```
 
 预期：能看到两个建表段、五条 `sys_menu` 记录和五条 `sys_role_menu` 授权记录。
@@ -668,7 +668,7 @@ rg -n "sys_mq_message_log|monitor:mqlog|消息队列台账" sql/ry_20260417.sql
 ```bash
 git add manzhushaka-ry-system/src/main/resources/mapper/system/SysMqMessageLogMapper.xml \
   manzhushaka-ry-system/src/main/resources/mapper/system/SysMqMessageLogDetailMapper.xml \
-  sql/ry_20260417.sql
+  sql/manzhushaka_db_init.sql
 git commit -m "feat(mq): add message ledger persistence"
 ```
 
@@ -1641,7 +1641,7 @@ cd ui-admin && npm run build:prod
 运行：
 
 ```bash
-rg -n "monitor:mqlog:(list|query|remove|export)" manzhushaka-ry-admin ui-admin sql/ry_20260417.sql
+rg -n "monitor:mqlog:(list|query|remove|export)" manzhushaka-ry-admin ui-admin sql/manzhushaka_db_init.sql
 ```
 
 预期：能同时看到 Controller、Vue 页面和 SQL 菜单按钮权限。
@@ -1661,7 +1661,7 @@ rg -n "payload|lastErrorMsg|errorMsg|toString|substring" manzhushaka-ry-system/s
 如果步骤 1-7 暴露出必须修复的问题，修复后提交：
 
 ```bash
-git add manzhushaka-ry-admin manzhushaka-ry-framework manzhushaka-ry-system ui-admin sql/ry_20260417.sql
+git add manzhushaka-ry-admin manzhushaka-ry-framework manzhushaka-ry-system ui-admin sql/manzhushaka_db_init.sql
 git commit -m "test(mq): verify redis stream message ledger"
 ```
 

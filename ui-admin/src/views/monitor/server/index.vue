@@ -2,8 +2,8 @@
   <div class="app-container server-monitor-page" v-loading="loading">
     <div class="ui-page-head server-monitor-head">
       <div>
-        <h2 class="ui-page-title">服务监控</h2>
-        <p class="ui-page-desc">查看当前服务运行环境、JVM、CPU、内存与磁盘状态。</p>
+        <h2 class="ui-page-title">宿主机监控</h2>
+        <p class="ui-page-desc">查看当前宿主机运行环境、JVM、CPU、内存与磁盘状态。</p>
       </div>
       <el-button type="primary" icon="Refresh" :loading="loading" @click="getList">刷新</el-button>
     </div>
@@ -11,7 +11,7 @@
     <el-alert
       v-if="loadError"
       class="server-monitor-alert"
-      title="服务监控数据加载失败"
+      title="宿主机监控数据加载失败"
       description="请检查后端服务、登录状态或网络连接后重试。"
       type="error"
       show-icon

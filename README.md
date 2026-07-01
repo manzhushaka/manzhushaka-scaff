@@ -79,11 +79,11 @@ CREATE DATABASE `manzhushaka-ry-scaff` DEFAULT CHARACTER SET utf8mb4 COLLATE utf
 导入基础脚本：
 
 ```bash
-mysql -uroot -p manzhushaka-ry-scaff < sql/ry_20260417.sql
+mysql -uroot -p manzhushaka-ry-scaff < sql/manzhushaka_db_init.sql
 mysql -uroot -p manzhushaka-ry-scaff < sql/quartz.sql
 ```
 
-如果是在已经导入过旧版若依数据的库上升级，请按实际需要查看并执行 `sql` 目录下的增量清理脚本，例如移除岗位、通知公告、在线构建器菜单的脚本。全新数据库通常优先以 `ry_20260417.sql` 和 `quartz.sql` 为准。
+如果是在已经导入过旧版若依数据的库上升级，请按实际需要查看并执行 `sql` 目录下的增量清理脚本，例如移除岗位、通知公告、在线构建器菜单的脚本。全新数据库通常优先以 `manzhushaka_db_init.sql` 和 `quartz.sql` 为准。
 
 ### 2. 修改后端配置
 
@@ -192,7 +192,7 @@ npm run build:stage
 - 框架能力放在 `manzhushaka-ry-framework`。
 - 系统业务放在 `manzhushaka-ry-system`，新增持久化实体优先放到 `infrastructure/persistence/entity`。
 - `manzhushaka-ry-common` 只放通用基础能力，不承载业务实体。
-- 新增页面、按钮、接口权限时，需要同步维护前端 `v-hasPermi`、后端 `@PreAuthorize`、`sql/ry_20260417.sql` 中的 `sys_menu` 和必要的 `sys_role_menu`。
+- 新增页面、按钮、接口权限时，需要同步维护前端 `v-hasPermi`、后端 `@PreAuthorize`、`sql/manzhushaka_db_init.sql` 中的 `sys_menu` 和必要的 `sys_role_menu`。
 - 新增或调整数据库结构、基础数据、默认菜单时，需要同步维护 `sql` 目录下的初始化或增量脚本。
 - `manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller` 下的 HTTP 接口方法需要同时满足权限注解和 `@Log` 操作日志规范。
 
@@ -206,7 +206,7 @@ npm run build:stage
 - 前端代理配置：`ui-admin/vite.config.js`
 - 前端路由：`ui-admin/src/router/index.js`
 - 前端页面：`ui-admin/src/views`
-- 初始化 SQL：`sql/ry_20260417.sql`、`sql/quartz.sql`
+- 初始化 SQL：`sql/manzhushaka_db_init.sql`、`sql/quartz.sql`
 - 协作规范：`AGENTS.md`
 
 ## 文档

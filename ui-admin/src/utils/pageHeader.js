@@ -26,7 +26,7 @@ const PAGE_DESCRIPTIONS = {
   定时任务: '维护调度任务、执行策略和运行状态。',
   调度日志: '查看定时任务执行日志和异常信息。',
   数据监控: '查看数据库连接池与 SQL 监控信息。',
-  服务监控: '查看服务器 CPU、内存、磁盘和 JVM 运行状态。',
+  宿主机监控: '查看宿主机 CPU、内存、磁盘和 JVM 运行状态。',
   缓存监控: '查看 Redis 缓存运行指标和命令统计。',
   缓存列表: '查看缓存键名、内容与过期状态。',
   接口文档: '查看后端接口文档、调试入口和请求响应结构。'
@@ -51,7 +51,7 @@ const PAGE_GROUPS = {
   在线用户: 'MONITOR CENTER',
   定时任务: 'MONITOR CENTER',
   数据监控: 'MONITOR CENTER',
-  服务监控: 'MONITOR CENTER',
+  宿主机监控: 'MONITOR CENTER',
   缓存监控: 'MONITOR CENTER',
   缓存列表: 'MONITOR CENTER',
   接口文档: 'TOOL CENTER'

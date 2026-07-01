@@ -1,54 +1,53 @@
 <template>
-  <div class="app-container">
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px" class="ui-filter-card">
-      <el-form-item label="日志文件" prop="fileName">
-        <el-select v-model="queryParams.fileName" placeholder="日志文件" style="width: 200px" @change="handleQuery">
-          <el-option v-for="file in fileList" :key="file.fileName" :label="file.fileName" :value="file.fileName" />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="日志级别" prop="level">
-        <el-select v-model="queryParams.level" placeholder="日志级别" clearable style="width: 160px">
-          <el-option label="INFO" value="INFO" />
-          <el-option label="WARN" value="WARN" />
-          <el-option label="ERROR" value="ERROR" />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="关键字" prop="keyword">
-        <el-input v-model="queryParams.keyword" placeholder="请输入关键字" clearable style="width: 240px" @keyup.enter="handleQuery" />
-      </el-form-item>
-      <el-form-item label="读取行数" prop="lineCount">
-        <el-input-number v-model="queryParams.lineCount" :min="50" :max="5000" :step="100" controls-position="right" style="width: 160px" />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-      </el-form-item>
-    </el-form>
+  <div class="app-container runtime-log-page">
+    <section class="runtime-log-card">
+      <el-tabs v-model="activeLevelTab" class="runtime-level-tabs" @tab-change="handleLevelTabChange">
+        <el-tab-pane label="全部" name="ALL" />
+        <el-tab-pane label="INFO" name="INFO" />
+        <el-tab-pane label="WARN" name="WARN" />
+        <el-tab-pane label="ERROR" name="ERROR" />
+      </el-tabs>
 
-    <el-row :gutter="10" class="mb8 ui-action-bar">
-      <el-col :span="1.5">
-        <el-button type="warning" plain icon="Download" @click="handleDownload" v-hasPermi="['monitor:runtimelog:download']">下载</el-button>
-      </el-col>
-      <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" />
-    </el-row>
+      <div class="runtime-log-panel">
+        <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px" class="ui-filter-card">
+          <el-form-item label="关键字" prop="keyword">
+            <el-input v-model="queryParams.keyword" placeholder="请输入关键字" clearable style="width: 240px" @keyup.enter="handleQuery" />
+          </el-form-item>
+          <el-form-item label="读取行数" prop="lineCount">
+            <el-input-number v-model="queryParams.lineCount" :min="50" :max="5000" :step="100" controls-position="right" style="width: 160px" />
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+            <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+          </el-form-item>
+        </el-form>
 
-    <div class="ui-table-card">
-      <el-table v-loading="loading" :data="runtimeLogList">
-        <el-table-column label="行号" align="center" prop="lineNumber" width="90" />
-        <el-table-column label="时间" align="center" prop="time" width="130" />
-        <el-table-column label="级别" align="center" prop="level" width="90">
-          <template #default="scope">
-            <el-tag :type="levelTagType(scope.row.level)" effect="plain">{{ scope.row.level }}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="内容" prop="content" :show-overflow-tooltip="true" min-width="420" />
-        <el-table-column label="堆栈" align="center" width="90">
-          <template #default="scope">
-            <el-button link type="primary" icon="View" @click="handleDetail(scope.row)" v-hasPermi="['monitor:runtimelog:query']">查看</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
+        <el-row :gutter="10" class="mb8 ui-action-bar">
+          <el-col :span="1.5">
+            <el-button type="warning" plain icon="Download" @click="handleDownload" v-hasPermi="['monitor:runtimelog:download']">下载</el-button>
+          </el-col>
+          <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" />
+        </el-row>
+
+        <div class="ui-table-card runtime-log-table-card">
+          <el-table v-loading="loading" :data="runtimeLogList" style="width: 100%">
+            <el-table-column label="行号" align="center" prop="lineNumber" width="90" />
+            <el-table-column label="时间" align="center" prop="time" width="130" />
+            <el-table-column label="级别" align="center" prop="level" width="90">
+              <template #default="scope">
+                <el-tag :type="levelTagType(scope.row.level)" effect="plain">{{ scope.row.level }}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column label="内容" prop="content" :show-overflow-tooltip="true" min-width="420" />
+            <el-table-column label="堆栈" align="center" width="90">
+              <template #default="scope">
+                <el-button link type="primary" icon="View" @click="handleDetail(scope.row)" v-hasPermi="['monitor:runtimelog:query']">查看</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </div>
+    </section>
 
     <el-dialog title="运行日志详情" v-model="detailVisible" width="860px" append-to-body>
       <pre class="runtime-log-pre">{{ detailContent }}</pre>
@@ -57,16 +56,16 @@
 </template>
 
 <script setup name="RuntimeLog">
-import { listRuntimeLogFiles, listRuntimeLog } from '@/api/monitor/runtimeLog'
+import { listRuntimeLog } from '@/api/monitor/runtimeLog'
 
 const { proxy } = getCurrentInstance()
 
-const fileList = ref([])
 const runtimeLogList = ref([])
 const loading = ref(false)
 const showSearch = ref(true)
 const detailVisible = ref(false)
 const detailContent = ref('')
+const activeLevelTab = ref('ALL')
 
 const queryParams = ref({
   fileName: 'sys-error.log',
@@ -74,16 +73,6 @@ const queryParams = ref({
   keyword: undefined,
   lineCount: 500
 })
-
-function getFiles() {
-  listRuntimeLogFiles().then(response => {
-    fileList.value = response.data || []
-    if (!queryParams.value.fileName && fileList.value.length > 0) {
-      queryParams.value.fileName = fileList.value[0].fileName
-    }
-    getList()
-  })
-}
 
 function getList() {
   loading.value = true
@@ -99,10 +88,17 @@ function handleQuery() {
   getList()
 }
 
+function handleLevelTabChange(level) {
+  queryParams.value.level = level === 'ALL' ? undefined : level
+  getList()
+}
+
 function resetQuery() {
   proxy.resetForm('queryRef')
   queryParams.value.fileName = 'sys-error.log'
+  queryParams.value.level = undefined
   queryParams.value.lineCount = 500
+  activeLevelTab.value = 'ALL'
   getList()
 }
 
@@ -126,10 +122,55 @@ function levelTagType(level) {
   return 'success'
 }
 
-getFiles()
+getList()
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+.runtime-log-page {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.runtime-log-card {
+  overflow: hidden;
+  border: 1px solid var(--el-border-color-light);
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+}
+
+.runtime-log-panel {
+  padding: 18px 20px 20px;
+}
+
+.runtime-level-tabs {
+  :deep(.el-tabs__header) {
+    margin: 0;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--el-border-color-lighter);
+    background: linear-gradient(180deg, #f8fbff, #ffffff);
+  }
+
+  :deep(.el-tabs__nav-wrap::after) {
+    display: none;
+  }
+
+  :deep(.el-tabs__item) {
+    height: 52px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  :deep(.el-tabs__content) {
+    display: none;
+  }
+}
+
+.runtime-log-table-card {
+  margin-bottom: 0;
+}
+
 .runtime-log-pre {
   max-height: 62vh;
   overflow: auto;
@@ -142,5 +183,17 @@ getFiles()
   word-break: break-word;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .runtime-level-tabs {
+    :deep(.el-tabs__header) {
+      padding: 0 14px;
+    }
+  }
+
+  .runtime-log-panel {
+    padding: 14px;
+  }
 }
 </style>

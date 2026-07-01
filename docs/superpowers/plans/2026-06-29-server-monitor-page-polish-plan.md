@@ -755,12 +755,12 @@ cd ui-admin && npm run build:prod
 运行：
 
 ```bash
-rg -n "monitor:server:list|/monitor/server|monitor/server/index" sql/ry_20260417.sql manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/monitor/ServerController.java ui-admin/src/api/monitor/server.js ui-admin/src/views/monitor/server/index.vue
+rg -n "monitor:server:list|/monitor/server|monitor/server/index" sql/manzhushaka_db_init.sql manzhushaka-ry-admin/src/main/java/com/manzhushaka/web/controller/monitor/ServerController.java ui-admin/src/api/monitor/server.js ui-admin/src/views/monitor/server/index.vue
 ```
 
 预期：
 
-- `sql/ry_20260417.sql` 中仍有 `monitor:server:list` 和 `monitor/server/index`。
+- `sql/manzhushaka_db_init.sql` 中仍有 `monitor:server:list` 和 `monitor/server/index`。
 - `ServerController` 中仍有 `@PreAuthorize("@ss.hasPermi('monitor:server:list')")`。
 - `ui-admin/src/api/monitor/server.js` 仍请求 `/monitor/server`。
 

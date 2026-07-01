@@ -7,41 +7,11 @@
             <Monitor class="cache-panel__icon" />
             <span>基本信息</span>
           </div>
-          <div class="cache-info-table">
-            <table cellspacing="0">
-              <tbody>
-                <tr>
-                  <td class="el-table__cell is-leaf"><div class="cell">Redis版本</div></td>
-                  <td class="el-table__cell is-leaf"><div class="cell" v-if="cache.info">{{ cache.info.redis_version }}</div></td>
-                  <td class="el-table__cell is-leaf"><div class="cell">运行模式</div></td>
-                  <td class="el-table__cell is-leaf"><div class="cell" v-if="cache.info">{{ cache.info.redis_mode == "standalone" ? "单机" : "集群" }}</div></td>
-                  <td class="el-table__cell is-leaf"><div class="cell">端口</div></td>
-                  <td class="el-table__cell is-leaf"><div class="cell" v-if="cache.info">{{ cache.info.tcp_port }}</div></td>
-                  <td class="el-table__cell is-leaf"><div class="cell">客户端数</div></td>
-                  <td class="el-table__cell is-leaf"><div class="cell" v-if="cache.info">{{ cache.info.connected_clients }}</div></td>
-                </tr>
-                <tr>
-                  <td class="el-table__cell is-leaf"><div class="cell">运行时间(天)</div></td>
-                  <td class="el-table__cell is-leaf"><div class="cell" v-if="cache.info">{{ cache.info.uptime_in_days }}</div></td>
-                  <td class="el-table__cell is-leaf"><div class="cell">使用内存</div></td>
-                  <td class="el-table__cell is-leaf"><div class="cell" v-if="cache.info">{{ cache.info.used_memory_human }}</div></td>
-                  <td class="el-table__cell is-leaf"><div class="cell">使用CPU</div></td>
-                  <td class="el-table__cell is-leaf"><div class="cell" v-if="cache.info">{{ parseFloat(cache.info.used_cpu_user_children).toFixed(2) }}</div></td>
-                  <td class="el-table__cell is-leaf"><div class="cell">内存配置</div></td>
-                  <td class="el-table__cell is-leaf"><div class="cell" v-if="cache.info">{{ cache.info.maxmemory_human }}</div></td>
-                </tr>
-                <tr>
-                  <td class="el-table__cell is-leaf"><div class="cell">AOF是否开启</div></td>
-                  <td class="el-table__cell is-leaf"><div class="cell" v-if="cache.info">{{ cache.info.aof_enabled == "0" ? "否" : "是" }}</div></td>
-                  <td class="el-table__cell is-leaf"><div class="cell">RDB是否成功</div></td>
-                  <td class="el-table__cell is-leaf"><div class="cell" v-if="cache.info">{{ cache.info.rdb_last_bgsave_status }}</div></td>
-                  <td class="el-table__cell is-leaf"><div class="cell">Key数量</div></td>
-                  <td class="el-table__cell is-leaf"><div class="cell" v-if="cache.dbSize">{{ cache.dbSize }} </div></td>
-                  <td class="el-table__cell is-leaf"><div class="cell">网络入口/出口</div></td>
-                  <td class="el-table__cell is-leaf"><div class="cell" v-if="cache.info">{{ cache.info.instantaneous_input_kbps }}kps/{{cache.info.instantaneous_output_kbps}}kps</div></td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="cache-info-grid">
+            <div v-for="row in basicInfoRows" :key="row.label" class="cache-info-item">
+              <span class="cache-info-label">{{ row.label }}</span>
+              <span class="cache-info-value">{{ formatText(row.value) }}</span>
+            </div>
           </div>
         </section>
       </el-col>
@@ -70,19 +40,37 @@
 </template>
 
 <script setup name="Cache">
+import { computed } from 'vue'
 import { getCache } from '@/api/monitor/cache'
 import * as echarts from 'echarts'
 
-const cache = ref([])
+const cache = ref({})
 const commandstats = ref(null)
 const usedmemory = ref(null)
 const { proxy } = getCurrentInstance()
+
+const basicInfoRows = computed(() => [
+  { label: 'Redis版本', value: cache.value.info?.redis_version },
+  { label: '运行模式', value: formatRedisMode(cache.value.info?.redis_mode) },
+  { label: '端口', value: cache.value.info?.tcp_port },
+  { label: '客户端数', value: cache.value.info?.connected_clients },
+  { label: '运行时间(天)', value: cache.value.info?.uptime_in_days },
+  { label: '使用内存', value: cache.value.info?.used_memory_human },
+  { label: '使用CPU', value: formatFixed(cache.value.info?.used_cpu_user_children, 2) },
+  { label: '内存配置', value: cache.value.info?.maxmemory_human },
+  { label: 'AOF是否开启', value: formatEnabled(cache.value.info?.aof_enabled) },
+  { label: 'RDB是否成功', value: cache.value.info?.rdb_last_bgsave_status },
+  { label: 'Key数量', value: cache.value.dbSize },
+  { label: '网络入口/出口', value: formatNetwork(cache.value.info) }
+])
 
 function getList() {
   proxy.$modal.loading("正在加载缓存监控数据，请稍候！")
   getCache().then(response => {
     proxy.$modal.closeLoading()
-    cache.value = response.data
+    const data = response.data || {}
+    const info = data.info || {}
+    cache.value = data
 
     const commandstatsIntance = echarts.init(commandstats.value, "macarons")
     commandstatsIntance.setOption({
@@ -97,7 +85,7 @@ function getList() {
           roseType: "radius",
           radius: [15, 95],
           center: ["50%", "38%"],
-          data: response.data.commandStats,
+          data: data.commandStats || [],
           animationEasing: "cubicInOut",
           animationDuration: 1000
         }
@@ -106,7 +94,7 @@ function getList() {
     const usedmemoryInstance = echarts.init(usedmemory.value, "macarons")
     usedmemoryInstance.setOption({
       tooltip: {
-        formatter: "{b} <br/>{a} : " + cache.value.info.used_memory_human
+        formatter: "{b} <br/>{a} : " + formatText(info.used_memory_human)
       },
       series: [
         {
@@ -115,11 +103,11 @@ function getList() {
           min: 0,
           max: 1000,
           detail: {
-            formatter: cache.value.info.used_memory_human
+            formatter: formatText(info.used_memory_human)
           },
           data: [
             {
-              value: parseFloat(cache.value.info.used_memory_human),
+              value: formatNumber(info.used_memory_human),
               name: "内存消耗"
             }
           ]
@@ -131,6 +119,39 @@ function getList() {
       usedmemoryInstance.resize()
     })
   })
+}
+
+function formatText(value) {
+  return value === undefined || value === null || value === "" ? "-" : value
+}
+
+function formatFixed(value, digits) {
+  return value === undefined || value === null || value === "" || Number.isNaN(Number(value)) ? "-" : Number(value).toFixed(digits)
+}
+
+function formatNumber(value) {
+  return value === undefined || value === null || value === "" || Number.isNaN(Number.parseFloat(value)) ? 0 : Number.parseFloat(value)
+}
+
+function formatRedisMode(value) {
+  if (value === undefined || value === null || value === "") {
+    return "-"
+  }
+  return value === "standalone" ? "单机" : "集群"
+}
+
+function formatEnabled(value) {
+  if (value === undefined || value === null || value === "") {
+    return "-"
+  }
+  return value === "0" ? "否" : "是"
+}
+
+function formatNetwork(info) {
+  if (!info) {
+    return "-"
+  }
+  return `${formatText(info.instantaneous_input_kbps)}kps/${formatText(info.instantaneous_output_kbps)}kps`
 }
 
 getList()
@@ -162,35 +183,61 @@ getList()
   color: var(--ui-primary);
 }
 
-.cache-info-table {
-  overflow-x: auto;
+.cache-info-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  padding: 16px;
+}
 
-  table {
-    width: 100%;
-    min-width: 960px;
-    border-collapse: collapse;
-  }
+.cache-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 78px;
+  padding: 14px 16px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-bg-panel-muted);
+}
 
-  td {
-    height: 42px;
-    border-bottom: 1px solid var(--ui-table-border);
-    color: var(--ui-text-regular);
-  }
+.cache-info-label {
+  color: var(--ui-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+}
 
-  tr:last-child td {
-    border-bottom: 0;
-  }
-
-  td:nth-child(odd) {
-    width: 112px;
-    background: var(--ui-bg-panel-muted);
-    color: var(--ui-text-secondary);
-    font-weight: 600;
-  }
+.cache-info-value {
+  color: var(--ui-text-primary);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .cache-chart {
   height: 420px;
   min-height: 320px;
+}
+
+@media (max-width: 1400px) {
+  .cache-info-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 992px) {
+  .cache-info-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 576px) {
+  .cache-info-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
