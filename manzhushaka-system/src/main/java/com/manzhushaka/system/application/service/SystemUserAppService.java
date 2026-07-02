@@ -25,6 +25,14 @@ public interface SystemUserAppService
     List<SysUser> listUsers(UserListQuery query);
 
     /**
+     * 导出用户列表。
+     *
+     * @param user 查询条件
+     * @return 用户列表
+     */
+    List<SysUser> exportUsers(SysUser user);
+
+    /**
      * 获取用户详情
      *
      * @param userId 用户ID

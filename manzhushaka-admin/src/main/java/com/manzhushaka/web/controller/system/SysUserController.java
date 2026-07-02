@@ -30,7 +30,6 @@ import com.manzhushaka.common.utils.poi.ExcelUtil;
 import com.manzhushaka.system.application.service.SystemUserAppService;
 import com.manzhushaka.system.service.ISysDeptService;
 import com.manzhushaka.system.service.ISysRoleService;
-import com.manzhushaka.system.service.ISysUserService;
 import com.manzhushaka.web.converter.system.user.UserAdminConverter;
 import com.manzhushaka.web.dto.system.user.ChangeUserStatusRequest;
 import com.manzhushaka.web.dto.system.user.CreateUserRequest;
@@ -50,9 +49,6 @@ public class SysUserController extends BaseController
 {
     @Autowired
     private SystemUserAppService userAppService;
-
-    @Autowired
-    private ISysUserService userService;
 
     @Autowired
     private ISysRoleService roleService;
@@ -78,7 +74,7 @@ public class SysUserController extends BaseController
     @PostMapping("/export")
     public void export(HttpServletResponse response, SysUser user)
     {
-        List<SysUser> list = userService.selectUserList(user);
+        List<SysUser> list = userAppService.exportUsers(user);
         ExcelUtil<SysUser> util = new ExcelUtil<SysUser>(SysUser.class);
         util.exportExcel(response, list, "用户数据");
     }
@@ -129,27 +125,6 @@ public class SysUserController extends BaseController
     @PostMapping
     public AjaxResult add(@Validated @RequestBody CreateUserRequest request)
     {
-        deptService.checkDeptDataScope(request.getDeptId());
-        roleService.checkRoleDataScope(request.getRoleIds());
-        // 校验唯一性
-        SysUser checkUser = new SysUser();
-        checkUser.setUserId(request.getUserId());
-        checkUser.setUserName(request.getUsername());
-        checkUser.setNickName(request.getNickname());
-        checkUser.setPhonenumber(request.getPhonenumber());
-        checkUser.setEmail(request.getEmail());
-        if (!userService.checkUserNameUnique(checkUser))
-        {
-            return error("新增用户'" + request.getUsername() + "'失败，登录账号已存在");
-        }
-        else if (StringUtils.isNotEmpty(request.getPhonenumber()) && !userService.checkPhoneUnique(checkUser))
-        {
-            return error("新增用户'" + request.getUsername() + "'失败，手机号码已存在");
-        }
-        else if (StringUtils.isNotEmpty(request.getEmail()) && !userService.checkEmailUnique(checkUser))
-        {
-            return error("新增用户'" + request.getUsername() + "'失败，邮箱账号已存在");
-        }
         var command = UserAdminConverter.toCreateUserCommand(request);
         userAppService.createUser(command);
         return toAjax(true);
@@ -163,28 +138,6 @@ public class SysUserController extends BaseController
     @PutMapping
     public AjaxResult edit(@Validated @RequestBody UpdateUserRequest request)
     {
-        SysUser checkUser = new SysUser();
-        checkUser.setUserId(request.getUserId());
-        checkUser.setUserName(request.getUsername());
-        checkUser.setNickName(request.getNickname());
-        checkUser.setPhonenumber(request.getPhonenumber());
-        checkUser.setEmail(request.getEmail());
-        userService.checkUserAllowed(checkUser);
-        userService.checkUserDataScope(request.getUserId());
-        deptService.checkDeptDataScope(request.getDeptId());
-        roleService.checkRoleDataScope(request.getRoleIds());
-        if (!userService.checkUserNameUnique(checkUser))
-        {
-            return error("修改用户'" + request.getUsername() + "'失败，登录账号已存在");
-        }
-        else if (StringUtils.isNotEmpty(request.getPhonenumber()) && !userService.checkPhoneUnique(checkUser))
-        {
-            return error("修改用户'" + request.getUsername() + "'失败，手机号码已存在");
-        }
-        else if (StringUtils.isNotEmpty(request.getEmail()) && !userService.checkEmailUnique(checkUser))
-        {
-            return error("修改用户'" + request.getUsername() + "'失败，邮箱账号已存在");
-        }
         var command = UserAdminConverter.toUpdateUserCommand(request);
         userAppService.updateUser(command);
         return success();
@@ -214,8 +167,6 @@ public class SysUserController extends BaseController
     @PutMapping("/resetPwd")
     public AjaxResult resetPwd(@RequestBody ResetPwdRequest request)
     {
-        userService.checkUserAllowed(new SysUser(request.getUserId()));
-        userService.checkUserDataScope(request.getUserId());
         var command = UserAdminConverter.toResetPwdCommand(request);
         userAppService.resetPwd(command);
         return success();
@@ -229,8 +180,6 @@ public class SysUserController extends BaseController
     @PutMapping("/changeStatus")
     public AjaxResult changeStatus(@RequestBody ChangeUserStatusRequest request)
     {
-        userService.checkUserAllowed(new SysUser(request.getUserId()));
-        userService.checkUserDataScope(request.getUserId());
         var command = UserAdminConverter.toChangeUserStatusCommand(request);
         userAppService.changeStatus(command);
         return success();

@@ -30,4 +30,11 @@ public class AdminBoundaryArchTest {
                     .that().resideInAPackage("..web.controller..")
                     .should().dependOnClassesThat()
                     .resideInAnyPackage("..mapper..");
+
+    @ArchTest
+    static final ArchRule USER_CONTROLLER_SHOULD_USE_APPLICATION_SERVICE =
+            noClasses()
+                    .that().haveSimpleName("SysUserController")
+                    .should().dependOnClassesThat()
+                    .haveFullyQualifiedName("com.manzhushaka.system.service.ISysUserService");
 }

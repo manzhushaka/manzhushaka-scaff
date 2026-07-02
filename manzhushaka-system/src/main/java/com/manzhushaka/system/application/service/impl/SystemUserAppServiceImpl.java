@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.manzhushaka.common.exception.ServiceException;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysRole;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
 import com.manzhushaka.common.utils.StringUtils;
@@ -59,6 +60,12 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
     }
 
     @Override
+    public List<SysUser> exportUsers(SysUser user)
+    {
+        return userService.selectUserList(user);
+    }
+
+    @Override
     public SysUser getUserDetail(Long userId)
     {
         userService.checkUserDataScope(userId);
@@ -83,13 +90,20 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
         user.setPassword(PasswordUtils.encrypt(command.password()));
         user.setCreateBy(command.username());
 
+        deptService.checkDeptDataScope(user.getDeptId());
+        roleService.checkRoleDataScope(user.getRoleIds());
+
+        if (!userService.checkUserNameUnique(user))
+        {
+            throw new ServiceException("新增用户'" + user.getUserName() + "'失败，登录账号已存在");
+        }
         if (StringUtils.isNotEmpty(user.getPhonenumber()) && !userService.checkPhoneUnique(user))
         {
-            throw new RuntimeException("新增用户'" + user.getUserName() + "'失败，手机号码已存在");
+            throw new ServiceException("新增用户'" + user.getUserName() + "'失败，手机号码已存在");
         }
         if (StringUtils.isNotEmpty(user.getEmail()) && !userService.checkEmailUnique(user))
         {
-            throw new RuntimeException("新增用户'" + user.getUserName() + "'失败，邮箱账号已存在");
+            throw new ServiceException("新增用户'" + user.getUserName() + "'失败，邮箱账号已存在");
         }
 
         userRepository.insertUser(user);
@@ -118,15 +132,15 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
 
         if (!userService.checkUserNameUnique(user))
         {
-            throw new RuntimeException("修改用户'" + user.getUserName() + "'失败，登录账号已存在");
+            throw new ServiceException("修改用户'" + user.getUserName() + "'失败，登录账号已存在");
         }
         if (StringUtils.isNotEmpty(user.getPhonenumber()) && !userService.checkPhoneUnique(user))
         {
-            throw new RuntimeException("修改用户'" + user.getUserName() + "'失败，手机号码已存在");
+            throw new ServiceException("修改用户'" + user.getUserName() + "'失败，手机号码已存在");
         }
         if (StringUtils.isNotEmpty(user.getEmail()) && !userService.checkEmailUnique(user))
         {
-            throw new RuntimeException("修改用户'" + user.getUserName() + "'失败，邮箱账号已存在");
+            throw new ServiceException("修改用户'" + user.getUserName() + "'失败，邮箱账号已存在");
         }
 
         userRepository.updateUser(user);

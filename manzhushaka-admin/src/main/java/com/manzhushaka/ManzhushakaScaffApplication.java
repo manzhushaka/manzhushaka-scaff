@@ -3,6 +3,8 @@ package com.manzhushaka;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 启动程序
@@ -12,6 +14,8 @@ import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
 @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class })
 public class ManzhushakaScaffApplication
 {
+    private static final Logger log = LoggerFactory.getLogger(ManzhushakaScaffApplication.class);
+
     /**
      * 应用启动入口。
      *
@@ -22,7 +26,7 @@ public class ManzhushakaScaffApplication
         // System.setProperty("spring.devtools.restart.enabled", "false");
         LogPathInitializer.initialize(ManzhushakaScaffApplication.class, args);
         SpringApplication.run(ManzhushakaScaffApplication.class, args);
-        System.out.println("(♥◠‿◠)ﾉﾞ  manzhushaka-scaff 启动成功   ლ(´ڡ`ლ)ﾞ  \n" +
+        log.info("(♥◠‿◠)ﾉﾞ  manzhushaka-scaff 启动成功   ლ(´ڡ`ლ)ﾞ  \n" +
                 " .-------.       ____     __        \n" +
                 " |  _ _   \\      \\   \\   /  /    \n" +
                 " | ( ' )  |       \\  _. /  '       \n" +

@@ -140,8 +140,7 @@ public class LogAspect
         catch (Exception exp)
         {
             // 记录本地异常日志
-            log.error("异常信息:{}", exp.getMessage());
-            exp.printStackTrace();
+            log.error("Failed to record operation audit log", exp);
         }
         finally
         {

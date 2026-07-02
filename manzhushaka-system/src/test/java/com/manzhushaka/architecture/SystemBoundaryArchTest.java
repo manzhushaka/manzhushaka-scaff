@@ -27,4 +27,9 @@ public class SystemBoundaryArchTest {
                     .that().resideInAPackage("..system..")
                     .should().dependOnClassesThat()
                     .resideInAnyPackage("..common.core.domain.entity..");
+
+    @ArchTest
+    static final ArchRule SYSTEM_SHOULD_NOT_KEEP_UNSCANNED_INFRASTRUCTURE_MAPPERS =
+            noClasses()
+                    .should().resideInAPackage("..system.infrastructure.persistence.mapper..");
 }
