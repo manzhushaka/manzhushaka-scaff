@@ -20,6 +20,7 @@ import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.common.utils.file.FileUploadUtils;
 import com.manzhushaka.common.utils.file.FileUtils;
 import com.manzhushaka.common.utils.file.MimeTypeUtils;
+import com.manzhushaka.common.utils.security.PasswordStrengthUtils;
 import com.manzhushaka.common.utils.security.PasswordUtils;
 import com.manzhushaka.framework.security.context.SecurityContextHelper;
 import com.manzhushaka.framework.security.model.LoginPrincipal;
@@ -103,6 +104,11 @@ public class SysProfileController extends BaseController
         if (PasswordUtils.matches(newPassword, password))
         {
             return error("新密码不能与旧密码相同");
+        }
+        String weakPasswordMessage = PasswordStrengthUtils.getWeakPasswordMessage(principal.getUsername(), newPassword);
+        if (StringUtils.isNotEmpty(weakPasswordMessage))
+        {
+            return error(weakPasswordMessage);
         }
         newPassword = PasswordUtils.encrypt(newPassword);
         if (userService.resetUserPwd(userId, newPassword) > 0)

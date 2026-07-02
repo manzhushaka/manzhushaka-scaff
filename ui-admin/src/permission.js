@@ -13,9 +13,14 @@ import usePermissionStore from '@/store/modules/permission'
 NProgress.configure({ showSpinner: false })
 
 const whiteList = ['/login', '/register']
+const forceChangePasswordRoute = { name: 'Profile', params: { activeTab: 'resetPwd' }, replace: true }
 
 const isWhiteList = (path) => {
   return whiteList.some(pattern => isPathMatch(pattern, path))
+}
+
+const isChangePasswordRoute = (to) => {
+  return to.name === 'Profile' && to.params && to.params.activeTab === 'resetPwd'
 }
 
 router.beforeEach(async (to, from) => {
@@ -38,11 +43,12 @@ router.beforeEach(async (to, from) => {
       NProgress.done()
       return { path: '/' }
     }
-    if (useUserStore().roles.length === 0) {
+    const userStore = useUserStore()
+    if (userStore.roles.length === 0) {
       isRelogin.show = true
       try {
         // 拉取user_info信息
-        await useUserStore().getInfo()
+        await userStore.getInfo()
         isRelogin.show = false
         // 根据roles权限生成可访问的路由
         const accessRoutes = await usePermissionStore().generateRoutes()
@@ -51,13 +57,21 @@ router.beforeEach(async (to, from) => {
             router.addRoute(route)
           }
         })
+        if (userStore.forceChangePassword && !isChangePasswordRoute(to)) {
+          NProgress.done()
+          return forceChangePasswordRoute
+        }
         // 重新导航到目标路由，确保动态路由已注册
         return { ...to, replace: true }
       } catch (err) {
-        await useUserStore().logOut()
+        await userStore.logOut()
         ElMessage.error(err)
         return { path: '/' }
       }
+    }
+    if (userStore.forceChangePassword && !isChangePasswordRoute(to)) {
+      NProgress.done()
+      return forceChangePasswordRoute
     }
     return true
   } else {

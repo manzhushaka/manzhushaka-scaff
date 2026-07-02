@@ -8,6 +8,7 @@ import com.manzhushaka.common.exception.ServiceException;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysRole;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
 import com.manzhushaka.common.utils.StringUtils;
+import com.manzhushaka.common.utils.security.PasswordStrengthUtils;
 import com.manzhushaka.common.utils.security.PasswordUtils;
 import com.manzhushaka.system.application.command.ChangeUserStatusCommand;
 import com.manzhushaka.system.application.command.CreateUserCommand;
@@ -76,6 +77,8 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
     @Transactional
     public Long createUser(CreateUserCommand command)
     {
+        validateStrongPassword(command.username(), command.password());
+
         SysUser user = new SysUser();
         user.setUserId(command.userId());
         user.setUserName(command.username());
@@ -157,6 +160,10 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
     @Transactional
     public void resetPwd(ResetPwdCommand command)
     {
+        validateStrongPassword(null, command.password());
+        SysUser currentUser = userRepository.selectUserById(command.userId());
+        validateStrongPassword(currentUser != null ? currentUser.getUserName() : null, command.password());
+
         SysUser user = new SysUser();
         user.setUserId(command.userId());
         user.setPassword(PasswordUtils.encrypt(command.password()));
@@ -191,5 +198,20 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
     public String importUser(List<SysUser> userList, boolean updateSupport, String operName)
     {
         return userService.importUser(userList, updateSupport, operName);
+    }
+
+    /**
+     * 校验新密码强度。
+     *
+     * @param username 用户名
+     * @param password 明文密码
+     */
+    private void validateStrongPassword(String username, String password)
+    {
+        String message = PasswordStrengthUtils.getWeakPasswordMessage(username, password);
+        if (StringUtils.isNotEmpty(message))
+        {
+            throw new ServiceException(message);
+        }
     }
 }

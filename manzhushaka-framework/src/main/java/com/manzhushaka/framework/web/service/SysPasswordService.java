@@ -41,46 +41,34 @@ public class SysPasswordService
         return CacheConstants.PWD_ERR_CNT_KEY + username;
     }
 
+    /**
+     * 校验用户登录密码。
+     *
+     * @param user 用户信息
+     */
     public void validate(SysUser user)
     {
         Authentication usernamePasswordAuthenticationToken = AuthenticationContextHolder.getContext();
         String username = usernamePasswordAuthenticationToken.getName();
         String password = usernamePasswordAuthenticationToken.getCredentials().toString();
 
-        Integer retryCount = redisCache.getCacheObject(getCacheKey(username));
-
-        if (retryCount == null)
-        {
-            retryCount = 0;
-        }
-
-        if (retryCount >= Integer.valueOf(maxRetryCount).intValue())
-        {
-            throw new UserPasswordRetryLimitExceedException(maxRetryCount, lockTime);
-        }
-
-        if (!matches(user, password))
-        {
-            retryCount = retryCount + 1;
-            redisCache.setCacheObject(getCacheKey(username), retryCount, lockTime, TimeUnit.MINUTES);
-            throw new UserPasswordNotMatchException();
-        }
-        else
-        {
-            clearLoginRecordCache(username);
-        }
+        validatePassword(username, password, user.getPassword());
     }
 
+    /**
+     * 校验密码是否匹配。
+     *
+     * @param user 用户信息
+     * @param rawPassword 明文密码
+     * @return true 表示匹配
+     */
     public boolean matches(SysUser user, String rawPassword)
     {
         return PasswordUtils.matches(rawPassword, user.getPassword());
     }
 
     /**
-     * 校验密码（接收加密密码字符串，不依赖 SysUser 实体）
-     * <p>
-     * 供 {@code UserDetailsServiceImpl} 在切换到 {@code SystemSecurityQueryService} 后使用。
-     * </p>
+     * 校验密码（接收加密密码字符串，不依赖 SysUser 实体）。
      *
      * @param encodedPassword 数据库中存储的加密密码
      */
@@ -90,6 +78,31 @@ public class SysPasswordService
         String username = usernamePasswordAuthenticationToken.getName();
         String password = usernamePasswordAuthenticationToken.getCredentials().toString();
 
+        validatePassword(username, password, encodedPassword);
+    }
+
+    /**
+     * 清理登录密码错误记录。
+     *
+     * @param loginName 登录账号
+     */
+    public void clearLoginRecordCache(String loginName)
+    {
+        if (redisCache.hasKey(getCacheKey(loginName)))
+        {
+            redisCache.deleteObject(getCacheKey(loginName));
+        }
+    }
+
+    /**
+     * 按错误次数策略校验登录密码。
+     *
+     * @param username 用户名
+     * @param password 明文密码
+     * @param encodedPassword 加密密码
+     */
+    private void validatePassword(String username, String password, String encodedPassword)
+    {
         Integer retryCount = redisCache.getCacheObject(getCacheKey(username));
 
         if (retryCount == null)
@@ -106,19 +119,15 @@ public class SysPasswordService
         {
             retryCount = retryCount + 1;
             redisCache.setCacheObject(getCacheKey(username), retryCount, lockTime, TimeUnit.MINUTES);
+            if (retryCount >= maxRetryCount)
+            {
+                throw new UserPasswordRetryLimitExceedException(maxRetryCount, lockTime);
+            }
             throw new UserPasswordNotMatchException();
         }
         else
         {
             clearLoginRecordCache(username);
-        }
-    }
-
-    public void clearLoginRecordCache(String loginName)
-    {
-        if (redisCache.hasKey(getCacheKey(loginName)))
-        {
-            redisCache.deleteObject(getCacheKey(loginName));
         }
     }
 }

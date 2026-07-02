@@ -17,6 +17,7 @@ import com.manzhushaka.system.infrastructure.persistence.entity.SysRole;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
 import com.manzhushaka.common.exception.ServiceException;
 import com.manzhushaka.common.utils.StringUtils;
+import com.manzhushaka.common.utils.security.PasswordStrengthUtils;
 import com.manzhushaka.common.utils.security.PasswordUtils;
 import com.manzhushaka.common.utils.bean.BeanValidators;
 import com.manzhushaka.common.utils.spring.SpringUtils;
@@ -470,6 +471,7 @@ public class SysUserServiceImpl implements ISysUserService
                     BeanValidators.validateWithException(validator, user);
                     deptService.checkDeptDataScope(user.getDeptId());
                     String password = configService.selectConfigByKey("sys.user.initPassword");
+                    validateInitialPassword(user.getUserName(), password);
                     user.setPassword(PasswordUtils.encrypt(password));
                     user.setCreateBy(operName);
                     userMapper.insertUser(user);
@@ -513,5 +515,20 @@ public class SysUserServiceImpl implements ISysUserService
             successMsg.insert(0, "恭喜您，数据已全部导入成功！共 " + successNum + " 条，数据如下：");
         }
         return successMsg.toString();
+    }
+
+    /**
+     * 校验导入用户使用的初始密码强度。
+     *
+     * @param username 用户名
+     * @param password 初始密码明文
+     */
+    private void validateInitialPassword(String username, String password)
+    {
+        String message = PasswordStrengthUtils.getWeakPasswordMessage(username, password);
+        if (StringUtils.isNotEmpty(message))
+        {
+            throw new ServiceException(message);
+        }
     }
 }
