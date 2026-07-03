@@ -55,6 +55,40 @@
     </el-row>
 
     <HainanMap :query-params="queryParams" />
+
+    <el-row :gutter="14" class="bi-rank-row">
+      <el-col :xs="24" :lg="10">
+        <section class="bi-panel">
+          <div class="bi-panel__header">
+            <span>商户排行</span>
+            <small>Top 10</small>
+          </div>
+          <div ref="rankChartRef" class="bi-rank-chart"></div>
+        </section>
+      </el-col>
+      <el-col :xs="24" :lg="14">
+        <section class="bi-panel">
+          <el-collapse v-model="activePanels">
+            <el-collapse-item name="abnormal">
+              <template #title>
+                <div class="bi-collapse-title">
+                  <span>异常订单明细</span>
+                  <small>{{ abnormalOrders.length }} 笔</small>
+                </div>
+              </template>
+              <el-table :data="abnormalOrders" height="306">
+                <el-table-column label="订单号" prop="outTradeNo" min-width="180" :show-overflow-tooltip="true" />
+                <el-table-column label="金额" align="right" width="120">
+                  <template #default="scope">{{ formatCentAmount(scope.row.amount) }} 元</template>
+                </el-table-column>
+                <el-table-column label="支付状态" prop="payStatus" width="110" />
+                <el-table-column label="发票状态" prop="invoiceStatus" width="110" />
+              </el-table>
+            </el-collapse-item>
+          </el-collapse>
+        </section>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
@@ -69,8 +103,11 @@ const dashboard = ref({})
 const timeRange = ref(defaultTimeRange())
 const trendChartRef = ref(null)
 const taxChartRef = ref(null)
+const rankChartRef = ref(null)
+const activePanels = ref(['abnormal'])
 let trendChart
 let taxChart
+let rankChart
 
 const data = reactive({
   queryParams: {
@@ -91,6 +128,7 @@ const kpiItems = computed(() => [
 
 const rangeLabel = computed(() => `${queryParams.value.startTime || '-'} 至 ${queryParams.value.endTime || '-'}`)
 const taxItemTotalText = computed(() => `${(dashboard.value.taxItemRatio || []).length} 个税目`)
+const abnormalOrders = computed(() => dashboard.value.abnormalOrders || [])
 
 function getData() {
   loading.value = true
@@ -122,6 +160,7 @@ function renderCharts() {
   nextTick(() => {
     renderTrendChart()
     renderTaxChart()
+    renderRankChart()
   })
 }
 
@@ -167,9 +206,29 @@ function renderTaxChart() {
   })
 }
 
+function renderRankChart() {
+  if (!rankChartRef.value) return
+  rankChart = rankChart || echarts.init(rankChartRef.value)
+  const rows = dashboard.value.merchantTop10 || []
+  rankChart.setOption({
+    color: ['#00A870'],
+    tooltip: { trigger: 'axis', valueFormatter: value => `${formatCentAmount(value)} 元` },
+    grid: { left: 18, right: 18, top: 24, bottom: 20, containLabel: true },
+    xAxis: { type: 'value', axisLabel: { formatter: value => `${(value / 100).toFixed(0)}` }, splitLine: { lineStyle: { color: '#eef1f5' } } },
+    yAxis: { type: 'category', data: rows.map(item => item.merchantName).reverse(), axisTick: { show: false } },
+    series: [{
+      name: '交易金额',
+      type: 'bar',
+      barWidth: 14,
+      data: rows.map(item => item.amount || 0).reverse()
+    }]
+  })
+}
+
 function resizeCharts() {
   trendChart && trendChart.resize()
   taxChart && taxChart.resize()
+  rankChart && rankChart.resize()
 }
 
 function formatCentAmount(amount) {
@@ -203,6 +262,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', resizeCharts)
   trendChart && trendChart.dispose()
   taxChart && taxChart.dispose()
+  rankChart && rankChart.dispose()
 })
 </script>
 
@@ -288,6 +348,11 @@ onBeforeUnmount(() => {
   row-gap: 14px;
 }
 
+.bi-rank-row {
+  margin-top: 14px;
+  row-gap: 14px;
+}
+
 .bi-panel {
   padding: 16px;
 }
@@ -304,6 +369,27 @@ onBeforeUnmount(() => {
 
 .bi-chart {
   height: 340px;
+}
+
+.bi-rank-chart {
+  height: 344px;
+}
+
+.bi-collapse-title {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 16px;
+  color: #172b4d;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.bi-collapse-title small {
+  color: #6b778c;
+  font-size: 13px;
+  font-weight: 400;
 }
 
 @media (max-width: 768px) {
