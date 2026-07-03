@@ -12,6 +12,7 @@ public interface PayOrderRepository {
     int updatePayStatus(Long id, String payStatus, String payTradeNo, LocalDateTime payTime);
     int updateInvoiceStatus(Long id, String invoiceStatus, String invoiceNo, String invoiceCode,
                             String invoicePdfUrl, LocalDateTime invoiceIssueTime);
+    int updateInvoiceReverseStatus(Long id, String invoiceStatus, LocalDateTime invoiceReverseTime);
     int updateRefundAmountAndStatus(Long id, Long refundAmount, String payStatus);
     Optional<PayOrder> findById(Long id);
     Optional<PayOrder> findByOutTradeNo(String outTradeNo);

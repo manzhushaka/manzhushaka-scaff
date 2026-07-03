@@ -11,6 +11,7 @@ public interface PiiPayOrderMapper {
     int deleteById(@Param("id") Long id);
     int updatePayStatus(@Param("id") Long id, @Param("payStatus") String payStatus, @Param("payTradeNo") String payTradeNo, @Param("payTime") LocalDateTime payTime);
     int updateInvoiceStatus(@Param("id") Long id, @Param("invoiceStatus") String invoiceStatus, @Param("invoiceNo") String invoiceNo, @Param("invoiceCode") String invoiceCode, @Param("invoicePdfUrl") String invoicePdfUrl, @Param("invoiceIssueTime") LocalDateTime invoiceIssueTime);
+    int updateInvoiceReverseStatus(@Param("id") Long id, @Param("invoiceStatus") String invoiceStatus, @Param("invoiceReverseTime") LocalDateTime invoiceReverseTime);
     int updateRefundAmountAndStatus(@Param("id") Long id, @Param("refundAmount") Long refundAmount, @Param("payStatus") String payStatus);
     PiiPayOrder selectById(@Param("id") Long id);
     PiiPayOrder selectByOutTradeNo(@Param("outTradeNo") String outTradeNo);

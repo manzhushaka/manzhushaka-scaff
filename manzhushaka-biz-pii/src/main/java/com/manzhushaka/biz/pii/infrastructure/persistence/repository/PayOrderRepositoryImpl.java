@@ -43,6 +43,11 @@ public class PayOrderRepositoryImpl implements PayOrderRepository {
     }
 
     @Override
+    public int updateInvoiceReverseStatus(Long id, String invoiceStatus, LocalDateTime invoiceReverseTime) {
+        return mapper.updateInvoiceReverseStatus(id, invoiceStatus, invoiceReverseTime);
+    }
+
+    @Override
     public int updateRefundAmountAndStatus(Long id, Long refundAmount, String payStatus) {
         return mapper.updateRefundAmountAndStatus(id, refundAmount, payStatus);
     }

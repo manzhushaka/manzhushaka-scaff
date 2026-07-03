@@ -98,6 +98,12 @@
         where id = #{id} and del_flag = 0
     </update>
 
+    <update id="updateInvoiceReverseStatus">
+        update pii_pay_order
+        set invoice_status = #{invoiceStatus}, invoice_reverse_time = #{invoiceReverseTime}
+        where id = #{id} and del_flag = 0
+    </update>
+
     <update id="updateRefundAmountAndStatus">
         update pii_pay_order set refund_amount = #{refundAmount}, pay_status = #{payStatus} where id = #{id} and del_flag = 0
     </update>
