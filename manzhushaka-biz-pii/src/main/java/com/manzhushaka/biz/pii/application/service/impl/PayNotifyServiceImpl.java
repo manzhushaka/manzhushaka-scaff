@@ -3,6 +3,7 @@ package com.manzhushaka.biz.pii.application.service.impl;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.manzhushaka.biz.pii.application.service.BiCacheService;
 import com.manzhushaka.biz.pii.application.service.PayNotifyService;
 import com.manzhushaka.biz.pii.domain.model.MerchantProfile;
 import com.manzhushaka.biz.pii.domain.model.PayOrder;
@@ -38,6 +39,7 @@ public class PayNotifyServiceImpl implements PayNotifyService {
     private final TaxItemRepository taxItemRepository;
     private final RedisStreamMessagePublisher publisher;
     private final PiiProperties properties;
+    private final BiCacheService biCacheService;
 
     public PayNotifyServiceImpl(PaymentGateway paymentGateway,
                                 PayOrderRepository payOrderRepository,
@@ -45,7 +47,8 @@ public class PayNotifyServiceImpl implements PayNotifyService {
                                 MerchantProfileRepository merchantProfileRepository,
                                 TaxItemRepository taxItemRepository,
                                 RedisStreamMessagePublisher publisher,
-                                PiiProperties properties) {
+                                PiiProperties properties,
+                                BiCacheService biCacheService) {
         this.paymentGateway = paymentGateway;
         this.payOrderRepository = payOrderRepository;
         this.notifyLogRepository = notifyLogRepository;
@@ -53,6 +56,7 @@ public class PayNotifyServiceImpl implements PayNotifyService {
         this.taxItemRepository = taxItemRepository;
         this.publisher = publisher;
         this.properties = properties;
+        this.biCacheService = biCacheService;
     }
 
     @Override
@@ -84,6 +88,7 @@ public class PayNotifyServiceImpl implements PayNotifyService {
             payOrderRepository.updatePayStatus(order.getId(), "PAID", payload.getTradeNo(), LocalDateTime.now());
             publishInvoiceOpen(order, merchant);
             notifyLogRepository.markProcessed(outTradeNo);
+            biCacheService.evictAll();
         }
         return SUCCESS;
     }

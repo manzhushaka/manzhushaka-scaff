@@ -31,8 +31,9 @@ class RefundNotifyServiceTest {
     private final PayOrderRepository payOrderRepository = mock(PayOrderRepository.class);
     private final MerchantProfileRepository merchantProfileRepository = mock(MerchantProfileRepository.class);
     private final RedisStreamMessagePublisher publisher = mock(RedisStreamMessagePublisher.class);
+    private final BiCacheService biCacheService = mock(BiCacheService.class);
     private final RefundNotifyService service = new RefundNotifyServiceImpl(
-            paymentGateway, refundRecordRepository, payOrderRepository, merchantProfileRepository, publisher);
+            paymentGateway, refundRecordRepository, payOrderRepository, merchantProfileRepository, publisher, biCacheService);
 
     @Test
     void notifyShouldUpdateRefundOrderAndPublishInvoiceReverseMessage() {
@@ -46,6 +47,7 @@ class RefundNotifyServiceTest {
         assertThat(result).isEqualTo("SUCCESS");
         verify(refundRecordRepository).updateStatus(eq(20L), eq("SUCCESS"), eq("TRADE001"), any(LocalDateTime.class));
         verify(payOrderRepository).updateRefundAmountAndStatus(10L, 8800L, "REFUNDED");
+        verify(biCacheService).evictAll();
 
         ArgumentCaptor<String> payloadCaptor = ArgumentCaptor.forClass(String.class);
         verify(publisher).publish(eq("pii:invoice:reverse"), eq("pii.invoice.reverse"), eq("ORDER001"), payloadCaptor.capture());

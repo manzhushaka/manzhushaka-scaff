@@ -29,7 +29,8 @@ class MerchantServiceTest {
     private final MerchantProfileRepository merchantProfileRepository = mock(MerchantProfileRepository.class);
     private final ISysDeptService deptService = mock(ISysDeptService.class);
     private final ISysUserService userService = mock(ISysUserService.class);
-    private final MerchantService service = new MerchantServiceImpl(merchantProfileRepository, deptService, userService);
+    private final BiCacheService biCacheService = mock(BiCacheService.class);
+    private final MerchantService service = new MerchantServiceImpl(merchantProfileRepository, deptService, userService, biCacheService);
 
     @Test
     void createShouldThrowWhenUmsMerchantAndTerminalExists() {
@@ -56,6 +57,7 @@ class MerchantServiceTest {
         verify(deptService).insertDept(any(SysDept.class));
         verify(userService).insertUser(any(SysUser.class));
         verify(merchantProfileRepository).insert(any(MerchantProfile.class));
+        verify(biCacheService).evictAll();
     }
 
     @Test

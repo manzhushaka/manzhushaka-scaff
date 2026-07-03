@@ -18,7 +18,8 @@ import static org.mockito.Mockito.when;
 class BiReportServiceTest {
     private final PayOrderRepository payOrderRepository = mock(PayOrderRepository.class);
     private final ISysDeptService deptService = mock(ISysDeptService.class);
-    private final BiReportService service = new BiReportServiceImpl(payOrderRepository, deptService);
+    private final BiCacheService biCacheService = mock(BiCacheService.class);
+    private final BiReportService service = new BiReportServiceImpl(payOrderRepository, deptService, biCacheService);
 
     @Test
     void dashboardShouldCollectKpisAndChartsFromRepository() {
@@ -45,5 +46,22 @@ class BiReportServiceTest {
         assertThat(result.getMerchantTop10()).hasSize(1);
         assertThat(result.getAbnormalOrders()).hasSize(1);
         verify(payOrderRepository).findAbnormalOrders(100L, start, end, 50);
+        verify(biCacheService).putDashboard(query, result);
+    }
+
+    @Test
+    void dashboardShouldReturnCachedResultWhenExists() {
+        LocalDateTime start = LocalDateTime.of(2026, 7, 1, 0, 0);
+        LocalDateTime end = LocalDateTime.of(2026, 7, 3, 23, 59, 59);
+        BiDashboardQuery query = new BiDashboardQuery(100L, start, end);
+        BiDashboardResult cached = new BiDashboardResult();
+        cached.setTotalAmount(9900L);
+        when(biCacheService.getDashboard(query)).thenReturn(cached);
+
+        BiDashboardResult result = service.dashboard(query);
+
+        assertThat(result).isSameAs(cached);
+        verify(payOrderRepository, org.mockito.Mockito.never())
+                .sumAmountByMerchantAndStatusBetween(org.mockito.Mockito.any(), org.mockito.Mockito.any(), org.mockito.Mockito.any(), org.mockito.Mockito.any());
     }
 }

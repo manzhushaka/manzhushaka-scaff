@@ -5,6 +5,7 @@ import com.manzhushaka.biz.pii.application.command.CreateMerchantCommand;
 import com.manzhushaka.biz.pii.application.command.UpdateMerchantCommand;
 import com.manzhushaka.biz.pii.application.query.MerchantPageQuery;
 import com.manzhushaka.biz.pii.application.result.MerchantResult;
+import com.manzhushaka.biz.pii.application.service.BiCacheService;
 import com.manzhushaka.biz.pii.application.service.MerchantService;
 import com.manzhushaka.biz.pii.domain.model.MerchantProfile;
 import com.manzhushaka.biz.pii.domain.repository.MerchantProfileRepository;
@@ -28,13 +29,16 @@ public class MerchantServiceImpl implements MerchantService {
     private final MerchantProfileRepository merchantProfileRepository;
     private final ISysDeptService deptService;
     private final ISysUserService userService;
+    private final BiCacheService biCacheService;
 
     public MerchantServiceImpl(MerchantProfileRepository merchantProfileRepository,
                                ISysDeptService deptService,
-                               ISysUserService userService) {
+                               ISysUserService userService,
+                               BiCacheService biCacheService) {
         this.merchantProfileRepository = merchantProfileRepository;
         this.deptService = deptService;
         this.userService = userService;
+        this.biCacheService = biCacheService;
     }
 
     @Override
@@ -69,7 +73,9 @@ public class MerchantServiceImpl implements MerchantService {
         profile.setCreateTime(LocalDateTime.now());
         fillProfile(profile, command.umsMerchantId(), command.umsTerminalId(), command.umsPaySignKey(),
                 command.umsInvoiceSignKey(), command.invoiceMsgSrc(), command.status(), command.remark());
-        return merchantProfileRepository.insert(profile);
+        Long id = merchantProfileRepository.insert(profile);
+        biCacheService.evictAll();
+        return id;
     }
 
     @Override
@@ -82,21 +88,27 @@ public class MerchantServiceImpl implements MerchantService {
         profile.setUpdateTime(LocalDateTime.now());
         fillProfile(profile, command.umsMerchantId(), command.umsTerminalId(), command.umsPaySignKey(),
                 command.umsInvoiceSignKey(), command.invoiceMsgSrc(), command.status(), command.remark());
-        return merchantProfileRepository.updateById(profile);
+        int rows = merchantProfileRepository.updateById(profile);
+        biCacheService.evictAll();
+        return rows;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int delete(Long id) {
         merchantProfileRepository.findById(id).orElseThrow(() -> new ServiceException("商户不存在"));
-        return merchantProfileRepository.deleteById(id);
+        int rows = merchantProfileRepository.deleteById(id);
+        biCacheService.evictAll();
+        return rows;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int changeStatus(ChangeMerchantStatusCommand command) {
         merchantProfileRepository.findById(command.id()).orElseThrow(() -> new ServiceException("商户不存在"));
-        return merchantProfileRepository.updateStatus(command.id(), command.status());
+        int rows = merchantProfileRepository.updateStatus(command.id(), command.status());
+        biCacheService.evictAll();
+        return rows;
     }
 
     @Override

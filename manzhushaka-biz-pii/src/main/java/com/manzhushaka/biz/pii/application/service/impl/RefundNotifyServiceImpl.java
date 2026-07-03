@@ -2,6 +2,7 @@ package com.manzhushaka.biz.pii.application.service.impl;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.manzhushaka.biz.pii.application.service.BiCacheService;
 import com.manzhushaka.biz.pii.application.service.RefundNotifyService;
 import com.manzhushaka.biz.pii.domain.model.MerchantProfile;
 import com.manzhushaka.biz.pii.domain.model.PayOrder;
@@ -32,17 +33,20 @@ public class RefundNotifyServiceImpl implements RefundNotifyService {
     private final PayOrderRepository payOrderRepository;
     private final MerchantProfileRepository merchantProfileRepository;
     private final RedisStreamMessagePublisher publisher;
+    private final BiCacheService biCacheService;
 
     public RefundNotifyServiceImpl(PaymentGateway paymentGateway,
                                    RefundRecordRepository refundRecordRepository,
                                    PayOrderRepository payOrderRepository,
                                    MerchantProfileRepository merchantProfileRepository,
-                                   RedisStreamMessagePublisher publisher) {
+                                   RedisStreamMessagePublisher publisher,
+                                   BiCacheService biCacheService) {
         this.paymentGateway = paymentGateway;
         this.refundRecordRepository = refundRecordRepository;
         this.payOrderRepository = payOrderRepository;
         this.merchantProfileRepository = merchantProfileRepository;
         this.publisher = publisher;
+        this.biCacheService = biCacheService;
     }
 
     @Override
@@ -72,6 +76,7 @@ public class RefundNotifyServiceImpl implements RefundNotifyService {
             refundRecordRepository.updateStatus(refund.getId(), SUCCESS, payload.getTradeNo(), LocalDateTime.now());
             payOrderRepository.updateRefundAmountAndStatus(order.getId(), totalRefundAmount, payStatus);
             publishInvoiceReverseIfNeeded(refund, order, merchant);
+            biCacheService.evictAll();
         }
         return SUCCESS;
     }

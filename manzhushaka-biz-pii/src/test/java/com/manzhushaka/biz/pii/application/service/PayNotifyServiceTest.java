@@ -37,9 +37,10 @@ class PayNotifyServiceTest {
     private final MerchantProfileRepository merchantProfileRepository = mock(MerchantProfileRepository.class);
     private final TaxItemRepository taxItemRepository = mock(TaxItemRepository.class);
     private final RedisStreamMessagePublisher publisher = mock(RedisStreamMessagePublisher.class);
+    private final BiCacheService biCacheService = mock(BiCacheService.class);
     private final PiiProperties properties = new PiiProperties();
     private final PayNotifyService service = new PayNotifyServiceImpl(paymentGateway, payOrderRepository,
-            notifyLogRepository, merchantProfileRepository, taxItemRepository, publisher, properties);
+            notifyLogRepository, merchantProfileRepository, taxItemRepository, publisher, properties, biCacheService);
 
     @Test
     void notifyShouldVerifyPersistUpdateOrderAndPublishInvoiceMessage() {
@@ -56,6 +57,7 @@ class PayNotifyServiceTest {
         verify(paymentGateway).verifyAndParse(rawBody(), "PAY_KEY");
         verify(payOrderRepository).updatePayStatus(eq(10L), eq("PAID"), eq("TRADE001"), any(LocalDateTime.class));
         verify(notifyLogRepository).markProcessed("ORDER001");
+        verify(biCacheService).evictAll();
 
         ArgumentCaptor<PaymentNotifyLog> logCaptor = ArgumentCaptor.forClass(PaymentNotifyLog.class);
         verify(notifyLogRepository).insert(logCaptor.capture());

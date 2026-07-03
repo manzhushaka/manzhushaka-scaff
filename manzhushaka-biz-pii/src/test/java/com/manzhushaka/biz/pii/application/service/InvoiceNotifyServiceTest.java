@@ -31,8 +31,9 @@ class InvoiceNotifyServiceTest {
     private final InvoiceNotifyLogRepository notifyLogRepository = mock(InvoiceNotifyLogRepository.class);
     private final MerchantProfileRepository merchantProfileRepository = mock(MerchantProfileRepository.class);
     private final RedisStreamMessagePublisher publisher = mock(RedisStreamMessagePublisher.class);
+    private final BiCacheService biCacheService = mock(BiCacheService.class);
     private final InvoiceNotifyService service = new InvoiceNotifyServiceImpl(
-            invoiceGateway, payOrderRepository, notifyLogRepository, merchantProfileRepository, publisher);
+            invoiceGateway, payOrderRepository, notifyLogRepository, merchantProfileRepository, publisher, biCacheService);
 
     @Test
     void notifyShouldVerifyUpdateInvoiceAndPublishEmailMessage() {
@@ -46,6 +47,7 @@ class InvoiceNotifyServiceTest {
         assertThat(result).isEqualTo("SUCCESS");
         verify(payOrderRepository).updateInvoiceStatus(eq(10L), eq("ISSUED"), eq("INV001"),
                 eq("CODE001"), eq("https://example.com/invoice.pdf"), any(LocalDateTime.class));
+        verify(biCacheService).evictAll();
         verify(notifyLogRepository).markProcessed("ORDER001", "20260703");
         ArgumentCaptor<InvoiceNotifyLog> logCaptor = ArgumentCaptor.forClass(InvoiceNotifyLog.class);
         verify(notifyLogRepository).insert(logCaptor.capture());

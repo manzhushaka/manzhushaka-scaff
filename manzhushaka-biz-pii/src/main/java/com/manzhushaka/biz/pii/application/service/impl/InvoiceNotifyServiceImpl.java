@@ -2,6 +2,7 @@ package com.manzhushaka.biz.pii.application.service.impl;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.manzhushaka.biz.pii.application.service.BiCacheService;
 import com.manzhushaka.biz.pii.application.service.InvoiceNotifyService;
 import com.manzhushaka.biz.pii.domain.model.InvoiceNotifyLog;
 import com.manzhushaka.biz.pii.domain.model.MerchantProfile;
@@ -33,17 +34,20 @@ public class InvoiceNotifyServiceImpl implements InvoiceNotifyService {
     private final InvoiceNotifyLogRepository notifyLogRepository;
     private final MerchantProfileRepository merchantProfileRepository;
     private final RedisStreamMessagePublisher publisher;
+    private final BiCacheService biCacheService;
 
     public InvoiceNotifyServiceImpl(InvoiceGateway invoiceGateway,
                                     PayOrderRepository payOrderRepository,
                                     InvoiceNotifyLogRepository notifyLogRepository,
                                     MerchantProfileRepository merchantProfileRepository,
-                                    RedisStreamMessagePublisher publisher) {
+                                    RedisStreamMessagePublisher publisher,
+                                    BiCacheService biCacheService) {
         this.invoiceGateway = invoiceGateway;
         this.payOrderRepository = payOrderRepository;
         this.notifyLogRepository = notifyLogRepository;
         this.merchantProfileRepository = merchantProfileRepository;
         this.publisher = publisher;
+        this.biCacheService = biCacheService;
     }
 
     @Override
@@ -76,6 +80,7 @@ public class InvoiceNotifyServiceImpl implements InvoiceNotifyService {
                     payload.getInvoiceCode(), payload.getPdfUrl(), LocalDateTime.now());
             notifyLogRepository.markProcessed(identity.umsMerOrderId, identity.umsMerOrderDate);
             publishEmailIfNeeded(order, payload);
+            biCacheService.evictAll();
         }
         return SUCCESS;
     }
