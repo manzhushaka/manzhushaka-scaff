@@ -1,6 +1,7 @@
 package com.manzhushaka.biz.pii.infrastructure.gateway.invoice.handler;
 
 import com.alibaba.fastjson2.JSON;
+import com.manzhushaka.biz.pii.domain.model.PayOrder;
 import com.manzhushaka.biz.pii.domain.repository.PayOrderRepository;
 import com.manzhushaka.biz.pii.infrastructure.gateway.invoice.InvoiceGateway;
 import com.manzhushaka.biz.pii.infrastructure.gateway.invoice.dto.InvoiceRequest;
@@ -13,11 +14,13 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -63,6 +66,20 @@ class InvoiceOpenHandlerTest {
                 .hasMessage("boom");
 
         verify(payOrderRepository).updateInvoiceStatus(10L, "FAILED", null, null, null, null);
+    }
+
+    @Test
+    void doHandleShouldSkipGatewayWhenOrderAlreadyIssued() {
+        PayOrder order = new PayOrder();
+        order.setId(10L);
+        order.setInvoiceStatus("ISSUED");
+        when(payOrderRepository.findById(10L)).thenReturn(Optional.of(order));
+
+        handler.doHandle(record(payload()));
+
+        verify(invoiceGateway, never()).invoice(any(InvoiceRequest.class));
+        verify(payOrderRepository, never()).updateInvoiceStatus(
+                any(), any(), any(), any(), any(), any());
     }
 
     private Map<String, Object> payload() {

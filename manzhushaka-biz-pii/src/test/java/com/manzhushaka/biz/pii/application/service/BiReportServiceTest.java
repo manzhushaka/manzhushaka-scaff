@@ -2,8 +2,10 @@ package com.manzhushaka.biz.pii.application.service;
 
 import com.manzhushaka.biz.pii.application.query.BiDashboardQuery;
 import com.manzhushaka.biz.pii.application.result.BiDashboardResult;
+import com.manzhushaka.biz.pii.application.result.BiDeptAggregateResult;
 import com.manzhushaka.biz.pii.application.service.impl.BiReportServiceImpl;
 import com.manzhushaka.biz.pii.domain.repository.PayOrderRepository;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysDept;
 import com.manzhushaka.system.service.ISysDeptService;
 import org.junit.jupiter.api.Test;
 
@@ -11,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -63,5 +66,40 @@ class BiReportServiceTest {
         assertThat(result).isSameAs(cached);
         verify(payOrderRepository, org.mockito.Mockito.never())
                 .sumAmountByMerchantAndStatusBetween(org.mockito.Mockito.any(), org.mockito.Mockito.any(), org.mockito.Mockito.any(), org.mockito.Mockito.any());
+    }
+
+    @Test
+    void aggregateByDeptShouldCollectMapItemsFromChildRegions() {
+        LocalDateTime start = LocalDateTime.of(2026, 7, 1, 0, 0);
+        LocalDateTime end = LocalDateTime.of(2026, 7, 3, 23, 59, 59);
+        BiDashboardQuery query = new BiDashboardQuery(null, start, end);
+        SysDept haikou = regionDept(201L, 200L, "海口市", "460100");
+        SysDept sanya = regionDept(202L, 200L, "三亚市", "460200");
+        when(deptService.selectDeptList(any(SysDept.class))).thenReturn(List.of(haikou, sanya));
+        when(payOrderRepository.sumAmountByDeptId(201L, start, end)).thenReturn(12000L);
+        when(payOrderRepository.countByDeptId(201L, start, end)).thenReturn(3L);
+        when(payOrderRepository.countMerchantsByDeptId(201L)).thenReturn(2L);
+        when(payOrderRepository.sumAmountByDeptId(202L, start, end)).thenReturn(8800L);
+        when(payOrderRepository.countByDeptId(202L, start, end)).thenReturn(1L);
+        when(payOrderRepository.countMerchantsByDeptId(202L)).thenReturn(1L);
+
+        BiDeptAggregateResult result = service.aggregateByDept("city", 200L, query);
+
+        assertThat(result.getLevel()).isEqualTo("city");
+        assertThat(result.getItems()).extracting(BiDeptAggregateResult.BiDeptAggregateItem::getDeptName)
+                .containsExactly("海口市", "三亚市");
+        assertThat(result.getItems().get(0).getAmount()).isEqualTo(12000L);
+        assertThat(result.getItems().get(0).getMerchantCount()).isEqualTo(2L);
+        verify(biCacheService).putDeptAggregate("city", 200L, query, result);
+    }
+
+    private SysDept regionDept(Long deptId, Long parentId, String name, String regionCode) {
+        SysDept dept = new SysDept();
+        dept.setDeptId(deptId);
+        dept.setParentId(parentId);
+        dept.setDeptName(name);
+        dept.setDeptType("region");
+        dept.setRegionCode(regionCode);
+        return dept;
     }
 }

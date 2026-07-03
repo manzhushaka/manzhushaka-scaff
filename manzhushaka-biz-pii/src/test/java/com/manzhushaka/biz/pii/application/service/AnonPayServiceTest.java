@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -30,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -104,6 +106,59 @@ class AnonPayServiceTest {
         assertThatThrownBy(() -> service.precreate(command()))
                 .isInstanceOf(ServiceException.class)
                 .hasMessageContaining("税目未绑定");
+    }
+
+    @Test
+    void precreateShouldRejectInvalidQrcodeCode() {
+        when(qrcodeRepository.findByCode("QR001")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.precreate(command()))
+                .isInstanceOf(ServiceException.class)
+                .hasMessageContaining("二维码无效");
+
+        verify(paymentGateway, never()).preCreate(any(PreCreateRequest.class));
+        verify(payOrderRepository, never()).insert(any(PayOrder.class));
+    }
+
+    @Test
+    void precreateShouldRejectDisabledQrcode() {
+        PayQrcode qrcode = qrcode();
+        qrcode.setStatus(0);
+        when(qrcodeRepository.findByCode("QR001")).thenReturn(Optional.of(qrcode));
+
+        assertThatThrownBy(() -> service.precreate(command()))
+                .isInstanceOf(ServiceException.class)
+                .hasMessageContaining("二维码已停用");
+
+        verify(paymentGateway, never()).preCreate(any(PreCreateRequest.class));
+    }
+
+    @Test
+    void precreateShouldRejectExpiredQrcode() {
+        PayQrcode qrcode = qrcode();
+        qrcode.setExpireTime(LocalDateTime.now().minusMinutes(1));
+        when(qrcodeRepository.findByCode("QR001")).thenReturn(Optional.of(qrcode));
+
+        assertThatThrownBy(() -> service.precreate(command()))
+                .isInstanceOf(ServiceException.class)
+                .hasMessageContaining("二维码已过期");
+
+        verify(paymentGateway, never()).preCreate(any(PreCreateRequest.class));
+    }
+
+    @Test
+    void precreateShouldRejectDisabledTaxItem() {
+        TaxItem taxItem = taxItem();
+        taxItem.setStatus(0);
+        when(qrcodeRepository.findByCode("QR001")).thenReturn(Optional.of(qrcode()));
+        when(relationRepository.findByQrcodeIdAndTaxItemId(10L, 20L)).thenReturn(Optional.of(relation()));
+        when(taxItemRepository.findById(20L)).thenReturn(Optional.of(taxItem));
+
+        assertThatThrownBy(() -> service.precreate(command()))
+                .isInstanceOf(ServiceException.class)
+                .hasMessageContaining("税目已停用");
+
+        verify(paymentGateway, never()).preCreate(any(PreCreateRequest.class));
     }
 
     private PrecreatePayCommand command() {

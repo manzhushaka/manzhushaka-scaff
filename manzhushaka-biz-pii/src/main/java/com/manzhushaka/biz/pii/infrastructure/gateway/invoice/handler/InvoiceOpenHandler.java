@@ -2,6 +2,7 @@ package com.manzhushaka.biz.pii.infrastructure.gateway.invoice.handler;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.manzhushaka.biz.pii.domain.model.PayOrder;
 import com.manzhushaka.biz.pii.domain.repository.PayOrderRepository;
 import com.manzhushaka.biz.pii.infrastructure.gateway.invoice.InvoiceGateway;
 import com.manzhushaka.biz.pii.infrastructure.gateway.invoice.dto.InvoiceRequest;
@@ -58,6 +59,9 @@ public class InvoiceOpenHandler extends AbstractRedisStreamMessageHandler {
         if (payOrderId == null) {
             throw new ServiceException("开票消息缺少 payOrderId", 10202);
         }
+        if (alreadyFinal(payOrderId)) {
+            return;
+        }
         InvoiceRequest request = payload.toJavaObject(InvoiceRequest.class);
         try {
             InvoiceResponse response = invoiceGateway.invoice(request);
@@ -77,5 +81,12 @@ public class InvoiceOpenHandler extends AbstractRedisStreamMessageHandler {
 
     private boolean hasText(String value) {
         return value != null && !value.trim().isEmpty();
+    }
+
+    private boolean alreadyFinal(Long payOrderId) {
+        return payOrderRepository.findById(payOrderId)
+                .map(PayOrder::getInvoiceStatus)
+                .filter(status -> "ISSUED".equals(status) || "REVERSED".equals(status))
+                .isPresent();
     }
 }
