@@ -1,6 +1,7 @@
 package com.manzhushaka.biz.pii.infrastructure.persistence.mapper;
 
 import com.manzhushaka.biz.pii.infrastructure.persistence.entity.PiiPayOrder;
+import com.manzhushaka.biz.pii.application.result.BiDashboardResult;
 import org.apache.ibatis.annotations.Param;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,4 +30,13 @@ public interface PiiPayOrderMapper {
     List<PiiPayOrder> selectPendingBefore(@Param("time") LocalDateTime time, @Param("limit") int limit);
     Long sumAmountByMerchantAndStatusBetween(@Param("merchantId") Long merchantId, @Param("statuses") List<String> statuses, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
     Long countByMerchantAndPayTimeBetween(@Param("merchantId") Long merchantId, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+    Long sumAmountByInvoiceStatusBetween(@Param("merchantId") Long merchantId, @Param("invoiceStatus") String invoiceStatus, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+    Long countAbnormalOrders(@Param("merchantId") Long merchantId, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+    List<BiDashboardResult.TrendItem> sumAmountByDay(@Param("merchantId") Long merchantId, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+    List<BiDashboardResult.TaxItemRatioItem> sumAmountByTaxItem(@Param("merchantId") Long merchantId, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+    List<BiDashboardResult.MerchantRankItem> sumAmountByMerchantTop(@Param("merchantId") Long merchantId, @Param("limit") int limit, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+    List<BiDashboardResult.AbnormalOrderItem> findAbnormalOrders(@Param("merchantId") Long merchantId, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end, @Param("limit") int limit);
+    Long sumAmountByDeptId(@Param("deptId") Long deptId, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+    Long countByDeptId(@Param("deptId") Long deptId, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+    Long countMerchantsByDeptId(@Param("deptId") Long deptId);
 }

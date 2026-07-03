@@ -1,6 +1,7 @@
 package com.manzhushaka.biz.pii.domain.repository;
 
 import com.manzhushaka.biz.pii.domain.model.PayOrder;
+import com.manzhushaka.biz.pii.application.result.BiDashboardResult;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,4 +27,13 @@ public interface PayOrderRepository {
     long sumAmountByMerchantAndStatusBetween(Long merchantId, List<String> statuses,
                                              LocalDateTime start, LocalDateTime end);
     long countByMerchantAndPayTimeBetween(Long merchantId, LocalDateTime start, LocalDateTime end);
+    long sumAmountByInvoiceStatusBetween(Long merchantId, String invoiceStatus, LocalDateTime start, LocalDateTime end);
+    long countAbnormalOrders(Long merchantId, LocalDateTime start, LocalDateTime end);
+    List<BiDashboardResult.TrendItem> sumAmountByDay(Long merchantId, LocalDateTime start, LocalDateTime end);
+    List<BiDashboardResult.TaxItemRatioItem> sumAmountByTaxItem(Long merchantId, LocalDateTime start, LocalDateTime end);
+    List<BiDashboardResult.MerchantRankItem> sumAmountByMerchantTop(Long merchantId, int limit, LocalDateTime start, LocalDateTime end);
+    List<BiDashboardResult.AbnormalOrderItem> findAbnormalOrders(Long merchantId, LocalDateTime start, LocalDateTime end, int limit);
+    long sumAmountByDeptId(Long deptId, LocalDateTime start, LocalDateTime end);
+    long countByDeptId(Long deptId, LocalDateTime start, LocalDateTime end);
+    long countMerchantsByDeptId(Long deptId);
 }

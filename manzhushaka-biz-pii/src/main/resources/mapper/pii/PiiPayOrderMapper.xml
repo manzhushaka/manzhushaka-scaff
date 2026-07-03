@@ -37,6 +37,33 @@
         <result property="delFlag" column="del_flag"/>
     </resultMap>
 
+    <resultMap id="TrendItemResultMap" type="com.manzhushaka.biz.pii.application.result.BiDashboardResult$TrendItem">
+        <result property="day" column="day"/>
+        <result property="amount" column="amount"/>
+        <result property="count" column="count"/>
+    </resultMap>
+
+    <resultMap id="TaxItemRatioItemResultMap" type="com.manzhushaka.biz.pii.application.result.BiDashboardResult$TaxItemRatioItem">
+        <result property="taxItemId" column="tax_item_id"/>
+        <result property="taxItemName" column="tax_item_name"/>
+        <result property="amount" column="amount"/>
+    </resultMap>
+
+    <resultMap id="MerchantRankItemResultMap" type="com.manzhushaka.biz.pii.application.result.BiDashboardResult$MerchantRankItem">
+        <result property="merchantId" column="merchant_id"/>
+        <result property="merchantName" column="merchant_name"/>
+        <result property="amount" column="amount"/>
+        <result property="count" column="count"/>
+    </resultMap>
+
+    <resultMap id="AbnormalOrderItemResultMap" type="com.manzhushaka.biz.pii.application.result.BiDashboardResult$AbnormalOrderItem">
+        <id property="id" column="id"/>
+        <result property="outTradeNo" column="out_trade_no"/>
+        <result property="invoiceStatus" column="invoice_status"/>
+        <result property="payStatus" column="pay_status"/>
+        <result property="amount" column="amount"/>
+    </resultMap>
+
     <sql id="BaseColumnList">id, merchant_id, qrcode_id, tax_item_id, out_trade_no, ums_mer_order_date, amount, buyer_name, buyer_tax_code, buyer_email, buyer_mobile, buyer_openid, pay_status, pay_time, pay_trade_no, pay_notify_status, refund_amount, invoice_status, invoice_no, invoice_code, invoice_pdf_url, invoice_issue_time, invoice_reverse_time, order_token, wechat_appid, client_ip, remark, create_time, update_time, create_by, update_by, del_flag</sql>
 
     <insert id="insert" parameterType="com.manzhushaka.biz.pii.infrastructure.persistence.entity.PiiPayOrder" useGeneratedKeys="true" keyProperty="id">
@@ -158,16 +185,108 @@
 
     <select id="sumAmountByMerchantAndStatusBetween" resultType="java.lang.Long">
         select coalesce(sum(amount), 0) from pii_pay_order
-        where merchant_id = #{merchantId}
+        where del_flag = 0
+          <if test="merchantId != null">and merchant_id = #{merchantId}</if>
           and pay_status in
           <foreach collection="statuses" item="s" open="(" close=")" separator=",">#{s}</foreach>
           and pay_time between #{start} and #{end}
-          and del_flag = 0
     </select>
 
     <select id="countByMerchantAndPayTimeBetween" resultType="java.lang.Long">
         select count(*) from pii_pay_order
-        where merchant_id = #{merchantId} and pay_time between #{start} and #{end} and del_flag = 0
+        where del_flag = 0
+          <if test="merchantId != null">and merchant_id = #{merchantId}</if>
+          and pay_time between #{start} and #{end}
+    </select>
+
+    <select id="sumAmountByInvoiceStatusBetween" resultType="java.lang.Long">
+        select coalesce(sum(amount), 0) from pii_pay_order
+        where del_flag = 0
+          <if test="merchantId != null">and merchant_id = #{merchantId}</if>
+          and invoice_status = #{invoiceStatus}
+          and pay_time between #{start} and #{end}
+    </select>
+
+    <select id="countAbnormalOrders" resultType="java.lang.Long">
+        select count(*) from pii_pay_order
+        where del_flag = 0
+          <if test="merchantId != null">and merchant_id = #{merchantId}</if>
+          and pay_time between #{start} and #{end}
+          and (invoice_status in ('FAILED', 'CLOSED') or pay_status = 'CLOSED')
+    </select>
+
+    <select id="sumAmountByDay" resultMap="TrendItemResultMap">
+        select date_format(pay_time, '%Y-%m-%d') as day, coalesce(sum(amount), 0) as amount, count(*) as count
+        from pii_pay_order
+        where del_flag = 0
+          <if test="merchantId != null">and merchant_id = #{merchantId}</if>
+          and pay_time between #{start} and #{end}
+        group by date_format(pay_time, '%Y-%m-%d')
+        order by day asc
+    </select>
+
+    <select id="sumAmountByTaxItem" resultMap="TaxItemRatioItemResultMap">
+        select o.tax_item_id, coalesce(t.name, concat('税目', o.tax_item_id)) as tax_item_name,
+               coalesce(sum(o.amount), 0) as amount
+        from pii_pay_order o
+        left join pii_tax_item t on t.id = o.tax_item_id and t.del_flag = 0
+        where o.del_flag = 0
+          <if test="merchantId != null">and o.merchant_id = #{merchantId}</if>
+          and o.pay_time between #{start} and #{end}
+        group by o.tax_item_id, t.name
+        order by amount desc
+    </select>
+
+    <select id="sumAmountByMerchantTop" resultMap="MerchantRankItemResultMap">
+        select o.merchant_id, coalesce(m.merchant_name, concat('商户', o.merchant_id)) as merchant_name,
+               coalesce(sum(o.amount), 0) as amount, count(*) as count
+        from pii_pay_order o
+        left join pii_merchant_profile m on m.id = o.merchant_id and m.del_flag = 0
+        where o.del_flag = 0
+          <if test="merchantId != null">and o.merchant_id = #{merchantId}</if>
+          and o.pay_time between #{start} and #{end}
+        group by o.merchant_id, m.merchant_name
+        order by amount desc, count desc
+        limit #{limit}
+    </select>
+
+    <select id="findAbnormalOrders" resultMap="AbnormalOrderItemResultMap">
+        select id, out_trade_no, invoice_status, pay_status, amount
+        from pii_pay_order
+        where del_flag = 0
+          <if test="merchantId != null">and merchant_id = #{merchantId}</if>
+          and pay_time between #{start} and #{end}
+          and (invoice_status in ('FAILED', 'CLOSED') or pay_status = 'CLOSED')
+        order by update_time desc, id desc
+        limit #{limit}
+    </select>
+
+    <select id="sumAmountByDeptId" resultType="java.lang.Long">
+        select coalesce(sum(o.amount), 0)
+        from pii_pay_order o
+        inner join pii_merchant_profile m on m.id = o.merchant_id and m.del_flag = 0
+        inner join sys_dept d on d.dept_id = m.dept_id and d.del_flag = '0'
+        where o.del_flag = 0
+          and find_in_set(#{deptId}, d.ancestors)
+          and o.pay_time between #{start} and #{end}
+    </select>
+
+    <select id="countByDeptId" resultType="java.lang.Long">
+        select count(*)
+        from pii_pay_order o
+        inner join pii_merchant_profile m on m.id = o.merchant_id and m.del_flag = 0
+        inner join sys_dept d on d.dept_id = m.dept_id and d.del_flag = '0'
+        where o.del_flag = 0
+          and find_in_set(#{deptId}, d.ancestors)
+          and o.pay_time between #{start} and #{end}
+    </select>
+
+    <select id="countMerchantsByDeptId" resultType="java.lang.Long">
+        select count(distinct m.id)
+        from pii_merchant_profile m
+        inner join sys_dept d on d.dept_id = m.dept_id and d.del_flag = '0'
+        where m.del_flag = 0
+          and find_in_set(#{deptId}, d.ancestors)
     </select>
 
 </mapper>

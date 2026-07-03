@@ -1,5 +1,6 @@
 package com.manzhushaka.biz.pii.infrastructure.persistence.repository;
 
+import com.manzhushaka.biz.pii.application.result.BiDashboardResult;
 import com.manzhushaka.biz.pii.domain.model.PayOrder;
 import com.manzhushaka.biz.pii.domain.repository.PayOrderRepository;
 import com.manzhushaka.biz.pii.infrastructure.persistence.converter.PayOrderConverter;
@@ -101,6 +102,56 @@ public class PayOrderRepositoryImpl implements PayOrderRepository {
     @Override
     public long countByMerchantAndPayTimeBetween(Long merchantId, LocalDateTime start, LocalDateTime end) {
         Long value = mapper.countByMerchantAndPayTimeBetween(merchantId, start, end);
+        return value == null ? 0L : value;
+    }
+
+    @Override
+    public long sumAmountByInvoiceStatusBetween(Long merchantId, String invoiceStatus, LocalDateTime start, LocalDateTime end) {
+        Long value = mapper.sumAmountByInvoiceStatusBetween(merchantId, invoiceStatus, start, end);
+        return value == null ? 0L : value;
+    }
+
+    @Override
+    public long countAbnormalOrders(Long merchantId, LocalDateTime start, LocalDateTime end) {
+        Long value = mapper.countAbnormalOrders(merchantId, start, end);
+        return value == null ? 0L : value;
+    }
+
+    @Override
+    public List<BiDashboardResult.TrendItem> sumAmountByDay(Long merchantId, LocalDateTime start, LocalDateTime end) {
+        return mapper.sumAmountByDay(merchantId, start, end);
+    }
+
+    @Override
+    public List<BiDashboardResult.TaxItemRatioItem> sumAmountByTaxItem(Long merchantId, LocalDateTime start, LocalDateTime end) {
+        return mapper.sumAmountByTaxItem(merchantId, start, end);
+    }
+
+    @Override
+    public List<BiDashboardResult.MerchantRankItem> sumAmountByMerchantTop(Long merchantId, int limit, LocalDateTime start, LocalDateTime end) {
+        return mapper.sumAmountByMerchantTop(merchantId, limit, start, end);
+    }
+
+    @Override
+    public List<BiDashboardResult.AbnormalOrderItem> findAbnormalOrders(Long merchantId, LocalDateTime start, LocalDateTime end, int limit) {
+        return mapper.findAbnormalOrders(merchantId, start, end, limit);
+    }
+
+    @Override
+    public long sumAmountByDeptId(Long deptId, LocalDateTime start, LocalDateTime end) {
+        Long value = mapper.sumAmountByDeptId(deptId, start, end);
+        return value == null ? 0L : value;
+    }
+
+    @Override
+    public long countByDeptId(Long deptId, LocalDateTime start, LocalDateTime end) {
+        Long value = mapper.countByDeptId(deptId, start, end);
+        return value == null ? 0L : value;
+    }
+
+    @Override
+    public long countMerchantsByDeptId(Long deptId) {
+        Long value = mapper.countMerchantsByDeptId(deptId);
         return value == null ? 0L : value;
     }
 }
