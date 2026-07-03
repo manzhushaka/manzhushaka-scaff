@@ -66,8 +66,8 @@ class NotifyVerifierTest {
     @Test
     void signShouldKeepJsonArrayOrderWhenSigningGoodsDetail() {
         JSONArray goods = new JSONArray();
-        goods.add(Map.of("name", "税目A", "amount", 100));
-        goods.add(Map.of("name", "税目B", "amount", 200));
+        goods.add(goodsItem("税目A", 100));
+        goods.add(goodsItem("税目B", 200));
         Map<String, Object> params = new LinkedHashMap<>();
         params.put("goodsDetail", goods);
         params.put("msgId", "MSG001");
@@ -75,12 +75,19 @@ class NotifyVerifierTest {
         String firstOrderSign = NotifyVerifier.sign(params, "K");
 
         JSONArray reversedGoods = new JSONArray();
-        reversedGoods.add(Map.of("name", "税目B", "amount", 200));
-        reversedGoods.add(Map.of("name", "税目A", "amount", 100));
+        reversedGoods.add(goodsItem("税目B", 200));
+        reversedGoods.add(goodsItem("税目A", 100));
         params.put("goodsDetail", reversedGoods);
 
         assertThat(firstOrderSign)
-                .isEqualTo("2E59647410B61CC5EE656694C805FA12D37E3C248666CDC53542D805CF666A1E")
+                .isEqualTo("A79DB5C10634944D1FFCB526A33E807E21D0DE2E06754B8786807AA9C797D1FC")
                 .isNotEqualTo(NotifyVerifier.sign(params, "K"));
+    }
+
+    private Map<String, Object> goodsItem(String name, int amount) {
+        Map<String, Object> item = new LinkedHashMap<>();
+        item.put("name", name);
+        item.put("amount", amount);
+        return item;
     }
 }
