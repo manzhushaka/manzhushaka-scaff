@@ -155,3 +155,19 @@ xss:
   excludes: ""
   # 匹配链接
   urlPatterns: /system/*,/monitor/*,/tool/*
+
+# 支付即开票配置
+pii:
+  mode: ${PII_MODE:MOCK}
+  pay:
+    notify-url: ${PII_PAY_NOTIFY_URL:https://your-domain.com/pii/pay/notify}
+    refund-notify-url: ${PII_PAY_REFUND_NOTIFY_URL:https://your-domain.com/pii/refund/notify}
+  invoice:
+    api-base-url: ${PII_INVOICE_API_BASE_URL:https://mobl-test.chinaums.com/fapiao-api-test/}
+    notify-url: ${PII_INVOICE_NOTIFY_URL:https://your-domain.com/pii/invoice/notify}
+    connect-timeout-ms: ${PII_INVOICE_CONNECT_TIMEOUT_MS:5000}
+    read-timeout-ms: ${PII_INVOICE_READ_TIMEOUT_MS:15000}
+  bi:
+    cache-seconds: ${PII_BI_CACHE_SECONDS:300}
+  order:
+    expire-minutes: ${PII_ORDER_EXPIRE_MINUTES:30}

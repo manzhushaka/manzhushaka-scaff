@@ -59,3 +59,19 @@ spring:
                 wall:
                     config:
                         multi-statement-allow: ${DRUID_FILTER_WALL_MULTI_STATEMENT_ALLOW:true}
+
+# 支付即开票本地开发配置
+pii:
+    mode: MOCK
+    pay:
+        notify-url: https://your-domain.com/pii/pay/notify
+        refund-notify-url: https://your-domain.com/pii/refund/notify
+    invoice:
+        api-base-url: https://mobl-test.chinaums.com/fapiao-api-test/
+        notify-url: https://your-domain.com/pii/invoice/notify
+        connect-timeout-ms: 5000
+        read-timeout-ms: 15000
+    bi:
+        cache-seconds: 300
+    order:
+        expire-minutes: 30
