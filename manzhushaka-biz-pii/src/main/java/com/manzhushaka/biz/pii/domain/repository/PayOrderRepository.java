@@ -19,6 +19,8 @@ public interface PayOrderRepository {
     Optional<PayOrder> findByOutTradeNoAndToken(String outTradeNo, String orderToken);
     List<PayOrder> findList(Long merchantId, String outTradeNo, String payStatus, String invoiceStatus,
                             LocalDateTime payTimeBegin, LocalDateTime payTimeEnd);
+    List<PayOrder> findInvoiceList(Long merchantId, String outTradeNo, String invoiceNo, String invoiceStatus,
+                                   LocalDateTime invoiceIssueTimeBegin, LocalDateTime invoiceIssueTimeEnd);
     List<PayOrder> findByMerchantAndStatus(Long merchantId, String payStatus, int limit);
     List<PayOrder> findPendingBefore(LocalDateTime time, int limit);
     long sumAmountByMerchantAndStatusBetween(Long merchantId, List<String> statuses,

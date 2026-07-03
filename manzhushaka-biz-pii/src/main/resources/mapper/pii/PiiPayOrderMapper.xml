@@ -132,6 +132,18 @@
         order by create_time desc
     </select>
 
+    <select id="selectInvoiceList" resultMap="BaseResultMap">
+        select <include refid="BaseColumnList"/> from pii_pay_order
+        where del_flag = 0
+        <if test="merchantId != null">and merchant_id = #{merchantId}</if>
+        <if test="outTradeNo != null and outTradeNo != ''">and out_trade_no like concat('%', #{outTradeNo}, '%')</if>
+        <if test="invoiceNo != null and invoiceNo != ''">and invoice_no like concat('%', #{invoiceNo}, '%')</if>
+        <if test="invoiceStatus != null and invoiceStatus != ''">and invoice_status = #{invoiceStatus}</if>
+        <if test="invoiceIssueTimeBegin != null">and invoice_issue_time &gt;= #{invoiceIssueTimeBegin}</if>
+        <if test="invoiceIssueTimeEnd != null">and invoice_issue_time &lt;= #{invoiceIssueTimeEnd}</if>
+        order by create_time desc
+    </select>
+
     <select id="selectByMerchantAndStatus" resultMap="BaseResultMap">
         select <include refid="BaseColumnList"/> from pii_pay_order
         where merchant_id = #{merchantId} and pay_status = #{payStatus} and del_flag = 0
