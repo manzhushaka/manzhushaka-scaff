@@ -53,12 +53,15 @@
         </section>
       </el-col>
     </el-row>
+
+    <HainanMap :query-params="queryParams" />
   </div>
 </template>
 
 <script setup name="PiiBiDashboard">
 import * as echarts from 'echarts'
 import { getBiData } from '@/api/pii/bi'
+import HainanMap from './components/HainanMap.vue'
 
 const { proxy } = getCurrentInstance()
 const loading = ref(false)
