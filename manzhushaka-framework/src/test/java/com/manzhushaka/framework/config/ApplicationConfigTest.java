@@ -31,6 +31,8 @@ class ApplicationConfigTest
 {
     private static final String TYPE_ALIASES_PACKAGE =
             "com.manzhushaka.**.domain,com.manzhushaka.**.infrastructure.persistence.entity";
+    private static final String PII_MAPPER_PACKAGE =
+            "com.manzhushaka.biz.pii.infrastructure.persistence.mapper";
 
     /**
      * Mapper 扫描包中不应存在简单类名相同的接口，避免启动时生成重复 bean 名。
@@ -48,6 +50,15 @@ class ApplicationConfigTest
         });
 
         assertThat(duplicateClassNames).isEmpty();
+    }
+
+    /**
+     * Mapper 扫描包应包含 PII 持久化 Mapper，避免业务仓储注入失败。
+     */
+    @Test
+    void mapperScanPackagesShouldIncludePiiPersistenceMappers()
+    {
+        assertThat(mapperScanPackages()).contains(PII_MAPPER_PACKAGE);
     }
 
     /**

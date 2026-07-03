@@ -65,53 +65,96 @@
 
     <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
 
-    <el-dialog :title="title" v-model="open" width="680px" append-to-body>
-      <el-form ref="merchantRef" :model="form" :rules="rules" label-width="120px">
-        <el-form-item label="所属市县/区" prop="parentDeptId" v-if="!form.id">
-          <dept-tree-select v-model="form.parentDeptId" @loaded="handleRegionTreeLoaded" />
-        </el-form-item>
-        <el-form-item label="商户名称" prop="merchantName">
-          <el-input v-model="form.merchantName" placeholder="请输入商户名称" maxlength="64" />
-        </el-form-item>
-        <el-form-item label="管理员账号" prop="adminUserName" v-if="!form.id">
-          <el-input v-model="form.adminUserName" placeholder="请输入管理员账号" maxlength="30" />
-        </el-form-item>
-        <el-form-item label="初始密码" prop="adminPassword" v-if="!form.id">
-          <el-input v-model="form.adminPassword" type="password" show-password placeholder="请输入初始密码" maxlength="20" />
-        </el-form-item>
-        <el-form-item label="管理员手机" prop="adminPhone" v-if="!form.id">
-          <el-input v-model="form.adminPhone" placeholder="请输入管理员手机" maxlength="11" />
-        </el-form-item>
-        <el-form-item label="管理员邮箱" prop="adminEmail" v-if="!form.id">
-          <el-input v-model="form.adminEmail" placeholder="请输入管理员邮箱" maxlength="50" />
-        </el-form-item>
-        <el-form-item label="银商商户号" prop="umsMerchantId">
-          <el-input v-model="form.umsMerchantId" placeholder="请输入银商商户号" maxlength="32" />
-        </el-form-item>
-        <el-form-item label="银商终端号" prop="umsTerminalId">
-          <el-input v-model="form.umsTerminalId" placeholder="请输入银商终端号" maxlength="32" />
-        </el-form-item>
-        <el-form-item label="支付签名密钥">
-          <el-input v-model="form.umsPaySignKey" type="password" show-password placeholder="留空则不修改" maxlength="128" />
-        </el-form-item>
-        <el-form-item label="发票签名密钥">
-          <el-input v-model="form.umsInvoiceSignKey" type="password" show-password placeholder="留空则不修改" maxlength="128" />
-        </el-form-item>
-        <el-form-item label="发票来源">
-          <el-input v-model="form.invoiceMsgSrc" placeholder="请输入 invoice msgSrc" maxlength="32" />
-        </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-radio-group v-model="form.status">
-            <el-radio :value="1">正常</el-radio>
-            <el-radio :value="0">停用</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="备注">
-          <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" maxlength="255" />
-        </el-form-item>
+    <el-dialog :title="title" v-model="open" width="760px" append-to-body class="pii-form-dialog">
+      <el-form ref="merchantRef" :model="form" :rules="rules" label-width="120px" class="pii-dialog-form">
+        <div class="pii-dialog-section">
+          <div class="pii-dialog-section__title">基础信息</div>
+          <el-row :gutter="20">
+            <el-col v-if="!form.id" :span="24">
+              <el-form-item label="所属市县/区" prop="parentDeptId">
+                <dept-tree-select v-model="form.parentDeptId" @loaded="handleRegionTreeLoaded" />
+              </el-form-item>
+            </el-col>
+            <el-col :xs="24" :sm="12">
+              <el-form-item label="商户名称" prop="merchantName">
+                <el-input v-model="form.merchantName" placeholder="请输入商户名称" maxlength="64" />
+              </el-form-item>
+            </el-col>
+            <el-col :xs="24" :sm="12">
+              <el-form-item label="状态" prop="status">
+                <el-radio-group v-model="form.status">
+                  <el-radio :value="1">正常</el-radio>
+                  <el-radio :value="0">停用</el-radio>
+                </el-radio-group>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </div>
+
+        <div v-if="!form.id" class="pii-dialog-section">
+          <div class="pii-dialog-section__title">管理员账号</div>
+          <el-row :gutter="20">
+            <el-col :xs="24" :sm="12">
+              <el-form-item label="管理员账号" prop="adminUserName">
+                <el-input v-model="form.adminUserName" placeholder="请输入管理员账号" maxlength="30" />
+              </el-form-item>
+            </el-col>
+            <el-col :xs="24" :sm="12">
+              <el-form-item label="初始密码" prop="adminPassword">
+                <el-input v-model="form.adminPassword" type="password" show-password placeholder="请输入初始密码" maxlength="20" />
+              </el-form-item>
+            </el-col>
+            <el-col :xs="24" :sm="12">
+              <el-form-item label="管理员手机" prop="adminPhone">
+                <el-input v-model="form.adminPhone" placeholder="请输入管理员手机" maxlength="11" />
+              </el-form-item>
+            </el-col>
+            <el-col :xs="24" :sm="12">
+              <el-form-item label="管理员邮箱" prop="adminEmail">
+                <el-input v-model="form.adminEmail" placeholder="请输入管理员邮箱" maxlength="50" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </div>
+
+        <div class="pii-dialog-section">
+          <div class="pii-dialog-section__title">银商参数</div>
+          <el-row :gutter="20">
+            <el-col :xs="24" :sm="12">
+              <el-form-item label="银商商户号" prop="umsMerchantId">
+                <el-input v-model="form.umsMerchantId" placeholder="请输入银商商户号" maxlength="32" />
+              </el-form-item>
+            </el-col>
+            <el-col :xs="24" :sm="12">
+              <el-form-item label="银商终端号" prop="umsTerminalId">
+                <el-input v-model="form.umsTerminalId" placeholder="请输入银商终端号" maxlength="32" />
+              </el-form-item>
+            </el-col>
+            <el-col :xs="24" :sm="12">
+              <el-form-item label="支付签名密钥">
+                <el-input v-model="form.umsPaySignKey" type="password" show-password placeholder="留空则不修改" maxlength="128" />
+              </el-form-item>
+            </el-col>
+            <el-col :xs="24" :sm="12">
+              <el-form-item label="发票签名密钥">
+                <el-input v-model="form.umsInvoiceSignKey" type="password" show-password placeholder="留空则不修改" maxlength="128" />
+              </el-form-item>
+            </el-col>
+            <el-col :xs="24" :sm="12">
+              <el-form-item label="发票来源">
+                <el-input v-model="form.invoiceMsgSrc" placeholder="请输入 invoice msgSrc" maxlength="32" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="备注">
+                <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" maxlength="255" :rows="3" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </div>
       </el-form>
       <template #footer>
-        <div class="dialog-footer">
+        <div class="pii-dialog-footer">
           <el-button type="primary" @click="submitForm">确 定</el-button>
           <el-button @click="cancel">取 消</el-button>
         </div>

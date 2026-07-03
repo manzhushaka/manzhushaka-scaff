@@ -62,35 +62,54 @@
 
     <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
 
-    <el-dialog :title="title" v-model="open" width="620px" append-to-body>
-      <el-form ref="taxItemRef" :model="form" :rules="rules" label-width="100px">
-        <el-form-item label="税目编码" prop="taxItemCode">
-          <el-input v-model="form.taxItemCode" placeholder="请输入税目编码" maxlength="32" :disabled="!!form.id" />
-        </el-form-item>
-        <el-form-item label="名称" prop="name">
-          <el-input v-model="form.name" placeholder="请输入税目名称" maxlength="128" />
-        </el-form-item>
-        <el-form-item label="分类" prop="category">
-          <el-input v-model="form.category" placeholder="请输入分类" maxlength="64" />
-        </el-form-item>
-        <el-form-item label="税率" prop="taxRate">
-          <el-input-number v-model="form.taxRate" :min="0" :max="100" :precision="2" :step="0.01" />
-        </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-radio-group v-model="form.status">
-            <el-radio :value="1">正常</el-radio>
-            <el-radio :value="0">停用</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="排序" prop="sort">
-          <el-input-number v-model="form.sort" :min="0" :max="9999" />
-        </el-form-item>
-        <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" maxlength="255" />
-        </el-form-item>
+    <el-dialog :title="title" v-model="open" width="680px" append-to-body class="pii-form-dialog">
+      <el-form ref="taxItemRef" :model="form" :rules="rules" label-width="100px" class="pii-dialog-form">
+        <div class="pii-dialog-section">
+          <div class="pii-dialog-section__title">税目信息</div>
+          <el-row :gutter="20">
+            <el-col :xs="24" :sm="12">
+              <el-form-item label="税目编码" prop="taxItemCode">
+                <el-input v-model="form.taxItemCode" placeholder="请输入税目编码" maxlength="32" :disabled="!!form.id" />
+              </el-form-item>
+            </el-col>
+            <el-col :xs="24" :sm="12">
+              <el-form-item label="名称" prop="name">
+                <el-input v-model="form.name" placeholder="请输入税目名称" maxlength="128" />
+              </el-form-item>
+            </el-col>
+            <el-col :xs="24" :sm="12">
+              <el-form-item label="分类" prop="category">
+                <el-input v-model="form.category" placeholder="请输入分类" maxlength="64" />
+              </el-form-item>
+            </el-col>
+            <el-col :xs="24" :sm="12">
+              <el-form-item label="税率" prop="taxRate">
+                <el-input-number v-model="form.taxRate" :min="0" :max="100" :precision="2" :step="0.01" />
+              </el-form-item>
+            </el-col>
+            <el-col :xs="24" :sm="12">
+              <el-form-item label="状态" prop="status">
+                <el-radio-group v-model="form.status">
+                  <el-radio :value="1">正常</el-radio>
+                  <el-radio :value="0">停用</el-radio>
+                </el-radio-group>
+              </el-form-item>
+            </el-col>
+            <el-col :xs="24" :sm="12">
+              <el-form-item label="排序" prop="sort">
+                <el-input-number v-model="form.sort" :min="0" :max="9999" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="备注" prop="remark">
+                <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" maxlength="255" :rows="3" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </div>
       </el-form>
       <template #footer>
-        <div class="dialog-footer">
+        <div class="pii-dialog-footer">
           <el-button type="primary" @click="submitForm">确 定</el-button>
           <el-button @click="cancel">取 消</el-button>
         </div>

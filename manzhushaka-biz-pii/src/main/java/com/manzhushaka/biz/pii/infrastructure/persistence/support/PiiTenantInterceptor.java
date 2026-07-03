@@ -11,6 +11,7 @@ import org.apache.ibatis.plugin.Intercepts;
 import org.apache.ibatis.plugin.Invocation;
 import org.apache.ibatis.plugin.Plugin;
 import org.apache.ibatis.plugin.Signature;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
@@ -31,10 +32,15 @@ public class PiiTenantInterceptor implements Interceptor {
     private static final Pattern TAIL_CLAUSE = Pattern.compile(
             "\\s+(order\\s+by|group\\s+by|having|limit|for\\s+update)\\b", Pattern.CASE_INSENSITIVE);
 
-    private final MerchantProfileRepository merchantProfileRepository;
+    private final ObjectProvider<MerchantProfileRepository> merchantProfileRepositoryProvider;
 
-    public PiiTenantInterceptor(MerchantProfileRepository merchantProfileRepository) {
-        this.merchantProfileRepository = merchantProfileRepository;
+    /**
+     * 创建 PII 多租户拦截器。
+     *
+     * @param merchantProfileRepositoryProvider 商户档案仓储延迟提供器
+     */
+    public PiiTenantInterceptor(ObjectProvider<MerchantProfileRepository> merchantProfileRepositoryProvider) {
+        this.merchantProfileRepositoryProvider = merchantProfileRepositoryProvider;
     }
 
     @Override
@@ -74,6 +80,11 @@ public class PiiTenantInterceptor implements Interceptor {
         return head + " where " + condition + tail;
     }
 
+    /**
+     * 获取当前登录用户对应的商户 ID。
+     *
+     * @return 商户 ID；非商户上下文返回 null
+     */
     private Long currentMerchantId() {
         LoginPrincipal principal = SecurityContextHelper.getPrincipalQuietly();
         if (principal == null || principal.isAdmin() || hasRole(principal.getRoleKeys(), "operator")) {
@@ -84,6 +95,10 @@ public class PiiTenantInterceptor implements Interceptor {
             return principal.getMerchantId();
         }
         if (deptId == null) {
+            return null;
+        }
+        MerchantProfileRepository merchantProfileRepository = merchantProfileRepositoryProvider.getIfAvailable();
+        if (merchantProfileRepository == null) {
             return null;
         }
         return merchantProfileRepository.findByDeptId(deptId)

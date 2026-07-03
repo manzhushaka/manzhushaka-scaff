@@ -5,6 +5,7 @@ import com.manzhushaka.biz.pii.domain.repository.MerchantProfileRepository;
 import com.manzhushaka.framework.security.model.LoginPrincipal;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -17,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 class PiiTenantInterceptorTest {
@@ -28,13 +30,22 @@ class PiiTenantInterceptorTest {
 
     @Test
     void interceptorIsWired() {
-        PiiTenantInterceptor interceptor = new PiiTenantInterceptor(mock(MerchantProfileRepository.class));
+        PiiTenantInterceptor interceptor = newInterceptor();
         assertNotNull(interceptor);
     }
 
     @Test
+    void constructorShouldNotResolveMerchantRepository() {
+        ObjectProvider<MerchantProfileRepository> repositoryProvider = mockRepositoryProvider();
+        PiiTenantInterceptor interceptor = new PiiTenantInterceptor(repositoryProvider);
+
+        assertNotNull(interceptor);
+        verifyNoInteractions(repositoryProvider);
+    }
+
+    @Test
     void injectsMerchantFilterForTenantTableWithoutWhere() {
-        PiiTenantInterceptor interceptor = new PiiTenantInterceptor(mock(MerchantProfileRepository.class));
+        PiiTenantInterceptor interceptor = newInterceptor();
 
         String sql = interceptor.injectTenantFilter("select * from pii_pay_order order by create_time desc", 100L);
 
@@ -43,7 +54,7 @@ class PiiTenantInterceptorTest {
 
     @Test
     void injectsMerchantFilterForTenantTableWithWhere() {
-        PiiTenantInterceptor interceptor = new PiiTenantInterceptor(mock(MerchantProfileRepository.class));
+        PiiTenantInterceptor interceptor = newInterceptor();
 
         String sql = interceptor.injectTenantFilter("select * from pii_pay_order where pay_status = 'PAID' limit 10", 100L);
 
@@ -52,7 +63,7 @@ class PiiTenantInterceptorTest {
 
     @Test
     void skipsPlatformTableAndExistingMerchantFilter() {
-        PiiTenantInterceptor interceptor = new PiiTenantInterceptor(mock(MerchantProfileRepository.class));
+        PiiTenantInterceptor interceptor = newInterceptor();
 
         assertEquals("select * from pii_tax_item", interceptor.injectTenantFilter("select * from pii_tax_item", 100L));
         assertEquals("select * from pii_pay_order where merchant_id = ?",
@@ -61,7 +72,7 @@ class PiiTenantInterceptorTest {
 
     @Test
     void currentMerchantIdShouldUsePrincipalMerchantId() {
-        PiiTenantInterceptor interceptor = new PiiTenantInterceptor(mock(MerchantProfileRepository.class));
+        PiiTenantInterceptor interceptor = newInterceptor();
         setPrincipal(LoginPrincipal.builder()
                 .userId(2L)
                 .merchantId(300L)
@@ -79,7 +90,7 @@ class PiiTenantInterceptorTest {
         MerchantProfile merchant = new MerchantProfile();
         merchant.setId(301L);
         when(repository.findByDeptId(2001L)).thenReturn(Optional.of(merchant));
-        PiiTenantInterceptor interceptor = new PiiTenantInterceptor(repository);
+        PiiTenantInterceptor interceptor = new PiiTenantInterceptor(repositoryProvider(repository));
         setPrincipal(LoginPrincipal.builder()
                 .userId(2L)
                 .deptId(2001L)
@@ -94,7 +105,7 @@ class PiiTenantInterceptorTest {
 
     @Test
     void currentMerchantIdShouldSkipAdminAndOperator() {
-        PiiTenantInterceptor interceptor = new PiiTenantInterceptor(mock(MerchantProfileRepository.class));
+        PiiTenantInterceptor interceptor = newInterceptor();
         setPrincipal(LoginPrincipal.builder().userId(1L).merchantId(300L).roleKeys(Set.of("admin")).build());
         assertNull(ReflectionTestUtils.invokeMethod(interceptor, "currentMerchantId"));
 
@@ -105,5 +116,20 @@ class PiiTenantInterceptorTest {
     private void setPrincipal(LoginPrincipal principal) {
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities()));
+    }
+
+    private PiiTenantInterceptor newInterceptor() {
+        return new PiiTenantInterceptor(repositoryProvider(mock(MerchantProfileRepository.class)));
+    }
+
+    private ObjectProvider<MerchantProfileRepository> repositoryProvider(MerchantProfileRepository repository) {
+        ObjectProvider<MerchantProfileRepository> repositoryProvider = mockRepositoryProvider();
+        when(repositoryProvider.getIfAvailable()).thenReturn(repository);
+        return repositoryProvider;
+    }
+
+    @SuppressWarnings("unchecked")
+    private ObjectProvider<MerchantProfileRepository> mockRepositoryProvider() {
+        return mock(ObjectProvider.class);
     }
 }

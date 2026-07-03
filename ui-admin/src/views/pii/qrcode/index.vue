@@ -62,69 +62,72 @@
 
     <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
 
-    <el-dialog :title="title" v-model="open" width="760px" append-to-body>
-      <el-form ref="qrcodeRef" :model="form" :rules="rules" label-width="110px">
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="商户ID" prop="merchantId">
-              <el-input-number v-model="form.merchantId" :min="1" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="二维码编码" prop="qrcodeCode">
-              <el-input v-model="form.qrcodeCode" maxlength="64" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="二维码名称" prop="name">
-              <el-input v-model="form.name" maxlength="64" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="状态" prop="status">
-              <el-radio-group v-model="form.status">
-                <el-radio :value="1">正常</el-radio>
-                <el-radio :value="0">停用</el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="过期时间">
-              <el-date-picker v-model="form.expireTime" type="datetime" value-format="YYYY-MM-DDTHH:mm:ss" placeholder="请选择过期时间" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="24">
-            <el-form-item label="绑定税目">
-              <el-select v-model="selectedTaxItemIds" multiple filterable style="width: 100%" placeholder="请选择税目">
-                <el-option v-for="item in taxItemOptions" :key="item.id" :label="item.taxItemName" :value="item.id" />
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col v-if="selectedTaxItems.length" :span="24">
-            <el-form-item label="税目详情">
-              <el-table :data="selectedTaxItems" size="small" border>
-                <el-table-column label="税目编码" prop="taxItemCode" min-width="170" />
-                <el-table-column label="税目名称" prop="taxItemName" min-width="150" />
-                <el-table-column label="税率" width="100">
-                  <template #default="scope">{{ formatTaxRate(scope.row.taxRate) }}</template>
-                </el-table-column>
-                <el-table-column label="默认金额" width="150">
-                  <template #default="scope">
-                    <el-input-number v-model="scope.row.defaultAmount" :min="0" :precision="0" controls-position="right" style="width: 120px" />
-                  </template>
-                </el-table-column>
-              </el-table>
-            </el-form-item>
-          </el-col>
-          <el-col :span="24">
-            <el-form-item label="备注">
-              <el-input v-model="form.remark" type="textarea" maxlength="255" />
-            </el-form-item>
-          </el-col>
-        </el-row>
+    <el-dialog :title="title" v-model="open" width="800px" append-to-body class="pii-form-dialog">
+      <el-form ref="qrcodeRef" :model="form" :rules="rules" label-width="110px" class="pii-dialog-form">
+        <div class="pii-dialog-section">
+          <div class="pii-dialog-section__title">二维码信息</div>
+          <el-row :gutter="20">
+            <el-col :xs="24" :sm="12">
+              <el-form-item label="商户ID" prop="merchantId">
+                <el-input-number v-model="form.merchantId" :min="1" />
+              </el-form-item>
+            </el-col>
+            <el-col :xs="24" :sm="12">
+              <el-form-item label="二维码编码" prop="qrcodeCode">
+                <el-input v-model="form.qrcodeCode" maxlength="64" />
+              </el-form-item>
+            </el-col>
+            <el-col :xs="24" :sm="12">
+              <el-form-item label="二维码名称" prop="name">
+                <el-input v-model="form.name" maxlength="64" />
+              </el-form-item>
+            </el-col>
+            <el-col :xs="24" :sm="12">
+              <el-form-item label="状态" prop="status">
+                <el-radio-group v-model="form.status">
+                  <el-radio :value="1">正常</el-radio>
+                  <el-radio :value="0">停用</el-radio>
+                </el-radio-group>
+              </el-form-item>
+            </el-col>
+            <el-col :xs="24" :sm="12">
+              <el-form-item label="过期时间">
+                <el-date-picker v-model="form.expireTime" type="datetime" value-format="YYYY-MM-DDTHH:mm:ss" placeholder="请选择过期时间" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="绑定税目">
+                <el-select v-model="selectedTaxItemIds" multiple filterable style="width: 100%" placeholder="请选择税目">
+                  <el-option v-for="item in taxItemOptions" :key="item.id" :label="item.taxItemName" :value="item.id" />
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col v-if="selectedTaxItems.length" :span="24">
+              <el-form-item label="税目详情">
+                <el-table :data="selectedTaxItems" size="small" border>
+                  <el-table-column label="税目编码" prop="taxItemCode" min-width="170" />
+                  <el-table-column label="税目名称" prop="taxItemName" min-width="150" />
+                  <el-table-column label="税率" width="100">
+                    <template #default="scope">{{ formatTaxRate(scope.row.taxRate) }}</template>
+                  </el-table-column>
+                  <el-table-column label="默认金额" width="150">
+                    <template #default="scope">
+                      <el-input-number v-model="scope.row.defaultAmount" :min="0" :precision="0" controls-position="right" style="width: 120px" />
+                    </template>
+                  </el-table-column>
+                </el-table>
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="备注">
+                <el-input v-model="form.remark" type="textarea" maxlength="255" :rows="3" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </div>
       </el-form>
       <template #footer>
-        <div class="dialog-footer">
+        <div class="pii-dialog-footer">
           <el-button type="primary" @click="submitForm">确 定</el-button>
           <el-button @click="cancel">取 消</el-button>
         </div>

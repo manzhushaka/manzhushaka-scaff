@@ -689,6 +689,6 @@ source sql/pii_schema.sql;
 
 -- ============================================================================
 -- 支付即开票（PII）行政区划预置数据（独立文件，不在此脚本内）
--- 单独执行: mysql -uroot -p manzhushaka-scaff < sql/pii_region_data.sql
+-- 单独执行: mysql --default-character-set=utf8mb4 -uroot -p pii < sql/pii_region_data.sql
 -- 详见: docs/superpowers/specs/2026-07-02-pay-and-invoice-design.md §7.5
 -- ============================================================================

@@ -21,6 +21,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class RedisStreamGatewayImpl implements RedisStreamGateway
 {
+    private static final String BUSY_GROUP_ERROR = "BUSYGROUP";
+
     private final RedisTemplate<Object, Object> redisTemplate;
 
     public RedisStreamGatewayImpl(RedisTemplate<Object, Object> redisTemplate)
@@ -51,7 +53,7 @@ public class RedisStreamGatewayImpl implements RedisStreamGateway
         catch (RedisSystemException ex)
         {
             // BUSYGROUP 表示组已存在，忽略
-            if (!ex.getMessage().contains("BUSYGROUP"))
+            if (!containsMessage(ex, BUSY_GROUP_ERROR))
             {
                 throw ex;
             }
@@ -103,5 +105,27 @@ public class RedisStreamGatewayImpl implements RedisStreamGateway
                     entry.getValue() != null ? entry.getValue().toString() : "");
         }
         return result;
+    }
+
+    /**
+     * 检查异常链中是否包含指定消息片段。
+     *
+     * @param throwable 异常
+     * @param keyword 消息片段
+     * @return 包含返回 true，否则返回 false
+     */
+    private boolean containsMessage(Throwable throwable, String keyword)
+    {
+        Throwable current = throwable;
+        while (current != null)
+        {
+            String message = current.getMessage();
+            if (message != null && message.contains(keyword))
+            {
+                return true;
+            }
+            current = current.getCause();
+        }
+        return false;
     }
 }
