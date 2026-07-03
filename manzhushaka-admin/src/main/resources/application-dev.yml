@@ -66,6 +66,10 @@ pii:
     pay:
         notify-url: https://your-domain.com/pii/pay/notify
         refund-notify-url: https://your-domain.com/pii/refund/notify
+        inst-mid:
+    wechat:
+        app-id:
+        app-key:
     invoice:
         api-base-url: https://mobl-test.chinaums.com/fapiao-api-test/
         notify-url: https://your-domain.com/pii/invoice/notify

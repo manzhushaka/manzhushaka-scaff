@@ -162,6 +162,10 @@ pii:
   pay:
     notify-url: ${PII_PAY_NOTIFY_URL:https://your-domain.com/pii/pay/notify}
     refund-notify-url: ${PII_PAY_REFUND_NOTIFY_URL:https://your-domain.com/pii/refund/notify}
+    inst-mid: ${PII_PAY_INST_MID:}
+  wechat:
+    app-id: ${PII_WECHAT_APP_ID:}
+    app-key: ${PII_WECHAT_APP_KEY:}
   invoice:
     api-base-url: ${PII_INVOICE_API_BASE_URL:https://mobl-test.chinaums.com/fapiao-api-test/}
     notify-url: ${PII_INVOICE_NOTIFY_URL:https://your-domain.com/pii/invoice/notify}

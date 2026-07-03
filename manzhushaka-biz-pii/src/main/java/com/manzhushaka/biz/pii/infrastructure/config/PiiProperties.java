@@ -76,6 +76,8 @@ public class PiiProperties {
 
         private String refundNotifyUrl;
 
+        private String instMid;
+
         public String getNotifyUrl() {
             return notifyUrl;
         }
@@ -90,6 +92,14 @@ public class PiiProperties {
 
         public void setRefundNotifyUrl(String refundNotifyUrl) {
             this.refundNotifyUrl = refundNotifyUrl;
+        }
+
+        public String getInstMid() {
+            return instMid;
+        }
+
+        public void setInstMid(String instMid) {
+            this.instMid = instMid;
         }
     }
 
@@ -138,12 +148,22 @@ public class PiiProperties {
     public static class Wechat {
         private String appId;
 
+        private String appKey;
+
         public String getAppId() {
             return appId;
         }
 
         public void setAppId(String appId) {
             this.appId = appId;
+        }
+
+        public String getAppKey() {
+            return appKey;
+        }
+
+        public void setAppKey(String appKey) {
+            this.appKey = appKey;
         }
     }
 
