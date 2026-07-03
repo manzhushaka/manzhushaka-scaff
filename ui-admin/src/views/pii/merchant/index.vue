@@ -50,6 +50,7 @@
         <el-table-column label="操作" align="center" width="240" class-name="small-padding fixed-width">
           <template #default="scope">
             <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['biz:merchant:edit']">修改</el-button>
+            <el-button link type="primary" icon="Setting" @click="handleConfig(scope.row)" v-hasPermi="['biz:merchant:config']">参数</el-button>
             <el-button link type="primary" icon="Switch" @click="handleChangeStatus(scope.row)" v-hasPermi="['biz:merchant:changeStatus']">
               {{ scope.row.status === 1 ? '停用' : '启用' }}
             </el-button>
@@ -120,6 +121,7 @@
 import { listMerchant, getMerchant, addMerchant, updateMerchant, delMerchant, changeMerchantStatus } from '@/api/pii/merchant'
 
 const { proxy } = getCurrentInstance()
+const router = useRouter()
 const merchantList = ref([])
 const open = ref(false)
 const loading = ref(true)
@@ -238,6 +240,10 @@ function handleChangeStatus(row) {
     row.status = nextStatus
     proxy.$modal.msgSuccess(`${text}成功`)
   }).catch(() => {})
+}
+
+function handleConfig(row) {
+  router.push('/pii/merchant/config/' + row.deptId)
 }
 
 getList()

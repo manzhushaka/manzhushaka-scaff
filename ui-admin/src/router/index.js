@@ -150,6 +150,20 @@ export const dynamicRoutes = [
       }
     ]
   },
+  {
+    path: '/pii/merchant/config',
+    component: Layout,
+    hidden: true,
+    permissions: ['biz:merchant:config'],
+    children: [
+      {
+        path: ':deptId(\\d+)',
+        component: () => import('@/views/pii/merchant/config'),
+        name: 'MerchantConfig',
+        meta: { title: '商户参数配置', activeMenu: '/pii/merchant' }
+      }
+    ]
+  },
 ]
 
 const router = createRouter({

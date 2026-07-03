@@ -23,3 +23,11 @@ export function delMerchant(ids) {
 export function changeMerchantStatus(id, status) {
   return request({ url: '/pii/merchant/changeStatus', method: 'put', data: { id, status } })
 }
+
+export function getMerchantConfig(deptId) {
+  return request({ url: '/pii/merchant/config/' + deptId, method: 'get' })
+}
+
+export function updateMerchantConfig(data) {
+  return request({ url: '/pii/merchant/config', method: 'put', data })
+}
