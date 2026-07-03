@@ -34,6 +34,16 @@ insert into sys_dept values(107,  101, '0,100,101',  '运维部门',   5, '若�
 insert into sys_dept values(108,  102, '0,100,102',  '市场部门',   1, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', sysdate(), '', null);
 insert into sys_dept values(109,  102, '0,100,102',  '财务部门',   2, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', sysdate(), '', null);
 
+-- 支付即开票（PII）业务扩展
+alter table sys_dept
+    add column dept_type    varchar(16) not null default 'platform_org' comment '部门类型: platform_org/region/merchant',
+    add column region_code  varchar(6)  null comment '行政区划代码（dept_type=region 时填，6 位数字）',
+    add column region_level tinyint     null comment '行政区划级别 1=省/2=市县/3=区/镇（dept_type=region 时填）';
+
+create index idx_sys_dept_type on sys_dept (dept_type);
+create index idx_sys_dept_region on sys_dept (region_code);
+create index idx_sys_dept_ancestors on sys_dept (ancestors);
+
 
 -- ----------------------------
 -- 2、用户信息表
@@ -609,3 +619,6 @@ create table sys_mq_message_log_detail (
   key idx_sys_mq_message_log_detail_status (status),
   key idx_sys_mq_message_log_detail_ct (create_time)
 ) engine=innodb auto_increment=100 comment = '消息队列执行明细';
+
+-- 支付即开票业务表
+source sql/pii_schema.sql;
