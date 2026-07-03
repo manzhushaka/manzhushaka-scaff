@@ -29,8 +29,16 @@
         <el-table-column label="名称" prop="name" min-width="160" :show-overflow-tooltip="true" />
         <el-table-column label="商户ID" prop="merchantId" width="100" />
         <el-table-column label="编码" prop="qrcodeCode" min-width="140" />
-        <el-table-column label="税目" min-width="180">
-          <template #default="scope">{{ renderTaxItems(scope.row.taxItems) }}</template>
+        <el-table-column label="绑定税目" min-width="220">
+          <template #default="scope">
+            <div class="tax-item-tags">
+              <el-tag v-for="item in normalizeTaxItems(scope.row.taxItems)" :key="item.taxItemId" size="small" effect="plain">
+                {{ item.taxItemName }}
+                <span v-if="item.defaultAmount"> / {{ formatCentAmount(item.defaultAmount) }}元</span>
+              </el-tag>
+              <span v-if="!scope.row.taxItems || !scope.row.taxItems.length">-</span>
+            </div>
+          </template>
         </el-table-column>
         <el-table-column label="状态" align="center" width="100">
           <template #default="scope">
@@ -92,6 +100,22 @@
               </el-select>
             </el-form-item>
           </el-col>
+          <el-col v-if="selectedTaxItems.length" :span="24">
+            <el-form-item label="税目详情">
+              <el-table :data="selectedTaxItems" size="small" border>
+                <el-table-column label="税目编码" prop="taxItemCode" min-width="170" />
+                <el-table-column label="税目名称" prop="taxItemName" min-width="150" />
+                <el-table-column label="税率" width="100">
+                  <template #default="scope">{{ formatTaxRate(scope.row.taxRate) }}</template>
+                </el-table-column>
+                <el-table-column label="默认金额" width="150">
+                  <template #default="scope">
+                    <el-input-number v-model="scope.row.defaultAmount" :min="0" :precision="0" controls-position="right" style="width: 120px" />
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-form-item>
+          </el-col>
           <el-col :span="24">
             <el-form-item label="备注">
               <el-input v-model="form.remark" type="textarea" maxlength="255" />
@@ -117,6 +141,7 @@ const { proxy } = getCurrentInstance()
 const qrcodeList = ref([])
 const taxItemOptions = ref([])
 const selectedTaxItemIds = ref([])
+const selectedTaxItems = ref([])
 const open = ref(false)
 const loading = ref(true)
 const showSearch = ref(true)
@@ -137,6 +162,8 @@ const data = reactive({
 })
 const { queryParams, form, rules } = toRefs(data)
 
+watch(selectedTaxItemIds, syncSelectedTaxItems)
+
 function getList() {
   loading.value = true
   listQrcode(queryParams.value).then(response => {
@@ -149,12 +176,14 @@ function getList() {
 function loadTaxItems() {
   listTaxItem({ pageNum: 1, pageSize: 200, status: 1 }).then(response => {
     taxItemOptions.value = response.rows || []
+    syncSelectedTaxItems()
   })
 }
 
 function reset() {
   form.value = { id: undefined, merchantId: queryParams.value.merchantId, qrcodeCode: undefined, name: undefined, status: 1, expireTime: undefined, remark: undefined, taxItems: [] }
   selectedTaxItemIds.value = []
+  selectedTaxItems.value = []
   proxy.resetForm('qrcodeRef')
 }
 
@@ -191,6 +220,7 @@ function handleUpdate(row) {
   getQrcode(id).then(response => {
     form.value = response.data
     selectedTaxItemIds.value = (response.data.taxItems || []).map(item => item.taxItemId)
+    syncSelectedTaxItems()
     open.value = true
     title.value = '修改二维码'
   })
@@ -199,7 +229,7 @@ function handleUpdate(row) {
 function submitForm() {
   proxy.$refs.qrcodeRef.validate(valid => {
     if (!valid) return
-    form.value.taxItems = selectedTaxItemIds.value.map(id => ({ taxItemId: id }))
+    form.value.taxItems = selectedTaxItems.value.map(item => ({ taxItemId: item.taxItemId, defaultAmount: item.defaultAmount }))
     const action = form.value.id ? updateQrcode(form.value) : addQrcode(form.value)
     action.then(() => {
       proxy.$modal.msgSuccess(form.value.id ? '修改成功' : '新增成功')
@@ -226,15 +256,50 @@ function handleChangeStatus(row) {
   }).catch(() => {})
 }
 
-function renderTaxItems(taxItems) {
-  if (!taxItems || !taxItems.length) return '-'
-  const names = taxItems.map(item => {
+function normalizeTaxItems(taxItems) {
+  if (!taxItems || !taxItems.length) return []
+  return taxItems.map(item => {
     const taxItem = taxItemOptions.value.find(option => option.id === item.taxItemId)
-    return taxItem ? taxItem.taxItemName : item.taxItemId
+    return {
+      ...item,
+      taxItemName: taxItem ? taxItem.taxItemName : item.taxItemId
+    }
   })
-  return names.join('、')
+}
+
+function formatTaxRate(rate) {
+  if (rate === undefined || rate === null || rate === '') return '-'
+  return `${rate}%`
+}
+
+function formatCentAmount(amount) {
+  return (Number(amount || 0) / 100).toFixed(2)
+}
+
+function syncSelectedTaxItems() {
+  const currentMap = new Map(selectedTaxItems.value.map(item => [item.taxItemId, item]))
+  selectedTaxItems.value = selectedTaxItemIds.value.map(id => {
+    const existing = currentMap.get(id)
+    const option = taxItemOptions.value.find(item => item.id === id) || {}
+    const relation = (form.value.taxItems || []).find(item => item.taxItemId === id) || {}
+    return {
+      taxItemId: id,
+      taxItemCode: option.taxItemCode || id,
+      taxItemName: option.taxItemName || id,
+      taxRate: option.taxRate,
+      defaultAmount: existing ? existing.defaultAmount : (relation.defaultAmount || 0)
+    }
+  })
 }
 
 loadTaxItems()
 getList()
 </script>
+
+<style scoped>
+.tax-item-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+</style>

@@ -101,14 +101,34 @@ public class MerchantServiceImpl implements MerchantService {
 
     @Override
     public MerchantResult get(Long id) {
-        return merchantProfileRepository.findById(id).map(MerchantResult::from)
+        return merchantProfileRepository.findById(id).map(this::toResult)
                 .orElseThrow(() -> new ServiceException("商户不存在"));
     }
 
     @Override
     public List<MerchantResult> page(MerchantPageQuery query) {
         return merchantProfileRepository.findList(query.merchantName(), query.umsMerchantId(), query.status())
-                .stream().map(MerchantResult::from).collect(Collectors.toList());
+                .stream().map(this::toResult).collect(Collectors.toList());
+    }
+
+    private MerchantResult toResult(MerchantProfile profile) {
+        MerchantResult result = MerchantResult.from(profile);
+        if (profile.getDeptId() == null) {
+            return result;
+        }
+        SysDept merchantDept = deptService.selectDeptById(profile.getDeptId());
+        if (merchantDept == null) {
+            return result;
+        }
+        Long parentDeptId = merchantDept.getParentId();
+        String regionName = merchantDept.getParentName();
+        if (StringUtils.isBlank(regionName) && parentDeptId != null && parentDeptId > 0) {
+            SysDept regionDept = deptService.selectDeptById(parentDeptId);
+            if (regionDept != null) {
+                regionName = regionDept.getDeptName();
+            }
+        }
+        return result.withRegion(parentDeptId, regionName);
     }
 
     private void ensureUmsUnique(String umsMerchantId, String umsTerminalId, Long currentId) {

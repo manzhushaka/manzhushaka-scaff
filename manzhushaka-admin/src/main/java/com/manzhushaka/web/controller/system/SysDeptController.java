@@ -22,6 +22,8 @@ import com.manzhushaka.system.infrastructure.persistence.entity.SysDept;
 import com.manzhushaka.common.enums.BusinessType;
 import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.system.service.ISysDeptService;
+import com.manzhushaka.web.converter.system.shared.TreeSelectAdminConverter;
+import com.manzhushaka.web.dto.system.SysDeptTreeRequest;
 
 /**
  * 部门信息
@@ -44,6 +46,16 @@ public class SysDeptController extends BaseController
     {
         List<SysDept> depts = deptService.selectDeptList(dept);
         return success(depts);
+    }
+
+    /**
+     * 获取部门下拉树
+     */
+    @PreAuthorize("@ss.hasPermi('system:dept:list')")
+    @GetMapping("/tree")
+    public AjaxResult tree(SysDeptTreeRequest request)
+    {
+        return success(TreeSelectAdminConverter.toVoList(deptService.selectDeptTreeList(request.toDept())));
     }
 
     /**

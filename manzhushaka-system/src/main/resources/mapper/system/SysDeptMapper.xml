@@ -46,6 +46,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<if test="status != null and status != ''">
 			AND status = #{status}
 		</if>
+		<if test="deptType != null and deptType != ''">
+			AND dept_type = #{deptType}
+		</if>
+		<if test="regionCode != null and regionCode != ''">
+			AND region_code = #{regionCode}
+		</if>
+		<if test="regionLevel != null">
+			AND region_level = #{regionLevel}
+		</if>
 		<!-- 数据范围过滤 -->
 		${params.dataScope}
 		order by d.parent_id, d.order_num

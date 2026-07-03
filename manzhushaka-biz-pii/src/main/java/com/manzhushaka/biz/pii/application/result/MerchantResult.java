@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 public class MerchantResult {
     private Long id;
     private Long deptId;
+    private Long parentDeptId;
+    private String regionName;
     private String merchantName;
     private String umsMerchantId;
     private String umsTerminalId;
@@ -31,10 +33,20 @@ public class MerchantResult {
         return result;
     }
 
+    public MerchantResult withRegion(Long parentDeptId, String regionName) {
+        this.parentDeptId = parentDeptId;
+        this.regionName = regionName;
+        return this;
+    }
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public Long getDeptId() { return deptId; }
     public void setDeptId(Long deptId) { this.deptId = deptId; }
+    public Long getParentDeptId() { return parentDeptId; }
+    public void setParentDeptId(Long parentDeptId) { this.parentDeptId = parentDeptId; }
+    public String getRegionName() { return regionName; }
+    public void setRegionName(String regionName) { this.regionName = regionName; }
     public String getMerchantName() { return merchantName; }
     public void setMerchantName(String merchantName) { this.merchantName = merchantName; }
     public String getUmsMerchantId() { return umsMerchantId; }

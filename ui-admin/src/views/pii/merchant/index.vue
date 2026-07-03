@@ -36,7 +36,10 @@
       <el-table v-loading="loading" :data="merchantList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column label="商户名称" align="center" prop="merchantName" min-width="180" :show-overflow-tooltip="true" />
-        <el-table-column label="所属部门" align="center" prop="deptId" width="110" />
+        <el-table-column label="所属市县/区" align="center" min-width="150" :show-overflow-tooltip="true">
+          <template #default="scope">{{ scope.row.regionName || regionNameMap[scope.row.parentDeptId] || '-' }}</template>
+        </el-table-column>
+        <el-table-column label="商户部门ID" align="center" prop="deptId" width="110" />
         <el-table-column label="银商商户号" align="center" prop="umsMerchantId" min-width="150" />
         <el-table-column label="终端号" align="center" prop="umsTerminalId" min-width="120" />
         <el-table-column label="状态" align="center" width="100">
@@ -64,8 +67,8 @@
 
     <el-dialog :title="title" v-model="open" width="680px" append-to-body>
       <el-form ref="merchantRef" :model="form" :rules="rules" label-width="120px">
-        <el-form-item label="上级部门ID" prop="parentDeptId" v-if="!form.id">
-          <el-input-number v-model="form.parentDeptId" :min="1" />
+        <el-form-item label="所属市县/区" prop="parentDeptId" v-if="!form.id">
+          <dept-tree-select v-model="form.parentDeptId" @loaded="handleRegionTreeLoaded" />
         </el-form-item>
         <el-form-item label="商户名称" prop="merchantName">
           <el-input v-model="form.merchantName" placeholder="请输入商户名称" maxlength="64" />
@@ -119,10 +122,12 @@
 
 <script setup name="Merchant">
 import { listMerchant, getMerchant, addMerchant, updateMerchant, delMerchant, changeMerchantStatus } from '@/api/pii/merchant'
+import DeptTreeSelect from '@/components/DeptTreeSelect'
 
 const { proxy } = getCurrentInstance()
 const router = useRouter()
 const merchantList = ref([])
+const regionNameMap = ref({})
 const open = ref(false)
 const loading = ref(true)
 const showSearch = ref(true)
@@ -136,7 +141,7 @@ const data = reactive({
   form: {},
   queryParams: { pageNum: 1, pageSize: 10, merchantName: undefined, umsMerchantId: undefined, status: undefined },
   rules: {
-    parentDeptId: [{ required: true, message: '上级部门不能为空', trigger: 'blur' }],
+    parentDeptId: [{ required: true, message: '所属市县/区不能为空', trigger: 'change' }],
     merchantName: [{ required: true, message: '商户名称不能为空', trigger: 'blur' }],
     adminUserName: [{ required: true, message: '管理员账号不能为空', trigger: 'blur' }],
     adminPassword: [{ required: true, message: '初始密码不能为空', trigger: 'blur' }],
@@ -159,7 +164,7 @@ function getList() {
 function reset() {
   form.value = {
     id: undefined,
-    parentDeptId: 1,
+    parentDeptId: undefined,
     merchantName: undefined,
     adminUserName: undefined,
     adminPassword: undefined,
@@ -244,6 +249,18 @@ function handleChangeStatus(row) {
 
 function handleConfig(row) {
   router.push('/pii/merchant/config/' + row.deptId)
+}
+
+function handleRegionTreeLoaded(options) {
+  const map = {}
+  const walk = nodes => {
+    ;(nodes || []).forEach(node => {
+      map[node.id] = node.label
+      walk(node.children)
+    })
+  }
+  walk(options)
+  regionNameMap.value = map
 }
 
 getList()

@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 public class MerchantVO {
     private Long id;
     private Long deptId;
+    private Long parentDeptId;
+    private String regionName;
     private String merchantName;
     private String umsMerchantId;
     private String umsTerminalId;
@@ -20,6 +22,8 @@ public class MerchantVO {
         MerchantVO vo = new MerchantVO();
         vo.setId(result.getId());
         vo.setDeptId(result.getDeptId());
+        vo.setParentDeptId(result.getParentDeptId());
+        vo.setRegionName(result.getRegionName());
         vo.setMerchantName(result.getMerchantName());
         vo.setUmsMerchantId(result.getUmsMerchantId());
         vo.setUmsTerminalId(result.getUmsTerminalId());
@@ -35,6 +39,10 @@ public class MerchantVO {
     public void setId(Long id) { this.id = id; }
     public Long getDeptId() { return deptId; }
     public void setDeptId(Long deptId) { this.deptId = deptId; }
+    public Long getParentDeptId() { return parentDeptId; }
+    public void setParentDeptId(Long parentDeptId) { this.parentDeptId = parentDeptId; }
+    public String getRegionName() { return regionName; }
+    public void setRegionName(String regionName) { this.regionName = regionName; }
     public String getMerchantName() { return merchantName; }
     public void setMerchantName(String merchantName) { this.merchantName = merchantName; }
     public String getUmsMerchantId() { return umsMerchantId; }

@@ -16,7 +16,9 @@ import org.mockito.ArgumentCaptor;
 
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -71,6 +73,25 @@ class MerchantServiceTest {
         verify(merchantProfileRepository).updateById(captor.capture());
         Assertions.assertEquals("OLD_PAY_KEY", captor.getValue().getUmsPaySignKeyEnc());
         Assertions.assertEquals("OLD_INVOICE_KEY", captor.getValue().getUmsInvoiceSignKeyEnc());
+    }
+
+    @Test
+    void getShouldReturnRegionParentInfo() {
+        MerchantProfile existing = new MerchantProfile();
+        existing.setId(9L);
+        existing.setDeptId(300L);
+        existing.setMerchantName("测试商户");
+        SysDept merchantDept = new SysDept();
+        merchantDept.setDeptId(300L);
+        merchantDept.setParentId(200L);
+        merchantDept.setParentName("滨江区");
+        when(merchantProfileRepository.findById(9L)).thenReturn(Optional.of(existing));
+        when(deptService.selectDeptById(eq(300L))).thenReturn(merchantDept);
+
+        var result = service.get(9L);
+
+        assertThat(result.getParentDeptId()).isEqualTo(200L);
+        assertThat(result.getRegionName()).isEqualTo("滨江区");
     }
 
     private CreateMerchantCommand createCommand() {
