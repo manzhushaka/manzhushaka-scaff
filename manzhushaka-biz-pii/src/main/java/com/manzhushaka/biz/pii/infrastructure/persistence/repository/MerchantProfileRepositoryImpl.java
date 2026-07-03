@@ -32,6 +32,11 @@ public class MerchantProfileRepositoryImpl implements MerchantProfileRepository 
     }
 
     @Override
+    public int deleteById(Long id) {
+        return mapper.deleteById(id);
+    }
+
+    @Override
     public int updateStatus(Long id, Integer status) {
         return mapper.updateStatus(id, status);
     }
@@ -54,5 +59,10 @@ public class MerchantProfileRepositoryImpl implements MerchantProfileRepository 
     @Override
     public List<MerchantProfile> findByStatus(Integer status) {
         return mapper.selectByStatus(status).stream().map(MerchantProfileConverter::toDomain).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MerchantProfile> findList(String merchantName, String umsMerchantId, Integer status) {
+        return mapper.selectList(merchantName, umsMerchantId, status).stream().map(MerchantProfileConverter::toDomain).collect(Collectors.toList());
     }
 }

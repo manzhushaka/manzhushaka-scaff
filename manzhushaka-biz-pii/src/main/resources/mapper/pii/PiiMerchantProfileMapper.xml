@@ -91,4 +91,19 @@
         select <include refid="BaseColumnList"/> from pii_merchant_profile where status = #{status} and del_flag = 0 order by id desc
     </select>
 
+    <select id="selectList" resultMap="BaseResultMap">
+        select <include refid="BaseColumnList"/> from pii_merchant_profile
+        where del_flag = 0
+        <if test="merchantName != null and merchantName != ''">
+            and merchant_name like concat('%', #{merchantName}, '%')
+        </if>
+        <if test="umsMerchantId != null and umsMerchantId != ''">
+            and ums_merchant_id like concat('%', #{umsMerchantId}, '%')
+        </if>
+        <if test="status != null">
+            and status = #{status}
+        </if>
+        order by id desc
+    </select>
+
 </mapper>

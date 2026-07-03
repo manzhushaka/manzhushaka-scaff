@@ -14,4 +14,5 @@ public interface PiiMerchantProfileMapper {
     PiiMerchantProfile selectByDeptId(@Param("deptId") Long deptId);
     PiiMerchantProfile selectByUmsMerchantAndTerminal(@Param("umsMerchantId") String umsMerchantId, @Param("umsTerminalId") String umsTerminalId);
     List<PiiMerchantProfile> selectByStatus(@Param("status") Integer status);
+    List<PiiMerchantProfile> selectList(@Param("merchantName") String merchantName, @Param("umsMerchantId") String umsMerchantId, @Param("status") Integer status);
 }
