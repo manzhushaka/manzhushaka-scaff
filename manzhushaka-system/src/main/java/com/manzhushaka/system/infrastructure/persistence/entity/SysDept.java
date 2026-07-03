@@ -49,6 +49,15 @@ public class SysDept extends BaseEntity
     /** 删除标志（0代表存在 2代表删除） */
     private String delFlag;
 
+    /** 部门类型: platform_org/region/merchant */
+    private String deptType;
+
+    /** 行政区划代码 */
+    private String regionCode;
+
+    /** 行政区划级别 */
+    private Integer regionLevel;
+
     /** 父部门名称 */
     private String parentName;
     
@@ -161,6 +170,36 @@ public class SysDept extends BaseEntity
         this.delFlag = delFlag;
     }
 
+    public String getDeptType()
+    {
+        return deptType;
+    }
+
+    public void setDeptType(String deptType)
+    {
+        this.deptType = deptType;
+    }
+
+    public String getRegionCode()
+    {
+        return regionCode;
+    }
+
+    public void setRegionCode(String regionCode)
+    {
+        this.regionCode = regionCode;
+    }
+
+    public Integer getRegionLevel()
+    {
+        return regionLevel;
+    }
+
+    public void setRegionLevel(Integer regionLevel)
+    {
+        this.regionLevel = regionLevel;
+    }
+
     public String getParentName()
     {
         return parentName;
@@ -194,6 +233,9 @@ public class SysDept extends BaseEntity
             .append("email", getEmail())
             .append("status", getStatus())
             .append("delFlag", getDelFlag())
+            .append("deptType", getDeptType())
+            .append("regionCode", getRegionCode())
+            .append("regionLevel", getRegionLevel())
             .append("createBy", getCreateBy())
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())

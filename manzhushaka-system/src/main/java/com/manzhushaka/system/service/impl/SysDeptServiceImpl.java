@@ -330,6 +330,15 @@ public class SysDeptServiceImpl implements ISysDeptService
     @Override
     public int deleteDeptById(Long deptId)
     {
+        SysDept existing = deptMapper.selectDeptById(deptId);
+        if (existing == null)
+        {
+            throw new ServiceException("部门不存在");
+        }
+        if ("region".equals(existing.getDeptType()) || "merchant".equals(existing.getDeptType()))
+        {
+            throw new ServiceException("行政区划/商户部门禁止直接删除");
+        }
         return deptMapper.deleteDeptById(deptId);
     }
 
