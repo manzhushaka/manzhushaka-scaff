@@ -38,6 +38,9 @@
     </el-form>
 
     <el-row :gutter="10" class="mb8 ui-action-bar">
+      <el-col :span="1.5">
+        <el-button type="warning" plain icon="Download" @click="handleExport" v-hasPermi="['biz:invoice:export']">导出</el-button>
+      </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
@@ -150,6 +153,11 @@ function handleDetail(row) {
     detail.value = response.data
     detailOpen.value = true
   })
+}
+
+function handleExport() {
+  syncIssueTimeRange()
+  proxy.download('pii/invoice/export', { ...queryParams.value }, `pii_invoice_${new Date().getTime()}.xlsx`)
 }
 
 function syncIssueTimeRange() {

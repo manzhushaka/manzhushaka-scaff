@@ -1,32 +1,49 @@
 package com.manzhushaka.web.vo.pii;
 
 import com.manzhushaka.biz.pii.application.result.OrderResult;
+import com.manzhushaka.common.annotation.Excel;
 
 import java.time.LocalDateTime;
 
 public class OrderVO {
+    @Excel(name = "订单ID")
     private Long id;
+    @Excel(name = "商户ID")
     private Long merchantId;
     private Long qrcodeId;
     private Long taxItemId;
+    @Excel(name = "订单号", width = 28)
     private String outTradeNo;
     private String umsMerOrderDate;
+    @Excel(name = "订单金额(分)")
     private Long amount;
+    @Excel(name = "购方名称", width = 24)
     private String buyerName;
+    @Excel(name = "购方税号", width = 24)
     private String buyerTaxCode;
     private String buyerEmail;
     private String buyerMobile;
+    @Excel(name = "支付状态", readConverterExp = "PENDING=待支付,PAID=已支付,REFUNDING=退款中,REFUNDED=已退款,CLOSED=已关闭")
     private String payStatus;
+    @Excel(name = "支付时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime payTime;
+    @Excel(name = "支付流水号", width = 24)
     private String payTradeNo;
+    @Excel(name = "退款金额(分)")
     private Long refundAmount;
+    @Excel(name = "发票状态", readConverterExp = "NONE=未开票,OPENING=开票中,ISSUED=已开票,REVERSING=红冲中,REVERSED=已红冲,FAILED=失败")
     private String invoiceStatus;
+    @Excel(name = "发票号码", width = 20)
     private String invoiceNo;
+    @Excel(name = "发票代码", width = 20)
     private String invoiceCode;
     private String invoicePdfUrl;
+    @Excel(name = "开票时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime invoiceIssueTime;
+    @Excel(name = "红冲时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime invoiceReverseTime;
     private String remark;
+    @Excel(name = "创建时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 

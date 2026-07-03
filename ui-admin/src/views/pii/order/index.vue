@@ -44,6 +44,9 @@
     </el-form>
 
     <el-row :gutter="10" class="mb8 ui-action-bar">
+      <el-col :span="1.5">
+        <el-button type="warning" plain icon="Download" @click="handleExport" v-hasPermi="['biz:order:export']">导出</el-button>
+      </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
@@ -165,6 +168,11 @@ function handleDetail(row) {
     detail.value = response.data
     detailOpen.value = true
   })
+}
+
+function handleExport() {
+  syncPayTimeRange()
+  proxy.download('pii/order/export', { ...queryParams.value }, `pii_order_${new Date().getTime()}.xlsx`)
 }
 
 function syncPayTimeRange() {
