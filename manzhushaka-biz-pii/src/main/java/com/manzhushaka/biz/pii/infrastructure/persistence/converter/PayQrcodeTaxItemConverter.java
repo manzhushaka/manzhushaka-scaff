@@ -28,6 +28,7 @@ public final class PayQrcodeTaxItemConverter {
         entity.setQrcodeId(domain.getQrcodeId());
         entity.setTaxItemId(domain.getTaxItemId());
         entity.setDefaultAmount(domain.getDefaultAmount());
+        entity.setDelFlag(0);
         return entity;
     }
 }

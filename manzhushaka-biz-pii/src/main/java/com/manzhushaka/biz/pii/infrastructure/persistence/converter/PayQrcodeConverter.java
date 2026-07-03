@@ -46,6 +46,7 @@ public final class PayQrcodeConverter {
         entity.setUpdateTime(domain.getUpdateTime());
         entity.setCreateBy(domain.getCreateBy());
         entity.setUpdateBy(domain.getUpdateBy());
+        entity.setDelFlag(0);
         return entity;
     }
 }

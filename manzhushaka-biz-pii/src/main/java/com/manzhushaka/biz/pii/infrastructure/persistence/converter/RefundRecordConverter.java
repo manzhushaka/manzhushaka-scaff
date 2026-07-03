@@ -48,6 +48,7 @@ public final class RefundRecordConverter {
         entity.setTriggerInvoiceReverse(domain.getTriggerInvoiceReverse());
         entity.setCreateTime(domain.getCreateTime());
         entity.setUpdateTime(domain.getUpdateTime());
+        entity.setDelFlag(0);
         return entity;
     }
 }
