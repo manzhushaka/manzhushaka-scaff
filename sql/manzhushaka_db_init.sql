@@ -112,6 +112,14 @@ create table sys_role (
 insert into sys_role values('1', '超级管理员',  'admin',  1, 1, 1, 1, '0', '0', 'admin', sysdate(), '', null, '超级管理员');
 insert into sys_role values('2', '普通角色',    'common', 2, 2, 1, 1, '0', '0', 'admin', sysdate(), '', null, '普通角色');
 
+-- 支付即开票（PII）预置角色
+insert into sys_role (role_id, role_name, role_key, role_sort, data_scope, menu_check_strictly, dept_check_strictly, status, del_flag, create_time, update_time, remark)
+values
+(110, '运营方管理人员', 'operator', 3, 1, 1, 1, 0, 0, sysdate(), sysdate(), 'PII 运营方，data_scope=1 全部'),
+(111, '商户', 'merchant', 4, 4, 1, 1, 0, 0, sysdate(), sysdate(), 'PII 商户，data_scope=4 本部门及以下'),
+(112, '海南各市县税务局', 'tax_bureau_city', 5, 3, 1, 1, 0, 0, sysdate(), sysdate(), 'PII 税局市级，data_scope=3 本部门'),
+(113, '海南税务局', 'tax_bureau_province', 6, 4, 1, 1, 0, 0, sysdate(), sysdate(), 'PII 税局省级，data_scope=4 本部门及以下');
+
 
 -- ----------------------------
 -- 5、菜单权限表
@@ -248,6 +256,53 @@ insert into sys_menu values('177', '消息队列台账详情', '175', '2', '', n
 insert into sys_menu values('178', '消息队列台账删除', '175', '3', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:mqlog:remove', '#',                'admin', sysdate(), '', null, '消息队列台账删除按钮');
 insert into sys_menu values('179', '消息队列台账导出', '175', '4', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:mqlog:export', '#',                'admin', sysdate(), '', null, '消息队列台账导出按钮');
 
+-- ============================================================================
+-- 支付即开票（PII）业务菜单
+-- ============================================================================
+-- 一级菜单
+insert into sys_menu values('200', '支付即开票', '0', '4', 'pii', null, '', '', 1, 0, 'M', '0', '0', '', 'money', 'admin', sysdate(), '', null, '支付即开票目录');
+
+-- 二级菜单
+insert into sys_menu values('201', '商户管理', '200', '1', 'merchant', 'pii/merchant/index', '', '', 1, 0, 'M', '0', '0', '', 'peoples', 'admin', sysdate(), '', null, '商户管理目录');
+insert into sys_menu values('202', '税目管理', '200', '2', 'taxItem', 'pii/taxItem/index', '', '', 1, 0, 'M', '0', '0', '', 'dict', 'admin', sysdate(), '', null, '税目管理目录');
+insert into sys_menu values('203', '支付二维码', '200', '3', 'qrcode', 'pii/qrcode/index', '', '', 1, 0, 'M', '0', '0', '', 'guide', 'admin', sysdate(), '', null, '支付二维码目录');
+insert into sys_menu values('204', '支付订单', '200', '4', 'payOrder', 'pii/payOrder/index', '', '', 1, 0, 'M', '0', '0', '', 'list', 'admin', sysdate(), '', null, '支付订单目录');
+insert into sys_menu values('205', '发票查询', '200', '5', 'invoice', 'pii/invoice/index', '', '', 1, 0, 'M', '0', '0', '', 'documentation', 'admin', sysdate(), '', null, '发票查询目录');
+insert into sys_menu values('206', '退款管理', '200', '6', 'refund', 'pii/refund/index', '', '', 1, 0, 'M', '0', '0', '', 'money', 'admin', sysdate(), '', null, '退款管理目录');
+insert into sys_menu values('207', 'BI 看板', '200', '7', 'bi', 'pii/bi/dashboard', '', '', 1, 0, 'M', '0', '0', '', 'chart', 'admin', sysdate(), '', null, 'BI 看板目录');
+
+-- 页面菜单
+insert into sys_menu values('210', '商户列表', '201', '1', 'merchantList', 'pii/merchant/index', '', '', 1, 0, 'C', '0', '0', 'biz:merchant:list', 'peoples', 'admin', sysdate(), '', null, '商户列表菜单');
+insert into sys_menu values('211', '商户参数配置', '201', '2', 'merchantConfig', 'pii/merchant/config/index', '', '', 1, 0, 'C', '0', '0', 'biz:merchant:config', 'edit', 'admin', sysdate(), '', null, '商户参数配置菜单');
+insert into sys_menu values('212', '税目列表', '202', '1', 'taxItemList', 'pii/taxItem/index', '', '', 1, 0, 'C', '0', '0', 'biz:taxItem:list', 'dict', 'admin', sysdate(), '', null, '税目列表菜单');
+insert into sys_menu values('213', '二维码总览', '203', '1', 'qrcodeList', 'pii/qrcode/index', '', '', 1, 0, 'C', '0', '0', 'biz:qrcode:list', 'guide', 'admin', sysdate(), '', null, '二维码总览菜单');
+insert into sys_menu values('214', '二维码详情', '203', '2', 'qrcodeDetail', 'pii/qrcode/detail/index', '', '', 1, 0, 'C', '0', '0', 'biz:qrcode:query', 'guide', 'admin', sysdate(), '', null, '二维码详情菜单');
+insert into sys_menu values('215', '订单查询', '204', '1', 'payOrderList', 'pii/payOrder/index', '', '', 1, 0, 'C', '0', '0', 'biz:payOrder:list', 'list', 'admin', sysdate(), '', null, '订单查询菜单');
+insert into sys_menu values('216', '订单详情', '204', '2', 'payOrderDetail', 'pii/payOrder/detail/index', '', '', 1, 0, 'C', '0', '0', 'biz:payOrder:query', 'list', 'admin', sysdate(), '', null, '订单详情菜单');
+insert into sys_menu values('217', '发票列表', '205', '1', 'invoiceList', 'pii/invoice/index', '', '', 1, 0, 'C', '0', '0', 'biz:invoice:list', 'documentation', 'admin', sysdate(), '', null, '发票列表菜单');
+insert into sys_menu values('218', '发票详情', '205', '2', 'invoiceDetail', 'pii/invoice/detail/index', '', '', 1, 0, 'C', '0', '0', 'biz:invoice:query', 'documentation', 'admin', sysdate(), '', null, '发票详情菜单');
+insert into sys_menu values('219', '退款列表', '206', '1', 'refundList', 'pii/refund/index', '', '', 1, 0, 'C', '0', '0', 'biz:refund:list', 'money', 'admin', sysdate(), '', null, '退款列表菜单');
+insert into sys_menu values('220', '退款详情', '206', '2', 'refundDetail', 'pii/refund/detail/index', '', '', 1, 0, 'C', '0', '0', 'biz:refund:query', 'money', 'admin', sysdate(), '', null, '退款详情菜单');
+insert into sys_menu values('221', '运营全局看板', '207', '1', 'biDashboard', 'pii/bi/dashboard', '', '', 1, 0, 'C', '0', '0', 'biz:bi:dashboard', 'chart', 'admin', sysdate(), '', null, '运营全局看板菜单');
+
+-- 按钮权限
+insert into sys_menu values('230', '商户新增', '210', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:merchant:add', '#', 'admin', sysdate(), '', null, '商户新增按钮');
+insert into sys_menu values('231', '商户修改', '210', '2', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:merchant:edit', '#', 'admin', sysdate(), '', null, '商户修改按钮');
+insert into sys_menu values('232', '商户删除', '210', '3', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:merchant:remove', '#', 'admin', sysdate(), '', null, '商户删除按钮');
+insert into sys_menu values('233', '商户启停', '210', '4', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:merchant:changeStatus', '#', 'admin', sysdate(), '', null, '商户启停按钮');
+insert into sys_menu values('234', '税目新增', '212', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:taxItem:add', '#', 'admin', sysdate(), '', null, '税目新增按钮');
+insert into sys_menu values('235', '税目修改', '212', '2', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:taxItem:edit', '#', 'admin', sysdate(), '', null, '税目修改按钮');
+insert into sys_menu values('236', '税目删除', '212', '3', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:taxItem:remove', '#', 'admin', sysdate(), '', null, '税目删除按钮');
+insert into sys_menu values('237', '税目启停', '212', '4', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:taxItem:changeStatus', '#', 'admin', sysdate(), '', null, '税目启停按钮');
+insert into sys_menu values('238', '二维码新增', '213', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:qrcode:add', '#', 'admin', sysdate(), '', null, '二维码新增按钮');
+insert into sys_menu values('239', '二维码修改', '213', '2', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:qrcode:edit', '#', 'admin', sysdate(), '', null, '二维码修改按钮');
+insert into sys_menu values('240', '二维码删除', '213', '3', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:qrcode:remove', '#', 'admin', sysdate(), '', null, '二维码删除按钮');
+insert into sys_menu values('241', '二维码启停', '213', '4', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:qrcode:changeStatus', '#', 'admin', sysdate(), '', null, '二维码启停按钮');
+insert into sys_menu values('242', '订单导出', '215', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:payOrder:export', '#', 'admin', sysdate(), '', null, '订单导出按钮');
+insert into sys_menu values('243', '发票下载', '217', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:invoice:download', '#', 'admin', sysdate(), '', null, '发票下载按钮');
+insert into sys_menu values('244', '发票导出', '217', '2', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:invoice:export', '#', 'admin', sysdate(), '', null, '发票导出按钮');
+insert into sys_menu values('245', '发起退款', '219', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:refund:add', '#', 'admin', sysdate(), '', null, '发起退款按钮');
+
 insert into sys_role_menu values ('2', '1');
 insert into sys_role_menu values ('2', '2');
 insert into sys_role_menu values ('2', '160');
@@ -313,6 +368,15 @@ insert into sys_role_menu values ('2', '176');
 insert into sys_role_menu values ('2', '177');
 insert into sys_role_menu values ('2', '178');
 insert into sys_role_menu values ('2', '179');
+
+-- 支付即开票默认授权
+insert into sys_role_menu (role_id, menu_id) select 1, menu_id from sys_menu where menu_id between 200 and 299;
+insert into sys_role_menu (role_id, menu_id) select 110, menu_id from sys_menu where menu_id between 200 and 299;
+insert into sys_role_menu (role_id, menu_id)
+select 111, menu_id
+from sys_menu
+where menu_id between 200 and 299
+  and menu_id not in (201, 210, 211, 230, 231, 232, 233);
 
 -- ----------------------------
 -- 8、角色和部门关联表  角色1-N部门
