@@ -1,7 +1,9 @@
 package com.manzhushaka.web.controller.pii;
 
 import com.manzhushaka.biz.pii.application.command.CreateRefundCommand;
+import com.manzhushaka.biz.pii.application.service.RefundNotifyService;
 import com.manzhushaka.biz.pii.application.service.RefundService;
+import com.manzhushaka.common.annotation.Anonymous;
 import com.manzhushaka.common.annotation.Log;
 import com.manzhushaka.common.core.controller.BaseController;
 import com.manzhushaka.common.core.domain.AjaxResult;
@@ -20,8 +22,11 @@ public class RefundController extends BaseController {
 
     private final RefundService refundService;
 
-    public RefundController(RefundService refundService) {
+    private final RefundNotifyService refundNotifyService;
+
+    public RefundController(RefundService refundService, RefundNotifyService refundNotifyService) {
         this.refundService = refundService;
+        this.refundNotifyService = refundNotifyService;
     }
 
     @PreAuthorize("@ss.hasPermi('biz:refund:add')")
@@ -35,5 +40,12 @@ public class RefundController extends BaseController {
                 request.getReason(),
                 getUserId()
         )));
+    }
+
+    @Anonymous
+    @PostMapping("/notify")
+    public String notify(@RequestBody String rawBody,
+                         @org.springframework.web.bind.annotation.RequestParam(required = false) String sign) {
+        return refundNotifyService.notify(rawBody, sign);
     }
 }
