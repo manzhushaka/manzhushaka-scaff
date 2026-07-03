@@ -15,4 +15,5 @@ public interface PiiTaxItemMapper {
     PiiTaxItem selectByTaxItemCode(@Param("taxItemCode") String taxItemCode);
     List<PiiTaxItem> selectEnabled();
     List<PiiTaxItem> selectByNameLike(@Param("name") String name);
+    List<PiiTaxItem> selectList(@Param("taxItemCode") String taxItemCode, @Param("name") String name, @Param("status") Integer status);
 }

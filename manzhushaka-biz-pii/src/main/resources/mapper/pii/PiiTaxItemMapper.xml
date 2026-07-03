@@ -75,4 +75,19 @@
         select <include refid="BaseColumnList"/> from pii_tax_item where name like concat('%', #{name}, '%') and del_flag = 0 order by sort asc, id desc
     </select>
 
+    <select id="selectList" resultMap="BaseResultMap">
+        select <include refid="BaseColumnList"/> from pii_tax_item
+        where del_flag = 0
+        <if test="taxItemCode != null and taxItemCode != ''">
+            and tax_item_code like concat('%', #{taxItemCode}, '%')
+        </if>
+        <if test="name != null and name != ''">
+            and name like concat('%', #{name}, '%')
+        </if>
+        <if test="status != null">
+            and status = #{status}
+        </if>
+        order by sort asc, id desc
+    </select>
+
 </mapper>

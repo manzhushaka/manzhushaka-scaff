@@ -32,6 +32,11 @@ public class TaxItemRepositoryImpl implements TaxItemRepository {
     }
 
     @Override
+    public int deleteById(Long id) {
+        return mapper.deleteById(id);
+    }
+
+    @Override
     public int updateStatus(Long id, Integer status) {
         return mapper.updateStatus(id, status);
     }
@@ -54,5 +59,10 @@ public class TaxItemRepositoryImpl implements TaxItemRepository {
     @Override
     public List<TaxItem> findByNameLike(String name) {
         return mapper.selectByNameLike(name).stream().map(TaxItemConverter::toDomain).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TaxItem> findList(String taxItemCode, String name, Integer status) {
+        return mapper.selectList(taxItemCode, name, status).stream().map(TaxItemConverter::toDomain).collect(Collectors.toList());
     }
 }

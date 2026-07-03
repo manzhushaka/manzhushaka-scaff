@@ -8,9 +8,11 @@ import java.util.Optional;
 public interface TaxItemRepository {
     Long insert(TaxItem taxItem);
     int updateById(TaxItem taxItem);
+    int deleteById(Long id);
     int updateStatus(Long id, Integer status);
     Optional<TaxItem> findById(Long id);
     Optional<TaxItem> findByTaxItemCode(String taxItemCode);
     List<TaxItem> findEnabled();
     List<TaxItem> findByNameLike(String name);
+    List<TaxItem> findList(String taxItemCode, String name, Integer status);
 }
