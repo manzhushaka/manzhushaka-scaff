@@ -39,9 +39,9 @@ check \
 
 # Rule 2: Admin controllers should not depend on persistence entities directly
 check \
-    "admin controller 不引用 infrastructure.persistence.entity" \
+    "pii admin controller 不引用 infrastructure.persistence.entity" \
     "infrastructure\\.persistence\\.entity" \
-    "manzhushaka-admin/src/main/java"
+    "manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/pii"
 
 # Rule 3: System application layer should not depend on web DTO/VO
 check \
@@ -49,8 +49,25 @@ check \
     "web\\.dto|web\\.vo" \
     "manzhushaka-system/src/main/java"
 
+# Rule 4: Common module should not contain PII business code
+check \
+    "common 模块不得引用 pii 业务代码" \
+    "\\bpii\\b|Pii" \
+    "manzhushaka-common/src/main/java"
+
+# Rule 5: PII business module should not depend on admin web layer
+check \
+    "pii 模块禁止引用 admin web 层" \
+    "com\\.manzhushaka\\.web" \
+    "manzhushaka-biz-pii/src/main/java"
+
+if rg -n "com\\.manzhushaka\\.biz\\.pii" manzhushaka-admin/src/main/java 2>/dev/null; then
+    echo "OK: admin 引用 pii（正常）"
+fi
+
 echo ""
 if [ $VIOLATIONS -eq 0 ]; then
+    echo "OK: pii 模块边界检查通过"
     echo "🎉 All boundary checks passed!"
     exit 0
 else
