@@ -33,6 +33,11 @@ public class PayQrcodeRepositoryImpl implements PayQrcodeRepository {
     }
 
     @Override
+    public int deleteById(Long id) {
+        return mapper.deleteById(id);
+    }
+
+    @Override
     public int updateStatus(Long id, Integer status) {
         return mapper.updateStatus(id, status);
     }

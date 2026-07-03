@@ -9,6 +9,7 @@ import java.util.Optional;
 public interface PayQrcodeRepository {
     Long insert(PayQrcode qrcode);
     int updateById(PayQrcode qrcode);
+    int deleteById(Long id);
     int updateStatus(Long id, Integer status);
     Optional<PayQrcode> findById(Long id);
     Optional<PayQrcode> findByCode(String qrcodeCode);
