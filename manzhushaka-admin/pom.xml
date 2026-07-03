@@ -48,6 +48,13 @@
             <artifactId>manzhushaka-quartz</artifactId>
         </dependency>
 
+        <!-- 支付即开票业务模块 -->
+        <dependency>
+            <groupId>com.manzhushaka</groupId>
+            <artifactId>manzhushaka-biz-pii</artifactId>
+            <version>3.9.2</version>
+        </dependency>
+
         <!-- Spring Boot Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

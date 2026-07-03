@@ -290,6 +290,7 @@
     <!-- ================================================================= -->
     <modules>
         <module>manzhushaka-admin</module>      <!-- Web 启动层：Controller、全局异常处理、配置入口 -->
+        <module>manzhushaka-biz-pii</module>    <!-- 支付即开票业务层：商户、支付、开票、退款与 BI -->
         <module>manzhushaka-framework</module>  <!-- 核心框架层：安全、AOP、配置、拦截器 -->
         <module>manzhushaka-system</module>     <!-- 系统业务层：用户、角色、菜单、部门等业务实现 -->
         <module>manzhushaka-quartz</module>     <!-- 定时任务层：Quartz 任务调度管理 -->
