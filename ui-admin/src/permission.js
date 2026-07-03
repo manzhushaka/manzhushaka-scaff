@@ -12,7 +12,7 @@ import usePermissionStore from '@/store/modules/permission'
 
 NProgress.configure({ showSpinner: false })
 
-const whiteList = ['/login', '/register']
+const whiteList = ['/login', '/register', '/pay', '/pay/result']
 const forceChangePasswordRoute = { name: 'Profile', params: { activeTab: 'resetPwd' }, replace: true }
 
 const isWhiteList = (path) => {

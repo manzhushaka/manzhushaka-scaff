@@ -48,6 +48,20 @@ export const constantRoutes = [
     hidden: true
   },
   {
+    path: '/pay',
+    component: () => import('@/views/pay/index.vue'),
+    name: 'PayIndex',
+    hidden: true,
+    meta: { title: '扫码支付' }
+  },
+  {
+    path: '/pay/result',
+    component: () => import('@/views/pay/result.vue'),
+    name: 'PayResult',
+    hidden: true,
+    meta: { title: '支付结果' }
+  },
+  {
     path: "/:pathMatch(.*)*",
     component: () => import('@/views/error/404'),
     hidden: true
