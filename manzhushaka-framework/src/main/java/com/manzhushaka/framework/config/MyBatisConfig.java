@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import javax.sql.DataSource;
 import org.apache.ibatis.io.VFS;
+import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.boot.autoconfigure.SpringBootVFS;
@@ -25,7 +26,6 @@ import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.util.ClassUtils;
 import com.manzhushaka.common.utils.StringUtils;
-import com.manzhushaka.framework.mybatis.SlowSqlInterceptor;
 
 /**
  * Mybatis支持*匹配扫描包
@@ -40,8 +40,8 @@ public class MyBatisConfig
     @Autowired
     private Environment env;
 
-    @Autowired
-    private SlowSqlInterceptor slowSqlInterceptor;
+    @Autowired(required = false)
+    private List<Interceptor> interceptors = new ArrayList<>();
 
     static final String DEFAULT_RESOURCE_PATTERN = "**/*.class";
 
@@ -135,7 +135,7 @@ public class MyBatisConfig
         sessionFactory.setTypeAliasesPackage(typeAliasesPackage);
         sessionFactory.setMapperLocations(resolveMapperLocations(StringUtils.split(mapperLocations, ",")));
         sessionFactory.setConfigLocation(new DefaultResourceLoader().getResource(configLocation));
-        sessionFactory.setPlugins(slowSqlInterceptor);
+        sessionFactory.setPlugins(interceptors.toArray(new Interceptor[0]));
         return sessionFactory.getObject();
     }
 }
