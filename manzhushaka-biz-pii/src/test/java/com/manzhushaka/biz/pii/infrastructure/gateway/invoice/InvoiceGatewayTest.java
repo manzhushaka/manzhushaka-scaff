@@ -5,17 +5,35 @@ import com.manzhushaka.biz.pii.infrastructure.gateway.invoice.dto.InvoiceRespons
 import com.manzhushaka.biz.pii.infrastructure.gateway.invoice.dto.NotifyVerifyResult;
 import com.manzhushaka.biz.pii.infrastructure.gateway.invoice.dto.PickupRequest;
 import com.manzhushaka.biz.pii.infrastructure.gateway.invoice.dto.PickupResponse;
+import com.manzhushaka.biz.pii.infrastructure.gateway.invoice.dto.QueryRequest;
+import com.manzhushaka.biz.pii.infrastructure.gateway.invoice.dto.QueryResponse;
 import com.manzhushaka.biz.pii.infrastructure.gateway.invoice.dto.ReverseRequest;
 import com.manzhushaka.biz.pii.infrastructure.gateway.invoice.dto.ReverseResponse;
+import com.manzhushaka.biz.pii.infrastructure.config.PiiProperties;
 import com.manzhushaka.biz.pii.infrastructure.gateway.notify.NotifyVerifier;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
+import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class InvoiceGatewayTest {
+
+    @RegisterExtension
+    static WireMockExtension wireMock = WireMockExtension.newInstance()
+            .options(wireMockConfig().dynamicPort())
+            .build();
 
     @Test
     void mockGatewayShouldIssueReverseAndPickupInvoice() {
@@ -77,6 +95,53 @@ class InvoiceGatewayTest {
         assertThat(result.getErrorMsg()).isEqualTo("invalid sign");
     }
 
+    @Test
+    void umsGatewayShouldPostSignedQueryRequestAndParseSandboxResponse() {
+        wireMock.stubFor(post(urlEqualTo("/complex.query"))
+                .withRequestBody(containing("\"msgType\":\"complex.query\""))
+                .withRequestBody(containing("\"merchantId\":\"MID\""))
+                .withRequestBody(containing("\"sign\""))
+                .willReturn(okJson("""
+                        {
+                          "resultCode": "SUCCESS",
+                          "status": "ISSUED",
+                          "merchantId": "MID",
+                          "terminalId": "TID",
+                          "merOrderId": "ORDER001",
+                          "merOrderDate": "20260703",
+                          "invoiceNo": "INV001",
+                          "invoiceCode": "CODE001",
+                          "pdfUrl": "https://example.com/invoices/INV001.pdf"
+                        }
+                        """)));
+        UmsInvoiceGateway gateway = new UmsInvoiceGateway();
+        ReflectionTestUtils.setField(gateway, "properties", wireMockProperties());
+
+        QueryResponse response = gateway.query(queryRequest());
+
+        assertThat(response.getResultCode()).isEqualTo("SUCCESS");
+        assertThat(response.getStatus()).isEqualTo("ISSUED");
+        assertThat(response.getInvoiceNo()).isEqualTo("INV001");
+        assertThat(response.getPdfUrl()).endsWith("INV001.pdf");
+        wireMock.verify(postRequestedFor(urlEqualTo("/complex.query"))
+                .withHeader("Content-Type", containing("application/json")));
+        String requestBody = wireMock.getAllServeEvents().get(0).getRequest().getBodyAsString();
+        assertThat(requestBody).doesNotContain("signKey");
+    }
+
+    @Test
+    void umsGatewayShouldThrowServiceExceptionWhenSandboxReturnsBusinessError() {
+        wireMock.stubFor(post(urlEqualTo("/complex.pickup"))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\"resultCode\":\"FAIL\",\"resultMsg\":\"invoice missing\"}")));
+        UmsInvoiceGateway gateway = new UmsInvoiceGateway();
+        ReflectionTestUtils.setField(gateway, "properties", wireMockProperties());
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> gateway.pickup(pickupRequest()))
+                .hasMessageContaining("银联发票错误: FAIL invoice missing");
+    }
+
     private InvoiceRequest invoiceRequest() {
         InvoiceRequest request = new InvoiceRequest();
         request.setMerchantId("MID");
@@ -111,6 +176,26 @@ class InvoiceGatewayTest {
         request.setMerOrderId("ORDER001");
         request.setSignKey("K");
         return request;
+    }
+
+    private QueryRequest queryRequest() {
+        QueryRequest request = new QueryRequest();
+        request.setMerchantId("MID");
+        request.setTerminalId("TID");
+        request.setMerOrderDate("20260703");
+        request.setMerOrderId("ORDER001");
+        request.setMsgSrc("PII");
+        request.setMsgId("MSG001");
+        request.setSignKey("K");
+        return request;
+    }
+
+    private PiiProperties wireMockProperties() {
+        PiiProperties properties = new PiiProperties();
+        properties.getInvoice().setApiBaseUrl(wireMock.baseUrl() + "/");
+        properties.getInvoice().setConnectTimeoutMs(1000);
+        properties.getInvoice().setReadTimeoutMs(1000);
+        return properties;
     }
 
     private String toJson(Map<String, String> params) {
