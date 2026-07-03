@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -22,6 +23,14 @@ class InvoiceEmailHandlerTest {
             mock(ISysMqMessageLogService.class),
             invoiceEmailGateway
     );
+
+    @Test
+    void shouldExposeRedisStreamRegistrationMetadata() {
+        assertThat(handler.streamKey()).isEqualTo("pii:invoice:email");
+        assertThat(handler.messageType()).isEqualTo("pii.invoice.email");
+        assertThat(handler.consumerGroup()).isEqualTo("pii-invoice-email-group");
+        assertThat(handler.consumerName()).isEqualTo("pii-invoice-email-consumer");
+    }
 
     @Test
     void doHandleShouldSendInvoiceEmail() {
