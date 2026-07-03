@@ -45,6 +45,7 @@ create table pii_tax_item (
     update_time        datetime     not null default current_timestamp on update current_timestamp,
     create_by          bigint       null,
     update_by          bigint       null,
+    del_flag           tinyint      not null default 0 comment '逻辑删除 0=正常 2=删除',
     unique key uk_tax_item_code (tax_item_code),
     key idx_status (status, sort)
 ) engine=innodb default charset=utf8mb4 comment='税目';
@@ -78,6 +79,7 @@ create table pii_merchant_profile (
     update_time              datetime     not null default current_timestamp on update current_timestamp,
     create_by                bigint       null,
     update_by                bigint       null,
+    del_flag                 tinyint      not null default 0 comment '逻辑删除 0=正常 2=删除',
     unique key uk_dept_id (dept_id),
     unique key uk_ums (ums_merchant_id, ums_terminal_id)
 ) engine=innodb default charset=utf8mb4 comment='商户档案';
@@ -100,6 +102,7 @@ create table pii_pay_qrcode (
     update_time      datetime     not null default current_timestamp on update current_timestamp,
     create_by        bigint       null,
     update_by        bigint       null,
+    del_flag         tinyint      not null default 0 comment '逻辑删除 0=正常 2=删除',
     unique key uk_qrcode_code (qrcode_code),
     key idx_merchant_status (merchant_id, status)
 ) engine=innodb default charset=utf8mb4 comment='支付二维码';
@@ -113,6 +116,7 @@ create table pii_pay_qrcode_tax_item (
     qrcode_id      bigint not null,
     tax_item_id    bigint not null,
     default_amount bigint null comment '默认金额（分）',
+    del_flag       tinyint not null default 0 comment '逻辑删除 0=正常 2=删除',
     unique key uk_qrcode_tax (qrcode_id, tax_item_id),
     key idx_tax_item (tax_item_id)
 ) engine=innodb default charset=utf8mb4 comment='二维码-税目关联';
@@ -153,6 +157,7 @@ create table pii_pay_order (
     update_time          datetime     not null default current_timestamp on update current_timestamp,
     create_by            bigint       null,
     update_by            bigint       null,
+    del_flag             tinyint      not null default 0 comment '逻辑删除 0=正常 2=删除',
     unique key uk_out_trade_no (out_trade_no),
     key idx_merchant_pay_status (merchant_id, pay_status, pay_time),
     key idx_merchant_invoice (merchant_id, invoice_status),
@@ -178,6 +183,7 @@ create table pii_refund_record (
     trigger_invoice_reverse tinyint      not null default 1,
     create_time             datetime     not null default current_timestamp,
     update_time             datetime     not null default current_timestamp on update current_timestamp,
+    del_flag                tinyint      not null default 0 comment '逻辑删除 0=正常 2=删除',
     unique key uk_out_refund_no (out_refund_no),
     key idx_pay_order (pay_order_id),
     key idx_merchant_status (merchant_id, status)

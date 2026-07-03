@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.manzhushaka.biz.pii.infrastructure.persistence.mapper.PiiPayOrderMapper">
+
+    <resultMap id="BaseResultMap" type="com.manzhushaka.biz.pii.infrastructure.persistence.entity.PiiPayOrder">
+        <id property="id" column="id"/>
+        <result property="merchantId" column="merchant_id"/>
+        <result property="qrcodeId" column="qrcode_id"/>
+        <result property="taxItemId" column="tax_item_id"/>
+        <result property="outTradeNo" column="out_trade_no"/>
+        <result property="umsMerOrderDate" column="ums_mer_order_date"/>
+        <result property="amount" column="amount"/>
+        <result property="buyerName" column="buyer_name"/>
+        <result property="buyerTaxCode" column="buyer_tax_code"/>
+        <result property="buyerEmail" column="buyer_email"/>
+        <result property="buyerMobile" column="buyer_mobile"/>
+        <result property="buyerOpenid" column="buyer_openid"/>
+        <result property="payStatus" column="pay_status"/>
+        <result property="payTime" column="pay_time"/>
+        <result property="payTradeNo" column="pay_trade_no"/>
+        <result property="payNotifyStatus" column="pay_notify_status"/>
+        <result property="refundAmount" column="refund_amount"/>
+        <result property="invoiceStatus" column="invoice_status"/>
+        <result property="invoiceNo" column="invoice_no"/>
+        <result property="invoiceCode" column="invoice_code"/>
+        <result property="invoicePdfUrl" column="invoice_pdf_url"/>
+        <result property="invoiceIssueTime" column="invoice_issue_time"/>
+        <result property="invoiceReverseTime" column="invoice_reverse_time"/>
+        <result property="orderToken" column="order_token"/>
+        <result property="wechatAppid" column="wechat_appid"/>
+        <result property="clientIp" column="client_ip"/>
+        <result property="remark" column="remark"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <sql id="BaseColumnList">id, merchant_id, qrcode_id, tax_item_id, out_trade_no, ums_mer_order_date, amount, buyer_name, buyer_tax_code, buyer_email, buyer_mobile, buyer_openid, pay_status, pay_time, pay_trade_no, pay_notify_status, refund_amount, invoice_status, invoice_no, invoice_code, invoice_pdf_url, invoice_issue_time, invoice_reverse_time, order_token, wechat_appid, client_ip, remark, create_time, update_time, create_by, update_by, del_flag</sql>
+
+    <insert id="insert" parameterType="com.manzhushaka.biz.pii.infrastructure.persistence.entity.PiiPayOrder" useGeneratedKeys="true" keyProperty="id">
+        insert into pii_pay_order (merchant_id, qrcode_id, tax_item_id, out_trade_no, ums_mer_order_date, amount, buyer_name, buyer_tax_code, buyer_email, buyer_mobile, buyer_openid, pay_status, pay_time, pay_trade_no, pay_notify_status, refund_amount, invoice_status, invoice_no, invoice_code, invoice_pdf_url, invoice_issue_time, invoice_reverse_time, order_token, wechat_appid, client_ip, remark, create_time, update_time, create_by, update_by, del_flag)
+        values (#{merchantId}, #{qrcodeId}, #{taxItemId}, #{outTradeNo}, #{umsMerOrderDate}, #{amount}, #{buyerName}, #{buyerTaxCode}, #{buyerEmail}, #{buyerMobile}, #{buyerOpenid}, #{payStatus}, #{payTime}, #{payTradeNo}, #{payNotifyStatus}, #{refundAmount}, #{invoiceStatus}, #{invoiceNo}, #{invoiceCode}, #{invoicePdfUrl}, #{invoiceIssueTime}, #{invoiceReverseTime}, #{orderToken}, #{wechatAppid}, #{clientIp}, #{remark}, #{createTime}, #{updateTime}, #{createBy}, #{updateBy}, #{delFlag})
+    </insert>
+
+    <update id="updateById">
+        update pii_pay_order
+        <set>
+            <if test="merchantId != null">merchant_id = #{merchantId},</if>
+            <if test="qrcodeId != null">qrcode_id = #{qrcodeId},</if>
+            <if test="taxItemId != null">tax_item_id = #{taxItemId},</if>
+            <if test="outTradeNo != null">out_trade_no = #{outTradeNo},</if>
+            <if test="umsMerOrderDate != null">ums_mer_order_date = #{umsMerOrderDate},</if>
+            <if test="amount != null">amount = #{amount},</if>
+            <if test="buyerName != null">buyer_name = #{buyerName},</if>
+            <if test="buyerTaxCode != null">buyer_tax_code = #{buyerTaxCode},</if>
+            <if test="buyerEmail != null">buyer_email = #{buyerEmail},</if>
+            <if test="buyerMobile != null">buyer_mobile = #{buyerMobile},</if>
+            <if test="buyerOpenid != null">buyer_openid = #{buyerOpenid},</if>
+            <if test="payStatus != null">pay_status = #{payStatus},</if>
+            <if test="payTime != null">pay_time = #{payTime},</if>
+            <if test="payTradeNo != null">pay_trade_no = #{payTradeNo},</if>
+            <if test="payNotifyStatus != null">pay_notify_status = #{payNotifyStatus},</if>
+            <if test="refundAmount != null">refund_amount = #{refundAmount},</if>
+            <if test="invoiceStatus != null">invoice_status = #{invoiceStatus},</if>
+            <if test="invoiceNo != null">invoice_no = #{invoiceNo},</if>
+            <if test="invoiceCode != null">invoice_code = #{invoiceCode},</if>
+            <if test="invoicePdfUrl != null">invoice_pdf_url = #{invoicePdfUrl},</if>
+            <if test="invoiceIssueTime != null">invoice_issue_time = #{invoiceIssueTime},</if>
+            <if test="invoiceReverseTime != null">invoice_reverse_time = #{invoiceReverseTime},</if>
+            <if test="orderToken != null">order_token = #{orderToken},</if>
+            <if test="wechatAppid != null">wechat_appid = #{wechatAppid},</if>
+            <if test="clientIp != null">client_ip = #{clientIp},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+        </set>
+        where id = #{id} and del_flag = 0
+    </update>
+
+    <update id="deleteById">
+        update pii_pay_order set del_flag = 2 where id = #{id} and del_flag = 0
+    </update>
+
+    <update id="updatePayStatus">
+        update pii_pay_order
+        set pay_status = #{payStatus}, pay_trade_no = #{payTradeNo}, pay_time = #{payTime}
+        where id = #{id} and del_flag = 0
+    </update>
+
+    <update id="updateInvoiceStatus">
+        update pii_pay_order
+        set invoice_status = #{invoiceStatus}, invoice_no = #{invoiceNo}, invoice_code = #{invoiceCode},
+            invoice_pdf_url = #{invoicePdfUrl}, invoice_issue_time = #{invoiceIssueTime}
+        where id = #{id} and del_flag = 0
+    </update>
+
+    <update id="updateRefundAmountAndStatus">
+        update pii_pay_order set refund_amount = #{refundAmount}, pay_status = #{payStatus} where id = #{id} and del_flag = 0
+    </update>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        select <include refid="BaseColumnList"/> from pii_pay_order where id = #{id} and del_flag = 0
+    </select>
+
+    <select id="selectByOutTradeNo" resultMap="BaseResultMap">
+        select <include refid="BaseColumnList"/> from pii_pay_order where out_trade_no = #{outTradeNo} and del_flag = 0
+    </select>
+
+    <select id="selectByOutTradeNoAndToken" resultMap="BaseResultMap">
+        select <include refid="BaseColumnList"/> from pii_pay_order where out_trade_no = #{outTradeNo} and order_token = #{orderToken} and del_flag = 0
+    </select>
+
+    <select id="selectByMerchantAndStatus" resultMap="BaseResultMap">
+        select <include refid="BaseColumnList"/> from pii_pay_order
+        where merchant_id = #{merchantId} and pay_status = #{payStatus} and del_flag = 0
+        order by create_time desc limit #{limit}
+    </select>
+
+    <select id="selectPendingBefore" resultMap="BaseResultMap">
+        select <include refid="BaseColumnList"/> from pii_pay_order
+        where pay_status = 'PENDING' and create_time &lt; #{time} and del_flag = 0
+        limit #{limit}
+    </select>
+
+    <select id="sumAmountByMerchantAndStatusBetween" resultType="java.lang.Long">
+        select coalesce(sum(amount), 0) from pii_pay_order
+        where merchant_id = #{merchantId}
+          and pay_status in
+          <foreach collection="statuses" item="s" open="(" close=")" separator=",">#{s}</foreach>
+          and pay_time between #{start} and #{end}
+          and del_flag = 0
+    </select>
+
+    <select id="countByMerchantAndPayTimeBetween" resultType="java.lang.Long">
+        select count(*) from pii_pay_order
+        where merchant_id = #{merchantId} and pay_time between #{start} and #{end} and del_flag = 0
+    </select>
+
+</mapper>
