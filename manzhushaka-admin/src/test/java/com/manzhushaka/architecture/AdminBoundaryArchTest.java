@@ -2,6 +2,7 @@ package com.manzhushaka.architecture;
 
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
+import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.lang.ArchRule;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
@@ -13,7 +14,7 @@ import static com.tngtech.archunit.library.freeze.FreezingArchRule.freeze;
  * @author manzhushaka
  * @date 2026-06-28
  */
-@AnalyzeClasses(packages = "com.manzhushaka")
+@AnalyzeClasses(packages = "com.manzhushaka", importOptions = ImportOption.DoNotIncludeTests.class)
 public class AdminBoundaryArchTest {
 
     @ArchTest
