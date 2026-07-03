@@ -17,6 +17,8 @@ public class PiiProperties {
 
     private Invoice invoice = new Invoice();
 
+    private Wechat wechat = new Wechat();
+
     private Bi bi = new Bi();
 
     private Order order = new Order();
@@ -43,6 +45,14 @@ public class PiiProperties {
 
     public void setInvoice(Invoice invoice) {
         this.invoice = invoice;
+    }
+
+    public Wechat getWechat() {
+        return wechat;
+    }
+
+    public void setWechat(Wechat wechat) {
+        this.wechat = wechat;
     }
 
     public Bi getBi() {
@@ -122,6 +132,18 @@ public class PiiProperties {
 
         public void setReadTimeoutMs(int readTimeoutMs) {
             this.readTimeoutMs = readTimeoutMs;
+        }
+    }
+
+    public static class Wechat {
+        private String appId;
+
+        public String getAppId() {
+            return appId;
+        }
+
+        public void setAppId(String appId) {
+            this.appId = appId;
         }
     }
 

@@ -12,6 +12,7 @@ public interface TaxItemRepository {
     int updateStatus(Long id, Integer status);
     Optional<TaxItem> findById(Long id);
     Optional<TaxItem> findByTaxItemCode(String taxItemCode);
+    List<TaxItem> findByIds(List<Long> ids);
     List<TaxItem> findEnabled();
     List<TaxItem> findByNameLike(String name);
     List<TaxItem> findList(String taxItemCode, String name, Integer status);

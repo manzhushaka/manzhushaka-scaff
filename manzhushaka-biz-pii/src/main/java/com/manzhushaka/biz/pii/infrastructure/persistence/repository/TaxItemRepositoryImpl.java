@@ -52,6 +52,14 @@ public class TaxItemRepositoryImpl implements TaxItemRepository {
     }
 
     @Override
+    public List<TaxItem> findByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        return mapper.selectByIds(ids).stream().map(TaxItemConverter::toDomain).collect(Collectors.toList());
+    }
+
+    @Override
     public List<TaxItem> findEnabled() {
         return mapper.selectEnabled().stream().map(TaxItemConverter::toDomain).collect(Collectors.toList());
     }

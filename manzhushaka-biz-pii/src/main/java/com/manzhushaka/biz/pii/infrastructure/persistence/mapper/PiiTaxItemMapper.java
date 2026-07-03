@@ -12,6 +12,7 @@ public interface PiiTaxItemMapper {
     int deleteById(@Param("id") Long id);
     int updateStatus(@Param("id") Long id, @Param("status") Integer status);
     PiiTaxItem selectById(@Param("id") Long id);
+    List<PiiTaxItem> selectByIds(@Param("ids") List<Long> ids);
     PiiTaxItem selectByTaxItemCode(@Param("taxItemCode") String taxItemCode);
     List<PiiTaxItem> selectEnabled();
     List<PiiTaxItem> selectByNameLike(@Param("name") String name);
