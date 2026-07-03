@@ -17,14 +17,17 @@ import com.manzhushaka.biz.pii.infrastructure.gateway.pay.PaymentGateway;
 import com.manzhushaka.biz.pii.infrastructure.gateway.pay.dto.PreCreateRequest;
 import com.manzhushaka.biz.pii.infrastructure.gateway.pay.dto.PreCreateResponse;
 import com.manzhushaka.common.exception.ServiceException;
+import com.manzhushaka.common.core.redis.RedisCache;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -38,9 +41,10 @@ class AnonPayServiceTest {
     private final MerchantProfileRepository merchantProfileRepository = mock(MerchantProfileRepository.class);
     private final PayOrderRepository payOrderRepository = mock(PayOrderRepository.class);
     private final PaymentGateway paymentGateway = mock(PaymentGateway.class);
+    private final RedisCache redisCache = mock(RedisCache.class);
     private final PiiProperties properties = new PiiProperties();
     private final AnonPayService service = new AnonPayServiceImpl(qrcodeRepository, relationRepository,
-            taxItemRepository, merchantProfileRepository, payOrderRepository, paymentGateway, properties);
+            taxItemRepository, merchantProfileRepository, payOrderRepository, paymentGateway, properties, redisCache);
 
     @Test
     void precreateShouldCreatePendingOrderCallGatewayAndReturnPayParams() {
@@ -87,6 +91,9 @@ class AnonPayServiceTest {
         assertThat(request.getNotifyUrl()).isEqualTo("https://notify.example.com/pii/pay/notify");
         assertThat(request.getSignKey()).isEqualTo("PAY_KEY");
         assertThat(request.getOrderDesc()).isEqualTo("餐饮服务");
+
+        verify(redisCache).setCacheObject(eq("pii:order:token:" + result.getOutTradeNo()),
+                eq(result.getOrderToken()), eq(30), eq(TimeUnit.MINUTES));
     }
 
     @Test

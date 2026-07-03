@@ -16,6 +16,7 @@ import com.manzhushaka.biz.pii.infrastructure.config.PiiProperties;
 import com.manzhushaka.biz.pii.infrastructure.gateway.pay.PaymentGateway;
 import com.manzhushaka.biz.pii.infrastructure.gateway.pay.dto.PreCreateRequest;
 import com.manzhushaka.biz.pii.infrastructure.gateway.pay.dto.PreCreateResponse;
+import com.manzhushaka.common.core.redis.RedisCache;
 import com.manzhushaka.common.exception.ServiceException;
 import com.manzhushaka.common.utils.StringUtils;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class AnonPayServiceImpl implements AnonPayService {
@@ -38,6 +40,7 @@ public class AnonPayServiceImpl implements AnonPayService {
     private final PayOrderRepository payOrderRepository;
     private final PaymentGateway paymentGateway;
     private final PiiProperties properties;
+    private final RedisCache redisCache;
 
     public AnonPayServiceImpl(PayQrcodeRepository qrcodeRepository,
                               PayQrcodeTaxItemRepository relationRepository,
@@ -45,7 +48,8 @@ public class AnonPayServiceImpl implements AnonPayService {
                               MerchantProfileRepository merchantProfileRepository,
                               PayOrderRepository payOrderRepository,
                               PaymentGateway paymentGateway,
-                              PiiProperties properties) {
+                              PiiProperties properties,
+                              RedisCache redisCache) {
         this.qrcodeRepository = qrcodeRepository;
         this.relationRepository = relationRepository;
         this.taxItemRepository = taxItemRepository;
@@ -53,6 +57,7 @@ public class AnonPayServiceImpl implements AnonPayService {
         this.payOrderRepository = payOrderRepository;
         this.paymentGateway = paymentGateway;
         this.properties = properties;
+        this.redisCache = redisCache;
     }
 
     @Override
@@ -84,6 +89,8 @@ public class AnonPayServiceImpl implements AnonPayService {
 
         PreCreateResponse payResponse = paymentGateway.preCreate(
                 buildPayRequest(command, merchant, taxItem, outTradeNo, appId, merOrderDate));
+        redisCache.setCacheObject(orderTokenKey(outTradeNo), orderToken,
+                properties.getOrder().getExpireMinutes(), TimeUnit.MINUTES);
         return buildResult(appId, outTradeNo, orderToken, payResponse);
     }
 
@@ -185,5 +192,9 @@ public class AnonPayServiceImpl implements AnonPayService {
 
     private String firstText(String first, String second) {
         return StringUtils.isNotBlank(first) ? first : second;
+    }
+
+    private String orderTokenKey(String outTradeNo) {
+        return "pii:order:token:" + outTradeNo;
     }
 }
