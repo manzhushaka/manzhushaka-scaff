@@ -80,6 +80,9 @@ public class PiiTenantInterceptor implements Interceptor {
             return null;
         }
         Long deptId = principal.getDeptId();
+        if (principal.getMerchantId() != null) {
+            return principal.getMerchantId();
+        }
         if (deptId == null) {
             return null;
         }
