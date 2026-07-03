@@ -120,6 +120,18 @@
         select <include refid="BaseColumnList"/> from pii_pay_order where out_trade_no = #{outTradeNo} and order_token = #{orderToken} and del_flag = 0
     </select>
 
+    <select id="selectList" resultMap="BaseResultMap">
+        select <include refid="BaseColumnList"/> from pii_pay_order
+        where del_flag = 0
+        <if test="merchantId != null">and merchant_id = #{merchantId}</if>
+        <if test="outTradeNo != null and outTradeNo != ''">and out_trade_no like concat('%', #{outTradeNo}, '%')</if>
+        <if test="payStatus != null and payStatus != ''">and pay_status = #{payStatus}</if>
+        <if test="invoiceStatus != null and invoiceStatus != ''">and invoice_status = #{invoiceStatus}</if>
+        <if test="payTimeBegin != null">and pay_time &gt;= #{payTimeBegin}</if>
+        <if test="payTimeEnd != null">and pay_time &lt;= #{payTimeEnd}</if>
+        order by create_time desc
+    </select>
+
     <select id="selectByMerchantAndStatus" resultMap="BaseResultMap">
         select <include refid="BaseColumnList"/> from pii_pay_order
         where merchant_id = #{merchantId} and pay_status = #{payStatus} and del_flag = 0

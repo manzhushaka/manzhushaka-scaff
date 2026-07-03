@@ -68,6 +68,13 @@ public class PayOrderRepositoryImpl implements PayOrderRepository {
     }
 
     @Override
+    public List<PayOrder> findList(Long merchantId, String outTradeNo, String payStatus, String invoiceStatus,
+                                   LocalDateTime payTimeBegin, LocalDateTime payTimeEnd) {
+        return mapper.selectList(merchantId, outTradeNo, payStatus, invoiceStatus, payTimeBegin, payTimeEnd)
+                .stream().map(PayOrderConverter::toDomain).collect(Collectors.toList());
+    }
+
+    @Override
     public List<PayOrder> findByMerchantAndStatus(Long merchantId, String payStatus, int limit) {
         return mapper.selectByMerchantAndStatus(merchantId, payStatus, limit).stream().map(PayOrderConverter::toDomain).collect(Collectors.toList());
     }

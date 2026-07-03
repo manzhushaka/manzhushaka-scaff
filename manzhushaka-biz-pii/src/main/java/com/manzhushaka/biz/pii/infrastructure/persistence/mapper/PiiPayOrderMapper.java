@@ -16,6 +16,10 @@ public interface PiiPayOrderMapper {
     PiiPayOrder selectById(@Param("id") Long id);
     PiiPayOrder selectByOutTradeNo(@Param("outTradeNo") String outTradeNo);
     PiiPayOrder selectByOutTradeNoAndToken(@Param("outTradeNo") String outTradeNo, @Param("orderToken") String orderToken);
+    List<PiiPayOrder> selectList(@Param("merchantId") Long merchantId, @Param("outTradeNo") String outTradeNo,
+                                 @Param("payStatus") String payStatus, @Param("invoiceStatus") String invoiceStatus,
+                                 @Param("payTimeBegin") LocalDateTime payTimeBegin,
+                                 @Param("payTimeEnd") LocalDateTime payTimeEnd);
     List<PiiPayOrder> selectByMerchantAndStatus(@Param("merchantId") Long merchantId, @Param("payStatus") String payStatus, @Param("limit") int limit);
     List<PiiPayOrder> selectPendingBefore(@Param("time") LocalDateTime time, @Param("limit") int limit);
     Long sumAmountByMerchantAndStatusBetween(@Param("merchantId") Long merchantId, @Param("statuses") List<String> statuses, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
