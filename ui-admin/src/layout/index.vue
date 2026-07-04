@@ -2,7 +2,7 @@
   <div :class="classObj" class="app-wrapper">
     <div v-if="device === 'mobile' && sidebar.opened" class="drawer-bg" @click="handleClickOutside"/>
     <sidebar v-if="!sidebar.hide" class="sidebar-container" />
-    <div :class="{ hasTagsView: needTagsView, sidebarHide: sidebar.hide }" class="main-container">
+    <div :class="{ hasTagsView: needTagsView, sidebarHide: sidebar.hide, 'fixed-header-layout': fixedHeader }" class="main-container">
       <div :class="{ 'fixed-header': fixedHeader }">
         <navbar @setLayout="setLayout" />
         <tags-view v-if="needTagsView" />
@@ -77,7 +77,7 @@ function setLayout() {
   }
 }
 
-.main-container:has(.fixed-header) {
+.main-container.fixed-header-layout {
   height: 100vh;
   overflow: hidden;
   margin-left: var(--ui-layout-sidebar-width, 224px);

@@ -47,6 +47,7 @@ $navbar-tags-height: calc($navbar-height + $tags-height);
   width: 100%;
   position: relative;
   overflow: hidden;
+  padding-bottom: 36px;
   background:
     linear-gradient(180deg, color-mix(in srgb, var(--ui-bg-panel-soft) 46%, transparent) 0, transparent 220px),
     var(--ui-bg-page);
@@ -57,10 +58,6 @@ $navbar-tags-height: calc($navbar-height + $tags-height);
   scrollbar-gutter: auto;
   height: calc(100vh - $navbar-height);
   min-height: 0px;
-}
-
-.app-main:has(.copyright) {
-  padding-bottom: 36px;
 }
 
 .fixed-header + .app-main {
