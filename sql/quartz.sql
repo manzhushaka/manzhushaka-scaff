@@ -1,3 +1,9 @@
+-- ============================================================================
+-- 执行前请确保当前数据库默认字符集为 utf8mb4，并使用 utf8mb4 客户端导入，
+-- 避免中文注释和任务初始化数据出现乱码。
+-- ============================================================================
+SET NAMES utf8mb4;
+
 DROP TABLE IF EXISTS QRTZ_FIRED_TRIGGERS;
 DROP TABLE IF EXISTS QRTZ_PAUSED_TRIGGER_GRPS;
 DROP TABLE IF EXISTS QRTZ_SCHEDULER_STATE;

@@ -84,6 +84,8 @@ mysql --default-character-set=utf8mb4 -uroot -p pii < sql/quartz.sql
 mysql --default-character-set=utf8mb4 -uroot -p pii < sql/pii_region_data.sql
 ```
 
+以上导入命令中的 `--default-character-set=utf8mb4` 不要省略，否则初始化中文数据时可能出现乱码。
+
 如果是在已经导入过旧版若依数据的库上升级，请按实际需要查看并执行 `sql` 目录下的增量清理脚本，例如移除岗位、通知公告、在线构建器菜单的脚本。全新数据库通常优先以 `manzhushaka_db_init.sql` 和 `quartz.sql` 为准。
 
 ### 2. 修改后端配置

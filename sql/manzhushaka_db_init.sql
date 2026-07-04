@@ -1,3 +1,12 @@
+-- ============================================================================
+-- 执行前请确保目标数据库默认字符集为 utf8mb4，并使用 utf8mb4 客户端导入，
+-- 避免中文注释、菜单名称和初始化数据出现乱码。
+-- 示例：
+-- CREATE DATABASE `pii` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+-- mysql --default-character-set=utf8mb4 -uroot -p pii < sql/manzhushaka_db_init.sql
+-- ============================================================================
+SET NAMES utf8mb4;
+
 -- ----------------------------
 -- 1、部门表
 -- ----------------------------
