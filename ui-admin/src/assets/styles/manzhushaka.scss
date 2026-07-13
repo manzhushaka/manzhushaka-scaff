@@ -79,68 +79,6 @@
   padding: 10px 20px 0;
 }
 
-.pii-form-dialog {
-  display: flex;
-  flex-direction: column;
-  max-width: calc(100vw - 32px);
-  max-height: 88vh;
-}
-
-.pii-form-dialog .el-dialog__header,
-.pii-form-dialog .el-dialog__footer {
-  flex: none;
-}
-
-.pii-form-dialog .el-dialog__body {
-  flex: 1;
-  min-height: 0;
-  overflow: auto;
-  padding: 18px 20px 6px;
-}
-
-.pii-dialog-form .el-input,
-.pii-dialog-form .el-select,
-.pii-dialog-form .el-input-number,
-.pii-dialog-form .el-date-editor.el-input {
-  width: 100%;
-}
-
-.pii-dialog-section {
-  padding: 2px 0 4px;
-}
-
-.pii-dialog-section + .pii-dialog-section {
-  margin-top: 4px;
-  padding-top: 16px;
-  border-top: 1px solid var(--ui-border);
-}
-
-.pii-dialog-section__title {
-  margin: 0 0 14px;
-  color: var(--ui-text-primary);
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.pii-dialog-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-@media (max-width: 768px) {
-  .pii-form-dialog {
-    width: calc(100vw - 24px) !important;
-    max-height: 92vh;
-    margin-top: 4vh !important;
-  }
-
-  .pii-form-dialog .el-dialog__body {
-    padding: 16px 16px 4px;
-  }
-}
-
 .el-table {
   .el-table__header-wrapper, .el-table__fixed-header-wrapper {
     th {

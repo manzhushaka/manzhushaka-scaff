@@ -48,20 +48,6 @@ export const constantRoutes = [
     hidden: true
   },
   {
-    path: '/pay',
-    component: () => import('@/views/pay/index.vue'),
-    name: 'PayIndex',
-    hidden: true,
-    meta: { title: '扫码支付' }
-  },
-  {
-    path: '/pay/result',
-    component: () => import('@/views/pay/result.vue'),
-    name: 'PayResult',
-    hidden: true,
-    meta: { title: '支付结果' }
-  },
-  {
     path: "/:pathMatch(.*)*",
     component: () => import('@/views/error/404'),
     hidden: true
@@ -161,20 +147,6 @@ export const dynamicRoutes = [
         component: () => import('@/views/monitor/job/log'),
         name: 'JobLog',
         meta: { title: '调度日志', activeMenu: '/monitor/job' }
-      }
-    ]
-  },
-  {
-    path: '/pii/merchant/config',
-    component: Layout,
-    hidden: true,
-    permissions: ['biz:merchant:config'],
-    children: [
-      {
-        path: ':deptId(\\d+)',
-        component: () => import('@/views/pii/merchant/config'),
-        name: 'MerchantConfig',
-        meta: { title: '商户参数配置', activeMenu: '/pii/merchant' }
       }
     ]
   },

@@ -2,8 +2,8 @@
 -- 执行前请确保目标数据库默认字符集为 utf8mb4，并使用 utf8mb4 客户端导入，
 -- 避免中文注释、菜单名称和初始化数据出现乱码。
 -- 示例：
--- CREATE DATABASE `pii` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
--- mysql --default-character-set=utf8mb4 -uroot -p pii < sql/manzhushaka_db_init.sql
+-- CREATE DATABASE `manzhushaka` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+-- mysql --default-character-set=utf8mb4 -uroot -p manzhushaka < sql/manzhushaka_db_init.sql
 -- ============================================================================
 SET NAMES utf8mb4;
 
@@ -20,39 +20,34 @@ create table sys_dept (
   leader            varchar(20)     default null               comment '负责人',
   phone             varchar(11)     default null               comment '联系电话',
   email             varchar(50)     default null               comment '邮箱',
+  dept_type         varchar(16)     not null default 'platform_org' comment '部门类型',
+  region_code       varchar(6)      default null               comment '行政区划代码',
+  region_level      tinyint         default null               comment '行政区划级别',
   status            char(1)         default '0'                comment '部门状态（0正常 1停用）',
   del_flag          char(1)         default '0'                comment '删除标志（0代表存在 2代表删除）',
   create_by         varchar(64)     default ''                 comment '创建者',
   create_time 	    datetime                                   comment '创建时间',
   update_by         varchar(64)     default ''                 comment '更新者',
   update_time       datetime                                   comment '更新时间',
-  primary key (dept_id)
+  primary key (dept_id),
+  key idx_sys_dept_type (dept_type),
+  key idx_sys_dept_region (region_code),
+  key idx_sys_dept_ancestors (ancestors)
 ) engine=innodb auto_increment=200 comment = '部门表';
 
 -- ----------------------------
 -- 初始化-部门表数据
 -- ----------------------------
-insert into sys_dept values(100,  0,   '0',          '若依科技',   0, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', sysdate(), '', null);
-insert into sys_dept values(101,  100, '0,100',      '深圳总公司', 1, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', sysdate(), '', null);
-insert into sys_dept values(102,  100, '0,100',      '长沙分公司', 2, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', sysdate(), '', null);
-insert into sys_dept values(103,  101, '0,100,101',  '研发部门',   1, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', sysdate(), '', null);
-insert into sys_dept values(104,  101, '0,100,101',  '市场部门',   2, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', sysdate(), '', null);
-insert into sys_dept values(105,  101, '0,100,101',  '测试部门',   3, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', sysdate(), '', null);
-insert into sys_dept values(106,  101, '0,100,101',  '财务部门',   4, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', sysdate(), '', null);
-insert into sys_dept values(107,  101, '0,100,101',  '运维部门',   5, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', sysdate(), '', null);
-insert into sys_dept values(108,  102, '0,100,102',  '市场部门',   1, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', sysdate(), '', null);
-insert into sys_dept values(109,  102, '0,100,102',  '财务部门',   2, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', sysdate(), '', null);
-
--- 支付即开票（PII）业务扩展
-alter table sys_dept
-    add column dept_type    varchar(16) not null default 'platform_org' comment '部门类型: platform_org/region/merchant',
-    add column region_code  varchar(6)  null comment '行政区划代码（dept_type=region 时填，6 位数字）',
-    add column region_level tinyint     null comment '行政区划级别 1=省/2=市县/3=区/镇（dept_type=region 时填）';
-
-create index idx_sys_dept_type on sys_dept (dept_type);
-create index idx_sys_dept_region on sys_dept (region_code);
-create index idx_sys_dept_ancestors on sys_dept (ancestors);
-
+insert into sys_dept (dept_id, parent_id, ancestors, dept_name, order_num, leader, phone, email, status, del_flag, create_by, create_time, update_by, update_time) values(100,  0,   '0',          '若依科技',   0, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', sysdate(), '', null);
+insert into sys_dept (dept_id, parent_id, ancestors, dept_name, order_num, leader, phone, email, status, del_flag, create_by, create_time, update_by, update_time) values(101,  100, '0,100',      '深圳总公司', 1, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', sysdate(), '', null);
+insert into sys_dept (dept_id, parent_id, ancestors, dept_name, order_num, leader, phone, email, status, del_flag, create_by, create_time, update_by, update_time) values(102,  100, '0,100',      '长沙分公司', 2, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', sysdate(), '', null);
+insert into sys_dept (dept_id, parent_id, ancestors, dept_name, order_num, leader, phone, email, status, del_flag, create_by, create_time, update_by, update_time) values(103,  101, '0,100,101',  '研发部门',   1, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', sysdate(), '', null);
+insert into sys_dept (dept_id, parent_id, ancestors, dept_name, order_num, leader, phone, email, status, del_flag, create_by, create_time, update_by, update_time) values(104,  101, '0,100,101',  '市场部门',   2, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', sysdate(), '', null);
+insert into sys_dept (dept_id, parent_id, ancestors, dept_name, order_num, leader, phone, email, status, del_flag, create_by, create_time, update_by, update_time) values(105,  101, '0,100,101',  '测试部门',   3, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', sysdate(), '', null);
+insert into sys_dept (dept_id, parent_id, ancestors, dept_name, order_num, leader, phone, email, status, del_flag, create_by, create_time, update_by, update_time) values(106,  101, '0,100,101',  '财务部门',   4, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', sysdate(), '', null);
+insert into sys_dept (dept_id, parent_id, ancestors, dept_name, order_num, leader, phone, email, status, del_flag, create_by, create_time, update_by, update_time) values(107,  101, '0,100,101',  '运维部门',   5, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', sysdate(), '', null);
+insert into sys_dept (dept_id, parent_id, ancestors, dept_name, order_num, leader, phone, email, status, del_flag, create_by, create_time, update_by, update_time) values(108,  102, '0,100,102',  '市场部门',   1, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', sysdate(), '', null);
+insert into sys_dept (dept_id, parent_id, ancestors, dept_name, order_num, leader, phone, email, status, del_flag, create_by, create_time, update_by, update_time) values(109,  102, '0,100,102',  '财务部门',   2, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', sysdate(), '', null);
 
 -- ----------------------------
 -- 2、用户信息表
@@ -120,15 +115,6 @@ create table sys_role (
 -- ----------------------------
 insert into sys_role values('1', '超级管理员',  'admin',  1, 1, 1, 1, '0', '0', 'admin', sysdate(), '', null, '超级管理员');
 insert into sys_role values('2', '普通角色',    'common', 2, 2, 1, 1, '0', '0', 'admin', sysdate(), '', null, '普通角色');
-
--- 支付即开票（PII）预置角色
-insert into sys_role (role_id, role_name, role_key, role_sort, data_scope, menu_check_strictly, dept_check_strictly, status, del_flag, create_time, update_time, remark)
-values
-(110, '运营方管理人员', 'operator', 3, 1, 1, 1, 0, 0, sysdate(), sysdate(), 'PII 运营方，data_scope=1 全部'),
-(111, '商户', 'merchant', 4, 4, 1, 1, 0, 0, sysdate(), sysdate(), 'PII 商户，data_scope=4 本部门及以下'),
-(112, '海南各市县税务局', 'tax_bureau_city', 5, 3, 1, 1, 0, 0, sysdate(), sysdate(), 'PII 税局市级，data_scope=3 本部门'),
-(113, '海南税务局', 'tax_bureau_province', 6, 4, 1, 1, 0, 0, sysdate(), sysdate(), 'PII 税局省级，data_scope=4 本部门及以下');
-
 
 -- ----------------------------
 -- 5、菜单权限表
@@ -265,53 +251,6 @@ insert into sys_menu values('177', '消息队列台账详情', '175', '2', '', n
 insert into sys_menu values('178', '消息队列台账删除', '175', '3', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:mqlog:remove', '#',                'admin', sysdate(), '', null, '消息队列台账删除按钮');
 insert into sys_menu values('179', '消息队列台账导出', '175', '4', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:mqlog:export', '#',                'admin', sysdate(), '', null, '消息队列台账导出按钮');
 
--- ============================================================================
--- 支付即开票（PII）业务菜单
--- ============================================================================
--- 一级菜单
-insert into sys_menu values('200', '支付即开票', '0', '4', 'pii', null, '', '', 1, 0, 'M', '0', '0', '', 'money', 'admin', sysdate(), '', null, '支付即开票目录');
-
--- 二级菜单
-insert into sys_menu values('201', '商户管理', '200', '1', 'merchant', 'pii/merchant/index', '', '', 1, 0, 'M', '0', '0', '', 'peoples', 'admin', sysdate(), '', null, '商户管理目录');
-insert into sys_menu values('202', '税目管理', '200', '2', 'taxItem', 'pii/taxItem/index', '', '', 1, 0, 'M', '0', '0', '', 'dict', 'admin', sysdate(), '', null, '税目管理目录');
-insert into sys_menu values('203', '支付二维码', '200', '3', 'qrcode', 'pii/qrcode/index', '', '', 1, 0, 'M', '0', '0', '', 'guide', 'admin', sysdate(), '', null, '支付二维码目录');
-insert into sys_menu values('204', '支付订单', '200', '4', 'payOrder', 'pii/payOrder/index', '', '', 1, 0, 'M', '0', '0', '', 'list', 'admin', sysdate(), '', null, '支付订单目录');
-insert into sys_menu values('205', '发票查询', '200', '5', 'invoice', 'pii/invoice/index', '', '', 1, 0, 'M', '0', '0', '', 'documentation', 'admin', sysdate(), '', null, '发票查询目录');
-insert into sys_menu values('206', '退款管理', '200', '6', 'refund', 'pii/refund/index', '', '', 1, 0, 'M', '0', '0', '', 'money', 'admin', sysdate(), '', null, '退款管理目录');
-insert into sys_menu values('207', 'BI 看板', '200', '7', 'bi', 'pii/bi/dashboard', '', '', 1, 0, 'M', '0', '0', '', 'chart', 'admin', sysdate(), '', null, 'BI 看板目录');
-
--- 页面菜单
-insert into sys_menu values('210', '商户列表', '201', '1', 'merchantList', 'pii/merchant/index', '', '', 1, 0, 'C', '0', '0', 'biz:merchant:list', 'peoples', 'admin', sysdate(), '', null, '商户列表菜单');
-insert into sys_menu values('211', '商户参数配置', '201', '2', 'merchantConfig', 'pii/merchant/config/index', '', '', 1, 0, 'C', '0', '0', 'biz:merchant:config', 'edit', 'admin', sysdate(), '', null, '商户参数配置菜单');
-insert into sys_menu values('212', '税目列表', '202', '1', 'taxItemList', 'pii/taxItem/index', '', '', 1, 0, 'C', '0', '0', 'biz:taxItem:list', 'dict', 'admin', sysdate(), '', null, '税目列表菜单');
-insert into sys_menu values('213', '二维码总览', '203', '1', 'qrcodeList', 'pii/qrcode/index', '', '', 1, 0, 'C', '0', '0', 'biz:qrcode:list', 'guide', 'admin', sysdate(), '', null, '二维码总览菜单');
-insert into sys_menu values('214', '二维码详情', '203', '2', 'qrcodeDetail', 'pii/qrcode/detail/index', '', '', 1, 0, 'C', '0', '0', 'biz:qrcode:query', 'guide', 'admin', sysdate(), '', null, '二维码详情菜单');
-insert into sys_menu values('215', '订单查询', '204', '1', 'payOrderList', 'pii/payOrder/index', '', '', 1, 0, 'C', '0', '0', 'biz:payOrder:list', 'list', 'admin', sysdate(), '', null, '订单查询菜单');
-insert into sys_menu values('216', '订单详情', '204', '2', 'payOrderDetail', 'pii/payOrder/detail/index', '', '', 1, 0, 'C', '0', '0', 'biz:payOrder:query', 'list', 'admin', sysdate(), '', null, '订单详情菜单');
-insert into sys_menu values('217', '发票列表', '205', '1', 'invoiceList', 'pii/invoice/index', '', '', 1, 0, 'C', '0', '0', 'biz:invoice:list', 'documentation', 'admin', sysdate(), '', null, '发票列表菜单');
-insert into sys_menu values('218', '发票详情', '205', '2', 'invoiceDetail', 'pii/invoice/detail/index', '', '', 1, 0, 'C', '0', '0', 'biz:invoice:query', 'documentation', 'admin', sysdate(), '', null, '发票详情菜单');
-insert into sys_menu values('219', '退款列表', '206', '1', 'refundList', 'pii/refund/index', '', '', 1, 0, 'C', '0', '0', 'biz:refund:list', 'money', 'admin', sysdate(), '', null, '退款列表菜单');
-insert into sys_menu values('220', '退款详情', '206', '2', 'refundDetail', 'pii/refund/detail/index', '', '', 1, 0, 'C', '0', '0', 'biz:refund:query', 'money', 'admin', sysdate(), '', null, '退款详情菜单');
-insert into sys_menu values('221', '运营全局看板', '207', '1', 'biDashboard', 'pii/bi/dashboard', '', '', 1, 0, 'C', '0', '0', 'biz:bi:dashboard', 'chart', 'admin', sysdate(), '', null, '运营全局看板菜单');
-
--- 按钮权限
-insert into sys_menu values('230', '商户新增', '210', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:merchant:add', '#', 'admin', sysdate(), '', null, '商户新增按钮');
-insert into sys_menu values('231', '商户修改', '210', '2', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:merchant:edit', '#', 'admin', sysdate(), '', null, '商户修改按钮');
-insert into sys_menu values('232', '商户删除', '210', '3', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:merchant:remove', '#', 'admin', sysdate(), '', null, '商户删除按钮');
-insert into sys_menu values('233', '商户启停', '210', '4', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:merchant:changeStatus', '#', 'admin', sysdate(), '', null, '商户启停按钮');
-insert into sys_menu values('234', '税目新增', '212', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:taxItem:add', '#', 'admin', sysdate(), '', null, '税目新增按钮');
-insert into sys_menu values('235', '税目修改', '212', '2', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:taxItem:edit', '#', 'admin', sysdate(), '', null, '税目修改按钮');
-insert into sys_menu values('236', '税目删除', '212', '3', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:taxItem:remove', '#', 'admin', sysdate(), '', null, '税目删除按钮');
-insert into sys_menu values('237', '税目启停', '212', '4', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:taxItem:changeStatus', '#', 'admin', sysdate(), '', null, '税目启停按钮');
-insert into sys_menu values('238', '二维码新增', '213', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:qrcode:add', '#', 'admin', sysdate(), '', null, '二维码新增按钮');
-insert into sys_menu values('239', '二维码修改', '213', '2', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:qrcode:edit', '#', 'admin', sysdate(), '', null, '二维码修改按钮');
-insert into sys_menu values('240', '二维码删除', '213', '3', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:qrcode:remove', '#', 'admin', sysdate(), '', null, '二维码删除按钮');
-insert into sys_menu values('241', '二维码启停', '213', '4', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:qrcode:changeStatus', '#', 'admin', sysdate(), '', null, '二维码启停按钮');
-insert into sys_menu values('242', '订单导出', '215', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:payOrder:export', '#', 'admin', sysdate(), '', null, '订单导出按钮');
-insert into sys_menu values('243', '发票下载', '217', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:invoice:download', '#', 'admin', sysdate(), '', null, '发票下载按钮');
-insert into sys_menu values('244', '发票导出', '217', '2', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:invoice:export', '#', 'admin', sysdate(), '', null, '发票导出按钮');
-insert into sys_menu values('245', '发起退款', '219', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'biz:refund:add', '#', 'admin', sysdate(), '', null, '发起退款按钮');
-
 insert into sys_role_menu values ('2', '1');
 insert into sys_role_menu values ('2', '2');
 insert into sys_role_menu values ('2', '160');
@@ -377,15 +316,6 @@ insert into sys_role_menu values ('2', '176');
 insert into sys_role_menu values ('2', '177');
 insert into sys_role_menu values ('2', '178');
 insert into sys_role_menu values ('2', '179');
-
--- 支付即开票默认授权
-insert into sys_role_menu (role_id, menu_id) select 1, menu_id from sys_menu where menu_id between 200 and 299;
-insert into sys_role_menu (role_id, menu_id) select 110, menu_id from sys_menu where menu_id between 200 and 299;
-insert into sys_role_menu (role_id, menu_id)
-select 111, menu_id
-from sys_menu
-where menu_id between 200 and 299
-  and menu_id not in (201, 210, 211, 230, 231, 232, 233);
 
 -- ----------------------------
 -- 8、角色和部门关联表  角色1-N部门
@@ -692,12 +622,174 @@ create table sys_mq_message_log_detail (
   key idx_sys_mq_message_log_detail_status (status),
   key idx_sys_mq_message_log_detail_ct (create_time)
 ) engine=innodb auto_increment=100 comment = '消息队列执行明细';
+DROP TABLE IF EXISTS QRTZ_PAUSED_TRIGGER_GRPS;
+DROP TABLE IF EXISTS QRTZ_SCHEDULER_STATE;
+DROP TABLE IF EXISTS QRTZ_LOCKS;
+DROP TABLE IF EXISTS QRTZ_SIMPLE_TRIGGERS;
+DROP TABLE IF EXISTS QRTZ_SIMPROP_TRIGGERS;
+DROP TABLE IF EXISTS QRTZ_CRON_TRIGGERS;
+DROP TABLE IF EXISTS QRTZ_BLOB_TRIGGERS;
+DROP TABLE IF EXISTS QRTZ_TRIGGERS;
+DROP TABLE IF EXISTS QRTZ_JOB_DETAILS;
+DROP TABLE IF EXISTS QRTZ_CALENDARS;
 
--- 支付即开票业务表
-source sql/pii_schema.sql;
+-- ----------------------------
+-- 1、存储每一个已配置的 jobDetail 的详细信息
+-- ----------------------------
+create table QRTZ_JOB_DETAILS (
+    sched_name           varchar(120)    not null            comment '调度名称',
+    job_name             varchar(200)    not null            comment '任务名称',
+    job_group            varchar(200)    not null            comment '任务组名',
+    description          varchar(250)    null                comment '相关介绍',
+    job_class_name       varchar(250)    not null            comment '执行任务类名称',
+    is_durable           varchar(1)      not null            comment '是否持久化',
+    is_nonconcurrent     varchar(1)      not null            comment '是否并发',
+    is_update_data       varchar(1)      not null            comment '是否更新数据',
+    requests_recovery    varchar(1)      not null            comment '是否接受恢复执行',
+    job_data             blob            null                comment '存放持久化job对象',
+    primary key (sched_name, job_name, job_group)
+) engine=innodb comment = '任务详细信息表';
 
--- ============================================================================
--- 支付即开票（PII）行政区划预置数据（独立文件，不在此脚本内）
--- 单独执行: mysql --default-character-set=utf8mb4 -uroot -p pii < sql/pii_region_data.sql
--- 详见: docs/superpowers/specs/2026-07-02-pay-and-invoice-design.md §7.5
--- ============================================================================
+-- ----------------------------
+-- 2、 存储已配置的 Trigger 的信息
+-- ----------------------------
+create table QRTZ_TRIGGERS (
+    sched_name           varchar(120)    not null            comment '调度名称',
+    trigger_name         varchar(200)    not null            comment '触发器的名字',
+    trigger_group        varchar(200)    not null            comment '触发器所属组的名字',
+    job_name             varchar(200)    not null            comment 'qrtz_job_details表job_name的外键',
+    job_group            varchar(200)    not null            comment 'qrtz_job_details表job_group的外键',
+    description          varchar(250)    null                comment '相关介绍',
+    next_fire_time       bigint(13)      null                comment '上一次触发时间（毫秒）',
+    prev_fire_time       bigint(13)      null                comment '下一次触发时间（默认为-1表示不触发）',
+    priority             integer         null                comment '优先级',
+    trigger_state        varchar(16)     not null            comment '触发器状态',
+    trigger_type         varchar(8)      not null            comment '触发器的类型',
+    start_time           bigint(13)      not null            comment '开始时间',
+    end_time             bigint(13)      null                comment '结束时间',
+    calendar_name        varchar(200)    null                comment '日程表名称',
+    misfire_instr        smallint(2)     null                comment '补偿执行的策略',
+    job_data             blob            null                comment '存放持久化job对象',
+    primary key (sched_name, trigger_name, trigger_group),
+    foreign key (sched_name, job_name, job_group) references QRTZ_JOB_DETAILS(sched_name, job_name, job_group)
+) engine=innodb comment = '触发器详细信息表';
+
+-- ----------------------------
+-- 3、 存储简单的 Trigger，包括重复次数，间隔，以及已触发的次数
+-- ----------------------------
+create table QRTZ_SIMPLE_TRIGGERS (
+    sched_name           varchar(120)    not null            comment '调度名称',
+    trigger_name         varchar(200)    not null            comment 'qrtz_triggers表trigger_name的外键',
+    trigger_group        varchar(200)    not null            comment 'qrtz_triggers表trigger_group的外键',
+    repeat_count         bigint(7)       not null            comment '重复的次数统计',
+    repeat_interval      bigint(12)      not null            comment '重复的间隔时间',
+    times_triggered      bigint(10)      not null            comment '已经触发的次数',
+    primary key (sched_name, trigger_name, trigger_group),
+    foreign key (sched_name, trigger_name, trigger_group) references QRTZ_TRIGGERS(sched_name, trigger_name, trigger_group)
+) engine=innodb comment = '简单触发器的信息表';
+
+-- ----------------------------
+-- 4、 存储 Cron Trigger，包括 Cron 表达式和时区信息
+-- ----------------------------
+create table QRTZ_CRON_TRIGGERS (
+    sched_name           varchar(120)    not null            comment '调度名称',
+    trigger_name         varchar(200)    not null            comment 'qrtz_triggers表trigger_name的外键',
+    trigger_group        varchar(200)    not null            comment 'qrtz_triggers表trigger_group的外键',
+    cron_expression      varchar(200)    not null            comment 'cron表达式',
+    time_zone_id         varchar(80)                         comment '时区',
+    primary key (sched_name, trigger_name, trigger_group),
+    foreign key (sched_name, trigger_name, trigger_group) references QRTZ_TRIGGERS(sched_name, trigger_name, trigger_group)
+) engine=innodb comment = 'Cron类型的触发器表';
+
+-- ----------------------------
+-- 5、 Trigger 作为 Blob 类型存储(用于 Quartz 用户用 JDBC 创建他们自己定制的 Trigger 类型，JobStore 并不知道如何存储实例的时候)
+-- ----------------------------
+create table QRTZ_BLOB_TRIGGERS (
+    sched_name           varchar(120)    not null            comment '调度名称',
+    trigger_name         varchar(200)    not null            comment 'qrtz_triggers表trigger_name的外键',
+    trigger_group        varchar(200)    not null            comment 'qrtz_triggers表trigger_group的外键',
+    blob_data            blob            null                comment '存放持久化Trigger对象',
+    primary key (sched_name, trigger_name, trigger_group),
+    foreign key (sched_name, trigger_name, trigger_group) references QRTZ_TRIGGERS(sched_name, trigger_name, trigger_group)
+) engine=innodb comment = 'Blob类型的触发器表';
+
+-- ----------------------------
+-- 6、 以 Blob 类型存储存放日历信息， quartz可配置一个日历来指定一个时间范围
+-- ----------------------------
+create table QRTZ_CALENDARS (
+    sched_name           varchar(120)    not null            comment '调度名称',
+    calendar_name        varchar(200)    not null            comment '日历名称',
+    calendar             blob            not null            comment '存放持久化calendar对象',
+    primary key (sched_name, calendar_name)
+) engine=innodb comment = '日历信息表';
+
+-- ----------------------------
+-- 7、 存储已暂停的 Trigger 组的信息
+-- ----------------------------
+create table QRTZ_PAUSED_TRIGGER_GRPS (
+    sched_name           varchar(120)    not null            comment '调度名称',
+    trigger_group        varchar(200)    not null            comment 'qrtz_triggers表trigger_group的外键',
+    primary key (sched_name, trigger_group)
+) engine=innodb comment = '暂停的触发器表';
+
+-- ----------------------------
+-- 8、 存储与已触发的 Trigger 相关的状态信息，以及相联 Job 的执行信息
+-- ----------------------------
+create table QRTZ_FIRED_TRIGGERS (
+    sched_name           varchar(120)    not null            comment '调度名称',
+    entry_id             varchar(95)     not null            comment '调度器实例id',
+    trigger_name         varchar(200)    not null            comment 'qrtz_triggers表trigger_name的外键',
+    trigger_group        varchar(200)    not null            comment 'qrtz_triggers表trigger_group的外键',
+    instance_name        varchar(200)    not null            comment '调度器实例名',
+    fired_time           bigint(13)      not null            comment '触发的时间',
+    sched_time           bigint(13)      not null            comment '定时器制定的时间',
+    priority             integer         not null            comment '优先级',
+    state                varchar(16)     not null            comment '状态',
+    job_name             varchar(200)    null                comment '任务名称',
+    job_group            varchar(200)    null                comment '任务组名',
+    is_nonconcurrent     varchar(1)      null                comment '是否并发',
+    requests_recovery    varchar(1)      null                comment '是否接受恢复执行',
+    primary key (sched_name, entry_id)
+) engine=innodb comment = '已触发的触发器表';
+
+-- ----------------------------
+-- 9、 存储少量的有关 Scheduler 的状态信息，假如是用于集群中，可以看到其他的 Scheduler 实例
+-- ----------------------------
+create table QRTZ_SCHEDULER_STATE (
+    sched_name           varchar(120)    not null            comment '调度名称',
+    instance_name        varchar(200)    not null            comment '实例名称',
+    last_checkin_time    bigint(13)      not null            comment '上次检查时间',
+    checkin_interval     bigint(13)      not null            comment '检查间隔时间',
+    primary key (sched_name, instance_name)
+) engine=innodb comment = '调度器状态表';
+
+-- ----------------------------
+-- 10、 存储程序的悲观锁的信息(假如使用了悲观锁)
+-- ----------------------------
+create table QRTZ_LOCKS (
+    sched_name           varchar(120)    not null            comment '调度名称',
+    lock_name            varchar(40)     not null            comment '悲观锁名称',
+    primary key (sched_name, lock_name)
+) engine=innodb comment = '存储的悲观锁信息表';
+
+-- ----------------------------
+-- 11、 Quartz集群实现同步机制的行锁表
+-- ----------------------------
+create table QRTZ_SIMPROP_TRIGGERS (
+    sched_name           varchar(120)    not null            comment '调度名称',
+    trigger_name         varchar(200)    not null            comment 'qrtz_triggers表trigger_name的外键',
+    trigger_group        varchar(200)    not null            comment 'qrtz_triggers表trigger_group的外键',
+    str_prop_1           varchar(512)    null                comment 'String类型的trigger的第一个参数',
+    str_prop_2           varchar(512)    null                comment 'String类型的trigger的第二个参数',
+    str_prop_3           varchar(512)    null                comment 'String类型的trigger的第三个参数',
+    int_prop_1           int             null                comment 'int类型的trigger的第一个参数',
+    int_prop_2           int             null                comment 'int类型的trigger的第二个参数',
+    long_prop_1          bigint          null                comment 'long类型的trigger的第一个参数',
+    long_prop_2          bigint          null                comment 'long类型的trigger的第二个参数',
+    dec_prop_1           numeric(13,4)   null                comment 'decimal类型的trigger的第一个参数',
+    dec_prop_2           numeric(13,4)   null                comment 'decimal类型的trigger的第二个参数',
+    bool_prop_1          varchar(1)      null                comment 'Boolean类型的trigger的第一个参数',
+    bool_prop_2          varchar(1)      null                comment 'Boolean类型的trigger的第二个参数',
+    primary key (sched_name, trigger_name, trigger_group),
+    foreign key (sched_name, trigger_name, trigger_group) references QRTZ_TRIGGERS(sched_name, trigger_name, trigger_group)
+) engine=innodb comment = '同步机制的行锁表';

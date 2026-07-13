@@ -73,20 +73,18 @@
 创建数据库，默认配置使用：
 
 ```sql
-CREATE DATABASE `pii` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+CREATE DATABASE `manzhushaka` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 ```
 
 导入基础脚本：
 
 ```bash
-mysql --default-character-set=utf8mb4 -uroot -p pii < sql/manzhushaka_db_init.sql
-mysql --default-character-set=utf8mb4 -uroot -p pii < sql/quartz.sql
-mysql --default-character-set=utf8mb4 -uroot -p pii < sql/pii_region_data.sql
+mysql --default-character-set=utf8mb4 -uroot -p manzhushaka < sql/manzhushaka_db_init.sql
 ```
 
 以上导入命令中的 `--default-character-set=utf8mb4` 不要省略，否则初始化中文数据时可能出现乱码。
 
-如果是在已经导入过旧版若依数据的库上升级，请按实际需要查看并执行 `sql` 目录下的增量清理脚本，例如移除岗位、通知公告、在线构建器菜单的脚本。全新数据库通常优先以 `manzhushaka_db_init.sql` 和 `quartz.sql` 为准。
+当前仓库仅保留 `sql/manzhushaka_db_init.sql`，用于从空库一次性完成系统与 Quartz 调度表初始化。
 
 ### 2. 修改后端配置
 
@@ -100,7 +98,7 @@ mysql --default-character-set=utf8mb4 -uroot -p pii < sql/pii_region_data.sql
 | 变量 | 默认值 | 说明 |
 | --- | --- | --- |
 | `SPRING_PROFILES_ACTIVE` | `dev` | Spring Profile |
-| `JDBC_MASTER_URL` | `jdbc:mysql://localhost:3306/pii...characterEncoding=UTF-8...` | 主库连接 |
+| `JDBC_MASTER_URL` | `jdbc:mysql://localhost:3306/manzhushaka...characterEncoding=UTF-8...` | 主库连接 |
 | `JDBC_MASTER_USERNAME` | `root` | 主库用户名 |
 | `JDBC_MASTER_PASSWORD` | `1a2s3d4f` | 主库密码 |
 | `JDBC_SLAVE_ENABLED` | `false` | 是否启用从库 |
@@ -209,7 +207,7 @@ npm run build:stage
 - 前端代理配置：`ui-admin/vite.config.js`
 - 前端路由：`ui-admin/src/router/index.js`
 - 前端页面：`ui-admin/src/views`
-- 初始化 SQL：`sql/manzhushaka_db_init.sql`、`sql/quartz.sql`
+- 初始化 SQL：`sql/manzhushaka_db_init.sql`
 - 协作规范：`AGENTS.md`
 
 ## 文档

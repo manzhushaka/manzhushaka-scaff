@@ -41,9 +41,6 @@ public class LoginPrincipal implements UserDetails, Serializable {
     /** 部门名称 */
     private String deptName;
 
-    /** 商户档案ID（PII 业务可选字段） */
-    private Long merchantId;
-
     /** 用户名 */
     private String username;
 
@@ -197,10 +194,6 @@ public class LoginPrincipal implements UserDetails, Serializable {
         return deptName;
     }
 
-    public Long getMerchantId() {
-        return merchantId;
-    }
-
     public Set<String> getPermissions() {
         return permissions;
     }
@@ -264,10 +257,6 @@ public class LoginPrincipal implements UserDetails, Serializable {
      */
     public void setDeptName(String deptName) {
         this.deptName = deptName;
-    }
-
-    public void setMerchantId(Long merchantId) {
-        this.merchantId = merchantId;
     }
 
     /**
@@ -347,11 +336,6 @@ public class LoginPrincipal implements UserDetails, Serializable {
 
         public Builder deptName(String deptName) {
             instance.deptName = deptName;
-            return this;
-        }
-
-        public Builder merchantId(Long merchantId) {
-            instance.merchantId = merchantId;
             return this;
         }
 

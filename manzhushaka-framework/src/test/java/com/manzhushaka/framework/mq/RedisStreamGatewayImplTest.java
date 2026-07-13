@@ -30,7 +30,7 @@ class RedisStreamGatewayImplTest
                 new RedisBusyException("BUSYGROUP Consumer Group name already exists"));
         RedisStreamGatewayImpl gateway = gatewayThrowing(exception);
 
-        assertThatCode(() -> gateway.createGroupIfAbsent("pii:invoice:email", "pii-invoice-email-group"))
+        assertThatCode(() -> gateway.createGroupIfAbsent("test:stream", "test-stream-group"))
                 .doesNotThrowAnyException();
     }
 
@@ -44,7 +44,7 @@ class RedisStreamGatewayImplTest
                 new IllegalStateException("connection broken"));
         RedisStreamGatewayImpl gateway = gatewayThrowing(exception);
 
-        assertThatThrownBy(() -> gateway.createGroupIfAbsent("pii:invoice:email", "pii-invoice-email-group"))
+        assertThatThrownBy(() -> gateway.createGroupIfAbsent("test:stream", "test-stream-group"))
                 .isSameAs(exception);
     }
 
@@ -54,7 +54,7 @@ class RedisStreamGatewayImplTest
         RedisTemplate<Object, Object> redisTemplate = mock(RedisTemplate.class);
         StreamOperations<Object, Object, Object> streamOperations = mock(StreamOperations.class);
         when(redisTemplate.opsForStream()).thenReturn(streamOperations);
-        doThrow(exception).when(streamOperations).createGroup("pii:invoice:email", "pii-invoice-email-group");
+        doThrow(exception).when(streamOperations).createGroup("test:stream", "test-stream-group");
         return new RedisStreamGatewayImpl(redisTemplate);
     }
 }

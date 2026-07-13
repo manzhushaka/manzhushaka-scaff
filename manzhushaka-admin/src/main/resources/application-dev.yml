@@ -6,7 +6,7 @@ spring:
         druid:
             # 主库数据源
             master:
-                url: ${JDBC_MASTER_URL:jdbc:mysql://localhost:3306/pii?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8}
+                url: ${JDBC_MASTER_URL:jdbc:mysql://localhost:3306/manzhushaka?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8}
                 username: ${JDBC_MASTER_USERNAME:root}
                 password: ${JDBC_MASTER_PASSWORD:1a2s3d4f}
             # 从库数据源
@@ -59,23 +59,3 @@ spring:
                 wall:
                     config:
                         multi-statement-allow: ${DRUID_FILTER_WALL_MULTI_STATEMENT_ALLOW:true}
-
-# 支付即开票本地开发配置
-pii:
-    mode: MOCK
-    pay:
-        notify-url: https://your-domain.com/pii/pay/notify
-        refund-notify-url: https://your-domain.com/pii/refund/notify
-        inst-mid:
-    wechat:
-        app-id:
-        app-key:
-    invoice:
-        api-base-url: https://mobl-test.chinaums.com/fapiao-api-test/
-        notify-url: https://your-domain.com/pii/invoice/notify
-        connect-timeout-ms: 5000
-        read-timeout-ms: 15000
-    bi:
-        cache-seconds: 300
-    order:
-        expire-minutes: 30
