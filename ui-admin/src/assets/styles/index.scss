@@ -12,7 +12,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;
+  color: var(--ui-text-primary);
+  background: var(--ui-bg-page);
+  font-family: "IBM Plex Sans", "Noto Sans SC", "PingFang SC", system-ui, sans-serif;
+  letter-spacing: 0;
 }
 
 label {
@@ -42,11 +45,6 @@ html {
   padding: 4px 0;
 }
 
-a:focus,
-a:active {
-  outline: none;
-}
-
 a,
 a:focus,
 a:hover {
@@ -55,8 +53,11 @@ a:hover {
   text-decoration: none;
 }
 
-div:focus {
-  outline: none;
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--ui-primary) 20%, transparent);
+  outline-offset: 2px;
 }
 
 .fr {
@@ -161,11 +162,11 @@ aside {
 
 .link-type,
 .link-type:focus {
-  color: #337ab7;
+  color: var(--ui-info);
   cursor: pointer;
 
   &:hover {
-    color: rgb(32, 160, 255);
+    color: var(--ui-primary-active);
   }
 }
 

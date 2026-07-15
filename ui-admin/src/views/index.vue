@@ -123,26 +123,10 @@ function goRoute(path) {
   padding: 24px 28px;
   border: 1px solid var(--ui-border);
   border-radius: var(--ui-radius-panel);
-  background:
-    linear-gradient(90deg, color-mix(in srgb, var(--ui-primary-soft) 70%, var(--ui-bg-panel)) 0, var(--ui-bg-panel) 58%),
-    var(--ui-bg-panel);
-  box-shadow: var(--ui-shadow-panel);
+  background: var(--ui-bg-panel);
+  box-shadow: none;
   overflow: hidden;
   margin-bottom: 20px;
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-      linear-gradient(90deg, color-mix(in srgb, var(--ui-primary) 8%, transparent) 0, transparent 42%),
-      radial-gradient(circle at 92% 8%, color-mix(in srgb, var(--ui-accent) 18%, transparent) 0, transparent 24%);
-    pointer-events: none;
-  }
-
-  &::after {
-    display: none;
-  }
 
   @media (max-width: 768px) {
     padding: 20px;
@@ -168,16 +152,11 @@ function goRoute(path) {
   max-width: 620px;
 
   .welcome-kicker {
-    display: inline-flex;
-    align-items: center;
-    height: 24px;
-    padding: 0 9px;
+    display: block;
     margin-bottom: 12px;
-    border: 1px solid var(--ui-border);
-    border-radius: var(--ui-radius-control);
-    background: var(--ui-primary-soft);
     color: var(--ui-primary-active);
-    font-size: 12px;
+    font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+    font-size: 11px;
     font-weight: 600;
   }
 
@@ -233,8 +212,8 @@ function goRoute(path) {
   }
 
   &.is-primary {
-    background: var(--ui-primary);
-    border-color: var(--ui-primary);
+    background: var(--ui-primary-active);
+    border-color: var(--ui-primary-active);
     color: var(--ui-text-inverse);
 
     .action-icon {
@@ -275,7 +254,7 @@ function goRoute(path) {
   border: 1px solid var(--ui-border);
   border-radius: var(--ui-radius-panel);
   background: var(--ui-bg-panel);
-  box-shadow: var(--ui-shadow-panel);
+  box-shadow: none;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   cursor: default;
   overflow: hidden;
@@ -299,7 +278,7 @@ function goRoute(path) {
   .kpi-icon {
     width: 22px;
     height: 22px;
-    color: var(--ui-hero-text);
+    color: var(--tone-color);
   }
 }
 
@@ -340,7 +319,7 @@ function goRoute(path) {
   border: 1px solid var(--ui-border);
   border-radius: var(--ui-radius-panel);
   background: var(--ui-bg-panel);
-  box-shadow: var(--ui-shadow-panel);
+  box-shadow: none;
   overflow: hidden;
 }
 
@@ -415,7 +394,7 @@ function goRoute(path) {
   .quick-svg {
     width: 18px;
     height: 18px;
-    color: var(--ui-hero-text);
+    color: var(--tone-color);
   }
 }
 

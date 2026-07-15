@@ -18,41 +18,39 @@ const header = computed(() => buildPageHeader(route))
 <style lang="scss" scoped>
 .page-header {
   position: relative;
-  margin: 18px 18px 0;
-  overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--ui-primary) 14%, var(--ui-border));
-  border-radius: 14px;
-  background:
-    linear-gradient(135deg, color-mix(in srgb, var(--ui-primary-soft) 68%, #ffffff 32%) 0%, #ffffff 84%),
-    var(--ui-bg-panel);
-  box-shadow: 0 8px 22px rgba(15, 59, 96, 0.05);
+  margin: 0;
+  border-bottom: 1px solid var(--ui-border);
+  background: var(--ui-bg-panel);
 }
 
 .page-header__content {
   position: relative;
-  padding: 18px 24px 20px 28px;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 20px 24px;
 }
 
 .page-header__eyebrow {
-  color: var(--ui-primary);
-  font-size: 13px;
-  font-weight: 800;
+  color: var(--ui-primary-active);
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 11px;
+  font-weight: 600;
   line-height: 1.2;
   letter-spacing: 0;
   text-transform: uppercase;
 }
 
 .page-header__title {
-  margin: 10px 0 0;
+  margin: 6px 0 0;
   color: var(--ui-text-primary);
-  font-size: 24px;
-  font-weight: 800;
+  font-size: 22px;
+  font-weight: 750;
   line-height: 1.3;
 }
 
 .page-header__description {
   max-width: 860px;
-  margin: 10px 0 0;
+  margin: 6px 0 0;
   color: var(--ui-text-secondary);
   font-size: 14px;
   line-height: 1.7;
@@ -60,11 +58,11 @@ const header = computed(() => buildPageHeader(route))
 
 @media screen and (max-width: 991px) {
   .page-header {
-    margin: 12px 12px 0;
+    margin: 0;
   }
 
   .page-header__content {
-    padding: 16px 18px 18px 22px;
+    padding: 16px 12px;
   }
 
   .page-header__title {

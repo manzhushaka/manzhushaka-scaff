@@ -95,8 +95,6 @@ function lockScreen() {
   overflow: hidden;
   position: relative;
   background: var(--ui-bg-topbar);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--ui-border);
   display: flex;
   align-items: center;
@@ -172,7 +170,7 @@ function lockScreen() {
       padding: 0;
       font-size: 18px;
       color: var(--ui-text-secondary, #5a5e66);
-      border-radius: 6px;
+      border-radius: 8px;
       transition: background var(--ui-transition-fast), color var(--ui-transition-fast);
 
       &.hover-effect {

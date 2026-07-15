@@ -29,7 +29,7 @@ const title = import.meta.env.VITE_APP_TITLE
 const getLogoBackground = computed(() => 'var(--ui-bg-sidebar)')
 
 // 获取Logo文字颜色
-const getLogoTextColor = computed(() => 'var(--ui-sidebar-text-active)')
+const getLogoTextColor = computed(() => 'var(--ui-text-primary)')
 </script>
 
 <style lang="scss" scoped>
@@ -49,7 +49,7 @@ const getLogoTextColor = computed(() => 'var(--ui-sidebar-text-active)')
   background: v-bind(getLogoBackground);
   text-align: center;
   overflow: hidden;
-  border-bottom: 1px solid color-mix(in srgb, var(--ui-sidebar-text) 14%, transparent);
+  border-bottom: 1px solid var(--ui-border);
 
   & .sidebar-logo-link {
     height: 100%;
@@ -60,6 +60,7 @@ const getLogoTextColor = computed(() => 'var(--ui-sidebar-text-active)')
       height: 32px;
       vertical-align: middle;
       margin-right: 12px;
+      border: 1px solid var(--ui-border);
       border-radius: 8px;
     }
 
@@ -70,7 +71,7 @@ const getLogoTextColor = computed(() => 'var(--ui-sidebar-text-active)')
       font-weight: 600;
       line-height: 60px;
       font-size: 14px;
-      font-family: Avenir, Helvetica Neue, Arial, Helvetica, sans-serif;
+      font-family: "Space Grotesk", "Noto Sans SC", "PingFang SC", sans-serif;
       vertical-align: middle;
       letter-spacing: 0;
     }

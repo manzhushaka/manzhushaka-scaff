@@ -12,12 +12,12 @@
   --ui-layout-tags-height: 42px;
   --ui-layout-content-padding: 18px;
 
-  --ui-radius-control: 6px;
+  --ui-radius-control: 8px;
   --ui-radius-panel: 8px;
   --ui-radius-popover: 8px;
   --ui-radius-subtle: 4px;
   --ui-table-row-height: 48px;
-  --ui-form-control-height: 36px;
+  --ui-form-control-height: 40px;
 
   --ui-transition-fast: 160ms ease;
   --ui-transition-normal: 240ms ease;
@@ -34,82 +34,83 @@
 // 2. 唯一主题 token
 // ------------------------------------------------------------
 
-// 冷感控制塔（默认主题）—— 深蓝侧栏 + 浅内容区
-[data-ui-theme='cool-tower'] {
-  --ui-bg-page: #f4f8fb;
+// VibeHub 管理后台主题—— 暖白表面 + 墨色层级 + 稀缺橙色信号
+[data-ui-theme='vibehub-admin'] {
+  --ui-bg-page: #faf8f3;
   --ui-bg-panel: #ffffff;
-  --ui-bg-panel-soft: #edf6fb;
-  --ui-bg-panel-muted: #f8fbfd;
-  --ui-bg-sidebar: #0f3b60;
-  --ui-bg-sidebar-deep: #12202f;
-  --ui-bg-topbar: rgba(255, 255, 255, 0.92);
-  --ui-bg-hover: rgba(14, 165, 233, 0.08);
-  --ui-bg-selected: rgba(14, 165, 233, 0.12);
+  --ui-bg-panel-soft: #f7f4ed;
+  --ui-bg-panel-muted: #fafafa;
+  --ui-bg-sidebar: #ffffff;
+  --ui-bg-sidebar-deep: #f5f5f7;
+  --ui-bg-topbar: #ffffff;
+  --ui-bg-hover: #f5f3ee;
+  --ui-bg-selected: #fff0eb;
 
-  --ui-text-primary: #0f172a;
-  --ui-text-regular: #334155;
-  --ui-text-secondary: #64748b;
-  --ui-text-muted: #94a3b8;
-  --ui-text-inverse: #eaf8ff;
-  --ui-sidebar-text: #d5ecfb;
-  --ui-sidebar-text-hover: #ffffff;
-  --ui-sidebar-text-active: #ffffff;
-  --ui-sidebar-item-hover-bg: rgba(125, 211, 252, 0.18);
-  --ui-sidebar-item-active-bg: rgba(14, 165, 233, 0.28);
-  --ui-sidebar-item-active-border: #7dd3fc;
+  --ui-text-primary: #16130f;
+  --ui-text-regular: #3f3a33;
+  --ui-text-secondary: #5c564c;
+  --ui-text-muted: #8a8377;
+  --ui-text-inverse: #ffffff;
+  --ui-sidebar-text: #5c564c;
+  --ui-sidebar-text-hover: #16130f;
+  --ui-sidebar-text-active: #16130f;
+  --ui-sidebar-item-hover-bg: #f5f3ee;
+  --ui-sidebar-item-active-bg: #fff0eb;
+  --ui-sidebar-item-active-border: #ff4d18;
 
-  --ui-border: #d8e6ef;
-  --ui-border-strong: #bfd7e6;
-  --ui-divider: rgba(15, 59, 96, 0.10);
+  --ui-border: #dedbd4;
+  --ui-border-strong: #8a8377;
+  --ui-divider: rgba(22, 19, 15, 0.10);
 
-  --ui-primary: #0ea5e9;
-  --ui-primary-hover: #0284c7;
-  --ui-primary-active: #0369a1;
-  --ui-primary-soft: #e0f2fe;
-  --ui-accent: #7dd3fc;
+  --ui-primary: #ff4d18;
+  --ui-primary-hover: #e54514;
+  --ui-primary-active: #d83f12;
+  --ui-primary-deep: #b83210;
+  --ui-primary-soft: #fff0eb;
+  --ui-accent: #b8924e;
 
-  --ui-success: #10b981;
-  --ui-warning: #f59e0b;
-  --ui-danger: #ef4444;
-  --ui-info: #64748b;
+  --ui-success: #1f8a5b;
+  --ui-warning: #b76e00;
+  --ui-danger: #c73515;
+  --ui-info: #2a6fdb;
 
-  --ui-chart-1: #0ea5e9;
-  --ui-chart-2: #10b981;
-  --ui-chart-3: #f59e0b;
-  --ui-chart-4: #8b5cf6;
-  --ui-chart-5: #ec4899;
+  --ui-chart-1: #ff4d18;
+  --ui-chart-2: #1f8a5b;
+  --ui-chart-3: #b76e00;
+  --ui-chart-4: #2a6fdb;
+  --ui-chart-5: #8b5a8c;
 
-  --ui-shadow-panel: 0 1px 2px rgba(15, 23, 42, 0.04), 0 10px 24px rgba(15, 59, 96, 0.08);
-  --ui-shadow-panel-hover: 0 2px 4px rgba(15, 23, 42, 0.05), 0 16px 34px rgba(15, 59, 96, 0.12);
-  --ui-shadow-popover: 0 18px 40px rgba(15, 59, 96, 0.16);
-  --ui-shadow-sidebar: 8px 0 24px rgba(15, 59, 96, 0.18);
-  --ui-shadow-subtle: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --ui-shadow-panel: 0 2px 8px rgba(22, 19, 15, 0.06);
+  --ui-shadow-panel-hover: 0 10px 28px rgba(22, 19, 15, 0.10);
+  --ui-shadow-popover: 0 18px 44px rgba(22, 19, 15, 0.14);
+  --ui-shadow-sidebar: 1px 0 0 rgba(22, 19, 15, 0.10);
+  --ui-shadow-subtle: 0 1px 2px rgba(22, 19, 15, 0.04);
 
-  --ui-hero-bg: linear-gradient(135deg, #0f3b60 0%, #0e7490 45%, #0ea5e9 100%);
+  --ui-hero-bg: #16130f;
   --ui-hero-text: #ffffff;
   --ui-hero-text-muted: rgba(255, 255, 255, 0.74);
   --ui-hero-action-bg: rgba(255, 255, 255, 0.15);
   --ui-hero-action-border: rgba(255, 255, 255, 0.24);
 
-  --ui-table-header-bg: #eef7fb;
-  --ui-table-row-hover-bg: #f7fbfe;
-  --ui-table-border: #dceaf2;
+  --ui-table-header-bg: #f7f4ed;
+  --ui-table-row-hover-bg: #fcfaf6;
+  --ui-table-border: #e7e5de;
 
   // color-mix() 静态回退色值
-  --ui-primary-light-3-static: #52c4f0;
-  --ui-primary-light-5-static: #8ed7f5;
-  --ui-primary-light-7-static: #c1e8fa;
-  --ui-border-lighter-static: #e1ecf2;
-  --ui-tag-bg-static: rgba(16, 185, 129, 0.14);
-  --ui-tag-border-static: rgba(16, 185, 129, 0.30);
-  --ui-tree-current-bg-static: rgba(14, 165, 233, 0.14);
+  --ui-primary-light-3-static: #ff805a;
+  --ui-primary-light-5-static: #ffa68d;
+  --ui-primary-light-7-static: #ffcabd;
+  --ui-border-lighter-static: #ebe8e2;
+  --ui-tag-bg-static: rgba(31, 138, 91, 0.12);
+  --ui-tag-border-static: rgba(31, 138, 91, 0.28);
+  --ui-tree-current-bg-static: rgba(255, 77, 24, 0.10);
 }
 
 // ------------------------------------------------------------
 // 3. Element Plus 变量映射
 // ------------------------------------------------------------
 [data-ui-theme] {
-  --el-color-primary: var(--ui-primary);
+  --el-color-primary: var(--ui-primary-active);
   --el-color-primary-light-3: color-mix(in srgb, var(--ui-primary) 70%, #ffffff 30%);
   --el-color-primary-light-5: color-mix(in srgb, var(--ui-primary) 45%, #ffffff 55%);
   --el-color-primary-light-7: color-mix(in srgb, var(--ui-primary) 24%, #ffffff 76%);
@@ -129,11 +130,13 @@
   --el-text-color-regular: var(--ui-text-regular);
   --el-text-color-secondary: var(--ui-text-secondary);
 
-  --el-border-color: var(--ui-border);
+  --el-border-color: var(--ui-border-strong);
   --el-border-color-light: var(--ui-border);
   --el-border-color-lighter: color-mix(in srgb, var(--ui-border) 68%, transparent);
 
   --el-border-radius-base: var(--ui-radius-control);
+  --el-border-radius-small: 6px;
+  --el-font-family: "IBM Plex Sans", "Noto Sans SC", "PingFang SC", system-ui, sans-serif;
   --el-fill-color-light: var(--ui-bg-panel-soft);
   --el-fill-color-lighter: var(--ui-bg-panel-muted);
   --el-fill-color-blank: var(--ui-bg-panel);
@@ -147,9 +150,7 @@
 .app-container {
   min-height: 100%;
   padding: var(--ui-layout-content-padding);
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--ui-bg-panel-soft) 54%, transparent) 0, transparent 260px),
-    var(--ui-bg-page);
+  background: var(--ui-bg-page);
 }
 
 .ui-page-head {
@@ -183,13 +184,12 @@
   border: 1px solid var(--ui-border);
   border-radius: var(--ui-radius-panel);
   background: var(--ui-bg-panel);
-  box-shadow: var(--ui-shadow-panel);
+  box-shadow: none;
 }
 
 .ui-filter-card {
   padding: 14px 16px 6px;
-  background: var(--ui-bg-panel);
-  border-left: 3px solid var(--ui-primary);
+  background: var(--ui-bg-panel-soft);
 }
 
 .ui-filter-card .el-form-item {
@@ -297,9 +297,7 @@
 
 .ui-detail-page {
   padding: var(--ui-layout-content-padding);
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--ui-bg-panel-soft) 56%, transparent) 0, transparent 220px),
-    var(--ui-bg-page);
+  background: var(--ui-bg-page);
 }
 
 // 空表格最小高度
@@ -406,9 +404,9 @@
   }
   .el-tree-node.is-current > .el-tree-node__content {
     background: color-mix(in srgb, var(--ui-primary) 14%, transparent);
-    color: var(--ui-primary);
+    color: var(--ui-primary-active);
     .node-icon {
-      color: var(--ui-primary) !important;
+      color: var(--ui-primary-active) !important;
     }
   }
 }
@@ -440,7 +438,7 @@
     color: var(--ui-text-primary);
   }
   .section-header {
-    color: var(--ui-primary);
+    color: var(--ui-primary-active);
     border-bottom: 1px solid var(--ui-border);
   }
   .info-label {
@@ -479,19 +477,15 @@
 
 .ui-entry-page {
   min-height: 100vh;
-  background:
-    radial-gradient(circle at 16% 18%, color-mix(in srgb, var(--ui-accent) 22%, transparent) 0, transparent 30%),
-    radial-gradient(circle at 82% 12%, color-mix(in srgb, var(--ui-primary) 18%, transparent) 0, transparent 28%),
-    linear-gradient(160deg, #eef7fb 0%, #dbeafe 42%, #f4f8fb 100%);
+  background: var(--ui-bg-page);
   color: var(--ui-text-primary);
 }
 
 .ui-entry-card {
-  border: 1px solid color-mix(in srgb, var(--ui-border) 72%, rgba(255, 255, 255, 0.7));
+  border: 1px solid var(--ui-border);
   border-radius: var(--ui-radius-panel);
-  background: rgba(255, 255, 255, 0.82);
+  background: var(--ui-bg-panel);
   box-shadow: var(--ui-shadow-popover);
-  backdrop-filter: blur(16px);
 }
 
 .ui-empty-soft {
@@ -506,12 +500,12 @@
 }
 
 .el-button--primary {
-  --el-button-bg-color: var(--ui-primary);
-  --el-button-border-color: var(--ui-primary);
-  --el-button-hover-bg-color: var(--ui-primary-hover);
-  --el-button-hover-border-color: var(--ui-primary-hover);
-  --el-button-active-bg-color: var(--ui-primary-active);
-  --el-button-active-border-color: var(--ui-primary-active);
+  --el-button-bg-color: var(--ui-primary-active);
+  --el-button-border-color: var(--ui-primary-active);
+  --el-button-hover-bg-color: var(--ui-primary-deep);
+  --el-button-hover-border-color: var(--ui-primary-deep);
+  --el-button-active-bg-color: var(--ui-primary-deep);
+  --el-button-active-border-color: var(--ui-primary-deep);
 }
 
 .el-button:focus-visible,
@@ -524,11 +518,11 @@
 // ------------------------------------------------------------
 // 图表色类
 // ------------------------------------------------------------
-.tone-primary  { --tone-bg: linear-gradient(135deg, var(--ui-chart-1) 0%, color-mix(in srgb, var(--ui-chart-1) 70%, #000 30%) 100%); --tone-color: var(--ui-chart-1); }
-.tone-success  { --tone-bg: linear-gradient(135deg, var(--ui-chart-2) 0%, color-mix(in srgb, var(--ui-chart-2) 70%, #000 30%) 100%); --tone-color: var(--ui-chart-2); }
-.tone-warning  { --tone-bg: linear-gradient(135deg, var(--ui-chart-3) 0%, color-mix(in srgb, var(--ui-chart-3) 70%, #000 30%) 100%); --tone-color: var(--ui-chart-3); }
-.tone-accent   { --tone-bg: linear-gradient(135deg, var(--ui-chart-4) 0%, color-mix(in srgb, var(--ui-chart-4) 70%, #000 30%) 100%); --tone-color: var(--ui-chart-4); }
-.tone-supplement { --tone-bg: linear-gradient(135deg, var(--ui-chart-5) 0%, color-mix(in srgb, var(--ui-chart-5) 70%, #000 30%) 100%); --tone-color: var(--ui-chart-5); }
+.tone-primary  { --tone-bg: #fff0eb; --tone-color: var(--ui-chart-1); }
+.tone-success  { --tone-bg: #eaf6f0; --tone-color: var(--ui-chart-2); }
+.tone-warning  { --tone-bg: #fff5df; --tone-color: var(--ui-chart-3); }
+.tone-accent   { --tone-bg: #edf3ff; --tone-color: var(--ui-chart-4); }
+.tone-supplement { --tone-bg: #f5eef5; --tone-color: var(--ui-chart-5); }
 
 // ------------------------------------------------------------
 // 5. color-mix() 降级回退
@@ -574,5 +568,51 @@
     width: 100%;
     margin-left: 0;
     justify-content: flex-start;
+  }
+
+  .app-container.tree-sidebar-manage-wrap {
+    flex-direction: column;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .tree-sidebar-manage-wrap .tree-sidebar {
+    width: 100% !important;
+    min-width: 0;
+    max-width: none;
+    max-height: 280px;
+  }
+
+  .tree-sidebar-manage-wrap .tree-sidebar .resize-handle,
+  .tree-sidebar-manage-wrap .tree-sidebar .collapse-button-container {
+    display: none;
+  }
+
+  .tree-sidebar-manage-wrap .tree-sidebar-content,
+  .tree-sidebar-manage-wrap .tree-sidebar-content .content-inner {
+    overflow: visible;
+  }
+
+  .el-dialog:not(.is-fullscreen) {
+    width: calc(100vw - 32px) !important;
+    max-width: 680px;
+    margin: 16px auto !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .el-dialog .el-col-12 {
+    max-width: 100%;
+    flex: 0 0 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-ui-theme] *,
+  [data-ui-theme] *::before,
+  [data-ui-theme] *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

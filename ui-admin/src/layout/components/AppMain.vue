@@ -48,9 +48,7 @@ $navbar-tags-height: calc($navbar-height + $tags-height);
   position: relative;
   overflow: hidden;
   padding-bottom: 36px;
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--ui-bg-panel-soft) 46%, transparent) 0, transparent 220px),
-    var(--ui-bg-page);
+  background: var(--ui-bg-page);
 }
 
 .fixed-header + .app-main {

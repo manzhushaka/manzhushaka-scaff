@@ -446,21 +446,14 @@ $tags-bar-height: 42px;
   }
 
   &:not(.tags-view-container--chrome) .tags-view-wrapper .tags-view-item.active {
-    background-color: color-mix(in srgb, var(--ui-primary-soft) 88%, var(--ui-bg-panel) 12%);
-    color: var(--ui-primary);
-    border-color: color-mix(in srgb, var(--ui-primary) 34%, var(--ui-border));
+    background-color: var(--ui-primary-soft);
+    color: var(--ui-text-primary);
+    border-color: transparent;
     font-weight: 600;
-    box-shadow: 0 -1px 0 color-mix(in srgb, var(--ui-primary) 10%, transparent);
+    box-shadow: none;
 
     &::before {
-      content: '';
-      background: var(--ui-primary);
-      display: inline-block;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      position: relative;
-      margin-right: 5px;
+      content: none;
     }
   }
 

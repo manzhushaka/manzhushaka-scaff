@@ -53,6 +53,7 @@ const activeMenu = computed(() => {
 .sidebar-container {
   background-color: var(--ui-bg-sidebar);
   box-shadow: var(--ui-shadow-sidebar);
+  border-right: 1px solid var(--ui-border);
 
   .scrollbar-wrapper {
     background-color: var(--ui-bg-sidebar);
@@ -65,7 +66,7 @@ const activeMenu = computed(() => {
     background-color: transparent !important;
 
     .el-menu-item, .el-sub-menu__title {
-      border-radius: 6px;
+      border-radius: 8px;
       margin: 3px 6px;
       width: calc(100% - 12px);
 
@@ -87,21 +88,6 @@ const activeMenu = computed(() => {
       &.is-active {
         color: var(--ui-sidebar-text-active) !important;
         background-color: var(--ui-sidebar-item-active-bg) !important;
-        position: relative;
-
-        &::before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 3px;
-          height: 20px;
-          border-radius: 999px;
-          background: var(--ui-sidebar-item-active-border);
-          pointer-events: none;
-          z-index: 2;
-        }
       }
     }
 
@@ -116,7 +102,7 @@ const activeMenu = computed(() => {
 
     :deep(.el-sub-menu__icon-arrow) {
       right: 14px !important;
-      color: var(--ui-sidebar-arrow-color, rgba(213, 236, 251, 0.78)) !important;
+      color: var(--ui-text-muted) !important;
       opacity: 1;
       transition: color var(--ui-transition-fast), transform var(--ui-transition-normal);
     }
