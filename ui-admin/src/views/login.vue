@@ -274,9 +274,8 @@ getCookie()
 .login-intro__content {
   position: relative;
   z-index: 1;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  gap: 32px;
+  display: flex;
+  flex-direction: column;
   width: min(100%, 720px);
   margin: 0 auto;
 }
@@ -335,8 +334,8 @@ getCookie()
 }
 
 .login-intro__copy {
-  align-self: end;
   max-width: 620px;
+  margin-top: auto;
 }
 
 .login-intro__eyebrow {
@@ -368,7 +367,8 @@ getCookie()
 }
 
 .workspace-preview {
-  align-self: end;
+  margin-top: 32px;
+  margin-bottom: auto;
   padding: 20px;
   background: var(--ui-bg-panel);
   border: 1px solid var(--ui-border);
