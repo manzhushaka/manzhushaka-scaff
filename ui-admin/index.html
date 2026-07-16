@@ -32,19 +32,44 @@
       width: 100%;
       height: 100%;
       z-index: 999999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #faf8f3;
+      color: #16130f;
+    }
+
+    .load-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 7px;
+      background: #41413f;
+      z-index: 1003;
+    }
+
+    .load-progress__bar {
+      position: absolute;
+      top: 4px;
+      left: 0;
+      width: 92%;
+      height: 2px;
+      background: #ff5a35;
+      animation: loading-progress 2.2s ease-in-out infinite alternate;
     }
 
     #loader {
       display: block;
       position: relative;
-      left: 50%;
-      top: 50%;
-      width: 150px;
-      height: 150px;
-      margin: -75px 0 0 -75px;
+      width: 44px;
+      height: 44px;
+      margin: 0;
       border-radius: 50%;
-      border: 3px solid transparent;
-      border-top-color: #FFF;
+      border: 2px solid #e7e5de;
+      border-top-color: #ff5a35;
+      border-right-color: #ff5a35;
       -webkit-animation: spin 2s linear infinite;
       -ms-animation: spin 2s linear infinite;
       -moz-animation: spin 2s linear infinite;
@@ -55,36 +80,36 @@
 
     #loader:before {
       content: "";
-      position: absolute;
-      top: 5px;
-      left: 5px;
-      right: 5px;
-      bottom: 5px;
-      border-radius: 50%;
-      border: 3px solid transparent;
-      border-top-color: #FFF;
-      -webkit-animation: spin 3s linear infinite;
-      -moz-animation: spin 3s linear infinite;
-      -o-animation: spin 3s linear infinite;
-      -ms-animation: spin 3s linear infinite;
-      animation: spin 3s linear infinite;
+      display: none;
     }
 
     #loader:after {
       content: "";
       position: absolute;
-      top: 15px;
-      left: 15px;
-      right: 15px;
-      bottom: 15px;
+      top: 50%;
+      left: 50%;
+      width: 6px;
+      height: 6px;
+      margin: -3px 0 0 -3px;
       border-radius: 50%;
-      border: 3px solid transparent;
-      border-top-color: #FFF;
-      -moz-animation: spin 1.5s linear infinite;
-      -o-animation: spin 1.5s linear infinite;
-      -ms-animation: spin 1.5s linear infinite;
-      -webkit-animation: spin 1.5s linear infinite;
-      animation: spin 1.5s linear infinite;
+      background: #ff5a35;
+    }
+
+    .load-card {
+      position: relative;
+      z-index: 1002;
+      display: flex;
+      width: 296px;
+      min-height: 138px;
+      box-sizing: border-box;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      border: 1px solid #e8e6e1;
+      border-radius: 12px;
+      background: #ffffff;
+      box-shadow: 0 18px 34px rgba(55, 49, 39, 0.1);
     }
 
 
@@ -122,11 +147,12 @@
       top: 0;
       width: 51%;
       height: 100%;
-      background: #7171C6;
+      background: #faf8f3;
       z-index: 1000;
       -webkit-transform: translateX(0);
       -ms-transform: translateX(0);
       transform: translateX(0);
+      pointer-events: none;
     }
 
     #loader-wrapper .loader-section.section-left {
@@ -178,24 +204,58 @@
     }
 
     #loader-wrapper .load_title {
-      font-family: 'Open Sans';
-      color: #FFF;
-      font-size: 19px;
-      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-family: "IBM Plex Sans", "Noto Sans SC", "PingFang SC", system-ui, sans-serif;
+      color: #5c564c;
+      font-size: 12px;
+      width: auto;
       text-align: center;
-      z-index: 9999999999999;
-      position: absolute;
-      top: 60%;
+      z-index: 1002;
+      position: static;
       opacity: 1;
-      line-height: 30px;
+      line-height: 16px;
     }
 
-    #loader-wrapper .load_title span {
-      font-weight: normal;
-      font-style: italic;
-      font-size: 13px;
-      color: #FFF;
-      opacity: 0.5;
+    #loader-wrapper .load_title__eyebrow {
+      color: #8a8377;
+      font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+      font-size: 10px;
+      font-weight: 600;
+      line-height: 14px;
+      letter-spacing: 0;
+    }
+
+    #loader-wrapper .load_title__message {
+      color: #3f3a33;
+      font-weight: 600;
+    }
+
+    @keyframes loading-progress {
+      from {
+        width: 56%;
+      }
+
+      to {
+        width: 92%;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .load-card {
+        width: calc(100vw - 48px);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #loader,
+      #loader:before,
+      .load-progress__bar {
+        animation-duration: 0.01ms;
+        animation-iteration-count: 1;
+      }
     }
   </style>
 </head>
@@ -203,10 +263,18 @@
 <body>
   <div id="app">
     <div id="loader-wrapper">
-      <div id="loader"></div>
+      <div class="load-progress" aria-hidden="true">
+        <div class="load-progress__bar"></div>
+      </div>
       <div class="loader-section section-left"></div>
       <div class="loader-section section-right"></div>
-      <div class="load_title">正在加载系统资源，请耐心等待</div>
+      <div class="load-card" role="status" aria-live="polite">
+        <div id="loader" aria-hidden="true"></div>
+        <div class="load_title">
+          <span class="load_title__message">正在加载系统资源，请耐心等待</span>
+          <span class="load_title__eyebrow">BI OPERATIONS CONSOLE</span>
+        </div>
+      </div>
     </div>
   </div>
   <script type="module" src="/src/main.js"></script>
