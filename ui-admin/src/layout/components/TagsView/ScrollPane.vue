@@ -146,7 +146,7 @@ defineExpose({
   width: 100%;
   height: 100%;
   :deep(.el-scrollbar__bar) {
-    bottom: 0px;
+    display: none;
   }
   :deep(.el-scrollbar__wrap) {
     height: 100%;

@@ -423,8 +423,8 @@ $tags-bar-height: var(--ui-layout-tags-height, 42px);
       cursor: pointer;
       height: $tags-bar-height;
       line-height: $tags-bar-height;
-      border-right: 1px solid var(--ui-border);
-      color: var(--ui-text-regular);
+      border: none;
+      color: var(--ui-text-secondary);
       background: transparent;
       padding: 0 14px;
       font-size: 13px;
@@ -437,7 +437,6 @@ $tags-bar-height: var(--ui-layout-tags-height, 42px);
 
       &:first-of-type {
         margin-left: 0;
-        border-left: 1px solid var(--ui-border);
       }
 
       &:last-of-type {
@@ -445,15 +444,15 @@ $tags-bar-height: var(--ui-layout-tags-height, 42px);
       }
 
       &:hover {
-        background: var(--ui-bg-hover);
+        background: transparent;
         color: var(--ui-text-primary);
       }
     }
   }
 
   &:not(.tags-view-container--chrome) .tags-view-wrapper .tags-view-item.active {
-    background-color: var(--ui-bg-panel);
-    color: var(--ui-primary-active);
+    background-color: transparent;
+    color: var(--ui-text-primary);
     font-weight: 600;
     box-shadow: none;
 
@@ -464,11 +463,11 @@ $tags-bar-height: var(--ui-layout-tags-height, 42px);
     &::after {
       content: '';
       position: absolute;
-      top: 0;
-      right: 0;
-      left: 0;
-      height: 2px;
-      background: var(--ui-primary);
+      right: 14px;
+      bottom: 0;
+      left: 14px;
+      height: 3px;
+      background: var(--ui-sidebar-text-active);
     }
   }
 

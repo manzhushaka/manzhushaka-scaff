@@ -1,10 +1,6 @@
 <template>
   <div class="app-container server-monitor-page" v-loading="loading">
-    <div class="ui-page-head server-monitor-head">
-      <div>
-        <h2 class="ui-page-title">宿主机监控</h2>
-        <p class="ui-page-desc">查看当前宿主机运行环境、JVM、CPU、内存与磁盘状态。</p>
-      </div>
+    <div class="server-monitor-actions">
       <el-button type="primary" icon="Refresh" :loading="loading" @click="getList">刷新</el-button>
     </div>
 
@@ -204,8 +200,10 @@ getList()
   min-height: 100%;
 }
 
-.server-monitor-head {
-  align-items: center;
+.server-monitor-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
 }
 
 .server-monitor-alert {
@@ -325,15 +323,6 @@ getList()
 }
 
 @media (max-width: 768px) {
-  .server-monitor-head {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .server-monitor-head .el-button {
-    width: 100%;
-  }
-
   .server-description-grid {
     grid-template-columns: 1fr;
   }

@@ -147,6 +147,12 @@
   --el-disabled-text-color: var(--ui-text-muted);
 }
 
+// 数字输入框右侧微调按钮随控件高度等分，避免统一控件增高后出现上下空隙
+.el-input-number.is-controls-right .el-input-number__decrease,
+.el-input-number.is-controls-right .el-input-number__increase {
+  height: calc(50% - 1px);
+}
+
 // ------------------------------------------------------------
 // 4. 公共样式类
 // ------------------------------------------------------------
@@ -203,7 +209,7 @@
 }
 
 .app-container.ui-list-page {
-  padding: 16px;
+  padding: 0;
 }
 
 .ui-list-page > .ui-filter-card {
@@ -822,7 +828,7 @@
 
   .app-container.ui-list-page {
     margin: 12px;
-    padding: 12px;
+    padding: 0;
   }
 
   .ui-action-bar {
