@@ -9,14 +9,6 @@ export function listSlowSql(query) {
   })
 }
 
-// 查询慢 SQL 日志详细
-export function getSlowSql(slowSqlId) {
-  return request({
-    url: '/monitor/slowSql/' + slowSqlId,
-    method: 'get'
-  })
-}
-
 // 删除慢 SQL 日志
 export function delSlowSql(slowSqlId) {
   return request({

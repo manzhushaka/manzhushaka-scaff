@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.manzhushaka.common.constant.CacheConstants;
 import com.manzhushaka.common.core.domain.AjaxResult;
+import com.manzhushaka.common.core.redis.RedisCache;
 import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.system.domain.SysCache;
 
@@ -33,6 +34,9 @@ public class CacheController
 {
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
+
+    @Autowired
+    private RedisCache redisCache;
 
     private final static List<SysCache> caches = new ArrayList<SysCache>();
     {
@@ -81,7 +85,7 @@ public class CacheController
     @GetMapping("/getKeys/{cacheName}")
     public AjaxResult getCacheKeys(@PathVariable String cacheName)
     {
-        Set<String> cacheKeys = redisTemplate.keys(cacheName + "*");
+        Collection<String> cacheKeys = redisCache.keys(cacheName + "*");
         return AjaxResult.success(new TreeSet<>(cacheKeys));
     }
 
@@ -98,7 +102,7 @@ public class CacheController
     @DeleteMapping("/clearCacheName/{cacheName}")
     public AjaxResult clearCacheName(@PathVariable String cacheName)
     {
-        Collection<String> cacheKeys = redisTemplate.keys(cacheName + "*");
+        Collection<String> cacheKeys = redisCache.keys(cacheName + "*");
         redisTemplate.delete(cacheKeys);
         return AjaxResult.success();
     }
@@ -115,7 +119,7 @@ public class CacheController
     @DeleteMapping("/clearCacheAll")
     public AjaxResult clearCacheAll()
     {
-        Collection<String> cacheKeys = redisTemplate.keys("*");
+        Collection<String> cacheKeys = redisCache.keys("*");
         redisTemplate.delete(cacheKeys);
         return AjaxResult.success();
     }

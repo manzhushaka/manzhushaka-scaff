@@ -73,6 +73,7 @@ public class UserDetailsServiceImpl implements UserDetailsService
                 .username(profile.username())
                 .password(profile.password())
                 .permissions(profile.permissions())
+                .roleIds(profile.roleIds())
                 .roleKeys(profile.roleKeys())
                 .build();
     }

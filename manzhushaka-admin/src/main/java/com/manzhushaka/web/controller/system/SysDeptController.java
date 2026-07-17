@@ -21,6 +21,7 @@ import com.manzhushaka.common.core.domain.AjaxResult;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysDept;
 import com.manzhushaka.common.enums.BusinessType;
 import com.manzhushaka.common.utils.StringUtils;
+import com.manzhushaka.framework.security.context.SecurityContextHelper;
 import com.manzhushaka.system.service.ISysDeptService;
 import com.manzhushaka.web.converter.system.shared.TreeSelectAdminConverter;
 import com.manzhushaka.web.dto.system.SysDeptTreeRequest;
@@ -93,7 +94,7 @@ public class SysDeptController extends BaseController
         {
             return error("新增部门'" + dept.getDeptName() + "'失败，部门名称已存在");
         }
-        dept.setCreateBy(getUsername());
+        dept.setCreateBy(SecurityContextHelper.getUsername());
         return toAjax(deptService.insertDept(dept));
     }
 
@@ -119,7 +120,7 @@ public class SysDeptController extends BaseController
         {
             return error("该部门包含未停用的子部门！");
         }
-        dept.setUpdateBy(getUsername());
+        dept.setUpdateBy(SecurityContextHelper.getUsername());
         return toAjax(deptService.updateDept(dept));
     }
 

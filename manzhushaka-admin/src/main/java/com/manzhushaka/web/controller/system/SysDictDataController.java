@@ -22,6 +22,7 @@ import com.manzhushaka.common.core.page.TableDataInfo;
 import com.manzhushaka.common.enums.BusinessType;
 import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.common.utils.poi.ExcelUtil;
+import com.manzhushaka.framework.security.context.SecurityContextHelper;
 import com.manzhushaka.system.service.ISysDictDataService;
 import com.manzhushaka.system.service.ISysDictTypeService;
 
@@ -91,7 +92,7 @@ public class SysDictDataController extends BaseController
     @PostMapping
     public AjaxResult add(@Validated @RequestBody SysDictData dict)
     {
-        dict.setCreateBy(getUsername());
+        dict.setCreateBy(SecurityContextHelper.getUsername());
         return toAjax(dictDataService.insertDictData(dict));
     }
 
@@ -103,7 +104,7 @@ public class SysDictDataController extends BaseController
     @PutMapping
     public AjaxResult edit(@Validated @RequestBody SysDictData dict)
     {
-        dict.setUpdateBy(getUsername());
+        dict.setUpdateBy(SecurityContextHelper.getUsername());
         return toAjax(dictDataService.updateDictData(dict));
     }
 

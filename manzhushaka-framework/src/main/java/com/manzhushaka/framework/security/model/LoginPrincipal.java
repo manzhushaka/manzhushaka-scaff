@@ -55,6 +55,9 @@ public class LoginPrincipal implements UserDetails, Serializable {
     /** 角色键集合 */
     private Set<String> roleKeys;
 
+    /** 角色ID集合 */
+    private Set<Long> roleIds;
+
     // ========== Token & 会话 ==========
 
     /** 用户唯一标识（token） */
@@ -202,6 +205,10 @@ public class LoginPrincipal implements UserDetails, Serializable {
         return roleKeys;
     }
 
+    public Set<Long> getRoleIds() {
+        return roleIds;
+    }
+
     public String getToken() {
         return token;
     }
@@ -285,6 +292,15 @@ public class LoginPrincipal implements UserDetails, Serializable {
         this.roleKeys = roleKeys;
     }
 
+    /**
+     * 设置角色ID集合。
+     *
+     * @param roleIds 角色ID集合
+     */
+    public void setRoleIds(Set<Long> roleIds) {
+        this.roleIds = roleIds;
+    }
+
     public void setLoginTime(Long loginTime) {
         this.loginTime = loginTime;
     }
@@ -356,6 +372,11 @@ public class LoginPrincipal implements UserDetails, Serializable {
 
         public Builder roleKeys(Set<String> roleKeys) {
             instance.roleKeys = roleKeys;
+            return this;
+        }
+
+        public Builder roleIds(Set<Long> roleIds) {
+            instance.roleIds = roleIds;
             return this;
         }
 

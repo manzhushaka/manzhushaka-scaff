@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -106,7 +107,7 @@ public class SysJobController extends BaseController
         {
             return error("新增任务'" + job.getJobName() + "'失败，目标字符串不在白名单内");
         }
-        job.setCreateBy(getUsername());
+        job.setCreateBy(SecurityContextHolder.getContext().getAuthentication().getName());
         return toAjax(jobService.insertJob(job));
     }
 
@@ -142,7 +143,7 @@ public class SysJobController extends BaseController
         {
             return error("修改任务'" + job.getJobName() + "'失败，目标字符串不在白名单内");
         }
-        job.setUpdateBy(getUsername());
+        job.setUpdateBy(SecurityContextHolder.getContext().getAuthentication().getName());
         return toAjax(jobService.updateJob(job));
     }
 

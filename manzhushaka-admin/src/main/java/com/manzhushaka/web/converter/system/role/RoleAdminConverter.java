@@ -1,9 +1,5 @@
 package com.manzhushaka.web.converter.system.role;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import com.manzhushaka.system.infrastructure.persistence.entity.SysRole;
 import com.manzhushaka.system.application.command.CancelAuthUserCommand;
 import com.manzhushaka.system.application.command.ChangeRoleStatusCommand;
 import com.manzhushaka.system.application.command.CreateRoleCommand;
@@ -16,8 +12,6 @@ import com.manzhushaka.web.dto.system.role.CreateRoleRequest;
 import com.manzhushaka.web.dto.system.role.DataScopeRequest;
 import com.manzhushaka.web.dto.system.role.RoleListRequest;
 import com.manzhushaka.web.dto.system.role.UpdateRoleRequest;
-import com.manzhushaka.web.vo.system.role.RoleDetailVO;
-import com.manzhushaka.web.vo.system.role.RoleListVO;
 
 /**
  * 角色管理转换器
@@ -123,61 +117,4 @@ public class RoleAdminConverter
         return new CancelAuthUserCommand(request.getRoleId(), new Long[] { request.getUserId() });
     }
 
-    /**
-     * SysRole -> RoleListVO
-     */
-    public static RoleListVO toRoleListVO(SysRole role)
-    {
-        if (role == null)
-        {
-            return null;
-        }
-        RoleListVO vo = new RoleListVO();
-        vo.setRoleId(role.getRoleId());
-        vo.setRoleName(role.getRoleName());
-        vo.setRoleKey(role.getRoleKey());
-        vo.setRoleSort(role.getRoleSort());
-        vo.setDataScope(role.getDataScope());
-        vo.setStatus(role.getStatus());
-        vo.setFlag(role.isFlag());
-        vo.setCreateTime(role.getCreateTime());
-        return vo;
-    }
-
-    /**
-     * List<SysRole> -> List<RoleListVO>
-     */
-    public static List<RoleListVO> toRoleListVO(List<SysRole> roles)
-    {
-        if (roles == null)
-        {
-            return new ArrayList<>();
-        }
-        return roles.stream()
-                .map(RoleAdminConverter::toRoleListVO)
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * SysRole -> RoleDetailVO
-     */
-    public static RoleDetailVO toRoleDetailVO(SysRole role)
-    {
-        if (role == null)
-        {
-            return null;
-        }
-        RoleDetailVO vo = new RoleDetailVO();
-        vo.setRoleId(role.getRoleId());
-        vo.setRoleName(role.getRoleName());
-        vo.setRoleKey(role.getRoleKey());
-        vo.setRoleSort(role.getRoleSort());
-        vo.setDataScope(role.getDataScope());
-        vo.setStatus(role.getStatus());
-        vo.setDelFlag(role.getDelFlag());
-        vo.setRemark(role.getRemark());
-        vo.setPermissions(role.getPermissions());
-        vo.setCreateTime(role.getCreateTime());
-        return vo;
-    }
 }

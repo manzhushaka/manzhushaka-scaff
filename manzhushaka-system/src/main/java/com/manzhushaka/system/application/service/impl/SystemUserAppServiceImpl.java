@@ -16,7 +16,6 @@ import com.manzhushaka.system.application.command.ResetPwdCommand;
 import com.manzhushaka.system.application.command.UpdateUserCommand;
 import com.manzhushaka.system.application.query.UserListQuery;
 import com.manzhushaka.system.application.service.SystemUserAppService;
-import com.manzhushaka.system.domain.repository.UserRepository;
 import com.manzhushaka.system.service.ISysDeptService;
 import com.manzhushaka.system.service.ISysRoleService;
 import com.manzhushaka.system.service.ISysUserService;
@@ -29,9 +28,6 @@ import com.manzhushaka.system.service.ISysUserService;
 @Service
 public class SystemUserAppServiceImpl implements SystemUserAppService
 {
-    @Autowired
-    private UserRepository userRepository;
-
     @Autowired
     private ISysUserService userService;
 
@@ -57,7 +53,7 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
         {
             user.getParams().put("endTime", query.endTime());
         }
-        return userRepository.selectUserList(user);
+        return userService.selectUserList(user);
     }
 
     @Override
@@ -70,12 +66,12 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
     public SysUser getUserDetail(Long userId)
     {
         userService.checkUserDataScope(userId);
-        return userRepository.selectUserById(userId);
+        return userService.selectUserById(userId);
     }
 
     @Override
     @Transactional
-    public Long createUser(CreateUserCommand command)
+    public Long createUser(CreateUserCommand command, String operatorUsername)
     {
         validateStrongPassword(command.username(), command.password());
 
@@ -91,7 +87,7 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
         user.setDeptId(command.deptId());
         user.setRoleIds(command.roleIds());
         user.setPassword(PasswordUtils.encrypt(command.password()));
-        user.setCreateBy(command.username());
+        user.setCreateBy(operatorUsername);
 
         deptService.checkDeptDataScope(user.getDeptId());
         roleService.checkRoleDataScope(user.getRoleIds());
@@ -109,13 +105,13 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
             throw new ServiceException("新增用户'" + user.getUserName() + "'失败，邮箱账号已存在");
         }
 
-        userRepository.insertUser(user);
+        userService.insertUser(user);
         return user.getUserId();
     }
 
     @Override
     @Transactional
-    public void updateUser(UpdateUserCommand command)
+    public void updateUser(UpdateUserCommand command, String operatorUsername)
     {
         SysUser user = new SysUser();
         user.setUserId(command.userId());
@@ -127,6 +123,7 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
         user.setStatus(command.status());
         user.setDeptId(command.deptId());
         user.setRoleIds(command.roleIds());
+        user.setUpdateBy(operatorUsername);
 
         userService.checkUserAllowed(user);
         userService.checkUserDataScope(user.getUserId());
@@ -146,14 +143,14 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
             throw new ServiceException("修改用户'" + user.getUserName() + "'失败，邮箱账号已存在");
         }
 
-        userRepository.updateUser(user);
+        userService.updateUser(user);
     }
 
     @Override
     @Transactional
     public void deleteUser(Long[] userIds)
     {
-        userRepository.deleteUserByIds(userIds);
+        userService.deleteUserByIds(userIds);
     }
 
     @Override
@@ -161,7 +158,7 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
     public void resetPwd(ResetPwdCommand command)
     {
         validateStrongPassword(null, command.password());
-        SysUser currentUser = userRepository.selectUserById(command.userId());
+        SysUser currentUser = userService.selectUserById(command.userId());
         validateStrongPassword(currentUser != null ? currentUser.getUserName() : null, command.password());
 
         SysUser user = new SysUser();
@@ -169,7 +166,7 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
         user.setPassword(PasswordUtils.encrypt(command.password()));
         userService.checkUserAllowed(user);
         userService.checkUserDataScope(user.getUserId());
-        userRepository.resetUserPwd(user.getUserId(), user.getPassword());
+        userService.resetUserPwd(user.getUserId(), user.getPassword());
     }
 
     @Override
@@ -181,7 +178,7 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
         user.setStatus(command.status());
         userService.checkUserAllowed(user);
         userService.checkUserDataScope(user.getUserId());
-        userRepository.updateUserStatus(user.getUserId(), user.getStatus());
+        userService.updateUserStatus(user);
     }
 
     @Override
@@ -190,7 +187,7 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
     {
         userService.checkUserDataScope(userId);
         roleService.checkRoleDataScope(roleIds);
-        userRepository.insertUserAuth(userId, roleIds);
+        userService.insertUserAuth(userId, roleIds);
     }
 
     @Override

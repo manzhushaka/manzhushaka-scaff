@@ -38,30 +38,34 @@ public interface SystemRoleAppService
      * 创建角色
      *
      * @param command 创建命令
+     * @param operatorUsername 操作人账号
      * @return 新角色ID
      */
-    Long createRole(CreateRoleCommand command);
+    Long createRole(CreateRoleCommand command, String operatorUsername);
 
     /**
      * 修改角色
      *
      * @param command 修改命令
+     * @param operatorUsername 操作人账号
      */
-    void updateRole(UpdateRoleCommand command);
+    void updateRole(UpdateRoleCommand command, String operatorUsername);
 
     /**
      * 修改数据权限
      *
      * @param command 数据权限命令
+     * @param operatorUsername 操作人账号
      */
-    void updateDataScope(DataScopeCommand command);
+    void updateDataScope(DataScopeCommand command, String operatorUsername);
 
     /**
      * 修改角色状态
      *
      * @param command 修改状态命令
+     * @param operatorUsername 操作人账号
      */
-    void changeStatus(ChangeRoleStatusCommand command);
+    void changeStatus(ChangeRoleStatusCommand command, String operatorUsername);
 
     /**
      * 删除角色

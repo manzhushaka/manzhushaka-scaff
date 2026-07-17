@@ -22,6 +22,7 @@ import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
 import com.manzhushaka.common.core.page.TableDataInfo;
 import com.manzhushaka.common.enums.BusinessType;
 import com.manzhushaka.common.utils.poi.ExcelUtil;
+import com.manzhushaka.framework.security.context.SecurityContextHelper;
 import com.manzhushaka.framework.web.service.SysPermissionService;
 import com.manzhushaka.framework.web.service.TokenService;
 import com.manzhushaka.system.application.service.SystemRoleAppService;
@@ -115,7 +116,7 @@ public class SysRoleController extends BaseController
             return error("新增角色'" + request.getRoleName() + "'失败，角色权限已存在");
         }
         var command = RoleAdminConverter.toCreateRoleCommand(request);
-        roleAppService.createRole(command);
+        roleAppService.createRole(command, SecurityContextHelper.getUsername());
         return toAjax(true);
     }
 
@@ -142,7 +143,7 @@ public class SysRoleController extends BaseController
             return error("修改角色'" + request.getRoleName() + "'失败，角色权限已存在");
         }
         var command = RoleAdminConverter.toUpdateRoleCommand(request);
-        roleAppService.updateRole(command);
+        roleAppService.updateRole(command, SecurityContextHelper.getUsername());
 
         // 刷新所有持有该角色的在线用户权限
         tokenService.refreshPermissionByRoleId(request.getRoleId(), permissionService);
@@ -162,7 +163,7 @@ public class SysRoleController extends BaseController
         roleService.checkRoleAllowed(checkRole);
         roleService.checkRoleDataScope(request.getRoleId());
         var command = RoleAdminConverter.toDataScopeCommand(request);
-        roleAppService.updateDataScope(command);
+        roleAppService.updateDataScope(command, SecurityContextHelper.getUsername());
         return toAjax(true);
     }
 
@@ -179,7 +180,7 @@ public class SysRoleController extends BaseController
         roleService.checkRoleAllowed(checkRole);
         roleService.checkRoleDataScope(request.getRoleId());
         var command = RoleAdminConverter.toChangeRoleStatusCommand(request);
-        roleAppService.changeStatus(command);
+        roleAppService.changeStatus(command, SecurityContextHelper.getUsername());
         return toAjax(true);
     }
 

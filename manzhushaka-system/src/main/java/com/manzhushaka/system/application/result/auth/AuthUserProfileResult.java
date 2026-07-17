@@ -19,6 +19,7 @@ import java.util.Set;
  * @param status       账号状态（0正常 1停用）
  * @param delFlag      删除标志（0存在 2删除）
  * @param admin        是否为管理员
+ * @param roleIds      角色ID集合
  * @param roleKeys     角色键集合
  * @param permissions  权限集合
  * @param pwdUpdateDate 密码最后更新时间
@@ -35,6 +36,7 @@ public record AuthUserProfileResult(
         String status,
         String delFlag,
         boolean admin,
+        Set<Long> roleIds,
         Set<String> roleKeys,
         Set<String> permissions,
         Date pwdUpdateDate) {

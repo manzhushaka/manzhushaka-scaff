@@ -42,12 +42,20 @@
 <script setup name="Cache">
 import { computed } from 'vue'
 import { getCache } from '@/api/monitor/cache'
-import * as echarts from 'echarts'
+import { init, use } from 'echarts/core'
+import { GaugeChart, PieChart as PieChartSeries } from 'echarts/charts'
+import { TooltipComponent } from 'echarts/components'
+import { LabelLayout } from 'echarts/features'
+import { CanvasRenderer } from 'echarts/renderers'
+
+use([PieChartSeries, GaugeChart, TooltipComponent, LabelLayout, CanvasRenderer])
 
 const cache = ref({})
 const commandstats = ref(null)
 const usedmemory = ref(null)
 const { proxy } = getCurrentInstance()
+let commandstatsInstance
+let usedmemoryInstance
 
 const basicInfoRows = computed(() => [
   { label: 'Redis版本', value: cache.value.info?.redis_version },
@@ -67,13 +75,14 @@ const basicInfoRows = computed(() => [
 function getList() {
   proxy.$modal.loading("正在加载缓存监控数据，请稍候！")
   getCache().then(response => {
-    proxy.$modal.closeLoading()
     const data = response.data || {}
     const info = data.info || {}
     cache.value = data
 
-    const commandstatsIntance = echarts.init(commandstats.value, "macarons")
-    commandstatsIntance.setOption({
+    commandstatsInstance?.dispose()
+    usedmemoryInstance?.dispose()
+    commandstatsInstance = init(commandstats.value)
+    commandstatsInstance.setOption({
       tooltip: {
         trigger: "item",
         formatter: "{a} <br/>{b} : {c} ({d}%)"
@@ -91,7 +100,7 @@ function getList() {
         }
       ]
     })
-    const usedmemoryInstance = echarts.init(usedmemory.value, "macarons")
+    usedmemoryInstance = init(usedmemory.value)
     usedmemoryInstance.setOption({
       tooltip: {
         formatter: "{b} <br/>{a} : " + formatText(info.used_memory_human)
@@ -114,11 +123,14 @@ function getList() {
         }
       ]
     })
-    window.addEventListener("resize", () => {
-      commandstatsIntance.resize()
-      usedmemoryInstance.resize()
-    })
+  }).finally(() => {
+    proxy.$modal.closeLoading()
   })
+}
+
+function resizeCharts() {
+  commandstatsInstance?.resize()
+  usedmemoryInstance?.resize()
 }
 
 function formatText(value) {
@@ -154,7 +166,16 @@ function formatNetwork(info) {
   return `${formatText(info.instantaneous_input_kbps)}kps/${formatText(info.instantaneous_output_kbps)}kps`
 }
 
-getList()
+onMounted(() => {
+  window.addEventListener("resize", resizeCharts)
+  getList()
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener("resize", resizeCharts)
+  commandstatsInstance?.dispose()
+  usedmemoryInstance?.dispose()
+})
 </script>
 
 <style lang="scss" scoped>

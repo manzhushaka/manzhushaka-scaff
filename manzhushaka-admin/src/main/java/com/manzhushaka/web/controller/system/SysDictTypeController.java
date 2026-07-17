@@ -20,6 +20,7 @@ import com.manzhushaka.system.infrastructure.persistence.entity.SysDictType;
 import com.manzhushaka.common.core.page.TableDataInfo;
 import com.manzhushaka.common.enums.BusinessType;
 import com.manzhushaka.common.utils.poi.ExcelUtil;
+import com.manzhushaka.framework.security.context.SecurityContextHelper;
 import com.manzhushaka.system.service.ISysDictTypeService;
 
 /**
@@ -75,7 +76,7 @@ public class SysDictTypeController extends BaseController
         {
             return error("新增字典'" + dict.getDictName() + "'失败，字典类型已存在");
         }
-        dict.setCreateBy(getUsername());
+        dict.setCreateBy(SecurityContextHelper.getUsername());
         return toAjax(dictTypeService.insertDictType(dict));
     }
 
@@ -91,7 +92,7 @@ public class SysDictTypeController extends BaseController
         {
             return error("修改字典'" + dict.getDictName() + "'失败，字典类型已存在");
         }
-        dict.setUpdateBy(getUsername());
+        dict.setUpdateBy(SecurityContextHelper.getUsername());
         return toAjax(dictTypeService.updateDictType(dict));
     }
 

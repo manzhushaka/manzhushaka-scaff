@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.manzhushaka.common.exception.ServiceException;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysRole;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
 import com.manzhushaka.system.application.command.CancelAuthUserCommand;
@@ -13,8 +14,7 @@ import com.manzhushaka.system.application.command.DataScopeCommand;
 import com.manzhushaka.system.application.command.UpdateRoleCommand;
 import com.manzhushaka.system.application.query.RoleListQuery;
 import com.manzhushaka.system.application.service.SystemRoleAppService;
-import com.manzhushaka.system.infrastructure.persistence.entity.SysUserRole;
-import com.manzhushaka.system.domain.repository.RoleRepository;
+import com.manzhushaka.system.domain.SysUserRole;
 import com.manzhushaka.system.service.ISysRoleService;
 import com.manzhushaka.system.service.ISysUserService;
 
@@ -26,9 +26,6 @@ import com.manzhushaka.system.service.ISysUserService;
 @Service
 public class SystemRoleAppServiceImpl implements SystemRoleAppService
 {
-    @Autowired
-    private RoleRepository roleRepository;
-
     @Autowired
     private ISysRoleService roleService;
 
@@ -50,19 +47,19 @@ public class SystemRoleAppServiceImpl implements SystemRoleAppService
         {
             role.getParams().put("endTime", query.endTime());
         }
-        return roleRepository.selectRoleList(role);
+        return roleService.selectRoleList(role);
     }
 
     @Override
     public SysRole getRoleDetail(Long roleId)
     {
         roleService.checkRoleDataScope(roleId);
-        return roleRepository.selectRoleById(roleId);
+        return roleService.selectRoleById(roleId);
     }
 
     @Override
     @Transactional
-    public Long createRole(CreateRoleCommand command)
+    public Long createRole(CreateRoleCommand command, String operatorUsername)
     {
         SysRole role = new SysRole();
         role.setRoleId(command.roleId());
@@ -74,23 +71,24 @@ public class SystemRoleAppServiceImpl implements SystemRoleAppService
         role.setMenuIds(command.menuIds());
         role.setDeptIds(command.deptIds());
         role.setRemark(command.remark());
+        role.setCreateBy(operatorUsername);
 
         if (!roleService.checkRoleNameUnique(role))
         {
-            throw new RuntimeException("新增角色'" + role.getRoleName() + "'失败，角色名称已存在");
+            throw new ServiceException("新增角色'" + role.getRoleName() + "'失败，角色名称已存在");
         }
         if (!roleService.checkRoleKeyUnique(role))
         {
-            throw new RuntimeException("新增角色'" + role.getRoleName() + "'失败，角色权限已存在");
+            throw new ServiceException("新增角色'" + role.getRoleName() + "'失败，角色权限已存在");
         }
 
-        roleRepository.insertRole(role);
+        roleService.insertRole(role);
         return role.getRoleId();
     }
 
     @Override
     @Transactional
-    public void updateRole(UpdateRoleCommand command)
+    public void updateRole(UpdateRoleCommand command, String operatorUsername)
     {
         SysRole role = new SysRole();
         role.setRoleId(command.roleId());
@@ -102,60 +100,63 @@ public class SystemRoleAppServiceImpl implements SystemRoleAppService
         role.setMenuIds(command.menuIds());
         role.setDeptIds(command.deptIds());
         role.setRemark(command.remark());
+        role.setUpdateBy(operatorUsername);
 
         roleService.checkRoleAllowed(role);
         roleService.checkRoleDataScope(role.getRoleId());
 
         if (!roleService.checkRoleNameUnique(role))
         {
-            throw new RuntimeException("修改角色'" + role.getRoleName() + "'失败，角色名称已存在");
+            throw new ServiceException("修改角色'" + role.getRoleName() + "'失败，角色名称已存在");
         }
         if (!roleService.checkRoleKeyUnique(role))
         {
-            throw new RuntimeException("修改角色'" + role.getRoleName() + "'失败，角色权限已存在");
+            throw new ServiceException("修改角色'" + role.getRoleName() + "'失败，角色权限已存在");
         }
 
-        roleRepository.updateRole(role);
+        roleService.updateRole(role);
     }
 
     @Override
     @Transactional
-    public void updateDataScope(DataScopeCommand command)
+    public void updateDataScope(DataScopeCommand command, String operatorUsername)
     {
         SysRole role = new SysRole();
         role.setRoleId(command.roleId());
         role.setDataScope(command.dataScope());
         role.setDeptIds(command.deptIds());
+        role.setUpdateBy(operatorUsername);
 
         roleService.checkRoleAllowed(role);
         roleService.checkRoleDataScope(role.getRoleId());
-        roleRepository.authDataScope(role);
+        roleService.authDataScope(role);
     }
 
     @Override
     @Transactional
-    public void changeStatus(ChangeRoleStatusCommand command)
+    public void changeStatus(ChangeRoleStatusCommand command, String operatorUsername)
     {
         SysRole role = new SysRole();
         role.setRoleId(command.roleId());
         role.setStatus(command.status());
+        role.setUpdateBy(operatorUsername);
 
         roleService.checkRoleAllowed(role);
         roleService.checkRoleDataScope(role.getRoleId());
-        roleRepository.updateRoleStatus(role);
+        roleService.updateRoleStatus(role);
     }
 
     @Override
     @Transactional
     public void deleteRole(Long[] roleIds)
     {
-        roleRepository.deleteRoleByIds(roleIds);
+        roleService.deleteRoleByIds(roleIds);
     }
 
     @Override
     public List<SysRole> selectRoleAll()
     {
-        return roleRepository.selectRoleAll();
+        return roleService.selectRoleAll();
     }
 
     @Override
@@ -183,14 +184,14 @@ public class SystemRoleAppServiceImpl implements SystemRoleAppService
         {
             userRole.setUserId(command.userIds()[0]);
         }
-        roleRepository.deleteAuthUser(userRole);
+        roleService.deleteAuthUser(userRole);
     }
 
     @Override
     @Transactional
     public void cancelAuthUserAll(Long roleId, Long[] userIds)
     {
-        roleRepository.deleteAuthUsers(roleId, userIds);
+        roleService.deleteAuthUsers(roleId, userIds);
     }
 
     @Override
@@ -198,6 +199,6 @@ public class SystemRoleAppServiceImpl implements SystemRoleAppService
     public void selectAuthUserAll(Long roleId, Long[] userIds)
     {
         roleService.checkRoleDataScope(roleId);
-        roleRepository.insertAuthUsers(roleId, userIds);
+        roleService.insertAuthUsers(roleId, userIds);
     }
 }

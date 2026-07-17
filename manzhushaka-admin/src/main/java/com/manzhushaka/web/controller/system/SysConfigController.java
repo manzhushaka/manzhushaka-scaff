@@ -19,6 +19,7 @@ import com.manzhushaka.common.core.domain.AjaxResult;
 import com.manzhushaka.common.core.page.TableDataInfo;
 import com.manzhushaka.common.enums.BusinessType;
 import com.manzhushaka.common.utils.poi.ExcelUtil;
+import com.manzhushaka.framework.security.context.SecurityContextHelper;
 import com.manzhushaka.system.domain.SysConfig;
 import com.manzhushaka.system.service.ISysConfigService;
 
@@ -87,7 +88,7 @@ public class SysConfigController extends BaseController
         {
             return error("新增参数'" + config.getConfigName() + "'失败，参数键名已存在");
         }
-        config.setCreateBy(getUsername());
+        config.setCreateBy(SecurityContextHelper.getUsername());
         return toAjax(configService.insertConfig(config));
     }
 
@@ -103,7 +104,7 @@ public class SysConfigController extends BaseController
         {
             return error("修改参数'" + config.getConfigName() + "'失败，参数键名已存在");
         }
-        config.setUpdateBy(getUsername());
+        config.setUpdateBy(SecurityContextHelper.getUsername());
         return toAjax(configService.updateConfig(config));
     }
 

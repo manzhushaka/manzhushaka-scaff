@@ -105,6 +105,7 @@ public class SystemSecurityQueryServiceImpl implements SystemSecurityQueryServic
 
         // 角色键
         Set<String> roleKeys = buildRoleKeys(user, isAdmin);
+        Set<Long> roleIds = buildRoleIds(user);
         // 权限
         Set<String> permissions = buildPermissions(user, isAdmin);
 
@@ -124,10 +125,27 @@ public class SystemSecurityQueryServiceImpl implements SystemSecurityQueryServic
                 user.getStatus(),
                 user.getDelFlag(),
                 isAdmin,
+                roleIds,
                 roleKeys,
                 permissions,
                 user.getPwdUpdateDate()
         );
+    }
+
+    /**
+     * 构建角色ID集合。
+     *
+     * @param user 用户信息
+     * @return 角色ID集合
+     */
+    private Set<Long> buildRoleIds(SysUser user) {
+        if (CollectionUtils.isEmpty(user.getRoles())) {
+            return new HashSet<>();
+        }
+        return user.getRoles().stream()
+                .map(SysRole::getRoleId)
+                .filter(java.util.Objects::nonNull)
+                .collect(java.util.stream.Collectors.toSet());
     }
 
     /**

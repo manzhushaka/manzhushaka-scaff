@@ -19,11 +19,11 @@ import com.manzhushaka.common.core.controller.BaseController;
 import com.manzhushaka.common.core.domain.AjaxResult;
 import com.manzhushaka.common.enums.BusinessType;
 import com.manzhushaka.common.utils.StringUtils;
+import com.manzhushaka.framework.security.context.SecurityContextHelper;
 import com.manzhushaka.system.application.result.shared.TreeNodeResult;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysMenu;
 import com.manzhushaka.system.service.ISysMenuService;
 import com.manzhushaka.web.converter.system.shared.TreeSelectAdminConverter;
-import com.manzhushaka.web.vo.system.shared.TreeSelectVo;
 
 /**
  * 菜单信息
@@ -44,7 +44,7 @@ public class SysMenuController extends BaseController
     @GetMapping("/list")
     public AjaxResult list(SysMenu menu)
     {
-        List<SysMenu> menus = menuService.selectMenuList(menu, getUserId());
+        List<SysMenu> menus = menuService.selectMenuList(menu, SecurityContextHelper.getUserId());
         return success(menus);
     }
 
@@ -61,10 +61,11 @@ public class SysMenuController extends BaseController
     /**
      * 获取菜单下拉树列表
      */
+    @PreAuthorize("@ss.hasPermi('system:menu:list')")
     @GetMapping("/treeselect")
     public AjaxResult treeselect(SysMenu menu)
     {
-        List<SysMenu> menus = menuService.selectMenuList(menu, getUserId());
+        List<SysMenu> menus = menuService.selectMenuList(menu, SecurityContextHelper.getUserId());
         List<TreeNodeResult> treeNodes = menuService.buildMenuTreeSelect(menus);
         return success(TreeSelectAdminConverter.toVoList(treeNodes));
     }
@@ -72,10 +73,11 @@ public class SysMenuController extends BaseController
     /**
      * 加载对应角色菜单列表树
      */
+    @PreAuthorize("@ss.hasPermi('system:role:query')")
     @GetMapping(value = "/roleMenuTreeselect/{roleId}")
     public AjaxResult roleMenuTreeselect(@PathVariable("roleId") Long roleId)
     {
-        List<SysMenu> menus = menuService.selectMenuList(getUserId());
+        List<SysMenu> menus = menuService.selectMenuList(SecurityContextHelper.getUserId());
         AjaxResult ajax = AjaxResult.success();
         ajax.put("checkedKeys", menuService.selectMenuListByRoleId(roleId));
         List<TreeNodeResult> treeNodes = menuService.buildMenuTreeSelect(menus);
@@ -103,7 +105,7 @@ public class SysMenuController extends BaseController
         {
             return error("新增菜单'" + menu.getMenuName() + "'失败，路由名称或地址已存在");
         }
-        menu.setCreateBy(getUsername());
+        menu.setCreateBy(SecurityContextHelper.getUsername());
         return toAjax(menuService.insertMenu(menu));
     }
 
@@ -131,7 +133,7 @@ public class SysMenuController extends BaseController
         {
             return error("修改菜单'" + menu.getMenuName() + "'失败，路由名称或地址已存在");
         }
-        menu.setUpdateBy(getUsername());
+        menu.setUpdateBy(SecurityContextHelper.getUsername());
         return toAjax(menuService.updateMenu(menu));
     }
 

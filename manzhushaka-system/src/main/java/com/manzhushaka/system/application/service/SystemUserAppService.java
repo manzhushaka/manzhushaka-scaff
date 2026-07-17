@@ -44,16 +44,18 @@ public interface SystemUserAppService
      * 创建用户
      *
      * @param command 创建命令
+     * @param operatorUsername 操作人账号
      * @return 新用户ID
      */
-    Long createUser(CreateUserCommand command);
+    Long createUser(CreateUserCommand command, String operatorUsername);
 
     /**
      * 修改用户
      *
      * @param command 修改命令
+     * @param operatorUsername 操作人账号
      */
-    void updateUser(UpdateUserCommand command);
+    void updateUser(UpdateUserCommand command, String operatorUsername);
 
     /**
      * 删除用户

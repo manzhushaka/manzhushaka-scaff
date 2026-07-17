@@ -201,18 +201,6 @@ public class TokenService
     }
 
     /**
-     * 从令牌中获取用户名
-     *
-     * @param token 令牌
-     * @return 用户名
-     */
-    public String getUsernameFromToken(String token)
-    {
-        Claims claims = parseToken(token);
-        return claims.getSubject();
-    }
-
-    /**
      * 获取请求token
      *
      * @param request
@@ -257,8 +245,8 @@ public class TokenService
                 continue;
             }
             // 判断该用户是否拥有此角色
-            boolean hasRole = loginPrincipal.getRoleKeys() != null
-                    && loginPrincipal.getRoleKeys().stream().anyMatch(r -> roleId.equals(r));
+            boolean hasRole = loginPrincipal.getRoleIds() != null
+                    && loginPrincipal.getRoleIds().contains(roleId);
             if (!hasRole)
             {
                 continue;

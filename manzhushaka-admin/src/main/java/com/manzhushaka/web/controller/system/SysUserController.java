@@ -86,11 +86,12 @@ public class SysUserController extends BaseController
     {
         ExcelUtil<SysUser> util = new ExcelUtil<SysUser>(SysUser.class);
         List<SysUser> userList = util.importExcel(file.getInputStream());
-        String operName = getUsername();
+        String operName = SecurityContextHelper.getUsername();
         String message = userAppService.importUser(userList, updateSupport, operName);
         return success(message);
     }
 
+    @PreAuthorize("@ss.hasPermi('system:user:import')")
     @PostMapping("/importTemplate")
     public void importTemplate(HttpServletResponse response)
     {
@@ -126,7 +127,7 @@ public class SysUserController extends BaseController
     public AjaxResult add(@Validated @RequestBody CreateUserRequest request)
     {
         var command = UserAdminConverter.toCreateUserCommand(request);
-        userAppService.createUser(command);
+        userAppService.createUser(command, SecurityContextHelper.getUsername());
         return toAjax(true);
     }
 
@@ -139,7 +140,7 @@ public class SysUserController extends BaseController
     public AjaxResult edit(@Validated @RequestBody UpdateUserRequest request)
     {
         var command = UserAdminConverter.toUpdateUserCommand(request);
-        userAppService.updateUser(command);
+        userAppService.updateUser(command, SecurityContextHelper.getUsername());
         return success();
     }
 
@@ -151,7 +152,7 @@ public class SysUserController extends BaseController
     @DeleteMapping("/{userIds}")
     public AjaxResult remove(@PathVariable Long[] userIds)
     {
-        if (ArrayUtils.contains(userIds, getUserId()))
+        if (ArrayUtils.contains(userIds, SecurityContextHelper.getUserId()))
         {
             return error("当前用户不能删除");
         }

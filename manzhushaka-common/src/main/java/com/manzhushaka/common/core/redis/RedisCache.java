@@ -1,5 +1,6 @@
 package com.manzhushaka.common.core.redis;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -8,8 +9,10 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.BoundSetOperations;
+import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 
@@ -258,11 +261,19 @@ public class RedisCache
     /**
      * 获得缓存的基本对象列表
      *
-     * @param pattern 字符串前缀
+     * 使用 SCAN 分批遍历，避免 Redis KEYS 阻塞服务。
+     *
+     * @param pattern 键匹配表达式
      * @return 对象列表
      */
     public Collection<String> keys(final String pattern)
     {
-        return redisTemplate.keys(pattern);
+        List<String> keys = new ArrayList<>();
+        ScanOptions options = ScanOptions.scanOptions().match(pattern).count(1000L).build();
+        try (Cursor<Object> cursor = redisTemplate.scan(options))
+        {
+            cursor.forEachRemaining(key -> keys.add(String.valueOf(key)));
+        }
+        return keys;
     }
 }

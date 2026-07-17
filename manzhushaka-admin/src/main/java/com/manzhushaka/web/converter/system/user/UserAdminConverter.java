@@ -1,10 +1,5 @@
 package com.manzhushaka.web.converter.system.user;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import com.manzhushaka.system.infrastructure.persistence.entity.SysRole;
-import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
 import com.manzhushaka.system.application.command.ChangeUserStatusCommand;
 import com.manzhushaka.system.application.command.CreateUserCommand;
 import com.manzhushaka.system.application.command.ResetPwdCommand;
@@ -15,7 +10,6 @@ import com.manzhushaka.web.dto.system.user.CreateUserRequest;
 import com.manzhushaka.web.dto.system.user.ResetPwdRequest;
 import com.manzhushaka.web.dto.system.user.UpdateUserRequest;
 import com.manzhushaka.web.dto.system.user.UserListRequest;
-import com.manzhushaka.web.vo.system.user.UserListVO;
 
 /**
  * 用户管理转换器
@@ -110,46 +104,6 @@ public class UserAdminConverter
             return null;
         }
         return new ChangeUserStatusCommand(request.getUserId(), request.getStatus());
-    }
-
-    /**
-     * SysUser -> UserListVO
-     */
-    public static UserListVO toUserListVO(SysUser user)
-    {
-        if (user == null)
-        {
-            return null;
-        }
-        UserListVO vo = new UserListVO();
-        vo.setUserId(user.getUserId());
-        vo.setDeptId(user.getDeptId());
-        vo.setUserName(user.getUserName());
-        vo.setNickName(user.getNickName());
-        vo.setEmail(user.getEmail());
-        vo.setPhonenumber(user.getPhonenumber());
-        vo.setSex(user.getSex());
-        vo.setStatus(user.getStatus());
-        if (user.getDept() != null)
-        {
-            vo.setDeptName(user.getDept().getDeptName());
-        }
-        vo.setCreateTime(user.getCreateTime());
-        return vo;
-    }
-
-    /**
-     * List<SysUser> -> List<UserListVO>
-     */
-    public static List<UserListVO> toUserListVO(List<SysUser> users)
-    {
-        if (users == null)
-        {
-            return new ArrayList<>();
-        }
-        return users.stream()
-                .map(UserAdminConverter::toUserListVO)
-                .collect(Collectors.toList());
     }
 
 }

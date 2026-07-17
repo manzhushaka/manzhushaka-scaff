@@ -110,42 +110,12 @@ export function selectDictLabels(datas, value, separator) {
   return actions.join('').substring(0, actions.join('').length - 1)
 }
 
-// 字符串格式化(%s )
-export function sprintf(str) {
-  let flag = true, i = 1
-  str = str.replace(/%s/g, function () {
-    const arg = args[i++]
-    if (typeof arg === 'undefined') {
-      flag = false
-      return ''
-    }
-    return arg
-  })
-  return flag ? str : ''
-}
-
 // 转换字符串，undefined,null等转化为""
 export function parseStrEmpty(str) {
   if (!str || str == "undefined" || str == "null") {
     return ""
   }
   return str
-}
-
-// 数据合并
-export function mergeRecursive(source, target) {
-  for (const p in target) {
-    try {
-      if (target[p].constructor == Object) {
-        source[p] = mergeRecursive(source[p], target[p])
-      } else {
-        source[p] = target[p]
-      }
-    } catch (e) {
-      source[p] = target[p]
-    }
-  }
-  return source
 }
 
 /**

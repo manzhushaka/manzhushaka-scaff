@@ -474,6 +474,7 @@ public class SysUserServiceImpl implements ISysUserService
                     validateInitialPassword(user.getUserName(), password);
                     user.setPassword(PasswordUtils.encrypt(password));
                     user.setCreateBy(operName);
+                    SysUserSensitiveFieldSupport.fillHashes(user);
                     userMapper.insertUser(user);
                     successNum++;
                     successMsg.append("<br/>" + successNum + "、账号 " + user.getUserName() + " 导入成功");
@@ -485,8 +486,8 @@ public class SysUserServiceImpl implements ISysUserService
                     checkUserDataScope(u.getUserId());
                     deptService.checkDeptDataScope(user.getDeptId());
                     user.setUserId(u.getUserId());
-                    user.setDeptId(u.getDeptId());
                     user.setUpdateBy(operName);
+                    SysUserSensitiveFieldSupport.fillHashes(user);
                     userMapper.updateUser(user);
                     successNum++;
                     successMsg.append("<br/>" + successNum + "、账号 " + user.getUserName() + " 更新成功");

@@ -2,10 +2,13 @@ package com.manzhushaka.framework.web.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -17,6 +20,7 @@ import com.manzhushaka.common.constant.CacheConstants;
 import com.manzhushaka.common.constant.Constants;
 import com.manzhushaka.common.core.redis.RedisCache;
 import com.manzhushaka.framework.security.model.LoginPrincipal;
+import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -61,6 +65,34 @@ class TokenServiceTest {
         assertThat(actual.getDeptName()).isEqualTo("研发部门");
         assertThat(actual.getUsername()).isEqualTo("admin");
         assertThat(actual.getToken()).isEqualTo("token-1");
+    }
+
+    /**
+     * 角色权限变更后应按角色ID刷新匹配用户。
+     */
+    @Test
+    void refreshPermissionByRoleIdShouldMatchRoleIds() {
+        TokenService tokenService = new TokenService();
+        RedisCache redisCache = mock(RedisCache.class);
+        SysPermissionService permissionService = mock(SysPermissionService.class);
+        ReflectionTestUtils.setField(tokenService, "redisCache", redisCache);
+        ReflectionTestUtils.setField(tokenService, "expireTime", 30);
+
+        LoginPrincipal principal = LoginPrincipal.builder()
+                .userId(2L)
+                .username("zhangsan")
+                .roleIds(Set.of(5L))
+                .permissions(Set.of("system:user:list"))
+                .token("token-2")
+                .build();
+        when(redisCache.keys(CacheConstants.LOGIN_TOKEN_KEY + "*")).thenReturn(List.of("token:key"));
+        when(redisCache.getCacheObject("token:key")).thenReturn(principal);
+        when(permissionService.getMenuPermission(any(SysUser.class)))
+                .thenReturn(Set.of("system:user:edit"));
+
+        tokenService.refreshPermissionByRoleId(5L, permissionService);
+
+        assertThat(principal.getPermissions()).containsExactly("system:user:edit");
     }
 
     /**

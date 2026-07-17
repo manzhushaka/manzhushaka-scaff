@@ -19,7 +19,7 @@ import plugins from './plugins' // plugins
 import { download } from '@/utils/request'
 
 // svg图标
-import 'virtual:svg-icons-register'
+import { registerSvgIcons } from '@/assets/icons'
 import SvgIcon from '@/components/SvgIcon'
 import elementIcons from '@/components/SvgIcon/svgicon'
 
@@ -52,6 +52,7 @@ if (typeof document !== 'undefined') {
 }
 
 const app = createApp(App)
+registerSvgIcons()
 
 // 全局方法挂载
 app.config.globalProperties.useDict = useDict
