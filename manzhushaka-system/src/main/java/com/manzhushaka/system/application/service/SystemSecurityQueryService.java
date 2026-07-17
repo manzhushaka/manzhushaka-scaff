@@ -2,8 +2,6 @@ package com.manzhushaka.system.application.service;
 
 import com.manzhushaka.system.application.result.auth.AuthUserProfileResult;
 
-import java.util.Set;
-
 /**
  * 系统安全认证查询服务
  * <p>
@@ -33,18 +31,12 @@ public interface SystemSecurityQueryService {
     AuthUserProfileResult loadAuthProfileByUserId(Long userId);
 
     /**
-     * 加载用户角色键集合
+     * 校验用户密码是否匹配。
      *
-     * @param userId 用户ID
-     * @return 角色键集合
+     * @param username 用户名
+     * @param rawPassword 待校验的明文密码
+     * @return 密码是否匹配
      */
-    Set<String> loadRoleKeys(Long userId);
+    boolean matchesPassword(String username, String rawPassword);
 
-    /**
-     * 加载用户权限集合
-     *
-     * @param userId 用户ID
-     * @return 权限集合
-     */
-    Set<String> loadPermissions(Long userId);
 }

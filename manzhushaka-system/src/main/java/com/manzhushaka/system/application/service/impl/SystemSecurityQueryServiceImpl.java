@@ -3,6 +3,7 @@ package com.manzhushaka.system.application.service.impl;
 import com.manzhushaka.common.constant.Constants;
 import com.manzhushaka.common.constant.UserConstants;
 import com.manzhushaka.common.utils.StringUtils;
+import com.manzhushaka.common.utils.security.PasswordUtils;
 import com.manzhushaka.system.application.result.auth.AuthUserProfileResult;
 import com.manzhushaka.system.application.service.SystemSecurityQueryService;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysRole;
@@ -14,12 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * 系统安全认证查询服务实现
@@ -60,34 +58,20 @@ public class SystemSecurityQueryServiceImpl implements SystemSecurityQueryServic
         return buildAuthProfile(user);
     }
 
+    /**
+     * 校验用户密码是否匹配。
+     *
+     * @param username 用户名
+     * @param rawPassword 待校验的明文密码
+     * @return 密码是否匹配
+     */
     @Override
-    public Set<String> loadRoleKeys(Long userId) {
-        if (userId == null) {
-            return Collections.emptySet();
+    public boolean matchesPassword(String username, String rawPassword) {
+        if (StringUtils.isEmpty(username) || StringUtils.isEmpty(rawPassword)) {
+            return false;
         }
-        // 管理员
-        if (1L == userId) {
-            Set<String> roles = new HashSet<>();
-            roles.add(Constants.SUPER_ADMIN);
-            return roles;
-        }
-        // 非管理员，从角色服务查
-        return roleService.selectRolePermissionByUserId(userId);
-    }
-
-    @Override
-    public Set<String> loadPermissions(Long userId) {
-        if (userId == null) {
-            return Collections.emptySet();
-        }
-        // 管理员
-        if (1L == userId) {
-            Set<String> perms = new HashSet<>();
-            perms.add(Constants.ALL_PERMISSION);
-            return perms;
-        }
-        // 非管理员，从菜单服务查
-        return menuService.selectMenuPermsByUserId(userId);
+        SysUser user = userService.selectUserByUserName(username);
+        return user != null && PasswordUtils.matches(rawPassword, user.getPassword());
     }
 
     // ========== 私有方法 ==========
@@ -121,6 +105,7 @@ public class SystemSecurityQueryServiceImpl implements SystemSecurityQueryServic
                 deptName,
                 user.getUserName(),
                 user.getNickName(),
+                user.getAvatar(),
                 user.getPassword(),
                 user.getStatus(),
                 user.getDelFlag(),

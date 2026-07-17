@@ -1,7 +1,9 @@
 package com.manzhushaka.web.controller.system;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +25,7 @@ import com.manzhushaka.system.service.ISysConfigService;
 import com.manzhushaka.system.service.ISysMenuService;
 import com.manzhushaka.web.converter.system.AuthAdminConverter;
 import com.manzhushaka.web.dto.system.LoginRequest;
+import com.manzhushaka.web.vo.system.user.AuthUserProfileVO;
 
 /**
  * 登录验证
@@ -80,20 +83,17 @@ public class SysLoginController
             profile = systemSecurityQueryService.loadAuthProfileByUserId(principal.getUserId());
         }
         // 角色集合
-        java.util.Set<String> roles = profile != null
-                ? systemSecurityQueryService.loadRoleKeys(profile.userId())
-                : java.util.Collections.emptySet();
+        Set<String> roles = profile != null ? profile.roleKeys() : Collections.emptySet();
         // 权限集合
-        java.util.Set<String> permissions = profile != null
-                ? systemSecurityQueryService.loadPermissions(profile.userId())
-                : java.util.Collections.emptySet();
+        Set<String> permissions = profile != null ? profile.permissions() : Collections.emptySet();
         if (profile != null && !principal.getPermissions().equals(permissions))
         {
             principal.setPermissions(permissions);
             tokenService.refreshToken(principal);
         }
         AjaxResult ajax = AjaxResult.success();
-        ajax.put("user", profile);
+        AuthUserProfileVO user = AuthAdminConverter.toAuthUserProfileVO(profile);
+        ajax.put("user", user);
         ajax.put("roles", roles);
         ajax.put("permissions", permissions);
         ajax.put("pwdChrtype", getSysAccountChrtype());

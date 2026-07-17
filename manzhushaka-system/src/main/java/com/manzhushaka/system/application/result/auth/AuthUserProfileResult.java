@@ -15,6 +15,7 @@ import java.util.Set;
  * @param deptName     部门名称
  * @param username     用户名
  * @param nickName     用户昵称
+ * @param avatar       用户头像
  * @param password     加密后的密码
  * @param status       账号状态（0正常 1停用）
  * @param delFlag      删除标志（0存在 2删除）
@@ -32,6 +33,7 @@ public record AuthUserProfileResult(
         String deptName,
         String username,
         String nickName,
+        String avatar,
         String password,
         String status,
         String delFlag,

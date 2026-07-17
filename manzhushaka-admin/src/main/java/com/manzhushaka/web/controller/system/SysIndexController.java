@@ -1,18 +1,19 @@
 package com.manzhushaka.web.controller.system;
 
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.manzhushaka.common.annotation.Log;
 import com.manzhushaka.common.config.ManzhushakaConfig;
 import com.manzhushaka.common.core.domain.AjaxResult;
+import com.manzhushaka.common.enums.BusinessType;
 import com.manzhushaka.common.utils.StringUtils;
-import com.manzhushaka.common.utils.security.PasswordUtils;
 import com.manzhushaka.framework.security.context.SecurityContextHelper;
-import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
-import com.manzhushaka.system.service.ISysUserService;
+import com.manzhushaka.system.application.service.SystemSecurityQueryService;
+import com.manzhushaka.web.dto.system.UnlockScreenRequest;
 
 /**
  * 首页
@@ -27,7 +28,7 @@ public class SysIndexController
     private ManzhushakaConfig manzhushakaConfig;
 
     @Autowired
-    private ISysUserService userService;
+    private SystemSecurityQueryService systemSecurityQueryService;
 
     /**
      * 访问首页，提示语
@@ -39,23 +40,23 @@ public class SysIndexController
     }
 
     /**
-     * 解锁屏幕
+     * 解锁屏幕。
+     *
+     * @param request 解锁请求
+     * @return 解锁结果
      */
+    @Log(title = "屏幕解锁", businessType = BusinessType.OTHER)
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/unlockscreen")
-    public AjaxResult unlockScreen(@RequestBody Map<String, String> body)
+    public AjaxResult unlockScreen(@RequestBody UnlockScreenRequest request)
     {
-        String password = body.get("password");
+        String password = request == null ? null : request.getPassword();
         if (StringUtils.isEmpty(password))
         {
             return AjaxResult.error("密码不能为空");
         }
         String username = SecurityContextHelper.getUsername();
-        SysUser user = userService.selectUserByUserName(username);
-        if (user == null)
-        {
-            return AjaxResult.error("服务器超时，请重新登录");
-        }
-        if (!PasswordUtils.matches(password, user.getPassword()))
+        if (!systemSecurityQueryService.matchesPassword(username, password))
         {
             return AjaxResult.error("密码错误，请重新输入");
         }
