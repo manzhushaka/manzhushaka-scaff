@@ -26,15 +26,6 @@ public class ManzhushakaScaffApplication
         // System.setProperty("spring.devtools.restart.enabled", "false");
         LogPathInitializer.initialize(ManzhushakaScaffApplication.class, args);
         SpringApplication.run(ManzhushakaScaffApplication.class, args);
-        log.info("(♥◠‿◠)ﾉﾞ  manzhushaka-scaff 启动成功   ლ(´ڡ`ლ)ﾞ  \n" +
-                " .-------.       ____     __        \n" +
-                " |  _ _   \\      \\   \\   /  /    \n" +
-                " | ( ' )  |       \\  _. /  '       \n" +
-                " |(_ o _) /        _( )_ .'         \n" +
-                " | (_,_).' __  ___(_ o _)'          \n" +
-                " |  |\\ \\  |  ||   |(_,_)'         \n" +
-                " |  | \\ `'   /|   `-'  /           \n" +
-                " |  |  \\    /  \\      /           \n" +
-                " ''-'   `'-'    `-..-'              ");
+        log.info("(♥◠‿◠)ﾉﾞ  manzhushaka-scaff 启动成功   ლ(´ڡ`ლ)ﾞ  \n");
     }
 }
