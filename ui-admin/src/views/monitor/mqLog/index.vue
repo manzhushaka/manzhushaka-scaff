@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div class="app-container ui-list-page">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="90px" class="ui-filter-card">
       <el-form-item label="消息类型" prop="messageType">
         <el-input v-model="queryParams.messageType" placeholder="请输入消息类型" clearable style="width: 200px" @keyup.enter="handleQuery" />

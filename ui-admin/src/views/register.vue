@@ -1,5 +1,5 @@
 <template>
-  <div class="register" data-ui-theme="cool-tower">
+  <div class="register" data-ui-theme="vibehub-admin">
     <div class="entry-grid">
       <section class="entry-hero">
         <div class="entry-badge">MANZHUSHAKA CONSOLE</div>
@@ -192,33 +192,22 @@ getCode()
   min-height: 100vh;
   padding: 36px 32px 64px;
   overflow: hidden;
-  background:
-    radial-gradient(circle at left top, rgba(92, 200, 255, 0.30) 0, rgba(92, 200, 255, 0) 34%),
-    linear-gradient(135deg, #cbe7ff 0%, #dcecff 32%, #eaf3ff 100%);
-  font-family: "Avenir Next", "SF Pro Display", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--ui-bg-page);
+  font-family: "IBM Plex Sans", "Noto Sans SC", "PingFang SC", system-ui, sans-serif;
 
   &::before {
     content: "";
     position: absolute;
     inset: 0;
-    background-image:
-      linear-gradient(rgba(86, 131, 187, 0.08) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(86, 131, 187, 0.08) 1px, transparent 1px);
-    background-size: 72px 72px;
+    width: 4px;
+    background: var(--ui-primary);
     pointer-events: none;
   }
 
   &::after {
     content: "";
     position: absolute;
-    right: -120px;
-    top: 80px;
-    width: 420px;
-    height: 420px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(99, 145, 255, 0.18) 0%, rgba(99, 145, 255, 0) 72%);
-    filter: blur(12px);
-    pointer-events: none;
+    display: none;
   }
 }
 
@@ -243,11 +232,11 @@ getCode()
   align-items: center;
   min-height: 34px;
   padding: 0 16px;
-  border: 1px solid rgba(124, 170, 255, 0.24);
+  border: 1px solid var(--ui-border);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.62);
-  box-shadow: 0 14px 32px rgba(117, 170, 228, 0.14);
-  color: #3468e8;
+  background: var(--ui-bg-panel);
+  box-shadow: none;
+  color: var(--ui-primary-active);
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0;
@@ -266,9 +255,9 @@ getCode()
   justify-content: center;
   width: 40px;
   height: 40px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #3e8cff 0%, #2755db 100%);
-  box-shadow: 0 14px 34px rgba(53, 97, 214, 0.28);
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-primary);
+  box-shadow: none;
 
   .brand-svg {
     width: 21px;
@@ -278,7 +267,7 @@ getCode()
 }
 
 .entry-brand-text {
-  color: #0f203f;
+  color: var(--ui-text-primary);
   font-size: 18px;
   font-weight: 700;
   letter-spacing: 0;
@@ -287,7 +276,7 @@ getCode()
 .entry-title {
   max-width: 560px;
   margin: 22px 0 0;
-  color: #0f1d39;
+  color: var(--ui-text-primary);
   font-size: 52px;
   font-weight: 800;
   line-height: 1.02;
@@ -297,7 +286,7 @@ getCode()
 .entry-description {
   max-width: 540px;
   margin: 24px 0 0;
-  color: rgba(70, 101, 146, 0.92);
+  color: var(--ui-text-secondary);
   font-size: 16px;
   line-height: 1.75;
 }
@@ -314,11 +303,11 @@ getCode()
   align-items: center;
   min-height: 42px;
   padding: 0 18px;
-  border: 1px solid rgba(124, 170, 255, 0.28);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.54);
-  box-shadow: 0 14px 32px rgba(117, 170, 228, 0.10);
-  color: #42648f;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-bg-panel);
+  box-shadow: none;
+  color: var(--ui-text-secondary);
   font-size: 15px;
   font-weight: 700;
 }
@@ -329,25 +318,21 @@ getCode()
   width: 100%;
   max-width: 500px;
   padding: 38px 34px 30px;
-  border: 1px solid rgba(255, 255, 255, 0.72);
-  border-radius: 28px;
-  background: rgba(255, 255, 255, 0.78);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  box-shadow:
-    0 30px 64px rgba(116, 150, 219, 0.18),
-    0 8px 24px rgba(116, 150, 219, 0.08);
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-panel);
+  background: var(--ui-bg-panel);
+  box-shadow: var(--ui-shadow-panel-hover);
 }
 
 .auth-card__eyebrow {
-  color: #2f69eb;
+  color: var(--ui-primary-active);
   font-size: 14px;
   font-weight: 700;
 }
 
 .auth-card__title {
   margin: 12px 0 0;
-  color: #121f3d;
+  color: var(--ui-text-primary);
   font-size: 38px;
   font-weight: 800;
   line-height: 1.02;
@@ -356,7 +341,7 @@ getCode()
 
 .auth-card__description {
   margin: 14px 0 0;
-  color: rgba(94, 118, 156, 0.92);
+  color: var(--ui-text-secondary);
   font-size: 15px;
   line-height: 1.65;
 }
@@ -371,31 +356,31 @@ getCode()
   :deep(.el-input__wrapper) {
     min-height: 56px;
     padding: 0 18px;
-    border: 1px solid rgba(190, 210, 239, 0.9);
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.92);
-    box-shadow: 0 10px 26px rgba(169, 190, 226, 0.08);
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius-control);
+    background: var(--ui-bg-panel);
+    box-shadow: none;
     transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 
     &:hover {
-      border-color: rgba(118, 161, 237, 0.62);
+      border-color: var(--ui-border-strong);
     }
 
     &.is-focus {
-      border-color: rgba(63, 118, 241, 0.88);
-      box-shadow: 0 0 0 4px rgba(63, 118, 241, 0.12);
+      border-color: var(--ui-primary);
+      box-shadow: var(--ui-focus-ring);
       transform: translateY(-1px);
     }
   }
 
   :deep(.el-input__inner) {
     height: 56px;
-    color: #172544;
+    color: var(--ui-text-primary);
     font-size: 16px;
     font-weight: 500;
 
     &::placeholder {
-      color: #a5b5cf;
+      color: var(--ui-text-muted);
       font-weight: 500;
     }
   }
@@ -403,7 +388,7 @@ getCode()
   :deep(.input-icon) {
     width: 18px;
     height: 18px;
-    color: #8ea3c5;
+    color: var(--ui-text-muted);
   }
 
   :deep(.el-form-item__error) {
@@ -424,10 +409,10 @@ getCode()
   justify-content: center;
   min-height: 56px;
   padding: 8px;
-  border: 1px solid rgba(190, 210, 239, 0.9);
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 10px 26px rgba(169, 190, 226, 0.08);
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-bg-panel);
+  box-shadow: none;
 }
 
 .auth-code-img {
@@ -443,18 +428,19 @@ getCode()
   width: 100%;
   min-height: 58px;
   border: none;
-  border-radius: 22px;
-  background: linear-gradient(135deg, #3f88f5 0%, #2754db 100%);
-  box-shadow: 0 20px 40px rgba(59, 103, 220, 0.26);
-  color: #ffffff;
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-primary);
+  box-shadow: 0 14px 30px color-mix(in srgb, var(--ui-primary) 24%, transparent);
+  color: var(--ui-text-inverse);
   font-size: 19px;
   font-weight: 700;
   letter-spacing: 0;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
+    background: var(--ui-primary-hover);
     transform: translateY(-2px);
-    box-shadow: 0 24px 46px rgba(59, 103, 220, 0.30);
+    box-shadow: 0 18px 34px color-mix(in srgb, var(--ui-primary) 28%, transparent);
   }
 }
 
@@ -467,18 +453,18 @@ getCode()
 }
 
 .auth-switch__label {
-  color: #5e769c;
+  color: var(--ui-text-secondary);
   font-size: 13px;
 }
 
 .auth-link {
-  color: #2e64e8;
+  color: var(--ui-primary-active);
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
 
   &:hover {
-    color: #204ec5;
+    color: var(--ui-primary-deep);
   }
 }
 
@@ -489,7 +475,7 @@ getCode()
   bottom: 18px;
   z-index: 1;
   text-align: center;
-  color: rgba(84, 110, 152, 0.96);
+  color: var(--ui-text-muted);
   font-size: 12px;
   letter-spacing: 0;
 }
@@ -554,7 +540,7 @@ getCode()
   .entry-brand-icon {
     width: 42px;
     height: 42px;
-    border-radius: 14px;
+    border-radius: var(--ui-radius-control);
 
     .brand-svg {
       width: 22px;
@@ -590,7 +576,7 @@ getCode()
 
   .auth-card {
     padding: 28px 22px 24px;
-    border-radius: 26px;
+    border-radius: var(--ui-radius-panel);
   }
 
   .auth-card__eyebrow {
@@ -612,7 +598,7 @@ getCode()
 
     :deep(.el-input__wrapper) {
       min-height: 58px;
-      border-radius: 20px;
+      border-radius: var(--ui-radius-control);
     }
 
     :deep(.el-input__inner) {
@@ -628,7 +614,7 @@ getCode()
 
   .auth-code-box {
     min-height: 58px;
-    border-radius: 20px;
+    border-radius: var(--ui-radius-control);
   }
 
   .auth-code-img {
@@ -637,7 +623,7 @@ getCode()
 
   .auth-submit {
     min-height: 60px;
-    border-radius: 22px;
+    border-radius: var(--ui-radius-control);
     font-size: 22px;
   }
 

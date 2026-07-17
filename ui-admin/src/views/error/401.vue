@@ -1,5 +1,5 @@
 <template>
-  <div class="errPage-container ui-entry-page" data-ui-theme="cool-tower">
+  <div class="errPage-container ui-entry-page" data-ui-theme="vibehub-admin">
     <div class="errPage-card">
       <el-button icon="ArrowLeft" class="pan-back-btn" @click="back">
         返回

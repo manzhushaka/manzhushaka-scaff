@@ -1,5 +1,5 @@
 <template>
-   <div class="app-container">
+   <div class="app-container ui-list-page">
       <el-form :model="queryParams" ref="queryRef" v-show="showSearch" :inline="true" label-width="68px" class="ui-filter-card">
          <el-form-item label="角色名称" prop="roleName">
             <el-input

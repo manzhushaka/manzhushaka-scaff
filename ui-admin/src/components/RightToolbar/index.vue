@@ -172,7 +172,7 @@ if (props.storageKey) {
         })
       }
     }
-  } catch (e) {}
+  } catch {}
 }
 if (props.showColumnsType == "transfer") {
   // transfer穿梭显隐列初始默认隐藏列
@@ -223,7 +223,7 @@ function saveStorage() {
       Object.keys(props.columns).forEach(key => { state[key] = props.columns[key].visible })
     }
     cache.local.setJSON(props.storageKey, state)
-  } catch (e) {}
+  } catch {}
 }
 </script>
 

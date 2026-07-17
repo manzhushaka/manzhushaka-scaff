@@ -1,6 +1,6 @@
 <template>
-   <div class="app-container">
-      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
+   <div class="app-container ui-list-page">
+      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px" class="ui-filter-card">
          <el-form-item label="任务名称" prop="jobName">
             <el-input
                v-model="queryParams.jobName"
@@ -56,7 +56,7 @@
          </el-form-item>
       </el-form>
 
-      <el-row :gutter="10" class="mb8">
+      <el-row :gutter="10" class="mb8 ui-action-bar">
          <el-col :span="1.5">
             <el-button
                type="danger"
@@ -96,6 +96,7 @@
          <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
       </el-row>
 
+      <div class="ui-table-card">
       <el-table v-loading="loading" :data="jobLogList" @selection-change="handleSelectionChange">
          <el-table-column type="selection" width="55" align="center" />
          <el-table-column label="日志编号" width="80" align="center" prop="jobLogId" />
@@ -123,6 +124,7 @@
             </template>
          </el-table-column>
       </el-table>
+      </div>
 
       <pagination
          v-show="total > 0"

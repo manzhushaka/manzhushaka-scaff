@@ -1,5 +1,5 @@
 <template>
-   <div class="app-container">
+   <div class="app-container ui-list-page">
       <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" class="ui-filter-card">
          <el-form-item label="菜单名称" prop="menuName">
             <el-input

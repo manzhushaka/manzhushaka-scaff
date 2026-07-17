@@ -212,9 +212,14 @@ function goRoute(path) {
   }
 
   &.is-primary {
-    background: var(--ui-primary-active);
-    border-color: var(--ui-primary-active);
+    background: var(--ui-primary);
+    border-color: var(--ui-primary);
     color: var(--ui-text-inverse);
+
+    &:hover {
+      background: var(--ui-primary-hover);
+      border-color: var(--ui-primary-hover);
+    }
 
     .action-icon {
       color: var(--ui-text-inverse);

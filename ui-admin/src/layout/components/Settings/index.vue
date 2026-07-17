@@ -28,7 +28,7 @@
       <span>标签页样式</span>
       <span class="comp-style">
         <el-radio-group v-model="settingsStore.tagsViewStyle" :disabled="!settingsStore.tagsView" size="small">
-          <el-radio-button label="card">卡片</el-radio-button>
+          <el-radio-button label="card">下划线</el-radio-button>
           <el-radio-button label="chrome">谷歌</el-radio-button>
         </el-radio-group>
       </span>

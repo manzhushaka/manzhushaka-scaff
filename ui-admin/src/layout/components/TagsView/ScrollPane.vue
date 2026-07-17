@@ -144,11 +144,12 @@ defineExpose({
   position: relative;
   overflow: hidden;
   width: 100%;
+  height: 100%;
   :deep(.el-scrollbar__bar) {
     bottom: 0px;
   }
   :deep(.el-scrollbar__wrap) {
-    height: 34px;
+    height: 100%;
     display: flex;
     align-items: center;
   }

@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import com.manzhushaka.common.constant.CacheConstants;
 import com.manzhushaka.common.constant.UserConstants;
@@ -28,6 +29,10 @@ public class SysConfigServiceImpl implements ISysConfigService
 
     @Autowired
     private RedisCache redisCache;
+
+    /** 配置文件中的图片验证码开关 */
+    @Value("${manzhushaka.captcha.enabled:true}")
+    private boolean captchaEnabled;
 
     /**
      * 项目启动时，初始化参数到缓存
@@ -78,19 +83,14 @@ public class SysConfigServiceImpl implements ISysConfigService
     }
 
     /**
-     * 获取验证码开关
+     * 获取配置文件中的验证码开关
      * 
      * @return true开启，false关闭
      */
     @Override
     public boolean selectCaptchaEnabled()
     {
-        String captchaEnabled = selectConfigByKey("sys.account.captchaEnabled");
-        if (StringUtils.isEmpty(captchaEnabled))
-        {
-            return true;
-        }
-        return Convert.toBool(captchaEnabled);
+        return captchaEnabled;
     }
 
     /**

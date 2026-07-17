@@ -38,8 +38,8 @@ function addIframe() {
 </script>
 
 <style lang="scss" scoped>
-$navbar-height: var(--ui-layout-topbar-height, 60px);
-$tags-height: var(--ui-layout-tags-height, 42px);
+$navbar-height: var(--ui-layout-topbar-height, 52px);
+$tags-height: var(--ui-layout-tags-height, 36px);
 $navbar-tags-height: calc($navbar-height + $tags-height);
 
 .app-main {
@@ -48,7 +48,7 @@ $navbar-tags-height: calc($navbar-height + $tags-height);
   position: relative;
   overflow: hidden;
   padding-bottom: 36px;
-  background: var(--ui-bg-page);
+  background: var(--ui-bg-content);
 }
 
 .fixed-header + .app-main {
@@ -56,9 +56,6 @@ $navbar-tags-height: calc($navbar-height + $tags-height);
   scrollbar-gutter: auto;
   height: calc(100vh - $navbar-height);
   min-height: 0px;
-}
-
-.fixed-header + .app-main {
   margin-top: $navbar-height;
 }
 

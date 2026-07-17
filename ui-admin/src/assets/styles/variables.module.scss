@@ -114,7 +114,6 @@ html.dark {
   --tags-item-hover: #2d2d2d;
   --tags-close-hover: #64666a;
   /* 卡片模式激活页签 */
-  --tags-card-active-bg: var(--el-bg-color-overlay);
   --tags-card-active-bg: color-mix(in srgb, var(--el-color-primary) 22%, var(--el-bg-color-overlay) 78%);
   --tags-card-active-border: var(--tags-card-active-bg);
 
@@ -225,12 +224,12 @@ html.dark {
       }
     }
     &:not(.tags-view-container--chrome) .tags-view-wrapper .tags-view-item.active {
-      background-color: var(--tags-card-active-bg) !important;
-      border-color: var(--tags-card-active-border) !important;
+      background-color: transparent !important;
+      border-color: transparent !important;
       color: var(--ui-primary) !important;
-      box-shadow: 0 -1px 0 color-mix(in srgb, var(--el-color-primary) 18%, transparent);
+      box-shadow: none;
 
-      &::before {
+      &::after {
         background: var(--ui-primary) !important;
       }
     }
@@ -327,7 +326,8 @@ html.dark {
   
   /* 下拉菜单样式覆盖 */
   .el-dropdown-menu__item:not(.is-disabled):focus, .el-dropdown-menu__item:not(.is-disabled):hover{
-    background-color: var(--navbar-hover) !important;
+    color: var(--ui-text-inverse) !important;
+    background-color: var(--ui-primary) !important;
   }
 
   /* blockquote样式覆盖 */

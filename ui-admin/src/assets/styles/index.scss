@@ -37,14 +37,6 @@ html {
   box-sizing: inherit;
 }
 
-.no-padding {
-  padding: 0px !important;
-}
-
-.padding-content {
-  padding: 4px 0;
-}
-
 a,
 a:focus,
 a:hover {
@@ -82,10 +74,6 @@ button:focus-visible,
 
 .pointer {
   cursor: pointer;
-}
-
-.inlineBlock {
-  display: block;
 }
 
 .clearfix {
@@ -127,37 +115,8 @@ aside {
   padding: var(--ui-layout-content-padding, 18px);
 }
 
-.components-container {
-  margin: 30px 50px;
-  position: relative;
-}
-
 .text-center {
   text-align: center
-}
-
-.sub-navbar {
-  height: 50px;
-  line-height: 50px;
-  position: relative;
-  width: 100%;
-  text-align: right;
-  padding-right: 20px;
-  transition: 600ms ease position;
-  background: linear-gradient(90deg, rgba(32, 182, 249, 1) 0%, rgba(32, 182, 249, 1) 0%, rgba(33, 120, 241, 1) 100%, rgba(33, 120, 241, 1) 100%);
-
-  .subtitle {
-    font-size: 20px;
-    color: #fff;
-  }
-
-  &.draft {
-    background: #d0d0d0;
-  }
-
-  &.deleted {
-    background: #d0d0d0;
-  }
 }
 
 .link-type,
@@ -167,15 +126,5 @@ aside {
 
   &:hover {
     color: var(--ui-primary-active);
-  }
-}
-
-.filter-container {
-  padding-bottom: 10px;
-
-  .filter-item {
-    display: inline-block;
-    vertical-align: middle;
-    margin-bottom: 10px;
   }
 }

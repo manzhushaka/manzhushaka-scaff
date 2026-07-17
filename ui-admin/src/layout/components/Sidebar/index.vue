@@ -53,7 +53,7 @@ const activeMenu = computed(() => {
 .sidebar-container {
   background-color: var(--ui-bg-sidebar);
   box-shadow: var(--ui-shadow-sidebar);
-  border-right: 1px solid var(--ui-border);
+  border-right: 1px solid var(--ui-sidebar-border);
 
   .scrollbar-wrapper {
     background-color: var(--ui-bg-sidebar);

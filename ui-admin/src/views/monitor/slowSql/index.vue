@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div class="app-container ui-list-page">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="96px" class="ui-filter-card slow-sql-filter">
       <el-form-item label="SQL关键字" prop="sqlText">
         <el-input v-model="queryParams.sqlText" placeholder="请输入 SQL 关键字" clearable style="width: 240px" @keyup.enter="handleQuery" />

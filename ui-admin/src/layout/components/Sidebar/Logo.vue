@@ -29,7 +29,7 @@ const title = import.meta.env.VITE_APP_TITLE
 const getLogoBackground = computed(() => 'var(--ui-bg-sidebar)')
 
 // 获取Logo文字颜色
-const getLogoTextColor = computed(() => 'var(--ui-text-primary)')
+const getLogoTextColor = computed(() => 'var(--ui-sidebar-text-active)')
 </script>
 
 <style lang="scss" scoped>
@@ -44,23 +44,23 @@ const getLogoTextColor = computed(() => 'var(--ui-text-primary)')
 
 .sidebar-logo-container {
   position: relative;
-  height: 60px;
-  line-height: 60px;
+  height: var(--ui-layout-topbar-height, 52px);
+  line-height: var(--ui-layout-topbar-height, 52px);
   background: v-bind(getLogoBackground);
   text-align: center;
   overflow: hidden;
-  border-bottom: 1px solid var(--ui-border);
+  border-bottom: 1px solid var(--ui-sidebar-border);
 
   & .sidebar-logo-link {
     height: 100%;
     width: 100%;
 
     & .sidebar-logo {
-      width: 32px;
-      height: 32px;
+      width: 30px;
+      height: 30px;
       vertical-align: middle;
       margin-right: 12px;
-      border: 1px solid var(--ui-border);
+      border: 1px solid var(--ui-sidebar-border);
       border-radius: 8px;
     }
 
@@ -69,7 +69,7 @@ const getLogoTextColor = computed(() => 'var(--ui-text-primary)')
       margin: 0;
       color: v-bind(getLogoTextColor);
       font-weight: 600;
-      line-height: 60px;
+      line-height: var(--ui-layout-topbar-height, 52px);
       font-size: 14px;
       font-family: "Space Grotesk", "Noto Sans SC", "PingFang SC", sans-serif;
       vertical-align: middle;

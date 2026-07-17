@@ -134,10 +134,10 @@ getList()
 
 .runtime-log-card {
   overflow: hidden;
-  border: 1px solid var(--el-border-color-light);
-  border-radius: 18px;
-  background: #ffffff;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-panel);
+  background: var(--ui-bg-panel);
+  box-shadow: var(--ui-shadow-panel);
 }
 
 .runtime-log-panel {
@@ -149,7 +149,7 @@ getList()
     margin: 0;
     padding: 0 20px;
     border-bottom: 1px solid var(--el-border-color-lighter);
-    background: linear-gradient(180deg, #f8fbff, #ffffff);
+    background: var(--ui-bg-panel-muted);
   }
 
   :deep(.el-tabs__nav-wrap::after) {

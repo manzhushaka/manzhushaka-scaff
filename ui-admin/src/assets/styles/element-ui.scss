@@ -58,6 +58,8 @@
   left: 0;
   position: relative;
   margin: 0 auto;
+  max-height: calc(100vh - 96px);
+  overflow: hidden;
   border-radius: var(--ui-radius-panel, 8px);
   background: var(--ui-bg-panel);
   border: 1px solid var(--ui-border);
@@ -135,9 +137,46 @@
 }
 
 // dropdown
+.el-dropdown__popper.el-popper {
+  min-width: 132px;
+  overflow: hidden;
+  border: 1px solid var(--ui-border) !important;
+  border-radius: var(--ui-radius-popover);
+  background: var(--ui-bg-panel);
+  box-shadow: var(--ui-shadow-panel-hover);
+
+  .el-popper__arrow {
+    display: none;
+  }
+}
+
 .el-dropdown-menu {
+  min-width: 130px;
+  padding: 0;
+  border-radius: calc(var(--ui-radius-popover) - 1px);
+
   a {
-    display: block
+    display: block;
+  }
+}
+
+.el-dropdown-menu__item {
+  min-height: 32px;
+  padding: 5px 12px;
+  color: var(--ui-text-primary);
+  font-size: 14px;
+  line-height: 22px;
+  transition: color 0.15s ease, background-color 0.15s ease;
+
+  &:not(.is-disabled):focus,
+  &:not(.is-disabled):hover {
+    color: var(--ui-text-inverse) !important;
+    background-color: var(--ui-primary) !important;
+  }
+
+  &.el-dropdown-menu__item--divided {
+    margin: 0;
+    border-top-color: var(--ui-divider);
   }
 }
 
@@ -234,7 +273,10 @@
 
 // Button style updates — size 10.6
 .el-button {
+  min-height: 32px;
+  padding: 0 12px;
   border-radius: var(--ui-radius-control, 6px);
+  font-size: 13px;
   font-weight: 500;
   transition: background var(--ui-transition-fast), border-color var(--ui-transition-fast), color var(--ui-transition-fast), box-shadow var(--ui-transition-fast), transform var(--ui-transition-fast);
 
@@ -266,6 +308,7 @@
 
 // Form control height
 .el-input__wrapper {
+  min-height: var(--ui-form-control-height);
   border-radius: var(--ui-radius-control, 6px);
   background: var(--ui-bg-panel);
   box-shadow: 0 0 0 1px var(--ui-border) inset;
@@ -291,41 +334,50 @@
   }
 }
 
-// ============================================================
-// 任务5：组件级参数覆盖增强
-// ============================================================
-
-.el-button {
-  min-height: 32px;
-  padding: 0 12px;
-  font-size: 13px;
-  border-radius: var(--ui-radius-control);
-}
-
-.el-button--primary {
-  --el-button-bg-color: var(--ui-primary);
-  --el-button-border-color: var(--ui-primary);
-  --el-button-hover-bg-color: var(--ui-primary-hover);
-  --el-button-hover-border-color: var(--ui-primary-hover);
-  --el-button-active-bg-color: var(--ui-primary-active);
-  --el-button-active-border-color: var(--ui-primary-active);
-}
-
-.el-input__wrapper,
-.el-select__wrapper {
-  min-height: var(--ui-form-control-height);
-  border-radius: var(--ui-radius-control);
-}
-
-.el-dialog {
-  max-height: calc(100vh - 96px);
-  border-radius: var(--ui-radius-popover);
-  box-shadow: var(--ui-shadow-popover);
+// Select dropdown — compact white panel with a full-width orange selection
+.el-select__popper.el-popper {
   overflow: hidden;
+  border: 1px solid var(--ui-border) !important;
+  border-radius: var(--ui-radius-popover);
+  background: var(--ui-bg-panel);
+  box-shadow: var(--ui-shadow-popover);
+
+  .el-popper__arrow {
+    display: none;
+  }
 }
 
-.el-overlay {
-  background-color: rgba(15, 23, 42, 0.45);
+.el-select-dropdown__list {
+  padding: 0;
+}
+
+.el-select-dropdown__item {
+  height: 34px;
+  padding: 0 12px;
+  color: var(--ui-text-primary);
+  font-weight: 400;
+  line-height: 34px;
+  transition: color 0.15s ease, background-color 0.15s ease;
+
+  &:not(.is-disabled).is-hovering {
+    color: var(--ui-text-inverse);
+    background-color: var(--ui-primary);
+  }
+
+  &:not(.is-disabled).is-selected {
+    color: var(--ui-text-inverse);
+    font-weight: 500;
+    background-color: var(--ui-primary);
+  }
+
+  &:not(.is-disabled).is-selected.is-hovering {
+    color: var(--ui-text-inverse);
+    background-color: var(--ui-primary);
+  }
+}
+
+.el-select-dropdown.is-multiple .el-select-dropdown__item.is-selected::after {
+  background-color: var(--ui-text-inverse);
 }
 
 // RightToolbar 工具条右侧区域

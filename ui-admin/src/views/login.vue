@@ -631,7 +631,7 @@ getCookie()
   min-height: 48px;
   border: 0;
   border-radius: 10px;
-  background: var(--ui-primary-active);
+  background: var(--ui-primary);
   box-shadow: none;
   color: var(--ui-text-inverse);
   font-size: 15px;
@@ -640,7 +640,7 @@ getCookie()
   transition: background-color 0.2s ease;
 
   &:hover {
-    background: var(--ui-primary-deep);
+    background: var(--ui-primary-hover);
   }
 }
 

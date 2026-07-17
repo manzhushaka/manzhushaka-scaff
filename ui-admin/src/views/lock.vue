@@ -1,8 +1,5 @@
 <template>
-  <div class="lock-container" data-ui-theme="cool-tower">
-    <!-- 动态粒子背景 -->
-    <canvas ref="particleCanvas" class="particle-bg"></canvas>
-
+  <div class="lock-container" data-ui-theme="vibehub-admin">
     <!-- 时钟 -->
     <div class="lock-time">{{ currentTime }}</div>
     <div class="lock-date">{{ currentDate }}</div>
@@ -53,11 +50,8 @@ const isShaking = ref(false)
 const currentTime = ref('')
 const currentDate = ref('')
 const passwordInput = ref(null)
-const particleCanvas = ref(null)
 
 let timer = null
-let animationId = null
-let particles = []
 
 const onAvatarError = (e) => {
   e.target.src = defAva
@@ -110,78 +104,21 @@ const goLogin = () => {
   })
 }
 
-const initParticles = () => {
-  const canvas = particleCanvas.value
-  if (!canvas) return
-  const ctx = canvas.getContext('2d')
-  const resize = () => {
-    canvas.width = window.innerWidth
-    canvas.height = window.innerHeight
-  }
-  resize()
-  window.addEventListener('resize', resize)
-
-  particles = Array.from({ length: 80 }, () => ({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    r: Math.random() * 2 + 1,
-    dx: (Math.random() - 0.5) * 0.6,
-    dy: (Math.random() - 0.5) * 0.6,
-    alpha: Math.random() * 0.5 + 0.2
-  }))
-
-  const draw = () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-    particles.forEach(p => {
-      ctx.beginPath()
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2)
-      ctx.fillStyle = `rgba(255,255,255,${p.alpha})`
-      ctx.fill()
-      p.x += p.dx
-      p.y += p.dy
-      if (p.x < 0 || p.x > canvas.width) p.dx *= -1
-      if (p.y < 0 || p.y > canvas.height) p.dy *= -1
-    })
-    for (let i = 0; i < particles.length; i++) {
-      for (let j = i + 1; j < particles.length; j++) {
-        const a = particles[i], b = particles[j]
-        const dist = Math.hypot(a.x - b.x, a.y - b.y)
-        if (dist < 120) {
-          ctx.beginPath()
-          ctx.moveTo(a.x, a.y)
-          ctx.lineTo(b.x, b.y)
-          ctx.strokeStyle = `rgba(255,255,255,${0.15 * (1 - dist / 120)})`
-          ctx.lineWidth = 0.5
-          ctx.stroke()
-        }
-      }
-    }
-    animationId = requestAnimationFrame(draw)
-  }
-  draw()
-}
-
 onMounted(() => {
   startClock()
-  initParticles()
   nextTick(() => passwordInput.value?.focus())
 })
 
 onBeforeUnmount(() => {
   clearInterval(timer)
-  cancelAnimationFrame(animationId)
 })
 </script>
 
 <style scoped>
-/* 样式与原文件完全一致，无需改动 */
 .lock-container {
   position: fixed;
   inset: 0;
-  background:
-    radial-gradient(circle at 18% 16%, rgba(125, 211, 252, 0.18) 0, transparent 30%),
-    radial-gradient(circle at 82% 18%, rgba(14, 165, 233, 0.20) 0, transparent 28%),
-    linear-gradient(135deg, #0b253a 0%, #0f3b60 48%, #12202f 100%);
+  background: var(--ui-bg-sidebar);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -191,19 +128,13 @@ onBeforeUnmount(() => {
   overflow: hidden;
 }
 
-.particle-bg {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-}
-
 .lock-time {
   position: relative;
   z-index: 1;
   font-size: 72px;
   font-weight: 200;
   color: #fff;
-  letter-spacing: 4px;
+  letter-spacing: 0;
   text-shadow: 0 0 40px rgba(255,255,255,0.3);
   margin-bottom: 8px;
   font-variant-numeric: tabular-nums;
@@ -215,16 +146,14 @@ onBeforeUnmount(() => {
   font-size: 15px;
   color: rgba(255,255,255,0.6);
   margin-bottom: 48px;
-  letter-spacing: 2px;
+  letter-spacing: 0;
 }
 
 .lock-card {
   position: relative;
   z-index: 1;
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: var(--ui-bg-sidebar-deep);
+  border: 1px solid var(--ui-sidebar-border);
   border-radius: var(--ui-radius-panel);
   padding: 40px 48px;
   width: 360px;
@@ -268,7 +197,7 @@ onBeforeUnmount(() => {
   font-size: 18px;
   font-weight: 600;
   margin-bottom: 6px;
-  letter-spacing: 1px;
+  letter-spacing: 0;
 }
 
 .lock-hint {
@@ -283,13 +212,13 @@ onBeforeUnmount(() => {
   align-items: center;
   background: rgba(255,255,255,0.1);
   border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 50px;
+  border-radius: var(--ui-radius-control);
   padding: 4px 4px 4px 20px;
   transition: border-color 0.3s;
 }
 
 .input-wrap:focus-within {
-  border-color: rgba(255,255,255,0.6);
+  border-color: var(--ui-primary);
   background: rgba(255,255,255,0.13);
 }
 
@@ -322,8 +251,8 @@ onBeforeUnmount(() => {
 .unlock-btn {
   width: 42px;
   height: 42px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--ui-primary) 0%, var(--ui-primary-active) 100%);
+  border-radius: 6px;
+  background: var(--ui-primary);
   border: none;
   color: var(--ui-text-inverse);
   font-size: 18px;
@@ -346,7 +275,7 @@ onBeforeUnmount(() => {
 
 .loading-dot {
   font-size: 13px;
-  letter-spacing: 1px;
+  letter-spacing: 0;
 }
 
 .error-msg {

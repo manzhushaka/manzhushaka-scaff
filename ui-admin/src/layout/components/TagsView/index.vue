@@ -51,8 +51,8 @@
     </el-dropdown>
 
     <!-- 刷新按钮 -->
-    <span class="tags-action-btn tags-refresh-btn" title="刷新页面" @click="refreshSelectedTag(selectedDropdownTag)">
-      <el-icon><refresh-right/></el-icon> 刷新
+    <span class="tags-action-btn tags-refresh-btn" title="刷新页面" aria-label="刷新页面" @click="refreshSelectedTag(selectedDropdownTag)">
+      <el-icon><refresh-right/></el-icon>
     </span>
 
     <!-- 右键上下文菜单 -->
@@ -88,7 +88,6 @@ const hiddenElements = ref([])
 const { proxy } = getCurrentInstance()
 const route = useRoute()
 const router = useRouter()
-const settingsStore = useSettingsStore()
 
 const visitedViews = computed(() => useTagsViewStore().visitedViews)
 const routes = computed(() => usePermissionStore().routes)
@@ -360,17 +359,16 @@ function handleScroll() {
 </script>
 
 <style lang="scss" scoped>
-$tags-bar-height: 42px;
+$tags-bar-height: var(--ui-layout-tags-height, 42px);
 
 .tags-view-container {
   height: $tags-bar-height;
   width: 100%;
-  background: color-mix(in srgb, var(--ui-bg-panel) 86%, var(--ui-bg-panel-soft) 14%);
+  background: var(--ui-bg-tags);
   border-bottom: 1px solid var(--ui-border);
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   overflow: hidden;
-  padding-bottom: 4px;
 
   $btn-width: 32px;
   $btn-color: var(--ui-text-secondary);
@@ -386,7 +384,6 @@ $tags-bar-height: 42px;
     justify-content: center;
     width: $btn-width;
     height: $btn-width;
-    margin-bottom: 5px;
     border-radius: 6px;
     cursor: pointer;
     color: $btn-color;
@@ -403,6 +400,9 @@ $tags-bar-height: 42px;
     &.disabled {
       color: $btn-disabled-color;
       cursor: not-allowed;
+      width: 0;
+      margin: 0;
+      overflow: hidden;
     }
 
     &--left  { border-right: none; }
@@ -412,31 +412,37 @@ $tags-bar-height: 42px;
   .tags-view-wrapper {
     flex: 1;
     min-width: 0;
-    height: 36px;
+    height: $tags-bar-height;
     display: flex;
-    align-items: flex-end;
+    align-items: center;
 
     .tags-view-item {
       display: inline-flex;
       align-items: center;
       position: relative;
       cursor: pointer;
-      height: 30px;
-      line-height: 30px;
-      border: 1px solid transparent;
+      height: $tags-bar-height;
+      line-height: $tags-bar-height;
+      border-right: 1px solid var(--ui-border);
       color: var(--ui-text-regular);
       background: transparent;
-      padding: 0 10px;
+      padding: 0 14px;
       font-size: 13px;
       margin-left: 0;
-      margin-right: 6px;
-      border-radius: 6px;
+      margin-right: 0;
+      border-radius: 0;
       text-decoration: none;
       vertical-align: middle;
       transition: background var(--ui-transition-fast), color var(--ui-transition-fast), border-color var(--ui-transition-fast);
 
-      &:first-of-type { margin-left: 6px; }
-      &:last-of-type  { margin-right: 6px; }
+      &:first-of-type {
+        margin-left: 0;
+        border-left: 1px solid var(--ui-border);
+      }
+
+      &:last-of-type {
+        margin-right: 0;
+      }
 
       &:hover {
         background: var(--ui-bg-hover);
@@ -446,14 +452,23 @@ $tags-bar-height: 42px;
   }
 
   &:not(.tags-view-container--chrome) .tags-view-wrapper .tags-view-item.active {
-    background-color: var(--ui-primary-soft);
-    color: var(--ui-text-primary);
-    border-color: transparent;
+    background-color: var(--ui-bg-panel);
+    color: var(--ui-primary-active);
     font-weight: 600;
     box-shadow: none;
 
     &::before {
       content: none;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      left: 0;
+      height: 2px;
+      background: var(--ui-primary);
     }
   }
 
@@ -464,8 +479,7 @@ $tags-bar-height: 42px;
   .tags-action-dropdown {
     flex-shrink: 0;
     display: flex;
-    align-items: flex-end;
-    margin-bottom: 2px;
+    align-items: center;
   }
 
   .tags-action-btn {
@@ -490,10 +504,8 @@ $tags-bar-height: 42px;
   }
 
   .tags-refresh-btn {
-    width: auto;
-    padding: 0 10px;
-    gap: 4px;
-    margin-bottom: 2px;
+    width: $btn-width;
+    padding: 0;
   }
 
   .contextmenu {
@@ -650,14 +662,17 @@ $tags-bar-height: 42px;
 .tags-view-wrapper {
   .tags-view-item {
     .tags-close-btn {
+      position: absolute;
+      right: -1px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 16px;
-      height: 16px;
-      margin-left: 4px;
+      width: 14px;
+      height: 14px;
+      margin-left: 0;
       border-radius: 50%;
-      transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+      opacity: 0;
+      transition: opacity var(--ui-transition-fast), background-color var(--ui-transition-fast);
       cursor: pointer;
       
       .el-icon-close {
@@ -678,7 +693,16 @@ $tags-bar-height: 42px;
         }
       }
     }
+
+    &:hover .tags-close-btn,
+    &:focus-visible .tags-close-btn {
+      opacity: 1;
+    }
   }
+}
+
+.tags-view-container--chrome .tags-view-item .tags-close-btn {
+  opacity: 1;
 }
 
 /* 页签全屏模式样式 */
@@ -710,14 +734,14 @@ $tags-bar-height: 42px;
 
 .main-container.fullscreen-mode .app-main {
   position: fixed;
-  top: 42px;
+  top: var(--ui-layout-tags-height, 42px);
   left: 0;
   right: 0;
   bottom: 0;
   margin: 0 !important;
   padding: 0 !important;
-  height: calc(100vh - 42px) !important;
-  min-height: calc(100vh - 42px) !important;
+  height: calc(100vh - var(--ui-layout-tags-height, 42px)) !important;
+  min-height: calc(100vh - var(--ui-layout-tags-height, 42px)) !important;
   overflow: auto;
 }
 </style>

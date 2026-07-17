@@ -1,13 +1,19 @@
 <template>
   <div class="navbar">
     <hamburger id="hamburger-container" :is-active="appStore.sidebar.opened" class="hamburger-container" @toggleClick="toggleSideBar" />
-    <breadcrumb id="breadcrumb-container" class="breadcrumb-container" />
+    <breadcrumb v-if="showBreadcrumb" id="breadcrumb-container" class="breadcrumb-container" />
 
     <div class="right-menu">
+      <el-tooltip :content="isPageFullscreen ? '退出全屏' : '全屏显示'" placement="bottom">
+        <button type="button" class="right-menu-item hover-effect fullscreen-button" @click="toggleFullscreen">
+          <el-icon><FullScreen /></el-icon>
+        </button>
+      </el-tooltip>
       <el-dropdown @command="handleCommand" class="avatar-container right-menu-item hover-effect" trigger="hover">
         <div class="avatar-wrapper">
           <img :src="userStore.avatar" class="user-avatar" />
           <span class="user-nickname"> {{ userStore.nickName }} </span>
+          <el-icon class="avatar-caret"><ArrowDown /></el-icon>
         </div>
         <template #dropdown>
           <el-dropdown-menu>
@@ -44,6 +50,23 @@ const appStore = useAppStore()
 const userStore = useUserStore()
 const lockStore = useLockStore()
 const settingsStore = useSettingsStore()
+const isPageFullscreen = ref(false)
+const showBreadcrumb = computed(() => route.path !== '/' && route.path !== '/index')
+
+function syncFullscreenState() {
+  isPageFullscreen.value = Boolean(document.fullscreenElement)
+}
+
+async function toggleFullscreen() {
+  if (document.fullscreenElement) {
+    await document.exitFullscreen()
+  } else {
+    await document.documentElement.requestFullscreen()
+  }
+}
+
+onMounted(() => document.addEventListener('fullscreenchange', syncFullscreenState))
+onBeforeUnmount(() => document.removeEventListener('fullscreenchange', syncFullscreenState))
 
 function toggleSideBar() {
   appStore.toggleSideBar()
@@ -91,18 +114,18 @@ function lockScreen() {
 
 <style lang='scss' scoped>
 .navbar {
-  height: 60px;
+  height: var(--ui-layout-topbar-height, 52px);
   overflow: hidden;
   position: relative;
   background: var(--ui-bg-topbar);
-  border-bottom: 1px solid var(--ui-border);
+  border-bottom: 1px solid color-mix(in srgb, var(--ui-border) 74%, var(--ui-bg-topbar));
   display: flex;
   align-items: center;
   box-sizing: border-box;
-  box-shadow: 0 1px 0 var(--ui-divider);
+  box-shadow: none;
 
   .hamburger-container {
-    line-height: 56px;
+    line-height: var(--ui-layout-topbar-height, 52px);
     height: 100%;
     cursor: pointer;
     transition: background var(--ui-transition-fast);
@@ -150,7 +173,7 @@ function lockScreen() {
 
   .right-menu {
     height: 100%;
-    line-height: 60px;
+    line-height: var(--ui-layout-topbar-height, 52px);
     display: flex;
     align-items: center;
     margin-left: auto;
@@ -171,6 +194,8 @@ function lockScreen() {
       font-size: 18px;
       color: var(--ui-text-secondary, #5a5e66);
       border-radius: 8px;
+      border: 0;
+      background: transparent;
       transition: background var(--ui-transition-fast), color var(--ui-transition-fast);
 
       &.hover-effect {
@@ -195,6 +220,11 @@ function lockScreen() {
           }
         }
       }
+    }
+
+    .fullscreen-button {
+      flex: 0 0 36px;
+      line-height: 1;
     }
 
     .avatar-container {
@@ -233,6 +263,12 @@ function lockScreen() {
           flex-shrink: 0;
           border: 2px solid var(--ui-bg-panel);
           box-shadow: 0 0 0 1px var(--ui-border);
+        }
+
+        .avatar-caret {
+          width: 12px;
+          height: 12px;
+          color: var(--ui-text-muted);
         }
 
         .user-nickname{

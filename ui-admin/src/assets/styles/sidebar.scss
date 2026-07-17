@@ -24,7 +24,7 @@
     left: 0;
     z-index: 1001;
     overflow: hidden;
-    border-right: 1px solid color-mix(in srgb, var(--ui-border) 72%, transparent);
+    border-right: 1px solid var(--ui-sidebar-border);
     box-shadow: none;
     background: var(--ui-bg-sidebar);
 
@@ -47,7 +47,7 @@
 
     &.has-logo {
       .el-scrollbar {
-        height: calc(100% - 60px);
+        height: calc(100% - var(--ui-layout-topbar-height, 52px));
       }
     }
 
@@ -188,8 +188,8 @@
 
     // theme-dark 深色主题
     &.theme-dark {
-      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.4);
-      border-right: 1px solid color-mix(in srgb, var(--ui-border) 72%, transparent);
+      box-shadow: var(--ui-shadow-sidebar);
+      border-right: 1px solid var(--ui-sidebar-border);
 
       .el-menu-item.is-active {
         position: relative;

@@ -1,3 +1,13 @@
+# 本地开发默认启用敏感字段加密；部署环境必须通过环境变量覆盖密钥
+manzhushaka:
+    crypto:
+        enabled: ${SENSITIVE_FIELD_CRYPTO_ENABLED:true}
+        aes-key: ${SENSITIVE_FIELD_AES_KEY:bWFuemh1c2hha2EtZGV2LWFlcy1rZXktMzJieXRlcyE=}
+        hmac-key: ${SENSITIVE_FIELD_HMAC_KEY:bWFuemh1c2hha2EtZGV2LWhtYWMta2V5LTMyYnl0ZSE=}
+    # 图片验证码配置
+    captcha:
+        # 登录、注册是否校验图片验证码
+        enabled: ${CAPTCHA_ENABLED:false}
 # 数据源配置
 spring:
     datasource:
@@ -6,7 +16,7 @@ spring:
         druid:
             # 主库数据源
             master:
-                url: ${JDBC_MASTER_URL:jdbc:mysql://localhost:3306/manzhushaka?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8}
+                url: ${JDBC_MASTER_URL:jdbc:mysql://localhost:3306/manzhushaka-scaff?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8}
                 username: ${JDBC_MASTER_USERNAME:root}
                 password: ${JDBC_MASTER_PASSWORD:1a2s3d4f}
             # 从库数据源

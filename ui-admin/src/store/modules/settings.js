@@ -2,7 +2,7 @@ import defaultSettings from '@/settings'
 import { useDynamicTitle } from '@/utils/dynamicTitle'
 
 const UNIFIED_NAV_TYPE = 1
-const COOL_TOWER_THEME = '#0ea5e9'
+const VIBEHUB_PRIMARY = '#ff6a2a'
 const COOL_TOWER_SIDE_THEME = 'theme-dark'
 
 const { showSettings, tagsView, tagsViewPersist, tagsIcon, tagsViewStyle, fixedHeader, sidebarLogo, dynamicTitle, footerVisible, footerContent } = defaultSettings
@@ -22,7 +22,7 @@ const useSettingsStore = defineStore(
   {
     state: () => ({
       title: '',
-      theme: COOL_TOWER_THEME,
+      theme: VIBEHUB_PRIMARY,
       sideTheme: COOL_TOWER_SIDE_THEME,
       showSettings: showSettings,
       navType: UNIFIED_NAV_TYPE,

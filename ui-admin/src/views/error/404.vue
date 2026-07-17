@@ -1,5 +1,5 @@
 <template>
-  <div class="wscn-http404-container ui-entry-page" data-ui-theme="cool-tower">
+  <div class="wscn-http404-container ui-entry-page" data-ui-theme="vibehub-admin">
     <div class="wscn-http404">
       <div class="pic-404">
         <img class="pic-404__parent" src="@/assets/404_images/404.png" alt="404">
