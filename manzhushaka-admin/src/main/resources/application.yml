@@ -7,7 +7,7 @@ manzhushaka:
   # 版权年份
   copyrightYear: 2026
   # 文件路径 示例（ Windows配置D:/manzhushaka/uploadPath，Linux配置 /home/manzhushaka/uploadPath）
-  profile: D:/manzhushaka/uploadPath
+  profile: ${MANZHUSHAKA_PROFILE:/Users/manzhushaka/kimi-work/iip/uploadPath}
   # 获取ip地址开关
   addressEnabled: false
   # 敏感字段加密
@@ -155,3 +155,17 @@ xss:
   excludes: ""
   # 匹配链接
   urlPatterns: /system/*,/monitor/*,/tool/*
+
+
+# IIP 小程序平台配置（appid/secret 默认空；未配置的平台登录走开发模拟 mock 模式，仅限开发调试）
+iip:
+  miniapp:
+    wechat:
+      appid: ""
+      secret: ""
+    alipay:
+      appid: ""
+      secret: ""
+    unionpay:
+      appid: ""
+      secret: ""

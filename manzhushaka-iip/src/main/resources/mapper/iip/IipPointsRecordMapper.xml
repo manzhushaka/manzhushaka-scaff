@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.manzhushaka.iip.mapper.IipPointsRecordMapper">
+    
+    <resultMap type="IipPointsRecord" id="IipPointsRecordResult">
+    	<id     property="recordId"     column="record_id"     />
+        <result property="memberId"     column="member_id"     />
+        <result property="changeType"   column="change_type"   />
+        <result property="points"       column="points"        />
+        <result property="balanceAfter" column="balance_after" />
+        <result property="bizType"      column="biz_type"      />
+        <result property="bizId"        column="biz_id"        />
+        <result property="remaining"    column="remaining"     />
+        <result property="expireTime"   column="expire_time"   />
+        <result property="createBy"     column="create_by"     />
+        <result property="createTime"   column="create_time"   />
+        <result property="updateBy"     column="update_by"     />
+        <result property="updateTime"   column="update_time"   />
+        <result property="remark"       column="remark"        />
+    </resultMap>
+    
+    <sql id="selectIipPointsRecordVo">
+        select record_id, member_id, change_type, points, balance_after, biz_type, biz_id, remaining, expire_time, create_by, create_time, update_by, update_time, remark 
+		from iip_points_record
+    </sql>
+    
+    <select id="selectIipPointsRecordList" parameterType="IipPointsRecord" resultMap="IipPointsRecordResult">
+        <include refid="selectIipPointsRecordVo"/>
+        <where>
+			<if test="memberId != null">
+				AND member_id = #{memberId}
+			</if>
+			<if test="changeType != null and changeType != ''">
+				AND change_type = #{changeType}
+			</if>
+			<if test="bizType != null and bizType != ''">
+				AND biz_type = #{bizType}
+			</if>
+			<if test="bizId != null and bizId != ''">
+				AND biz_id = #{bizId}
+			</if>
+			<if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+				and date_format(create_time,'%Y%m%d') &gt;= date_format(#{params.beginTime},'%Y%m%d')
+			</if>
+			<if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+				and date_format(create_time,'%Y%m%d') &lt;= date_format(#{params.endTime},'%Y%m%d')
+			</if>
+		</where>
+		order by record_id desc
+    </select>
+    
+    <select id="selectIipPointsRecordById" parameterType="Long" resultMap="IipPointsRecordResult">
+        <include refid="selectIipPointsRecordVo"/>
+        where record_id = #{recordId}
+    </select>
+    
+    <!-- 可消耗的 earn 批次：remaining大于0且未过期，按创建时间升序供 FIFO 扣减 -->
+    <select id="selectEarnFifoList" parameterType="Long" resultMap="IipPointsRecordResult">
+        <include refid="selectIipPointsRecordVo"/>
+        where member_id = #{memberId}
+          and change_type = 'earn'
+          and remaining &gt; 0
+          and (expire_time is null or expire_time &gt; sysdate())
+        order by create_time asc
+    </select>
+    
+    <!-- 已到期的 earn 批次：remaining大于0且过期时间不晚于指定时间 -->
+    <select id="selectExpiredEarnList" resultMap="IipPointsRecordResult">
+        <include refid="selectIipPointsRecordVo"/>
+        where change_type = 'earn'
+          and remaining &gt; 0
+          and expire_time is not null
+          and expire_time &lt;= #{now}
+    </select>
+    
+    <select id="selectByBiz" resultMap="IipPointsRecordResult">
+        <include refid="selectIipPointsRecordVo"/>
+        where biz_type = #{bizType} and biz_id = #{bizId} limit 1
+    </select>
+    
+    <insert id="insertIipPointsRecord" parameterType="IipPointsRecord" useGeneratedKeys="true" keyProperty="recordId">
+        insert into iip_points_record (
+			<if test="memberId != null">member_id,</if>
+			<if test="changeType != null and changeType != '' ">change_type,</if>
+			<if test="points != null">points,</if>
+			<if test="balanceAfter != null">balance_after,</if>
+			<if test="bizType != null">biz_type,</if>
+			<if test="bizId != null">biz_id,</if>
+			<if test="remaining != null">remaining,</if>
+			<if test="expireTime != null">expire_time,</if>
+			<if test="createBy != null and createBy != ''">create_by,</if>
+			<if test="remark != null and remark != ''">remark,</if>
+ 			create_time
+        )values(
+			<if test="memberId != null">#{memberId},</if>
+			<if test="changeType != null and changeType != ''">#{changeType},</if>
+			<if test="points != null">#{points},</if>
+			<if test="balanceAfter != null">#{balanceAfter},</if>
+			<if test="bizType != null">#{bizType},</if>
+			<if test="bizId != null">#{bizId},</if>
+			<if test="remaining != null">#{remaining},</if>
+			<if test="expireTime != null">#{expireTime},</if>
+			<if test="createBy != null and createBy != ''">#{createBy},</if>
+			<if test="remark != null and remark != ''">#{remark},</if>
+ 			sysdate()
+		)
+    </insert>
+	 
+    <update id="updateIipPointsRecord" parameterType="IipPointsRecord">
+        update iip_points_record 
+        <set>
+            <if test="memberId != null">member_id = #{memberId},</if>
+            <if test="changeType != null and changeType != ''">change_type = #{changeType},</if>
+            <if test="points != null">points = #{points},</if>
+            <if test="balanceAfter != null">balance_after = #{balanceAfter},</if>
+            <if test="bizType != null">biz_type = #{bizType},</if>
+            <if test="bizId != null">biz_id = #{bizId},</if>
+            <if test="remaining != null">remaining = #{remaining},</if>
+            <if test="expireTime != null">expire_time = #{expireTime},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+ 			update_time = sysdate()
+        </set>
+        where record_id = #{recordId}
+    </update>
+    
+    <!-- 过期结转：将 earn 批次剩余未消耗清零 -->
+    <update id="clearRemaining" parameterType="Long">
+        update iip_points_record
+        set remaining = 0,
+            update_time = sysdate()
+        where record_id = #{recordId}
+    </update>
+    
+    <!-- FIFO 消费：原子扣减 earn 批次剩余未消耗数量，剩余不足时不更新 -->
+    <update id="decrRemaining">
+        update iip_points_record
+        set remaining = remaining - #{points},
+            update_time = sysdate()
+        where record_id = #{recordId}
+          and remaining &gt;= #{points}
+    </update>
+	
+    <delete id="deleteIipPointsRecordById" parameterType="Long">
+        delete from iip_points_record where record_id = #{recordId}
+    </delete>
+    
+    <delete id="deleteIipPointsRecordByIds" parameterType="Long">
+        delete from iip_points_record where record_id in 
+        <foreach item="recordId" collection="array" open="(" separator="," close=")">
+        	#{recordId}
+        </foreach>
+    </delete>
+    
+</mapper>

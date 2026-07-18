@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.manzhushaka.iip.mapper.IipMemberAccountMapper">
+    
+    <resultMap type="IipMemberAccount" id="IipMemberAccountResult">
+    	<id     property="accountId"   column="account_id"  />
+        <result property="memberId"    column="member_id"   />
+        <result property="platform"    column="platform"    />
+        <result property="openid"      column="openid"      />
+        <result property="unionid"     column="unionid"     />
+        <result property="createBy"    column="create_by"   />
+        <result property="createTime"  column="create_time" />
+        <result property="updateBy"    column="update_by"   />
+        <result property="updateTime"  column="update_time" />
+        <result property="remark"      column="remark"      />
+    </resultMap>
+    
+    <sql id="selectIipMemberAccountVo">
+        select account_id, member_id, platform, openid, unionid, create_by, create_time, update_by, update_time, remark 
+		from iip_member_account
+    </sql>
+    
+    <select id="selectIipMemberAccountList" parameterType="IipMemberAccount" resultMap="IipMemberAccountResult">
+        <include refid="selectIipMemberAccountVo"/>
+        <where>
+			<if test="memberId != null">
+				AND member_id = #{memberId}
+			</if>
+			<if test="platform != null and platform != ''">
+				AND platform = #{platform}
+			</if>
+			<if test="openid != null and openid != ''">
+				AND openid = #{openid}
+			</if>
+		</where>
+    </select>
+    
+    <select id="selectIipMemberAccountById" parameterType="Long" resultMap="IipMemberAccountResult">
+        <include refid="selectIipMemberAccountVo"/>
+        where account_id = #{accountId}
+    </select>
+    
+    <select id="selectByPlatformOpenid" resultMap="IipMemberAccountResult">
+        <include refid="selectIipMemberAccountVo"/>
+        where platform = #{platform} and openid = #{openid} limit 1
+    </select>
+    
+    <insert id="insertIipMemberAccount" parameterType="IipMemberAccount" useGeneratedKeys="true" keyProperty="accountId">
+        insert into iip_member_account (
+			<if test="memberId != null">member_id,</if>
+			<if test="platform != null and platform != '' ">platform,</if>
+			<if test="openid != null and openid != '' ">openid,</if>
+			<if test="unionid != null and unionid != '' ">unionid,</if>
+			<if test="createBy != null and createBy != ''">create_by,</if>
+			<if test="remark != null and remark != ''">remark,</if>
+ 			create_time
+        )values(
+			<if test="memberId != null">#{memberId},</if>
+			<if test="platform != null and platform != ''">#{platform},</if>
+			<if test="openid != null and openid != ''">#{openid},</if>
+			<if test="unionid != null and unionid != ''">#{unionid},</if>
+			<if test="createBy != null and createBy != ''">#{createBy},</if>
+			<if test="remark != null and remark != ''">#{remark},</if>
+ 			sysdate()
+		)
+    </insert>
+	 
+    <update id="updateIipMemberAccount" parameterType="IipMemberAccount">
+        update iip_member_account 
+        <set>
+            <if test="memberId != null">member_id = #{memberId},</if>
+            <if test="platform != null and platform != ''">platform = #{platform},</if>
+            <if test="openid != null and openid != ''">openid = #{openid},</if>
+            <if test="unionid != null">unionid = #{unionid},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+ 			update_time = sysdate()
+        </set>
+        where account_id = #{accountId}
+    </update>
+	
+    <delete id="deleteIipMemberAccountById" parameterType="Long">
+        delete from iip_member_account where account_id = #{accountId}
+    </delete>
+    
+    <delete id="deleteIipMemberAccountByIds" parameterType="Long">
+        delete from iip_member_account where account_id in 
+        <foreach item="accountId" collection="array" open="(" separator="," close=")">
+        	#{accountId}
+        </foreach>
+    </delete>
+    
+</mapper>

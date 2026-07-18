@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.manzhushaka.iip.mapper.IipMerchantVerifyMapper">
+
+    <resultMap type="IipCouponRecord" id="IipCouponRecordResult">
+    	<id     property="recordId"         column="record_id"          />
+        <result property="couponId"         column="coupon_id"          />
+        <result property="couponName"       column="coupon_name"        />
+        <result property="couponType"       column="coupon_type"        />
+        <result property="memberId"         column="member_id"          />
+        <result property="pointsCost"       column="points_cost"        />
+        <result property="verifyCode"       column="verify_code"        />
+        <result property="status"           column="status"             />
+        <result property="exchangeTime"     column="exchange_time"      />
+        <result property="validStartTime"   column="valid_start_time"   />
+        <result property="validEndTime"     column="valid_end_time"     />
+        <result property="verifyTime"       column="verify_time"        />
+        <result property="verifyMerchantId" column="verify_merchant_id" />
+        <result property="verifyBy"         column="verify_by"          />
+        <result property="activityId"       column="activity_id"        />
+        <result property="createBy"         column="create_by"          />
+        <result property="createTime"       column="create_time"        />
+        <result property="updateBy"         column="update_by"          />
+        <result property="updateTime"       column="update_time"        />
+        <result property="remark"           column="remark"             />
+    </resultMap>
+
+    <!-- 券实例状态：0未使用 1已使用 2已过期 -->
+    <!-- 原子核销：where 条件携带 status='0' 守护，并发下仅一个请求能更新成功 -->
+    <update id="verifyCouponRecordAtomic">
+        update iip_coupon_record
+        set status = '1',
+            verify_time = sysdate(),
+            verify_merchant_id = #{verifyMerchantId},
+            verify_by = #{verifyBy},
+            update_time = sysdate()
+        where record_id = #{recordId} and status = '0'
+    </update>
+
+    <!-- 过期置位：仅未使用券可置为已过期，避免并发核销结果被覆盖 -->
+    <update id="markCouponRecordExpired">
+        update iip_coupon_record
+        set status = '2',
+            update_time = sysdate()
+        where record_id = #{recordId} and status = '0'
+    </update>
+
+    <select id="selectVerifyRecordsByMerchantId" parameterType="Long" resultMap="IipCouponRecordResult">
+        select record_id, coupon_id, coupon_name, coupon_type, member_id, points_cost, verify_code, status,
+            exchange_time, valid_start_time, valid_end_time, verify_time, verify_merchant_id, verify_by,
+            activity_id, create_by, create_time, update_by, update_time, remark
+        from iip_coupon_record
+        where verify_merchant_id = #{merchantId}
+        order by verify_time desc, record_id desc
+    </select>
+
+</mapper>

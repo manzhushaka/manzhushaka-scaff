@@ -250,6 +250,13 @@
                 <version>${manzhushaka.version}</version>
             </dependency>
 
+            <!-- iip 业务模块：发票积分平台（用户、商户、发票、积分、券、活动） -->
+            <dependency>
+                <groupId>com.manzhushaka</groupId>
+                <artifactId>manzhushaka-iip</artifactId>
+                <version>${manzhushaka.version}</version>
+            </dependency>
+
             <!-- 通用工具模块：常量定义、通用工具类、自定义注解、异常定义等 -->
             <dependency>
                 <groupId>com.manzhushaka</groupId>
@@ -293,6 +300,7 @@
         <module>manzhushaka-framework</module>  <!-- 核心框架层：安全、AOP、配置、拦截器 -->
         <module>manzhushaka-system</module>     <!-- 系统业务层：用户、角色、菜单、部门等业务实现 -->
         <module>manzhushaka-quartz</module>     <!-- 定时任务层：Quartz 任务调度管理 -->
+        <module>manzhushaka-iip</module>        <!-- iip 业务层：发票积分平台业务实现 -->
         <module>manzhushaka-common</module>     <!-- 通用工具层：常量、工具类、通用注解 -->
     </modules>
 

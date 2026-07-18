@@ -15,7 +15,8 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 // 指定要扫描的Mapper类的包的路径
 @MapperScan({
     "com.manzhushaka.quartz.mapper",
-    "com.manzhushaka.system.mapper"
+    "com.manzhushaka.system.mapper",
+    "com.manzhushaka.iip.mapper"
 })
 public class ApplicationConfig
 {

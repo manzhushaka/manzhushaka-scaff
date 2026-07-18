@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.manzhushaka.iip.mapper.IipOverviewMapper">
+
+    <!-- 小程序用户总数 -->
+    <select id="countMembers" resultType="java.lang.Long">
+        select count(*) from iip_member
+    </select>
+
+    <!-- 商户总数 -->
+    <select id="countMerchants" resultType="java.lang.Long">
+        select count(*) from iip_merchant
+    </select>
+
+    <!-- 待审核商户数 -->
+    <select id="countPendingMerchants" resultType="java.lang.Long">
+        select count(*) from iip_merchant where status = '2'
+    </select>
+
+    <!-- 发票按状态分组统计（0待审核 1已通过 2已驳回） -->
+    <select id="countInvoicesByStatus" resultType="java.util.Map">
+        select status, count(*) as cnt from iip_invoice group by status
+    </select>
+
+    <!-- 待审核发票数 -->
+    <select id="countPendingInvoices" resultType="java.lang.Long">
+        select count(*) from iip_invoice where status = '0'
+    </select>
+
+    <!-- 累计发放积分（earn 流水求和，无记录返回 0） -->
+    <select id="sumPointsIssued" resultType="java.lang.Long">
+        select ifnull(sum(points), 0) from iip_points_record where change_type = 'earn'
+    </select>
+
+    <!-- 累计消耗积分（consume 流水求和，无记录返回 0） -->
+    <select id="sumPointsConsumed" resultType="java.lang.Long">
+        select ifnull(sum(points), 0) from iip_points_record where change_type = 'consume'
+    </select>
+
+    <!-- 券兑换记录总数 -->
+    <select id="countCouponExchanges" resultType="java.lang.Long">
+        select count(*) from iip_coupon_record
+    </select>
+
+    <!-- 已核销券数 -->
+    <select id="countVerifiedCoupons" resultType="java.lang.Long">
+        select count(*) from iip_coupon_record where status = '1'
+    </select>
+
+    <!-- 当前生效活动数：启用且当前时间在起止时间内 -->
+    <select id="countActiveActivities" resultType="java.lang.Long">
+        select count(*) from iip_activity
+        where status = '0'
+          and start_time &lt;= now()
+          and end_time &gt;= now()
+    </select>
+
+    <!-- 近 7 日发票上传趋势 -->
+    <select id="invoiceTrend" resultType="java.util.Map">
+        select date_format(create_time, '%Y-%m-%d') as day, count(*) as cnt
+        from iip_invoice
+        where create_time &gt;= date_sub(curdate(), interval 6 day)
+        group by day
+        order by day
+    </select>
+
+    <!-- 近 7 日积分发放趋势（earn 流水按日求和） -->
+    <select id="pointsTrend" resultType="java.util.Map">
+        select date_format(create_time, '%Y-%m-%d') as day, ifnull(sum(points), 0) as cnt
+        from iip_points_record
+        where change_type = 'earn'
+          and create_time &gt;= date_sub(curdate(), interval 6 day)
+        group by day
+        order by day
+    </select>
+
+    <!-- 近 7 日券兑换趋势 -->
+    <select id="exchangeTrend" resultType="java.util.Map">
+        select date_format(create_time, '%Y-%m-%d') as day, count(*) as cnt
+        from iip_coupon_record
+        where create_time &gt;= date_sub(curdate(), interval 6 day)
+        group by day
+        order by day
+    </select>
+
+</mapper>

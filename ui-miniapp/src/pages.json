@@ -1,0 +1,117 @@
+{
+  "easycom": {
+    "autoscan": true
+  },
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "发票积分平台",
+        "enablePullDownRefresh": true
+      }
+    },
+    {
+      "path": "pages/login/index",
+      "style": {
+        "navigationBarTitleText": "登录"
+      }
+    },
+    {
+      "path": "pages/invoice/upload",
+      "style": {
+        "navigationBarTitleText": "上传发票"
+      }
+    },
+    {
+      "path": "pages/invoice/list",
+      "style": {
+        "navigationBarTitleText": "我的发票",
+        "enablePullDownRefresh": true
+      }
+    },
+    {
+      "path": "pages/points/records",
+      "style": {
+        "navigationBarTitleText": "积分明细",
+        "enablePullDownRefresh": true
+      }
+    },
+    {
+      "path": "pages/coupon/mall",
+      "style": {
+        "navigationBarTitleText": "积分商城",
+        "enablePullDownRefresh": true
+      }
+    },
+    {
+      "path": "pages/coupon/detail",
+      "style": {
+        "navigationBarTitleText": "券详情"
+      }
+    },
+    {
+      "path": "pages/coupon/mine",
+      "style": {
+        "navigationBarTitleText": "我的券"
+      }
+    },
+    {
+      "path": "pages/merchant/center",
+      "style": {
+        "navigationBarTitleText": "商户中心"
+      }
+    },
+    {
+      "path": "pages/merchant/apply",
+      "style": {
+        "navigationBarTitleText": "商户入驻"
+      }
+    },
+    {
+      "path": "pages/merchant/verify",
+      "style": {
+        "navigationBarTitleText": "核销券码"
+      }
+    },
+    {
+      "path": "pages/merchant/records",
+      "style": {
+        "navigationBarTitleText": "核销记录",
+        "enablePullDownRefresh": true
+      }
+    },
+    {
+      "path": "pages/mine/index",
+      "style": {
+        "navigationBarTitleText": "我的"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "发票积分平台",
+    "navigationBarBackgroundColor": "#ff6a2a",
+    "backgroundColor": "#faf8f5",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#9a8f83",
+    "selectedColor": "#ff6a2a",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/coupon/mall",
+        "text": "商城"
+      },
+      {
+        "pagePath": "pages/mine/index",
+        "text": "我的"
+      }
+    ]
+  }
+}

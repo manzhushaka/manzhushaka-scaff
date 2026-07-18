@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.manzhushaka.iip.mapper.IipActivityCouponMapper">
+    
+    <resultMap type="IipActivityCoupon" id="IipActivityCouponResult">
+    	<id     property="id"          column="id"           />
+        <result property="activityId"  column="activity_id"  />
+        <result property="couponId"    column="coupon_id"    />
+        <result property="issueLimit"  column="issue_limit"  />
+        <result property="issuedCount" column="issued_count" />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"  column="create_time"  />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"  column="update_time"  />
+        <result property="remark"      column="remark"       />
+    </resultMap>
+    
+    <sql id="selectIipActivityCouponVo">
+        select id, activity_id, coupon_id, issue_limit, issued_count, create_by, create_time, update_by, update_time, remark 
+		from iip_activity_coupon
+    </sql>
+    
+    <select id="selectIipActivityCouponList" parameterType="IipActivityCoupon" resultMap="IipActivityCouponResult">
+        <include refid="selectIipActivityCouponVo"/>
+        <where>
+			<if test="activityId != null">
+				AND activity_id = #{activityId}
+			</if>
+			<if test="couponId != null">
+				AND coupon_id = #{couponId}
+			</if>
+		</where>
+    </select>
+    
+    <select id="selectIipActivityCouponById" parameterType="Long" resultMap="IipActivityCouponResult">
+        <include refid="selectIipActivityCouponVo"/>
+        where id = #{id}
+    </select>
+    
+    <select id="selectByActivityId" parameterType="Long" resultMap="IipActivityCouponResult">
+        <include refid="selectIipActivityCouponVo"/>
+        where activity_id = #{activityId}
+    </select>
+
+    <!-- 按券ID查询活动券配置列表（兑换归因用） -->
+    <select id="selectByCouponId" parameterType="Long" resultMap="IipActivityCouponResult">
+        <include refid="selectIipActivityCouponVo"/>
+        where coupon_id = #{couponId}
+    </select>
+
+    <resultMap type="IipActivityCoupon" id="IipActivityCouponJoinResult" extends="IipActivityCouponResult">
+        <result property="couponName"  column="coupon_name"  />
+        <result property="pointsCost"  column="points_cost"  />
+        <result property="coverImage"  column="cover_image"  />
+        <result property="totalStock"  column="total_stock"  />
+        <result property="remainStock" column="remain_stock" />
+    </resultMap>
+
+    <!-- 按活动ID查询活动券配置列表（join iip_coupon 携带券名称/积分价/封面/库存） -->
+    <select id="selectCouponJoinList" parameterType="Long" resultMap="IipActivityCouponJoinResult">
+        select ac.id, ac.activity_id, ac.coupon_id, ac.issue_limit, ac.issued_count, ac.create_by, ac.create_time, ac.update_by, ac.update_time, ac.remark,
+               c.coupon_name, c.points_cost, c.cover_image, c.total_stock, c.remain_stock
+        from iip_activity_coupon ac
+        left join iip_coupon c on c.coupon_id = ac.coupon_id
+        where ac.activity_id = #{activityId}
+        order by ac.id asc
+    </select>
+
+    <!-- 统计活动已配置券数量 -->
+    <select id="countByActivityId" parameterType="Long" resultType="int">
+        select count(*) from iip_activity_coupon where activity_id = #{activityId}
+    </select>
+
+    <!-- 汇总活动已配置券的发行上限合计（issue_limit 为 -1 按 0 计） -->
+    <select id="sumIssueLimitByActivityId" resultType="int">
+        select ifnull(sum(case when issue_limit = -1 then 0 else issue_limit end), 0)
+        from iip_activity_coupon
+        where activity_id = #{activityId}
+        <if test="excludeId != null">
+            and id != #{excludeId}
+        </if>
+    </select>
+
+    <insert id="insertIipActivityCoupon" parameterType="IipActivityCoupon" useGeneratedKeys="true" keyProperty="id">
+        insert into iip_activity_coupon (
+			<if test="activityId != null">activity_id,</if>
+			<if test="couponId != null">coupon_id,</if>
+			<if test="issueLimit != null">issue_limit,</if>
+			<if test="issuedCount != null">issued_count,</if>
+			<if test="createBy != null and createBy != ''">create_by,</if>
+			<if test="remark != null and remark != ''">remark,</if>
+ 			create_time
+        )values(
+			<if test="activityId != null">#{activityId},</if>
+			<if test="couponId != null">#{couponId},</if>
+			<if test="issueLimit != null">#{issueLimit},</if>
+			<if test="issuedCount != null">#{issuedCount},</if>
+			<if test="createBy != null and createBy != ''">#{createBy},</if>
+			<if test="remark != null and remark != ''">#{remark},</if>
+ 			sysdate()
+		)
+    </insert>
+	 
+    <update id="updateIipActivityCoupon" parameterType="IipActivityCoupon">
+        update iip_activity_coupon 
+        <set>
+            <if test="activityId != null">activity_id = #{activityId},</if>
+            <if test="couponId != null">coupon_id = #{couponId},</if>
+            <if test="issueLimit != null">issue_limit = #{issueLimit},</if>
+            <if test="issuedCount != null">issued_count = #{issuedCount},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+ 			update_time = sysdate()
+        </set>
+        where id = #{id}
+    </update>
+    
+    <!-- 原子累加已发行数量（issue_limit 为 -1 或未达到上限时加 1） -->
+    <update id="incrIssued" parameterType="Long">
+        update iip_activity_coupon
+        set issued_count = issued_count + 1,
+            update_time = sysdate()
+        where id = #{id}
+          and (issue_limit = -1 or issued_count &lt; issue_limit)
+    </update>
+	
+    <delete id="deleteIipActivityCouponById" parameterType="Long">
+        delete from iip_activity_coupon where id = #{id}
+    </delete>
+
+    <delete id="deleteByActivityId" parameterType="Long">
+        delete from iip_activity_coupon where activity_id = #{activityId}
+    </delete>
+    
+    <delete id="deleteIipActivityCouponByIds" parameterType="Long">
+        delete from iip_activity_coupon where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+        	#{id}
+        </foreach>
+    </delete>
+    
+</mapper>
