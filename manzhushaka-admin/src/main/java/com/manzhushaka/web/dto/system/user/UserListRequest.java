@@ -1,11 +1,14 @@
 package com.manzhushaka.web.dto.system.user;
 
-import java.util.Date;
+import com.manzhushaka.web.dto.common.DateRangeRequest;
 
 /**
  * 用户列表请求
+ *
+ * @author manzhushaka
+ * @date 2026-07-18
  */
-public class UserListRequest
+public class UserListRequest extends DateRangeRequest
 {
     private Integer pageNum;
     private Integer pageSize;
@@ -13,8 +16,6 @@ public class UserListRequest
     private String phonenumber;
     private String status;
     private Long deptId;
-    private Date beginTime;
-    private Date endTime;
 
     public Integer getPageNum()
     {
@@ -76,23 +77,4 @@ public class UserListRequest
         this.deptId = deptId;
     }
 
-    public Date getBeginTime()
-    {
-        return beginTime;
-    }
-
-    public void setBeginTime(Date beginTime)
-    {
-        this.beginTime = beginTime;
-    }
-
-    public Date getEndTime()
-    {
-        return endTime;
-    }
-
-    public void setEndTime(Date endTime)
-    {
-        this.endTime = endTime;
-    }
 }

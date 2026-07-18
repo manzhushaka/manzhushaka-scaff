@@ -20,7 +20,7 @@ import com.manzhushaka.common.core.redis.RedisCache;
 import com.manzhushaka.common.enums.BusinessType;
 import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.framework.security.model.LoginPrincipal;
-import com.manzhushaka.system.domain.SysUserOnline;
+import com.manzhushaka.system.application.result.system.UserOnlineResult;
 import com.manzhushaka.system.service.ISysUserOnlineService;
 
 /**
@@ -50,7 +50,7 @@ public class SysUserOnlineController extends BaseController
     public TableDataInfo list(String ipaddr, String userName)
     {
         Collection<String> keys = redisCache.keys(CacheConstants.LOGIN_TOKEN_KEY + "*");
-        List<SysUserOnline> userOnlineList = new ArrayList<SysUserOnline>();
+        List<UserOnlineResult> userOnlineList = new ArrayList<>();
         for (String key : keys)
         {
             Object cached = redisCache.getCacheObject(key);

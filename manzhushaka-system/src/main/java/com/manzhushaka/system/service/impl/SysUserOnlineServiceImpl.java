@@ -3,7 +3,7 @@ package com.manzhushaka.system.service.impl;
 import java.lang.reflect.Method;
 import org.springframework.stereotype.Service;
 import com.manzhushaka.common.utils.StringUtils;
-import com.manzhushaka.system.domain.SysUserOnline;
+import com.manzhushaka.system.application.result.system.UserOnlineResult;
 import com.manzhushaka.system.service.ISysUserOnlineService;
 
 /**
@@ -50,7 +50,7 @@ public class SysUserOnlineServiceImpl implements ISysUserOnlineService
      * @return 在线用户信息
      */
     @Override
-    public SysUserOnline selectOnlineByIpaddr(String ipaddr, Object user)
+    public UserOnlineResult selectOnlineByIpaddr(String ipaddr, Object user)
     {
         String userIpaddr = invokeStringGetter(user, "getIpaddr");
         if (StringUtils.equals(ipaddr, userIpaddr))
@@ -68,7 +68,7 @@ public class SysUserOnlineServiceImpl implements ISysUserOnlineService
      * @return 在线用户信息
      */
     @Override
-    public SysUserOnline selectOnlineByUserName(String userName, Object user)
+    public UserOnlineResult selectOnlineByUserName(String userName, Object user)
     {
         String username = invokeStringGetter(user, "getUsername");
         if (StringUtils.equals(userName, username))
@@ -87,7 +87,7 @@ public class SysUserOnlineServiceImpl implements ISysUserOnlineService
      * @return 在线用户信息
      */
     @Override
-    public SysUserOnline selectOnlineByInfo(String ipaddr, String userName, Object user)
+    public UserOnlineResult selectOnlineByInfo(String ipaddr, String userName, Object user)
     {
         String userIpaddr = invokeStringGetter(user, "getIpaddr");
         String username = invokeStringGetter(user, "getUsername");
@@ -105,21 +105,16 @@ public class SysUserOnlineServiceImpl implements ISysUserOnlineService
      * @return 在线用户
      */
     @Override
-    public SysUserOnline loginUserToUserOnline(Object user)
+    public UserOnlineResult loginUserToUserOnline(Object user)
     {
         if (StringUtils.isNull(user))
         {
             return null;
         }
-        SysUserOnline sysUserOnline = new SysUserOnline();
-        sysUserOnline.setTokenId(invokeStringGetter(user, "getToken"));
-        sysUserOnline.setUserName(invokeStringGetter(user, "getUsername"));
-        sysUserOnline.setIpaddr(invokeStringGetter(user, "getIpaddr"));
-        sysUserOnline.setLoginLocation(invokeStringGetter(user, "getLoginLocation"));
-        sysUserOnline.setBrowser(invokeStringGetter(user, "getBrowser"));
-        sysUserOnline.setOs(invokeStringGetter(user, "getOs"));
-        sysUserOnline.setLoginTime(invokeLongGetter(user, "getLoginTime"));
-        sysUserOnline.setDeptName(invokeStringGetter(user, "getDeptName"));
-        return sysUserOnline;
+        return new UserOnlineResult(invokeStringGetter(user, "getToken"),
+                invokeStringGetter(user, "getDeptName"), invokeStringGetter(user, "getUsername"),
+                invokeStringGetter(user, "getIpaddr"), invokeStringGetter(user, "getLoginLocation"),
+                invokeStringGetter(user, "getBrowser"), invokeStringGetter(user, "getOs"),
+                invokeLongGetter(user, "getLoginTime"));
     }
 }

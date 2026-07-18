@@ -19,24 +19,26 @@ import org.springframework.web.multipart.MultipartFile;
 import com.manzhushaka.common.annotation.Log;
 import com.manzhushaka.common.core.controller.BaseController;
 import com.manzhushaka.common.core.domain.AjaxResult;
-import com.manzhushaka.system.infrastructure.persistence.entity.SysDept;
-import com.manzhushaka.system.infrastructure.persistence.entity.SysRole;
-import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
 import com.manzhushaka.common.core.page.TableDataInfo;
 import com.manzhushaka.common.enums.BusinessType;
 import com.manzhushaka.framework.security.context.SecurityContextHelper;
 import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.common.utils.poi.ExcelUtil;
 import com.manzhushaka.system.application.service.SystemUserAppService;
-import com.manzhushaka.system.service.ISysDeptService;
-import com.manzhushaka.system.service.ISysRoleService;
+import com.manzhushaka.system.application.service.SystemDeptAppService;
+import com.manzhushaka.system.application.service.SystemRoleAppService;
+import com.manzhushaka.system.application.result.system.RoleResult;
+import com.manzhushaka.system.application.result.system.UserExcelRow;
+import com.manzhushaka.system.application.result.system.UserResult;
 import com.manzhushaka.web.converter.system.user.UserAdminConverter;
+import com.manzhushaka.web.converter.system.DeptAdminConverter;
 import com.manzhushaka.web.dto.system.user.ChangeUserStatusRequest;
 import com.manzhushaka.web.dto.system.user.CreateUserRequest;
 import com.manzhushaka.web.dto.system.user.ResetPwdRequest;
 import com.manzhushaka.web.dto.system.user.UpdateUserRequest;
 import com.manzhushaka.web.converter.system.shared.TreeSelectAdminConverter;
 import com.manzhushaka.web.dto.system.user.UserListRequest;
+import com.manzhushaka.web.dto.system.SysDeptTreeRequest;
 
 /**
  * 用户信息
@@ -51,10 +53,10 @@ public class SysUserController extends BaseController
     private SystemUserAppService userAppService;
 
     @Autowired
-    private ISysRoleService roleService;
+    private SystemRoleAppService roleAppService;
 
     @Autowired
-    private ISysDeptService deptService;
+    private SystemDeptAppService deptAppService;
 
     /**
      * 获取用户列表
@@ -65,17 +67,18 @@ public class SysUserController extends BaseController
     {
         startPage();
         var query = UserAdminConverter.toUserListQuery(request);
-        List<SysUser> list = userAppService.listUsers(query);
+        List<UserResult> list = userAppService.listUserResults(query);
         return getDataTable(list);
     }
 
     @Log(title = "用户管理", businessType = BusinessType.EXPORT)
     @PreAuthorize("@ss.hasPermi('system:user:export')")
     @PostMapping("/export")
-    public void export(HttpServletResponse response, SysUser user)
+    public void export(HttpServletResponse response, UserListRequest request)
     {
-        List<SysUser> list = userAppService.exportUsers(user);
-        ExcelUtil<SysUser> util = new ExcelUtil<SysUser>(SysUser.class);
+        List<UserExcelRow> list = userAppService.exportUserResults(
+                UserAdminConverter.toUserListQuery(request));
+        ExcelUtil<UserExcelRow> util = new ExcelUtil<UserExcelRow>(UserExcelRow.class);
         util.exportExcel(response, list, "用户数据");
     }
 
@@ -84,10 +87,10 @@ public class SysUserController extends BaseController
     @PostMapping("/importData")
     public AjaxResult importData(MultipartFile file, boolean updateSupport) throws Exception
     {
-        ExcelUtil<SysUser> util = new ExcelUtil<SysUser>(SysUser.class);
-        List<SysUser> userList = util.importExcel(file.getInputStream());
+        ExcelUtil<UserExcelRow> util = new ExcelUtil<UserExcelRow>(UserExcelRow.class);
+        List<UserExcelRow> userList = util.importExcel(file.getInputStream());
         String operName = SecurityContextHelper.getUsername();
-        String message = userAppService.importUser(userList, updateSupport, operName);
+        String message = userAppService.importUserRows(userList, updateSupport, operName);
         return success(message);
     }
 
@@ -95,7 +98,7 @@ public class SysUserController extends BaseController
     @PostMapping("/importTemplate")
     public void importTemplate(HttpServletResponse response)
     {
-        ExcelUtil<SysUser> util = new ExcelUtil<SysUser>(SysUser.class);
+        ExcelUtil<UserExcelRow> util = new ExcelUtil<UserExcelRow>(UserExcelRow.class);
         util.importTemplateExcel(response, "用户数据");
     }
 
@@ -109,12 +112,14 @@ public class SysUserController extends BaseController
         AjaxResult ajax = AjaxResult.success();
         if (StringUtils.isNotNull(userId))
         {
-            SysUser sysUser = userAppService.getUserDetail(userId);
-            ajax.put(AjaxResult.DATA_TAG, sysUser);
-            ajax.put("roleIds", sysUser.getRoles().stream().map(SysRole::getRoleId).collect(Collectors.toList()));
+            UserResult user = userAppService.getUserResult(userId);
+            ajax.put(AjaxResult.DATA_TAG, user);
+            ajax.put("roleIds", user.roleIds());
         }
-        List<SysRole> roles = roleService.selectRoleAll();
-        ajax.put("roles", SecurityContextHelper.isAdmin(userId) ? roles : roles.stream().filter(r -> !r.isAdmin()).collect(Collectors.toList()));
+        List<RoleResult> roles = roleAppService.selectRoleResults();
+        ajax.put("roles", SecurityContextHelper.isAdmin(userId) ? roles
+                : roles.stream().filter(role -> role.roleId() == null || role.roleId() != 1L)
+                        .collect(Collectors.toList()));
         return ajax;
     }
 
@@ -194,10 +199,12 @@ public class SysUserController extends BaseController
     public AjaxResult authRole(@PathVariable("userId") Long userId)
     {
         AjaxResult ajax = AjaxResult.success();
-        SysUser user = userAppService.getUserDetail(userId);
-        List<SysRole> roles = roleService.selectRolesByUserId(userId);
+        UserResult user = userAppService.getUserResult(userId);
+        List<RoleResult> roles = roleAppService.selectRoleResultsByUserId(userId);
         ajax.put("user", user);
-        ajax.put("roles", SecurityContextHelper.isAdmin(userId) ? roles : roles.stream().filter(r -> !r.isAdmin()).collect(Collectors.toList()));
+        ajax.put("roles", SecurityContextHelper.isAdmin(userId) ? roles
+                : roles.stream().filter(role -> role.roleId() == null || role.roleId() != 1L)
+                        .collect(Collectors.toList()));
         return ajax;
     }
 
@@ -218,8 +225,9 @@ public class SysUserController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('system:user:list')")
     @GetMapping("/deptTree")
-    public AjaxResult deptTree(SysDept dept)
+    public AjaxResult deptTree(SysDeptTreeRequest request)
     {
-        return success(TreeSelectAdminConverter.toVoList(deptService.selectDeptTreeList(dept)));
+        return success(TreeSelectAdminConverter.toVoList(
+                deptAppService.listDeptTree(DeptAdminConverter.toQuery(request))));
     }
 }

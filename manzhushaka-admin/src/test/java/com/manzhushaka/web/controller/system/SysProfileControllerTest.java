@@ -1,25 +1,19 @@
 package com.manzhushaka.web.controller.system;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.util.ReflectionTestUtils;
-import com.manzhushaka.common.core.domain.AjaxResult;
-import com.manzhushaka.common.utils.security.PasswordUtils;
 import com.manzhushaka.framework.security.model.LoginPrincipal;
 import com.manzhushaka.framework.web.service.TokenService;
-import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
-import com.manzhushaka.system.service.ISysUserService;
+import com.manzhushaka.system.application.command.UpdateOwnPasswordCommand;
+import com.manzhushaka.system.application.service.SystemUserAppService;
+import com.manzhushaka.web.dto.system.user.UpdateOwnPasswordRequest;
 
 /**
  * 个人信息控制器测试。
@@ -39,14 +33,14 @@ class SysProfileControllerTest
     }
 
     /**
-     * 修改密码时不能使用弱密码。
+     * 修改密码应通过应用服务边界处理。
      */
     @Test
-    void updatePwdShouldRejectWeakPassword()
+    void updatePwdShouldDelegateToApplicationService()
     {
         SysProfileController controller = new SysProfileController();
-        ISysUserService userService = mock(ISysUserService.class);
-        ReflectionTestUtils.setField(controller, "userService", userService);
+        SystemUserAppService userAppService = mock(SystemUserAppService.class);
+        ReflectionTestUtils.setField(controller, "userAppService", userAppService);
         ReflectionTestUtils.setField(controller, "tokenService", mock(TokenService.class));
         LoginPrincipal principal = LoginPrincipal.builder()
                 .userId(2L)
@@ -54,16 +48,12 @@ class SysProfileControllerTest
                 .build();
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(principal, null));
-        SysUser user = new SysUser();
-        user.setPassword(PasswordUtils.encrypt("Old@7294"));
-        when(userService.selectUserById(2L)).thenReturn(user);
+        UpdateOwnPasswordRequest request = new UpdateOwnPasswordRequest();
+        request.setOldPassword("Old@7294");
+        request.setNewPassword("New@7294");
 
-        AjaxResult result = controller.updatePwd(Map.of(
-                "oldPassword", "Old@7294",
-                "newPassword", "123456"));
-
-        assertThat(result.isError()).isTrue();
-        assertThat(result.get(AjaxResult.MSG_TAG)).isEqualTo("密码长度必须介于8到20个字符之间");
-        verify(userService, never()).resetUserPwd(anyLong(), anyString());
+        assertThat(controller.updatePwd(request).isSuccess()).isTrue();
+        verify(userAppService).updateOwnPassword(new UpdateOwnPasswordCommand(
+                2L, "zhangsan", "Old@7294", "New@7294"));
     }
 }

@@ -1,19 +1,20 @@
 package com.manzhushaka.web.dto.system.role;
 
-import java.util.Date;
+import com.manzhushaka.web.dto.common.DateRangeRequest;
 
 /**
  * 角色列表请求
+ *
+ * @author manzhushaka
+ * @date 2026-07-18
  */
-public class RoleListRequest
+public class RoleListRequest extends DateRangeRequest
 {
     private Integer pageNum;
     private Integer pageSize;
     private String roleName;
     private String roleKey;
     private String status;
-    private Date beginTime;
-    private Date endTime;
 
     public Integer getPageNum()
     {
@@ -65,23 +66,4 @@ public class RoleListRequest
         this.status = status;
     }
 
-    public Date getBeginTime()
-    {
-        return beginTime;
-    }
-
-    public void setBeginTime(Date beginTime)
-    {
-        this.beginTime = beginTime;
-    }
-
-    public Date getEndTime()
-    {
-        return endTime;
-    }
-
-    public void setEndTime(Date endTime)
-    {
-        this.endTime = endTime;
-    }
 }

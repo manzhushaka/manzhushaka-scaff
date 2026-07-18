@@ -20,8 +20,10 @@ import com.manzhushaka.common.core.page.TableDataInfo;
 import com.manzhushaka.common.enums.BusinessType;
 import com.manzhushaka.common.utils.poi.ExcelUtil;
 import com.manzhushaka.framework.security.context.SecurityContextHelper;
-import com.manzhushaka.system.domain.SysConfig;
-import com.manzhushaka.system.service.ISysConfigService;
+import com.manzhushaka.system.application.result.system.ConfigResult;
+import com.manzhushaka.system.application.service.SystemConfigAppService;
+import com.manzhushaka.web.converter.system.ConfigAdminConverter;
+import com.manzhushaka.web.dto.system.ConfigRequest;
 
 /**
  * 参数配置 信息操作处理
@@ -33,27 +35,27 @@ import com.manzhushaka.system.service.ISysConfigService;
 public class SysConfigController extends BaseController
 {
     @Autowired
-    private ISysConfigService configService;
+    private SystemConfigAppService configAppService;
 
     /**
      * 获取参数配置列表
      */
     @PreAuthorize("@ss.hasPermi('system:config:list')")
     @GetMapping("/list")
-    public TableDataInfo list(SysConfig config)
+    public TableDataInfo list(ConfigRequest request)
     {
         startPage();
-        List<SysConfig> list = configService.selectConfigList(config);
+        List<ConfigResult> list = configAppService.listConfigs(ConfigAdminConverter.toQuery(request));
         return getDataTable(list);
     }
 
     @Log(title = "参数管理", businessType = BusinessType.EXPORT)
     @PreAuthorize("@ss.hasPermi('system:config:export')")
     @PostMapping("/export")
-    public void export(HttpServletResponse response, SysConfig config)
+    public void export(HttpServletResponse response, ConfigRequest request)
     {
-        List<SysConfig> list = configService.selectConfigList(config);
-        ExcelUtil<SysConfig> util = new ExcelUtil<SysConfig>(SysConfig.class);
+        List<ConfigResult> list = configAppService.listConfigs(ConfigAdminConverter.toQuery(request));
+        ExcelUtil<ConfigResult> util = new ExcelUtil<ConfigResult>(ConfigResult.class);
         util.exportExcel(response, list, "参数数据");
     }
 
@@ -64,7 +66,7 @@ public class SysConfigController extends BaseController
     @GetMapping(value = "/{configId}")
     public AjaxResult getInfo(@PathVariable Long configId)
     {
-        return success(configService.selectConfigById(configId));
+        return success(configAppService.getConfig(configId));
     }
 
     /**
@@ -73,7 +75,7 @@ public class SysConfigController extends BaseController
     @GetMapping(value = "/configKey/{configKey}")
     public AjaxResult getConfigKey(@PathVariable String configKey)
     {
-        return success(configService.selectConfigByKey(configKey));
+        return success(configAppService.getConfigValue(configKey));
     }
 
     /**
@@ -82,14 +84,10 @@ public class SysConfigController extends BaseController
     @PreAuthorize("@ss.hasPermi('system:config:add')")
     @Log(title = "参数管理", businessType = BusinessType.INSERT)
     @PostMapping
-    public AjaxResult add(@Validated @RequestBody SysConfig config)
+    public AjaxResult add(@Validated @RequestBody ConfigRequest request)
     {
-        if (!configService.checkConfigKeyUnique(config))
-        {
-            return error("新增参数'" + config.getConfigName() + "'失败，参数键名已存在");
-        }
-        config.setCreateBy(SecurityContextHelper.getUsername());
-        return toAjax(configService.insertConfig(config));
+        return toAjax(configAppService.createConfig(ConfigAdminConverter.toCommand(request),
+                SecurityContextHelper.getUsername()));
     }
 
     /**
@@ -98,14 +96,10 @@ public class SysConfigController extends BaseController
     @PreAuthorize("@ss.hasPermi('system:config:edit')")
     @Log(title = "参数管理", businessType = BusinessType.UPDATE)
     @PutMapping
-    public AjaxResult edit(@Validated @RequestBody SysConfig config)
+    public AjaxResult edit(@Validated @RequestBody ConfigRequest request)
     {
-        if (!configService.checkConfigKeyUnique(config))
-        {
-            return error("修改参数'" + config.getConfigName() + "'失败，参数键名已存在");
-        }
-        config.setUpdateBy(SecurityContextHelper.getUsername());
-        return toAjax(configService.updateConfig(config));
+        return toAjax(configAppService.updateConfig(ConfigAdminConverter.toCommand(request),
+                SecurityContextHelper.getUsername()));
     }
 
     /**
@@ -116,7 +110,7 @@ public class SysConfigController extends BaseController
     @DeleteMapping("/{configIds}")
     public AjaxResult remove(@PathVariable Long[] configIds)
     {
-        configService.deleteConfigByIds(configIds);
+        configAppService.deleteConfigs(configIds);
         return success();
     }
 
@@ -128,7 +122,7 @@ public class SysConfigController extends BaseController
     @DeleteMapping("/refreshCache")
     public AjaxResult refreshCache()
     {
-        configService.resetConfigCache();
+        configAppService.refreshCache();
         return success();
     }
 }

@@ -1,6 +1,5 @@
 package com.manzhushaka.web.controller.system;
 
-import java.util.ArrayList;
 import java.util.List;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,14 +16,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.manzhushaka.common.annotation.Log;
 import com.manzhushaka.common.core.controller.BaseController;
 import com.manzhushaka.common.core.domain.AjaxResult;
-import com.manzhushaka.system.infrastructure.persistence.entity.SysDictData;
 import com.manzhushaka.common.core.page.TableDataInfo;
 import com.manzhushaka.common.enums.BusinessType;
-import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.common.utils.poi.ExcelUtil;
 import com.manzhushaka.framework.security.context.SecurityContextHelper;
-import com.manzhushaka.system.service.ISysDictDataService;
-import com.manzhushaka.system.service.ISysDictTypeService;
+import com.manzhushaka.system.application.result.system.DictDataResult;
+import com.manzhushaka.system.application.service.SystemDictAppService;
+import com.manzhushaka.web.converter.system.DictAdminConverter;
+import com.manzhushaka.web.dto.system.DictDataRequest;
 
 /**
  * 数据字典信息
@@ -36,27 +35,24 @@ import com.manzhushaka.system.service.ISysDictTypeService;
 public class SysDictDataController extends BaseController
 {
     @Autowired
-    private ISysDictDataService dictDataService;
-
-    @Autowired
-    private ISysDictTypeService dictTypeService;
+    private SystemDictAppService dictAppService;
 
     @PreAuthorize("@ss.hasPermi('system:dict:list')")
     @GetMapping("/list")
-    public TableDataInfo list(SysDictData dictData)
+    public TableDataInfo list(DictDataRequest request)
     {
         startPage();
-        List<SysDictData> list = dictDataService.selectDictDataList(dictData);
+        List<DictDataResult> list = dictAppService.listDictData(DictAdminConverter.toQuery(request));
         return getDataTable(list);
     }
 
     @Log(title = "字典数据", businessType = BusinessType.EXPORT)
     @PreAuthorize("@ss.hasPermi('system:dict:export')")
     @PostMapping("/export")
-    public void export(HttpServletResponse response, SysDictData dictData)
+    public void export(HttpServletResponse response, DictDataRequest request)
     {
-        List<SysDictData> list = dictDataService.selectDictDataList(dictData);
-        ExcelUtil<SysDictData> util = new ExcelUtil<SysDictData>(SysDictData.class);
+        List<DictDataResult> list = dictAppService.listDictData(DictAdminConverter.toQuery(request));
+        ExcelUtil<DictDataResult> util = new ExcelUtil<DictDataResult>(DictDataResult.class);
         util.exportExcel(response, list, "字典数据");
     }
 
@@ -67,7 +63,7 @@ public class SysDictDataController extends BaseController
     @GetMapping(value = "/{dictCode}")
     public AjaxResult getInfo(@PathVariable Long dictCode)
     {
-        return success(dictDataService.selectDictDataById(dictCode));
+        return success(dictAppService.getDictData(dictCode));
     }
 
     /**
@@ -76,12 +72,7 @@ public class SysDictDataController extends BaseController
     @GetMapping(value = "/type/{dictType}")
     public AjaxResult dictType(@PathVariable String dictType)
     {
-        List<SysDictData> data = dictTypeService.selectDictDataByType(dictType);
-        if (StringUtils.isNull(data))
-        {
-            data = new ArrayList<SysDictData>();
-        }
-        return success(data);
+        return success(dictAppService.listDictDataByType(dictType));
     }
 
     /**
@@ -90,10 +81,10 @@ public class SysDictDataController extends BaseController
     @PreAuthorize("@ss.hasPermi('system:dict:add')")
     @Log(title = "字典数据", businessType = BusinessType.INSERT)
     @PostMapping
-    public AjaxResult add(@Validated @RequestBody SysDictData dict)
+    public AjaxResult add(@Validated @RequestBody DictDataRequest request)
     {
-        dict.setCreateBy(SecurityContextHelper.getUsername());
-        return toAjax(dictDataService.insertDictData(dict));
+        return toAjax(dictAppService.createDictData(DictAdminConverter.toCommand(request),
+                SecurityContextHelper.getUsername()));
     }
 
     /**
@@ -102,10 +93,10 @@ public class SysDictDataController extends BaseController
     @PreAuthorize("@ss.hasPermi('system:dict:edit')")
     @Log(title = "字典数据", businessType = BusinessType.UPDATE)
     @PutMapping
-    public AjaxResult edit(@Validated @RequestBody SysDictData dict)
+    public AjaxResult edit(@Validated @RequestBody DictDataRequest request)
     {
-        dict.setUpdateBy(SecurityContextHelper.getUsername());
-        return toAjax(dictDataService.updateDictData(dict));
+        return toAjax(dictAppService.updateDictData(DictAdminConverter.toCommand(request),
+                SecurityContextHelper.getUsername()));
     }
 
     /**
@@ -116,7 +107,7 @@ public class SysDictDataController extends BaseController
     @DeleteMapping("/{dictCodes}")
     public AjaxResult remove(@PathVariable Long[] dictCodes)
     {
-        dictDataService.deleteDictDataByIds(dictCodes);
+        dictAppService.deleteDictData(dictCodes);
         return success();
     }
 }

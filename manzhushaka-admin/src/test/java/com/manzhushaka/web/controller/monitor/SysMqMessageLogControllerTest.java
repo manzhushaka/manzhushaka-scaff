@@ -6,9 +6,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.manzhushaka.common.core.domain.AjaxResult;
-import com.manzhushaka.system.domain.SysMqMessageLog;
-import com.manzhushaka.system.domain.SysMqMessageLogDetail;
-import com.manzhushaka.system.service.ISysMqMessageLogService;
+import com.manzhushaka.system.application.result.system.MqMessageLogDetailResult;
+import com.manzhushaka.system.application.result.system.MqMessageLogResult;
+import com.manzhushaka.system.application.service.SystemAuditAppService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -30,12 +30,13 @@ class SysMqMessageLogControllerTest
     @Test
     void getInfoShouldReturnMessageLog()
     {
-        ISysMqMessageLogService service = mock(ISysMqMessageLogService.class);
+        SystemAuditAppService service = mock(SystemAuditAppService.class);
         SysMqMessageLogController controller = new SysMqMessageLogController();
-        ReflectionTestUtils.setField(controller, "mqMessageLogService", service);
-        SysMqMessageLog log = new SysMqMessageLog();
-        log.setMessageLogId(100L);
-        when(service.selectMessageLogById(100L)).thenReturn(log);
+        ReflectionTestUtils.setField(controller, "auditAppService", service);
+        MqMessageLogResult log = new MqMessageLogResult(100L, "TEST", "stream", "1-0",
+                "group", "business", null, "1", 1, 3, null, null, null, null,
+                null, null, null, null, null);
+        when(service.getMqMessageLog(100L)).thenReturn(log);
 
         AjaxResult result = controller.getInfo(100L);
 
@@ -48,12 +49,12 @@ class SysMqMessageLogControllerTest
     @Test
     void detailListShouldReturnDetails()
     {
-        ISysMqMessageLogService service = mock(ISysMqMessageLogService.class);
+        SystemAuditAppService service = mock(SystemAuditAppService.class);
         SysMqMessageLogController controller = new SysMqMessageLogController();
-        ReflectionTestUtils.setField(controller, "mqMessageLogService", service);
-        SysMqMessageLogDetail detail = new SysMqMessageLogDetail();
-        detail.setMessageLogId(100L);
-        when(service.selectDetailListByMessageLogId(100L)).thenReturn(Collections.singletonList(detail));
+        ReflectionTestUtils.setField(controller, "auditAppService", service);
+        MqMessageLogDetailResult detail = new MqMessageLogDetailResult(
+                1L, 100L, 1, "consumer", "1", null, null, 10L, null);
+        when(service.listMqMessageLogDetails(100L)).thenReturn(Collections.singletonList(detail));
 
         AjaxResult result = controller.detailList(100L);
 
@@ -66,13 +67,13 @@ class SysMqMessageLogControllerTest
     @Test
     void removeShouldDeleteLogs()
     {
-        ISysMqMessageLogService service = mock(ISysMqMessageLogService.class);
+        SystemAuditAppService service = mock(SystemAuditAppService.class);
         SysMqMessageLogController controller = new SysMqMessageLogController();
-        ReflectionTestUtils.setField(controller, "mqMessageLogService", service);
-        when(service.deleteMessageLogByIds(new Long[] {100L})).thenReturn(1);
+        ReflectionTestUtils.setField(controller, "auditAppService", service);
+        when(service.deleteMqMessageLogs(new Long[] {100L})).thenReturn(1);
 
         controller.remove(new Long[] {100L});
 
-        verify(service).deleteMessageLogByIds(new Long[] {100L});
+        verify(service).deleteMqMessageLogs(new Long[] {100L});
     }
 }

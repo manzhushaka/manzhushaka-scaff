@@ -1,38 +1,50 @@
 package com.manzhushaka.system.application.service;
 
 import java.util.List;
-import com.manzhushaka.system.infrastructure.persistence.entity.SysRole;
-import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
 import com.manzhushaka.system.application.command.CancelAuthUserCommand;
 import com.manzhushaka.system.application.command.ChangeRoleStatusCommand;
 import com.manzhushaka.system.application.command.CreateRoleCommand;
 import com.manzhushaka.system.application.command.DataScopeCommand;
 import com.manzhushaka.system.application.command.UpdateRoleCommand;
 import com.manzhushaka.system.application.query.RoleListQuery;
+import com.manzhushaka.system.application.result.system.RoleResult;
+import com.manzhushaka.system.application.result.system.UserResult;
+import com.manzhushaka.system.application.result.system.RoleExcelRow;
 
 /**
  * 系统角色应用服务
  *
- * <p>负责编排角色相关的用例逻辑，协调多个领域模型的交互。
- * 作为事务边界和用例入口，不包含业务规则。</p>
+ * 负责编排角色相关的用例逻辑，协调多个领域模型的交互。
+ * 作为事务边界和用例入口，不包含业务规则。
+ *
+ * @author manzhushaka
+ * @date 2026-07-18
  */
 public interface SystemRoleAppService
 {
     /**
-     * 分页查询角色列表
+     * 查询角色结果列表。
      *
      * @param query 查询条件
-     * @return 角色列表
+     * @return 角色结果列表
      */
-    List<SysRole> listRoles(RoleListQuery query);
+    List<RoleResult> listRoleResults(RoleListQuery query);
 
     /**
-     * 获取角色详情
+     * 查询角色导出行。
      *
-     * @param roleId 角色ID
-     * @return 角色信息
+     * @param query 查询条件
+     * @return 角色导出行
      */
-    SysRole getRoleDetail(Long roleId);
+    List<RoleExcelRow> listRoleExcelRows(RoleListQuery query);
+
+    /**
+     * 获取角色结果。
+     *
+     * @param roleId 角色 ID
+     * @return 角色结果
+     */
+    RoleResult getRoleResult(Long roleId);
 
     /**
      * 创建角色
@@ -75,29 +87,39 @@ public interface SystemRoleAppService
     void deleteRole(Long[] roleIds);
 
     /**
-     * 获取所有角色（角色选择框）
+     * 获取角色选项结果。
      *
-     * @return 所有角色列表
+     * @return 角色结果列表
      */
-    List<SysRole> selectRoleAll();
+    List<RoleResult> selectRoleResults();
 
     /**
-     * 查询已分配用户角色列表
+     * 获取用户角色授权结果。
      *
-     * @param user   用户查询条件
-     * @param roleId 角色ID
-     * @return 已分配用户列表
+     * @param userId 用户 ID
+     * @return 带选中状态的角色结果
      */
-    List<SysUser> allocatedUserList(SysUser user, Long roleId);
+    List<RoleResult> selectRoleResultsByUserId(Long userId);
 
     /**
-     * 查询未分配用户角色列表
+     * 查询已分配用户结果。
      *
-     * @param user   用户查询条件
-     * @param roleId 角色ID
-     * @return 未分配用户列表
+     * @param userName 用户名
+     * @param phonenumber 手机号
+     * @param roleId 角色 ID
+     * @return 用户结果列表
      */
-    List<SysUser> unallocatedUserList(SysUser user, Long roleId);
+    List<UserResult> allocatedUserResults(String userName, String phonenumber, Long roleId);
+
+    /**
+     * 查询未分配用户结果。
+     *
+     * @param userName 用户名
+     * @param phonenumber 手机号
+     * @param roleId 角色 ID
+     * @return 用户结果列表
+     */
+    List<UserResult> unallocatedUserResults(String userName, String phonenumber, Long roleId);
 
     /**
      * 取消授权用户
@@ -121,4 +143,5 @@ public interface SystemRoleAppService
      * @param userIds 用户ID数组
      */
     void selectAuthUserAll(Long roleId, Long[] userIds);
+
 }

@@ -1,7 +1,5 @@
 package com.manzhushaka.system.application.query;
 
-import java.util.Date;
-
 /**
  * 用户列表查询
  *
@@ -13,6 +11,8 @@ import java.util.Date;
  * @param deptId     部门ID
  * @param beginTime  开始时间
  * @param endTime    结束时间
+ * @author manzhushaka
+ * @date 2026-07-18
  */
 public record UserListQuery(
         Integer pageNum,
@@ -21,8 +21,8 @@ public record UserListQuery(
         String phonenumber,
         String status,
         Long deptId,
-        Date beginTime,
-        Date endTime
+        String beginTime,
+        String endTime
 )
 {
 }

@@ -16,12 +16,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.manzhushaka.common.annotation.Log;
 import com.manzhushaka.common.core.controller.BaseController;
 import com.manzhushaka.common.core.domain.AjaxResult;
-import com.manzhushaka.system.infrastructure.persistence.entity.SysDictType;
 import com.manzhushaka.common.core.page.TableDataInfo;
 import com.manzhushaka.common.enums.BusinessType;
 import com.manzhushaka.common.utils.poi.ExcelUtil;
 import com.manzhushaka.framework.security.context.SecurityContextHelper;
-import com.manzhushaka.system.service.ISysDictTypeService;
+import com.manzhushaka.system.application.result.system.DictTypeResult;
+import com.manzhushaka.system.application.service.SystemDictAppService;
+import com.manzhushaka.web.converter.system.DictAdminConverter;
+import com.manzhushaka.web.dto.system.DictTypeRequest;
 
 /**
  * 数据字典信息
@@ -33,24 +35,24 @@ import com.manzhushaka.system.service.ISysDictTypeService;
 public class SysDictTypeController extends BaseController
 {
     @Autowired
-    private ISysDictTypeService dictTypeService;
+    private SystemDictAppService dictAppService;
 
     @PreAuthorize("@ss.hasPermi('system:dict:list')")
     @GetMapping("/list")
-    public TableDataInfo list(SysDictType dictType)
+    public TableDataInfo list(DictTypeRequest request)
     {
         startPage();
-        List<SysDictType> list = dictTypeService.selectDictTypeList(dictType);
+        List<DictTypeResult> list = dictAppService.listDictTypes(DictAdminConverter.toQuery(request));
         return getDataTable(list);
     }
 
     @Log(title = "字典类型", businessType = BusinessType.EXPORT)
     @PreAuthorize("@ss.hasPermi('system:dict:export')")
     @PostMapping("/export")
-    public void export(HttpServletResponse response, SysDictType dictType)
+    public void export(HttpServletResponse response, DictTypeRequest request)
     {
-        List<SysDictType> list = dictTypeService.selectDictTypeList(dictType);
-        ExcelUtil<SysDictType> util = new ExcelUtil<SysDictType>(SysDictType.class);
+        List<DictTypeResult> list = dictAppService.listDictTypes(DictAdminConverter.toQuery(request));
+        ExcelUtil<DictTypeResult> util = new ExcelUtil<DictTypeResult>(DictTypeResult.class);
         util.exportExcel(response, list, "字典类型");
     }
 
@@ -61,7 +63,7 @@ public class SysDictTypeController extends BaseController
     @GetMapping(value = "/{dictId}")
     public AjaxResult getInfo(@PathVariable Long dictId)
     {
-        return success(dictTypeService.selectDictTypeById(dictId));
+        return success(dictAppService.getDictType(dictId));
     }
 
     /**
@@ -70,14 +72,10 @@ public class SysDictTypeController extends BaseController
     @PreAuthorize("@ss.hasPermi('system:dict:add')")
     @Log(title = "字典类型", businessType = BusinessType.INSERT)
     @PostMapping
-    public AjaxResult add(@Validated @RequestBody SysDictType dict)
+    public AjaxResult add(@Validated @RequestBody DictTypeRequest request)
     {
-        if (!dictTypeService.checkDictTypeUnique(dict))
-        {
-            return error("新增字典'" + dict.getDictName() + "'失败，字典类型已存在");
-        }
-        dict.setCreateBy(SecurityContextHelper.getUsername());
-        return toAjax(dictTypeService.insertDictType(dict));
+        return toAjax(dictAppService.createDictType(DictAdminConverter.toCommand(request),
+                SecurityContextHelper.getUsername()));
     }
 
     /**
@@ -86,14 +84,10 @@ public class SysDictTypeController extends BaseController
     @PreAuthorize("@ss.hasPermi('system:dict:edit')")
     @Log(title = "字典类型", businessType = BusinessType.UPDATE)
     @PutMapping
-    public AjaxResult edit(@Validated @RequestBody SysDictType dict)
+    public AjaxResult edit(@Validated @RequestBody DictTypeRequest request)
     {
-        if (!dictTypeService.checkDictTypeUnique(dict))
-        {
-            return error("修改字典'" + dict.getDictName() + "'失败，字典类型已存在");
-        }
-        dict.setUpdateBy(SecurityContextHelper.getUsername());
-        return toAjax(dictTypeService.updateDictType(dict));
+        return toAjax(dictAppService.updateDictType(DictAdminConverter.toCommand(request),
+                SecurityContextHelper.getUsername()));
     }
 
     /**
@@ -104,7 +98,7 @@ public class SysDictTypeController extends BaseController
     @DeleteMapping("/{dictIds}")
     public AjaxResult remove(@PathVariable Long[] dictIds)
     {
-        dictTypeService.deleteDictTypeByIds(dictIds);
+        dictAppService.deleteDictTypes(dictIds);
         return success();
     }
 
@@ -116,7 +110,7 @@ public class SysDictTypeController extends BaseController
     @DeleteMapping("/refreshCache")
     public AjaxResult refreshCache()
     {
-        dictTypeService.resetDictCache();
+        dictAppService.refreshCache();
         return success();
     }
 
@@ -126,7 +120,6 @@ public class SysDictTypeController extends BaseController
     @GetMapping("/optionselect")
     public AjaxResult optionselect()
     {
-        List<SysDictType> dictTypes = dictTypeService.selectDictTypeAll();
-        return success(dictTypes);
+        return success(dictAppService.listAllDictTypes());
     }
 }

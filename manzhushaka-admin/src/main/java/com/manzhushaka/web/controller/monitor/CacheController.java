@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.TreeSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisCallback;
@@ -21,7 +20,7 @@ import com.manzhushaka.common.constant.CacheConstants;
 import com.manzhushaka.common.core.domain.AjaxResult;
 import com.manzhushaka.common.core.redis.RedisCache;
 import com.manzhushaka.common.utils.StringUtils;
-import com.manzhushaka.system.domain.SysCache;
+import com.manzhushaka.web.vo.monitor.CacheInfoVO;
 
 /**
  * 缓存监控
@@ -38,16 +37,14 @@ public class CacheController
     @Autowired
     private RedisCache redisCache;
 
-    private final static List<SysCache> caches = new ArrayList<SysCache>();
-    {
-        caches.add(new SysCache(CacheConstants.LOGIN_TOKEN_KEY, "用户信息"));
-        caches.add(new SysCache(CacheConstants.SYS_CONFIG_KEY, "配置信息"));
-        caches.add(new SysCache(CacheConstants.SYS_DICT_KEY, "数据字典"));
-        caches.add(new SysCache(CacheConstants.CAPTCHA_CODE_KEY, "验证码"));
-        caches.add(new SysCache(CacheConstants.REPEAT_SUBMIT_KEY, "防重提交"));
-        caches.add(new SysCache(CacheConstants.RATE_LIMIT_KEY, "限流处理"));
-        caches.add(new SysCache(CacheConstants.PWD_ERR_CNT_KEY, "密码错误次数"));
-    }
+    private static final List<CacheInfoVO> CACHES = List.of(
+            new CacheInfoVO(CacheConstants.LOGIN_TOKEN_KEY, "用户信息"),
+            new CacheInfoVO(CacheConstants.SYS_CONFIG_KEY, "配置信息"),
+            new CacheInfoVO(CacheConstants.SYS_DICT_KEY, "数据字典"),
+            new CacheInfoVO(CacheConstants.CAPTCHA_CODE_KEY, "验证码"),
+            new CacheInfoVO(CacheConstants.REPEAT_SUBMIT_KEY, "防重提交"),
+            new CacheInfoVO(CacheConstants.RATE_LIMIT_KEY, "限流处理"),
+            new CacheInfoVO(CacheConstants.PWD_ERR_CNT_KEY, "密码错误次数"));
 
     @SuppressWarnings("deprecation")
     @PreAuthorize("@ss.hasPermi('monitor:cache:list')")
@@ -55,7 +52,8 @@ public class CacheController
     public AjaxResult getInfo() throws Exception
     {
         Properties info = (Properties) redisTemplate.execute((RedisCallback<Object>) connection -> connection.info());
-        Properties commandStats = (Properties) redisTemplate.execute((RedisCallback<Object>) connection -> connection.info("commandstats"));
+        Properties commandStats = (Properties) redisTemplate.execute(
+                (RedisCallback<Object>) connection -> connection.info("commandstats"));
         Object dbSize = redisTemplate.execute((RedisCallback<Object>) connection -> connection.dbSize());
 
         Map<String, Object> result = new HashMap<>(3);
@@ -78,7 +76,7 @@ public class CacheController
     @GetMapping("/getNames")
     public AjaxResult cache()
     {
-        return AjaxResult.success(caches);
+        return AjaxResult.success(CACHES);
     }
 
     @PreAuthorize("@ss.hasPermi('monitor:cache:list')")
@@ -94,8 +92,8 @@ public class CacheController
     public AjaxResult getCacheValue(@PathVariable String cacheName, @PathVariable String cacheKey)
     {
         String cacheValue = redisTemplate.opsForValue().get(cacheKey);
-        SysCache sysCache = new SysCache(cacheName, cacheKey, cacheValue);
-        return AjaxResult.success(sysCache);
+        CacheInfoVO cacheInfo = new CacheInfoVO(cacheName, cacheKey, cacheValue);
+        return AjaxResult.success(cacheInfo);
     }
 
     @PreAuthorize("@ss.hasPermi('monitor:cache:list')")

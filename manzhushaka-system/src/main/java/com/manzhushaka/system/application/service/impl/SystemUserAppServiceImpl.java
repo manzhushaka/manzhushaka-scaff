@@ -14,8 +14,13 @@ import com.manzhushaka.system.application.command.ChangeUserStatusCommand;
 import com.manzhushaka.system.application.command.CreateUserCommand;
 import com.manzhushaka.system.application.command.ResetPwdCommand;
 import com.manzhushaka.system.application.command.UpdateUserCommand;
+import com.manzhushaka.system.application.command.UpdateProfileCommand;
+import com.manzhushaka.system.application.command.UpdateOwnPasswordCommand;
 import com.manzhushaka.system.application.query.UserListQuery;
 import com.manzhushaka.system.application.service.SystemUserAppService;
+import com.manzhushaka.system.application.result.system.SystemResultMapper;
+import com.manzhushaka.system.application.result.system.UserResult;
+import com.manzhushaka.system.application.result.system.UserExcelRow;
 import com.manzhushaka.system.service.ISysDeptService;
 import com.manzhushaka.system.service.ISysRoleService;
 import com.manzhushaka.system.service.ISysUserService;
@@ -37,8 +42,7 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
     @Autowired
     private ISysDeptService deptService;
 
-    @Override
-    public List<SysUser> listUsers(UserListQuery query)
+    private List<SysUser> listUserEntities(UserListQuery query)
     {
         SysUser user = new SysUser();
         user.setUserName(query.userName());
@@ -56,17 +60,125 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
         return userService.selectUserList(user);
     }
 
+    /**
+     * 分页查询用户结果。
+     *
+     * @param query 查询条件
+     * @return 用户结果列表
+     */
     @Override
-    public List<SysUser> exportUsers(SysUser user)
+    public List<UserResult> listUserResults(UserListQuery query)
     {
-        return userService.selectUserList(user);
+        return SystemResultMapper.toUserResults(listUserEntities(query));
+    }
+
+    /**
+     * 导出用户结果。
+     *
+     * @param query 查询条件
+     * @return 用户结果列表
+     */
+    @Override
+    public List<UserExcelRow> exportUserResults(UserListQuery query)
+    {
+        return SystemResultMapper.toUserExcelRows(listUserEntities(query));
+    }
+
+    /**
+     * 导入用户行。
+     *
+     * @param rows 用户行列表
+     * @param updateSupport 是否更新已有用户
+     * @param operName 操作人
+     * @return 导入结果消息
+     */
+    @Override
+    public String importUserRows(List<UserExcelRow> rows, boolean updateSupport, String operName)
+    {
+        List<SysUser> users = rows.stream().map(row -> {
+            SysUser user = new SysUser();
+            user.setUserId(row.getUserId());
+            user.setDeptId(row.getDeptId());
+            user.setUserName(row.getUserName());
+            user.setNickName(row.getNickName());
+            user.setEmail(row.getEmail());
+            user.setPhonenumber(row.getPhonenumber());
+            user.setSex(row.getSex());
+            user.setStatus(row.getStatus());
+            return user;
+        }).toList();
+        return userService.importUser(users, updateSupport, operName);
     }
 
     @Override
-    public SysUser getUserDetail(Long userId)
+    public String getUserRoleGroup(String username)
+    {
+        return userService.selectUserRoleGroup(username);
+    }
+
+    @Override
+    @Transactional
+    public void updateProfile(UpdateProfileCommand command)
+    {
+        SysUser user = userService.selectUserById(command.userId());
+        user.setNickName(command.nickName());
+        user.setEmail(command.email());
+        user.setPhonenumber(command.phonenumber());
+        user.setSex(command.sex());
+        if (StringUtils.isNotEmpty(user.getPhonenumber()) && !userService.checkPhoneUnique(user))
+        {
+            throw new ServiceException("修改用户'" + command.username() + "'失败，手机号码已存在");
+        }
+        if (StringUtils.isNotEmpty(user.getEmail()) && !userService.checkEmailUnique(user))
+        {
+            throw new ServiceException("修改用户'" + command.username() + "'失败，邮箱账号已存在");
+        }
+        if (userService.updateUserProfile(user) <= 0)
+        {
+            throw new ServiceException("修改个人信息异常，请联系管理员");
+        }
+    }
+
+    @Override
+    @Transactional
+    public String updateOwnPassword(UpdateOwnPasswordCommand command)
+    {
+        SysUser user = userService.selectUserById(command.userId());
+        String password = user.getPassword();
+        if (!PasswordUtils.matches(command.oldPassword(), password))
+        {
+            throw new ServiceException("修改密码失败，旧密码错误");
+        }
+        if (PasswordUtils.matches(command.newPassword(), password))
+        {
+            throw new ServiceException("新密码不能与旧密码相同");
+        }
+        validateStrongPassword(command.username(), command.newPassword());
+        String encryptedPassword = PasswordUtils.encrypt(command.newPassword());
+        if (userService.resetUserPwd(command.userId(), encryptedPassword) <= 0)
+        {
+            throw new ServiceException("修改密码异常，请联系管理员");
+        }
+        return encryptedPassword;
+    }
+
+    @Override
+    public boolean updateAvatar(Long userId, String avatar)
+    {
+        return userService.updateUserAvatar(userId, avatar);
+    }
+
+    /**
+     * 获取用户结果。
+     *
+     * @param userId 用户 ID
+     * @return 用户结果
+     */
+    @Override
+    public UserResult getUserResult(Long userId)
     {
         userService.checkUserDataScope(userId);
-        return userService.selectUserById(userId);
+        return SystemResultMapper.toUserResult(userService.selectUserById(userId));
     }
 
     @Override
@@ -188,13 +300,6 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
         userService.checkUserDataScope(userId);
         roleService.checkRoleDataScope(roleIds);
         userService.insertUserAuth(userId, roleIds);
-    }
-
-    @Override
-    @Transactional
-    public String importUser(List<SysUser> userList, boolean updateSupport, String operName)
-    {
-        return userService.importUser(userList, updateSupport, operName);
     }
 
     /**

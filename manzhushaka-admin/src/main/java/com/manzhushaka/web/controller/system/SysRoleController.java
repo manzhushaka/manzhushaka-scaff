@@ -16,9 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.manzhushaka.common.annotation.Log;
 import com.manzhushaka.common.core.controller.BaseController;
 import com.manzhushaka.common.core.domain.AjaxResult;
-import com.manzhushaka.system.infrastructure.persistence.entity.SysDept;
-import com.manzhushaka.system.infrastructure.persistence.entity.SysRole;
-import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
 import com.manzhushaka.common.core.page.TableDataInfo;
 import com.manzhushaka.common.enums.BusinessType;
 import com.manzhushaka.common.utils.poi.ExcelUtil;
@@ -26,15 +23,17 @@ import com.manzhushaka.framework.security.context.SecurityContextHelper;
 import com.manzhushaka.framework.web.service.SysPermissionService;
 import com.manzhushaka.framework.web.service.TokenService;
 import com.manzhushaka.system.application.service.SystemRoleAppService;
-import com.manzhushaka.system.service.ISysDeptService;
-import com.manzhushaka.system.service.ISysRoleService;
-import com.manzhushaka.system.service.ISysUserService;
+import com.manzhushaka.system.application.service.SystemDeptAppService;
+import com.manzhushaka.system.application.result.system.RoleResult;
+import com.manzhushaka.system.application.result.system.RoleExcelRow;
+import com.manzhushaka.system.application.result.system.UserResult;
 import com.manzhushaka.web.converter.system.role.RoleAdminConverter;
 import com.manzhushaka.web.dto.system.role.CancelAuthUserRequest;
 import com.manzhushaka.web.dto.system.role.ChangeRoleStatusRequest;
 import com.manzhushaka.web.dto.system.role.CreateRoleRequest;
 import com.manzhushaka.web.dto.system.role.DataScopeRequest;
 import com.manzhushaka.web.dto.system.role.RoleListRequest;
+import com.manzhushaka.web.dto.system.role.RoleUserListRequest;
 import com.manzhushaka.web.converter.system.shared.TreeSelectAdminConverter;
 import com.manzhushaka.web.dto.system.role.UpdateRoleRequest;
 
@@ -51,13 +50,7 @@ public class SysRoleController extends BaseController
     private SystemRoleAppService roleAppService;
 
     @Autowired
-    private ISysRoleService roleService;
-
-    @Autowired
-    private ISysUserService userService;
-
-    @Autowired
-    private ISysDeptService deptService;
+    private SystemDeptAppService deptAppService;
 
     @Autowired
     private TokenService tokenService;
@@ -71,17 +64,17 @@ public class SysRoleController extends BaseController
     {
         startPage();
         var query = RoleAdminConverter.toRoleListQuery(request);
-        List<SysRole> list = roleAppService.listRoles(query);
+        List<RoleResult> list = roleAppService.listRoleResults(query);
         return getDataTable(list);
     }
 
     @Log(title = "角色管理", businessType = BusinessType.EXPORT)
     @PreAuthorize("@ss.hasPermi('system:role:export')")
     @PostMapping("/export")
-    public void export(HttpServletResponse response, SysRole role)
+    public void export(HttpServletResponse response, RoleListRequest request)
     {
-        List<SysRole> list = roleService.selectRoleList(role);
-        ExcelUtil<SysRole> util = new ExcelUtil<SysRole>(SysRole.class);
+        List<RoleExcelRow> list = roleAppService.listRoleExcelRows(RoleAdminConverter.toRoleListQuery(request));
+        ExcelUtil<RoleExcelRow> util = new ExcelUtil<RoleExcelRow>(RoleExcelRow.class);
         util.exportExcel(response, list, "角色数据");
     }
 
@@ -92,7 +85,7 @@ public class SysRoleController extends BaseController
     @GetMapping(value = "/{roleId}")
     public AjaxResult getInfo(@PathVariable Long roleId)
     {
-        SysRole role = roleAppService.getRoleDetail(roleId);
+        RoleResult role = roleAppService.getRoleResult(roleId);
         return success(role);
     }
 
@@ -104,17 +97,6 @@ public class SysRoleController extends BaseController
     @PostMapping
     public AjaxResult add(@Validated @RequestBody CreateRoleRequest request)
     {
-        SysRole checkRole = new SysRole();
-        checkRole.setRoleName(request.getRoleName());
-        checkRole.setRoleKey(request.getRoleKey());
-        if (!roleService.checkRoleNameUnique(checkRole))
-        {
-            return error("新增角色'" + request.getRoleName() + "'失败，角色名称已存在");
-        }
-        else if (!roleService.checkRoleKeyUnique(checkRole))
-        {
-            return error("新增角色'" + request.getRoleName() + "'失败，角色权限已存在");
-        }
         var command = RoleAdminConverter.toCreateRoleCommand(request);
         roleAppService.createRole(command, SecurityContextHelper.getUsername());
         return toAjax(true);
@@ -128,20 +110,6 @@ public class SysRoleController extends BaseController
     @PutMapping
     public AjaxResult edit(@Validated @RequestBody UpdateRoleRequest request)
     {
-        SysRole checkRole = new SysRole();
-        checkRole.setRoleId(request.getRoleId());
-        checkRole.setRoleName(request.getRoleName());
-        checkRole.setRoleKey(request.getRoleKey());
-        roleService.checkRoleAllowed(checkRole);
-        roleService.checkRoleDataScope(request.getRoleId());
-        if (!roleService.checkRoleNameUnique(checkRole))
-        {
-            return error("修改角色'" + request.getRoleName() + "'失败，角色名称已存在");
-        }
-        else if (!roleService.checkRoleKeyUnique(checkRole))
-        {
-            return error("修改角色'" + request.getRoleName() + "'失败，角色权限已存在");
-        }
         var command = RoleAdminConverter.toUpdateRoleCommand(request);
         roleAppService.updateRole(command, SecurityContextHelper.getUsername());
 
@@ -158,10 +126,6 @@ public class SysRoleController extends BaseController
     @PutMapping("/dataScope")
     public AjaxResult dataScope(@RequestBody DataScopeRequest request)
     {
-        SysRole checkRole = new SysRole();
-        checkRole.setRoleId(request.getRoleId());
-        roleService.checkRoleAllowed(checkRole);
-        roleService.checkRoleDataScope(request.getRoleId());
         var command = RoleAdminConverter.toDataScopeCommand(request);
         roleAppService.updateDataScope(command, SecurityContextHelper.getUsername());
         return toAjax(true);
@@ -175,10 +139,6 @@ public class SysRoleController extends BaseController
     @PutMapping("/changeStatus")
     public AjaxResult changeStatus(@RequestBody ChangeRoleStatusRequest request)
     {
-        SysRole checkRole = new SysRole();
-        checkRole.setRoleId(request.getRoleId());
-        roleService.checkRoleAllowed(checkRole);
-        roleService.checkRoleDataScope(request.getRoleId());
         var command = RoleAdminConverter.toChangeRoleStatusCommand(request);
         roleAppService.changeStatus(command, SecurityContextHelper.getUsername());
         return toAjax(true);
@@ -203,7 +163,7 @@ public class SysRoleController extends BaseController
     @GetMapping("/optionselect")
     public AjaxResult optionselect()
     {
-        return success(roleAppService.selectRoleAll());
+        return success(roleAppService.selectRoleResults());
     }
 
     /**
@@ -211,10 +171,11 @@ public class SysRoleController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('system:role:list')")
     @GetMapping("/authUser/allocatedList")
-    public TableDataInfo allocatedList(SysUser user)
+    public TableDataInfo allocatedList(RoleUserListRequest request)
     {
         startPage();
-        List<SysUser> list = roleAppService.allocatedUserList(user, user.getRoleId());
+        List<UserResult> list = roleAppService.allocatedUserResults(request.getUserName(),
+                request.getPhonenumber(), request.getRoleId());
         return getDataTable(list);
     }
 
@@ -223,10 +184,11 @@ public class SysRoleController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('system:role:list')")
     @GetMapping("/authUser/unallocatedList")
-    public TableDataInfo unallocatedList(SysUser user)
+    public TableDataInfo unallocatedList(RoleUserListRequest request)
     {
         startPage();
-        List<SysUser> list = roleAppService.unallocatedUserList(user, user.getRoleId());
+        List<UserResult> list = roleAppService.unallocatedUserResults(request.getUserName(),
+                request.getPhonenumber(), request.getRoleId());
         return getDataTable(list);
     }
 
@@ -275,8 +237,10 @@ public class SysRoleController extends BaseController
     public AjaxResult deptTree(@PathVariable("roleId") Long roleId)
     {
         AjaxResult ajax = AjaxResult.success();
-        ajax.put("checkedKeys", deptService.selectDeptListByRoleId(roleId));
-        ajax.put("depts", TreeSelectAdminConverter.toVoList(deptService.selectDeptTreeList(new SysDept())));
+        ajax.put("checkedKeys", deptAppService.listCheckedDeptIds(roleId));
+        ajax.put("depts", TreeSelectAdminConverter.toVoList(
+                deptAppService.listDeptTree(new com.manzhushaka.system.application.query.DeptQuery(
+                        null, null, null, null, null))));
         return ajax;
     }
 }

@@ -17,8 +17,10 @@ import com.manzhushaka.common.core.page.TableDataInfo;
 import com.manzhushaka.common.enums.BusinessType;
 import com.manzhushaka.common.utils.poi.ExcelUtil;
 import com.manzhushaka.framework.web.service.SysPasswordService;
-import com.manzhushaka.system.domain.SysLogininfor;
-import com.manzhushaka.system.service.ISysLogininforService;
+import com.manzhushaka.system.application.result.system.LoginLogResult;
+import com.manzhushaka.system.application.service.SystemAuditAppService;
+import com.manzhushaka.web.converter.monitor.AuditAdminConverter;
+import com.manzhushaka.web.dto.monitor.LoginLogQueryRequest;
 
 /**
  * 系统访问记录
@@ -30,27 +32,27 @@ import com.manzhushaka.system.service.ISysLogininforService;
 public class SysLogininforController extends BaseController
 {
     @Autowired
-    private ISysLogininforService logininforService;
+    private SystemAuditAppService auditAppService;
 
     @Autowired
     private SysPasswordService passwordService;
 
     @PreAuthorize("@ss.hasPermi('monitor:logininfor:list')")
     @GetMapping("/list")
-    public TableDataInfo list(SysLogininfor logininfor)
+    public TableDataInfo list(LoginLogQueryRequest request)
     {
         startPage();
-        List<SysLogininfor> list = logininforService.selectLogininforList(logininfor);
+        List<LoginLogResult> list = auditAppService.listLoginLogs(AuditAdminConverter.toQuery(request));
         return getDataTable(list);
     }
 
     @Log(title = "登录日志", businessType = BusinessType.EXPORT)
     @PreAuthorize("@ss.hasPermi('monitor:logininfor:export')")
     @PostMapping("/export")
-    public void export(HttpServletResponse response, SysLogininfor logininfor)
+    public void export(HttpServletResponse response, LoginLogQueryRequest request)
     {
-        List<SysLogininfor> list = logininforService.selectLogininforList(logininfor);
-        ExcelUtil<SysLogininfor> util = new ExcelUtil<SysLogininfor>(SysLogininfor.class);
+        List<LoginLogResult> list = auditAppService.listLoginLogs(AuditAdminConverter.toQuery(request));
+        ExcelUtil<LoginLogResult> util = new ExcelUtil<LoginLogResult>(LoginLogResult.class);
         util.exportExcel(response, list, "登录日志");
     }
 
@@ -59,7 +61,7 @@ public class SysLogininforController extends BaseController
     @DeleteMapping("/{infoIds}")
     public AjaxResult remove(@PathVariable Long[] infoIds)
     {
-        return toAjax(logininforService.deleteLogininforByIds(infoIds));
+        return toAjax(auditAppService.deleteLoginLogs(infoIds));
     }
 
     @PreAuthorize("@ss.hasPermi('monitor:logininfor:remove')")
@@ -67,7 +69,7 @@ public class SysLogininforController extends BaseController
     @DeleteMapping("/clean")
     public AjaxResult clean()
     {
-        logininforService.cleanLogininfor();
+        auditAppService.cleanLoginLogs();
         return success();
     }
 

@@ -2,15 +2,20 @@ package com.manzhushaka.system.application.service.impl;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 import com.manzhushaka.common.exception.ServiceException;
+import com.manzhushaka.common.utils.security.PasswordUtils;
 import com.manzhushaka.system.application.command.CreateUserCommand;
 import com.manzhushaka.system.application.command.ResetPwdCommand;
+import com.manzhushaka.system.application.command.UpdateOwnPasswordCommand;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
 import com.manzhushaka.system.service.ISysDeptService;
 import com.manzhushaka.system.service.ISysRoleService;
@@ -73,6 +78,23 @@ class SystemUserAppServiceImplTest
         assertThatThrownBy(() -> service.resetPwd(command))
                 .isInstanceOf(ServiceException.class)
                 .hasMessage("密码不能包含用户名");
+    }
+
+    /** 当前用户修改密码时不能使用弱密码。 */
+    @Test
+    void updateOwnPasswordShouldRejectWeakPassword()
+    {
+        SystemUserAppServiceImpl service = buildService();
+        ISysUserService userService = (ISysUserService) ReflectionTestUtils.getField(service, "userService");
+        SysUser user = new SysUser();
+        user.setPassword(PasswordUtils.encrypt("Old@7294"));
+        when(userService.selectUserById(2L)).thenReturn(user);
+
+        assertThatThrownBy(() -> service.updateOwnPassword(new UpdateOwnPasswordCommand(
+                2L, "zhangsan", "Old@7294", "123456")))
+                .isInstanceOf(ServiceException.class)
+                .hasMessage("密码长度必须介于8到20个字符之间");
+        verify(userService, never()).resetUserPwd(anyLong(), anyString());
     }
 
     /**

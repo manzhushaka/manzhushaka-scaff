@@ -22,7 +22,7 @@ import com.manzhushaka.framework.web.command.LoginCommand;
 import com.manzhushaka.system.application.result.auth.AuthUserProfileResult;
 import com.manzhushaka.system.application.service.SystemSecurityQueryService;
 import com.manzhushaka.system.service.ISysConfigService;
-import com.manzhushaka.system.service.ISysMenuService;
+import com.manzhushaka.system.application.service.SystemMenuAppService;
 import com.manzhushaka.web.converter.system.AuthAdminConverter;
 import com.manzhushaka.web.dto.system.LoginRequest;
 import com.manzhushaka.web.vo.system.user.AuthUserProfileVO;
@@ -39,7 +39,7 @@ public class SysLoginController
     private SysLoginService loginService;
 
     @Autowired
-    private ISysMenuService menuService;
+    private SystemMenuAppService menuAppService;
 
     @Autowired
     private SystemSecurityQueryService systemSecurityQueryService;
@@ -111,8 +111,7 @@ public class SysLoginController
     public AjaxResult getRouters()
     {
         Long userId = SecurityContextHelper.getUserId();
-        List<com.manzhushaka.system.infrastructure.persistence.entity.SysMenu> menus = menuService.selectMenuTreeByUserId(userId);
-        return AjaxResult.success(menuService.buildMenus(menus));
+        return AjaxResult.success(menuAppService.listRouterResults(userId));
     }
 
     // 获取用户密码自定义配置规则
@@ -131,7 +130,8 @@ public class SysLoginController
     // 检查密码是否过期
     public boolean passwordIsExpiration(Date pwdUpdateDate)
     {
-        Integer passwordValidateDays = Convert.toInt(configService.selectConfigByKey("sys.account.passwordValidateDays"));
+        Integer passwordValidateDays = Convert.toInt(
+                configService.selectConfigByKey("sys.account.passwordValidateDays"));
         if (passwordValidateDays != null && passwordValidateDays > 0)
         {
             if (StringUtils.isNull(pwdUpdateDate))

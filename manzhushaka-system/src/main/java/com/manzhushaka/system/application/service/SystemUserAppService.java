@@ -1,44 +1,92 @@
 package com.manzhushaka.system.application.service;
 
 import java.util.List;
-import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
 import com.manzhushaka.system.application.command.ChangeUserStatusCommand;
 import com.manzhushaka.system.application.command.CreateUserCommand;
 import com.manzhushaka.system.application.command.ResetPwdCommand;
 import com.manzhushaka.system.application.command.UpdateUserCommand;
+import com.manzhushaka.system.application.command.UpdateProfileCommand;
+import com.manzhushaka.system.application.command.UpdateOwnPasswordCommand;
 import com.manzhushaka.system.application.query.UserListQuery;
+import com.manzhushaka.system.application.result.system.UserResult;
+import com.manzhushaka.system.application.result.system.UserExcelRow;
 
 /**
  * 系统用户应用服务
  *
- * <p>负责编排用户相关的用例逻辑，协调多个领域模型的交互。
- * 作为事务边界和用例入口，不包含业务规则。</p>
+ * 负责编排用户相关的用例逻辑，协调多个领域模型的交互。
+ * 作为事务边界和用例入口，不包含业务规则。
+ *
+ * @author manzhushaka
+ * @date 2026-07-18
  */
 public interface SystemUserAppService
 {
     /**
-     * 分页查询用户列表
+     * 分页查询用户结果。
      *
      * @param query 查询条件
-     * @return 用户列表
+     * @return 用户结果列表
      */
-    List<SysUser> listUsers(UserListQuery query);
+    List<UserResult> listUserResults(UserListQuery query);
 
     /**
-     * 导出用户列表。
+     * 导出用户结果。
      *
-     * @param user 查询条件
-     * @return 用户列表
+     * @param query 查询条件
+     * @return 用户结果列表
      */
-    List<SysUser> exportUsers(SysUser user);
+    List<UserExcelRow> exportUserResults(UserListQuery query);
 
     /**
-     * 获取用户详情
+     * 导入用户行。
      *
-     * @param userId 用户ID
-     * @return 用户信息
+     * @param rows 用户行列表
+     * @param updateSupport 是否更新已有用户
+     * @param operName 操作人
+     * @return 导入结果消息
      */
-    SysUser getUserDetail(Long userId);
+    String importUserRows(List<UserExcelRow> rows, boolean updateSupport, String operName);
+
+    /**
+     * 获取用户角色组文本。
+     *
+     * @param username 用户名
+     * @return 角色组文本
+     */
+    String getUserRoleGroup(String username);
+
+    /**
+     * 更新当前用户资料。
+     *
+     * @param command 更新命令
+     */
+    void updateProfile(UpdateProfileCommand command);
+
+    /**
+     * 修改当前用户密码。
+     *
+     * @param command 修改密码命令
+     * @return 加密后的新密码
+     */
+    String updateOwnPassword(UpdateOwnPasswordCommand command);
+
+    /**
+     * 更新用户头像。
+     *
+     * @param userId 用户 ID
+     * @param avatar 头像地址
+     * @return 是否更新成功
+     */
+    boolean updateAvatar(Long userId, String avatar);
+
+    /**
+     * 获取用户结果。
+     *
+     * @param userId 用户 ID
+     * @return 用户结果
+     */
+    UserResult getUserResult(Long userId);
 
     /**
      * 创建用户
@@ -86,13 +134,4 @@ public interface SystemUserAppService
      */
     void authRole(Long userId, Long[] roleIds);
 
-    /**
-     * 导入用户数据
-     *
-     * @param userList       用户数据列表
-     * @param updateSupport  是否更新支持
-     * @param operName       操作用户
-     * @return 结果消息
-     */
-    String importUser(List<SysUser> userList, boolean updateSupport, String operName);
 }

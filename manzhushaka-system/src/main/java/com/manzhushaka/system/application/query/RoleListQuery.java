@@ -1,7 +1,5 @@
 package com.manzhushaka.system.application.query;
 
-import java.util.Date;
-
 /**
  * 角色列表查询
  *
@@ -12,6 +10,8 @@ import java.util.Date;
  * @param status    状态（0正常 1停用）
  * @param beginTime 开始时间
  * @param endTime   结束时间
+ * @author manzhushaka
+ * @date 2026-07-18
  */
 public record RoleListQuery(
         Integer pageNum,
@@ -19,8 +19,8 @@ public record RoleListQuery(
         String roleName,
         String roleKey,
         String status,
-        Date beginTime,
-        Date endTime
+        String beginTime,
+        String endTime
 )
 {
 }

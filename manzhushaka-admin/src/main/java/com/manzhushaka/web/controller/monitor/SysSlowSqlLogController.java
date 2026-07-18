@@ -8,8 +8,10 @@ import com.manzhushaka.common.core.domain.AjaxResult;
 import com.manzhushaka.common.core.page.TableDataInfo;
 import com.manzhushaka.common.enums.BusinessType;
 import com.manzhushaka.common.utils.poi.ExcelUtil;
-import com.manzhushaka.system.domain.SysSlowSqlLog;
-import com.manzhushaka.system.service.ISysSlowSqlLogService;
+import com.manzhushaka.system.application.result.system.SlowSqlLogResult;
+import com.manzhushaka.system.application.service.SystemAuditAppService;
+import com.manzhushaka.web.converter.monitor.AuditAdminConverter;
+import com.manzhushaka.web.dto.monitor.SlowSqlLogQueryRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,14 +33,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class SysSlowSqlLogController extends BaseController
 {
     @Autowired
-    private ISysSlowSqlLogService slowSqlLogService;
+    private SystemAuditAppService auditAppService;
 
     @PreAuthorize("@ss.hasPermi('monitor:slowsql:list')")
     @GetMapping("/list")
-    public TableDataInfo list(SysSlowSqlLog slowSqlLog)
+    public TableDataInfo list(SlowSqlLogQueryRequest request)
     {
         startPage();
-        List<SysSlowSqlLog> list = slowSqlLogService.selectSlowSqlLogList(slowSqlLog);
+        List<SlowSqlLogResult> list = auditAppService.listSlowSqlLogs(AuditAdminConverter.toQuery(request));
         return getDataTable(list);
     }
 
@@ -46,16 +48,16 @@ public class SysSlowSqlLogController extends BaseController
     @GetMapping("/{slowSqlId}")
     public AjaxResult getInfo(@PathVariable Long slowSqlId)
     {
-        return success(slowSqlLogService.selectSlowSqlLogById(slowSqlId));
+        return success(auditAppService.getSlowSqlLog(slowSqlId));
     }
 
     @Log(title = "慢 SQL 日志", businessType = BusinessType.EXPORT)
     @PreAuthorize("@ss.hasPermi('monitor:slowsql:export')")
     @PostMapping("/export")
-    public void export(HttpServletResponse response, SysSlowSqlLog slowSqlLog)
+    public void export(HttpServletResponse response, SlowSqlLogQueryRequest request)
     {
-        List<SysSlowSqlLog> list = slowSqlLogService.selectSlowSqlLogList(slowSqlLog);
-        ExcelUtil<SysSlowSqlLog> util = new ExcelUtil<SysSlowSqlLog>(SysSlowSqlLog.class);
+        List<SlowSqlLogResult> list = auditAppService.listSlowSqlLogs(AuditAdminConverter.toQuery(request));
+        ExcelUtil<SlowSqlLogResult> util = new ExcelUtil<SlowSqlLogResult>(SlowSqlLogResult.class);
         util.exportExcel(response, list, "慢 SQL 日志");
     }
 
@@ -64,7 +66,7 @@ public class SysSlowSqlLogController extends BaseController
     @DeleteMapping("/{slowSqlIds}")
     public AjaxResult remove(@PathVariable Long[] slowSqlIds)
     {
-        return toAjax(slowSqlLogService.deleteSlowSqlLogByIds(slowSqlIds));
+        return toAjax(auditAppService.deleteSlowSqlLogs(slowSqlIds));
     }
 
     @Log(title = "慢 SQL 日志", businessType = BusinessType.CLEAN)
@@ -72,7 +74,7 @@ public class SysSlowSqlLogController extends BaseController
     @DeleteMapping("/clean")
     public AjaxResult clean()
     {
-        slowSqlLogService.cleanSlowSqlLog();
+        auditAppService.cleanSlowSqlLogs();
         return success();
     }
 }

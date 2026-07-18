@@ -1,8 +1,6 @@
 package com.manzhushaka.web.controller.system;
 
-import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -15,15 +13,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.manzhushaka.common.annotation.Log;
-import com.manzhushaka.common.constant.UserConstants;
 import com.manzhushaka.common.core.controller.BaseController;
 import com.manzhushaka.common.core.domain.AjaxResult;
-import com.manzhushaka.system.infrastructure.persistence.entity.SysDept;
 import com.manzhushaka.common.enums.BusinessType;
-import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.framework.security.context.SecurityContextHelper;
-import com.manzhushaka.system.service.ISysDeptService;
+import com.manzhushaka.system.application.service.SystemDeptAppService;
+import com.manzhushaka.web.converter.system.DeptAdminConverter;
 import com.manzhushaka.web.converter.system.shared.TreeSelectAdminConverter;
+import com.manzhushaka.web.dto.system.DeptSaveRequest;
 import com.manzhushaka.web.dto.system.SysDeptTreeRequest;
 
 /**
@@ -36,17 +33,16 @@ import com.manzhushaka.web.dto.system.SysDeptTreeRequest;
 public class SysDeptController extends BaseController
 {
     @Autowired
-    private ISysDeptService deptService;
+    private SystemDeptAppService deptAppService;
 
     /**
      * 获取部门列表
      */
     @PreAuthorize("@ss.hasPermi('system:dept:list')")
     @GetMapping("/list")
-    public AjaxResult list(SysDept dept)
+    public AjaxResult list(SysDeptTreeRequest request)
     {
-        List<SysDept> depts = deptService.selectDeptList(dept);
-        return success(depts);
+        return success(deptAppService.listDeptResults(DeptAdminConverter.toQuery(request)));
     }
 
     /**
@@ -56,7 +52,8 @@ public class SysDeptController extends BaseController
     @GetMapping("/tree")
     public AjaxResult tree(SysDeptTreeRequest request)
     {
-        return success(TreeSelectAdminConverter.toVoList(deptService.selectDeptTreeList(request.toDept())));
+        return success(TreeSelectAdminConverter.toVoList(
+                deptAppService.listDeptTree(DeptAdminConverter.toQuery(request))));
     }
 
     /**
@@ -66,9 +63,7 @@ public class SysDeptController extends BaseController
     @GetMapping("/list/exclude/{deptId}")
     public AjaxResult excludeChild(@PathVariable(value = "deptId", required = false) Long deptId)
     {
-        List<SysDept> depts = deptService.selectDeptList(new SysDept());
-        depts.removeIf(d -> d.getDeptId().intValue() == deptId || ArrayUtils.contains(StringUtils.split(d.getAncestors(), ","), deptId + ""));
-        return success(depts);
+        return success(deptAppService.listDeptResultsExcluding(deptId));
     }
 
     /**
@@ -78,8 +73,7 @@ public class SysDeptController extends BaseController
     @GetMapping(value = "/{deptId}")
     public AjaxResult getInfo(@PathVariable Long deptId)
     {
-        deptService.checkDeptDataScope(deptId);
-        return success(deptService.selectDeptById(deptId));
+        return success(deptAppService.getDeptResult(deptId));
     }
 
     /**
@@ -88,14 +82,10 @@ public class SysDeptController extends BaseController
     @PreAuthorize("@ss.hasPermi('system:dept:add')")
     @Log(title = "部门管理", businessType = BusinessType.INSERT)
     @PostMapping
-    public AjaxResult add(@Validated @RequestBody SysDept dept)
+    public AjaxResult add(@Validated @RequestBody DeptSaveRequest request)
     {
-        if (!deptService.checkDeptNameUnique(dept))
-        {
-            return error("新增部门'" + dept.getDeptName() + "'失败，部门名称已存在");
-        }
-        dept.setCreateBy(SecurityContextHelper.getUsername());
-        return toAjax(deptService.insertDept(dept));
+        return toAjax(deptAppService.createDept(DeptAdminConverter.toCommand(request),
+                SecurityContextHelper.getUsername()));
     }
 
     /**
@@ -104,24 +94,10 @@ public class SysDeptController extends BaseController
     @PreAuthorize("@ss.hasPermi('system:dept:edit')")
     @Log(title = "部门管理", businessType = BusinessType.UPDATE)
     @PutMapping
-    public AjaxResult edit(@Validated @RequestBody SysDept dept)
+    public AjaxResult edit(@Validated @RequestBody DeptSaveRequest request)
     {
-        Long deptId = dept.getDeptId();
-        deptService.checkDeptDataScope(deptId);
-        if (!deptService.checkDeptNameUnique(dept))
-        {
-            return error("修改部门'" + dept.getDeptName() + "'失败，部门名称已存在");
-        }
-        else if (dept.getParentId().equals(deptId))
-        {
-            return error("修改部门'" + dept.getDeptName() + "'失败，上级部门不能是自己");
-        }
-        else if (StringUtils.equals(UserConstants.DEPT_DISABLE, dept.getStatus()) && deptService.selectNormalChildrenDeptById(deptId) > 0)
-        {
-            return error("该部门包含未停用的子部门！");
-        }
-        dept.setUpdateBy(SecurityContextHelper.getUsername());
-        return toAjax(deptService.updateDept(dept));
+        return toAjax(deptAppService.updateDept(DeptAdminConverter.toCommand(request),
+                SecurityContextHelper.getUsername()));
     }
 
     /**
@@ -134,7 +110,7 @@ public class SysDeptController extends BaseController
     {
         String[] deptIds = params.get("deptIds").split(",");
         String[] orderNums = params.get("orderNums").split(",");
-        deptService.updateDeptSort(deptIds, orderNums);
+        deptAppService.updateDeptSort(deptIds, orderNums);
         return success();
     }
 
@@ -146,15 +122,6 @@ public class SysDeptController extends BaseController
     @DeleteMapping("/{deptId}")
     public AjaxResult remove(@PathVariable Long deptId)
     {
-        if (deptService.hasChildByDeptId(deptId))
-        {
-            return warn("存在下级部门,不允许删除");
-        }
-        if (deptService.checkDeptExistUser(deptId))
-        {
-            return warn("部门存在用户,不允许删除");
-        }
-        deptService.checkDeptDataScope(deptId);
-        return toAjax(deptService.deleteDeptById(deptId));
+        return toAjax(deptAppService.deleteDept(deptId));
     }
 }

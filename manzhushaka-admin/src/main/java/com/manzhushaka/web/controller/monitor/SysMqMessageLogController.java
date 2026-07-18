@@ -10,9 +10,10 @@ import com.manzhushaka.common.core.domain.AjaxResult;
 import com.manzhushaka.common.core.page.TableDataInfo;
 import com.manzhushaka.common.enums.BusinessType;
 import com.manzhushaka.common.utils.poi.ExcelUtil;
-import com.manzhushaka.system.domain.SysMqMessageLog;
-import com.manzhushaka.system.domain.SysMqMessageLogDetail;
-import com.manzhushaka.system.service.ISysMqMessageLogService;
+import com.manzhushaka.system.application.result.system.MqMessageLogResult;
+import com.manzhushaka.system.application.service.SystemAuditAppService;
+import com.manzhushaka.web.converter.monitor.AuditAdminConverter;
+import com.manzhushaka.web.dto.monitor.MqMessageLogQueryRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class SysMqMessageLogController extends BaseController
 {
     @Autowired
-    private ISysMqMessageLogService mqMessageLogService;
+    private SystemAuditAppService auditAppService;
 
     /**
      * 查询消息队列台账列表。
@@ -43,10 +44,10 @@ public class SysMqMessageLogController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('monitor:mqlog:list')")
     @GetMapping("/list")
-    public TableDataInfo list(SysMqMessageLog messageLog)
+    public TableDataInfo list(MqMessageLogQueryRequest request)
     {
         startPage();
-        List<SysMqMessageLog> list = mqMessageLogService.selectMessageLogList(messageLog);
+        List<MqMessageLogResult> list = auditAppService.listMqMessageLogs(AuditAdminConverter.toQuery(request));
         return getDataTable(list);
     }
 
@@ -60,7 +61,7 @@ public class SysMqMessageLogController extends BaseController
     @GetMapping("/{messageLogId}")
     public AjaxResult getInfo(@PathVariable Long messageLogId)
     {
-        return success(mqMessageLogService.selectMessageLogById(messageLogId));
+        return success(auditAppService.getMqMessageLog(messageLogId));
     }
 
     /**
@@ -73,7 +74,7 @@ public class SysMqMessageLogController extends BaseController
     @GetMapping("/{messageLogId}/details")
     public AjaxResult detailList(@PathVariable Long messageLogId)
     {
-        return success(mqMessageLogService.selectDetailListByMessageLogId(messageLogId));
+        return success(auditAppService.listMqMessageLogDetails(messageLogId));
     }
 
     /**
@@ -85,10 +86,10 @@ public class SysMqMessageLogController extends BaseController
     @Log(title = "消息队列台账", businessType = BusinessType.EXPORT)
     @PreAuthorize("@ss.hasPermi('monitor:mqlog:export')")
     @PostMapping("/export")
-    public void export(HttpServletResponse response, SysMqMessageLog messageLog)
+    public void export(HttpServletResponse response, MqMessageLogQueryRequest request)
     {
-        List<SysMqMessageLog> list = mqMessageLogService.selectMessageLogList(messageLog);
-        ExcelUtil<SysMqMessageLog> util = new ExcelUtil<>(SysMqMessageLog.class);
+        List<MqMessageLogResult> list = auditAppService.listMqMessageLogs(AuditAdminConverter.toQuery(request));
+        ExcelUtil<MqMessageLogResult> util = new ExcelUtil<>(MqMessageLogResult.class);
         util.exportExcel(response, list, "消息队列台账");
     }
 
@@ -103,7 +104,7 @@ public class SysMqMessageLogController extends BaseController
     @DeleteMapping("/{messageLogIds}")
     public AjaxResult remove(@PathVariable Long[] messageLogIds)
     {
-        return toAjax(mqMessageLogService.deleteMessageLogByIds(messageLogIds));
+        return toAjax(auditAppService.deleteMqMessageLogs(messageLogIds));
     }
 
     /**
@@ -116,7 +117,7 @@ public class SysMqMessageLogController extends BaseController
     @DeleteMapping("/clean")
     public AjaxResult clean()
     {
-        mqMessageLogService.cleanMessageLog();
+        auditAppService.cleanMqMessageLogs();
         return success();
     }
 }

@@ -14,6 +14,10 @@ import com.manzhushaka.system.application.command.DataScopeCommand;
 import com.manzhushaka.system.application.command.UpdateRoleCommand;
 import com.manzhushaka.system.application.query.RoleListQuery;
 import com.manzhushaka.system.application.service.SystemRoleAppService;
+import com.manzhushaka.system.application.result.system.RoleResult;
+import com.manzhushaka.system.application.result.system.SystemResultMapper;
+import com.manzhushaka.system.application.result.system.UserResult;
+import com.manzhushaka.system.application.result.system.RoleExcelRow;
 import com.manzhushaka.system.domain.SysUserRole;
 import com.manzhushaka.system.service.ISysRoleService;
 import com.manzhushaka.system.service.ISysUserService;
@@ -32,8 +36,7 @@ public class SystemRoleAppServiceImpl implements SystemRoleAppService
     @Autowired
     private ISysUserService userService;
 
-    @Override
-    public List<SysRole> listRoles(RoleListQuery query)
+    private List<SysRole> listRoleEntities(RoleListQuery query)
     {
         SysRole role = new SysRole();
         role.setRoleName(query.roleName());
@@ -50,11 +53,41 @@ public class SystemRoleAppServiceImpl implements SystemRoleAppService
         return roleService.selectRoleList(role);
     }
 
+    /**
+     * 查询角色结果列表。
+     *
+     * @param query 查询条件
+     * @return 角色结果列表
+     */
     @Override
-    public SysRole getRoleDetail(Long roleId)
+    public List<RoleResult> listRoleResults(RoleListQuery query)
+    {
+        return SystemResultMapper.toRoleResults(listRoleEntities(query));
+    }
+
+    /**
+     * 查询角色导出行。
+     *
+     * @param query 查询条件
+     * @return 角色导出行
+     */
+    @Override
+    public List<RoleExcelRow> listRoleExcelRows(RoleListQuery query)
+    {
+        return SystemResultMapper.toRoleExcelRows(listRoleEntities(query));
+    }
+
+    /**
+     * 获取角色结果。
+     *
+     * @param roleId 角色 ID
+     * @return 角色结果
+     */
+    @Override
+    public RoleResult getRoleResult(Long roleId)
     {
         roleService.checkRoleDataScope(roleId);
-        return roleService.selectRoleById(roleId);
+        return SystemResultMapper.toRoleResult(roleService.selectRoleById(roleId));
     }
 
     @Override
@@ -153,24 +186,63 @@ public class SystemRoleAppServiceImpl implements SystemRoleAppService
         roleService.deleteRoleByIds(roleIds);
     }
 
+    /**
+     * 获取角色选项结果。
+     *
+     * @return 角色结果列表
+     */
     @Override
-    public List<SysRole> selectRoleAll()
+    public List<RoleResult> selectRoleResults()
     {
-        return roleService.selectRoleAll();
+        return SystemResultMapper.toRoleResults(roleService.selectRoleAll());
     }
 
+    /**
+     * 获取用户角色授权结果。
+     *
+     * @param userId 用户 ID
+     * @return 带选中状态的角色结果
+     */
     @Override
-    public List<SysUser> allocatedUserList(SysUser user, Long roleId)
+    public List<RoleResult> selectRoleResultsByUserId(Long userId)
     {
-        user.setRoleId(roleId);
-        return userService.selectAllocatedList(user);
+        return SystemResultMapper.toRoleResults(roleService.selectRolesByUserId(userId));
     }
 
+    /**
+     * 查询已分配用户结果。
+     *
+     * @param userName 用户名
+     * @param phonenumber 手机号
+     * @param roleId 角色 ID
+     * @return 用户结果列表
+     */
     @Override
-    public List<SysUser> unallocatedUserList(SysUser user, Long roleId)
+    public List<UserResult> allocatedUserResults(String userName, String phonenumber, Long roleId)
     {
+        SysUser user = new SysUser();
+        user.setUserName(userName);
+        user.setPhonenumber(phonenumber);
         user.setRoleId(roleId);
-        return userService.selectUnallocatedList(user);
+        return SystemResultMapper.toUserResults(userService.selectAllocatedList(user));
+    }
+
+    /**
+     * 查询未分配用户结果。
+     *
+     * @param userName 用户名
+     * @param phonenumber 手机号
+     * @param roleId 角色 ID
+     * @return 用户结果列表
+     */
+    @Override
+    public List<UserResult> unallocatedUserResults(String userName, String phonenumber, Long roleId)
+    {
+        SysUser user = new SysUser();
+        user.setUserName(userName);
+        user.setPhonenumber(phonenumber);
+        user.setRoleId(roleId);
+        return SystemResultMapper.toUserResults(userService.selectUnallocatedList(user));
     }
 
     @Override
@@ -201,4 +273,5 @@ public class SystemRoleAppServiceImpl implements SystemRoleAppService
         roleService.checkRoleDataScope(roleId);
         roleService.insertAuthUsers(roleId, userIds);
     }
+
 }

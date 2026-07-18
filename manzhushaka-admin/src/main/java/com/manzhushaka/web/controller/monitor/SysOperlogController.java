@@ -16,8 +16,10 @@ import com.manzhushaka.common.core.domain.AjaxResult;
 import com.manzhushaka.common.core.page.TableDataInfo;
 import com.manzhushaka.common.enums.BusinessType;
 import com.manzhushaka.common.utils.poi.ExcelUtil;
-import com.manzhushaka.system.domain.SysOperLog;
-import com.manzhushaka.system.service.ISysOperLogService;
+import com.manzhushaka.system.application.result.system.OperLogResult;
+import com.manzhushaka.system.application.service.SystemAuditAppService;
+import com.manzhushaka.web.converter.monitor.AuditAdminConverter;
+import com.manzhushaka.web.dto.monitor.OperLogQueryRequest;
 
 /**
  * 操作日志记录
@@ -29,24 +31,24 @@ import com.manzhushaka.system.service.ISysOperLogService;
 public class SysOperlogController extends BaseController
 {
     @Autowired
-    private ISysOperLogService operLogService;
+    private SystemAuditAppService auditAppService;
 
     @PreAuthorize("@ss.hasPermi('monitor:operlog:list')")
     @GetMapping("/list")
-    public TableDataInfo list(SysOperLog operLog)
+    public TableDataInfo list(OperLogQueryRequest request)
     {
         startPage();
-        List<SysOperLog> list = operLogService.selectOperLogList(operLog);
+        List<OperLogResult> list = auditAppService.listOperationLogs(AuditAdminConverter.toQuery(request));
         return getDataTable(list);
     }
 
     @Log(title = "操作日志", businessType = BusinessType.EXPORT)
     @PreAuthorize("@ss.hasPermi('monitor:operlog:export')")
     @PostMapping("/export")
-    public void export(HttpServletResponse response, SysOperLog operLog)
+    public void export(HttpServletResponse response, OperLogQueryRequest request)
     {
-        List<SysOperLog> list = operLogService.selectOperLogList(operLog);
-        ExcelUtil<SysOperLog> util = new ExcelUtil<SysOperLog>(SysOperLog.class);
+        List<OperLogResult> list = auditAppService.listOperationLogs(AuditAdminConverter.toQuery(request));
+        ExcelUtil<OperLogResult> util = new ExcelUtil<OperLogResult>(OperLogResult.class);
         util.exportExcel(response, list, "操作日志");
     }
 
@@ -55,7 +57,7 @@ public class SysOperlogController extends BaseController
     @DeleteMapping("/{operIds}")
     public AjaxResult remove(@PathVariable Long[] operIds)
     {
-        return toAjax(operLogService.deleteOperLogByIds(operIds));
+        return toAjax(auditAppService.deleteOperationLogs(operIds));
     }
 
     @Log(title = "操作日志", businessType = BusinessType.CLEAN)
@@ -63,7 +65,7 @@ public class SysOperlogController extends BaseController
     @DeleteMapping("/clean")
     public AjaxResult clean()
     {
-        operLogService.cleanOperLog();
+        auditAppService.cleanOperationLogs();
         return success();
     }
 }
