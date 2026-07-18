@@ -84,8 +84,8 @@ create table sys_user (
 -- ----------------------------
 -- 初始化-用户信息表数据
 -- ----------------------------
-insert into sys_user values(1,  103, 'admin', 'manzhushaka', '00', 'ry@163.com', '', '15888888888', '', '1', '', '$2a$10$vZ9NlcmUMm7cwEyr9EQ5I.BaKindVPz4ymj3cABl568yiyt85elZ2', '0', '0', '127.0.0.1', sysdate(), null, 'admin', sysdate(), '', null, '管理员');
-insert into sys_user values(2,  105, 'ry',    'manzhushaka', '00', 'ry@qq.com',  '',  '15666666666', '', '1', '', '$2a$10$vZ9NlcmUMm7cwEyr9EQ5I.BaKindVPz4ymj3cABl568yiyt85elZ2', '0', '0', '127.0.0.1', sysdate(), null, 'admin', sysdate(), '', null, '测试员');
+insert into sys_user values(1,  103, 'admin', 'manzhushaka', '00', 'ry@163.com', '', '15888888888', '', '1', '', '$2a$10$umRDAx0sJh41uibwHlzo8ukCWT1uEmoNMcewoHi260IRaS2M/SoSa', '0', '0', '127.0.0.1', sysdate(), null, 'admin', sysdate(), '', null, '管理员');
+insert into sys_user values(2,  105, 'ry',    'manzhushaka', '00', 'ry@qq.com',  '',  '15666666666', '', '1', '', '$2a$10$umRDAx0sJh41uibwHlzo8ukCWT1uEmoNMcewoHi260IRaS2M/SoSa', '0', '0', '127.0.0.1', sysdate(), null, 'admin', sysdate(), '', null, '测试员');
 
 
 -- ----------------------------
@@ -480,7 +480,7 @@ create table sys_config (
 ) engine=innodb auto_increment=100 comment = '参数配置表';
 
 insert into sys_config values(1, '主框架页-默认皮肤样式名称',     'sys.index.skinName',               'skin-blue',     'Y', 'admin', sysdate(), '', null, '蓝色 skin-blue、绿色 skin-green、紫色 skin-purple、红色 skin-red、黄色 skin-yellow' );
-insert into sys_config values(2, '用户管理-账号初始密码',         'sys.user.initPassword',            'Qx9@Rv72',      'Y', 'admin', sysdate(), '', null, '初始化密码 Qx9@Rv72' );
+insert into sys_config values(2, '用户管理-账号初始密码',         'sys.user.initPassword',            'admin@123',     'Y', 'admin', sysdate(), '', null, '初始化密码 admin@123' );
 insert into sys_config values(3, '主框架页-侧边栏主题',           'sys.index.sideTheme',              'theme-dark',    'Y', 'admin', sysdate(), '', null, '深色主题theme-dark，浅色主题theme-light' );
 insert into sys_config values(5, '账号自助-是否开启用户注册功能', 'sys.account.registerUser',         'false',         'Y', 'admin', sysdate(), '', null, '是否开启注册用户功能（true开启，false关闭）');
 insert into sys_config values(6, '用户登录-黑名单列表',           'sys.login.blackIPList',            '',              'Y', 'admin', sysdate(), '', null, '设置登录IP黑名单限制，多个匹配项以;分隔，支持匹配（*通配、网段）');

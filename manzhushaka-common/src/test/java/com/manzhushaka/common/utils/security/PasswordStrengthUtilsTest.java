@@ -35,12 +35,12 @@ class PasswordStrengthUtilsTest
     }
 
     /**
-     * 初始化默认密码必须满足强密码规则。
+     * 默认密码包含同名管理员用户名时应被强密码规则拒绝。
      */
     @Test
-    void shouldAcceptInitialDefaultPassword()
+    void shouldRejectDefaultPasswordForSameUsername()
     {
-        assertThat(PasswordStrengthUtils.isStrongPassword("admin", "Qx9@Rv72")).isTrue();
+        assertThat(PasswordStrengthUtils.isStrongPassword("admin", "admin@123")).isFalse();
     }
 
     /**

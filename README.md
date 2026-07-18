@@ -117,13 +117,7 @@ mysql --default-character-set=utf8mb4 -uroot -p manzhushaka < sql/manzhushaka_db
 在仓库根目录执行：
 
 ```bash
-mvn -pl manzhushaka-admin -am spring-boot:run
-```
-
-也可以先构建再运行：
-
-```bash
-mvn clean package -DskipTests
+mvn -pl manzhushaka-admin -am package -DskipTests
 java -jar manzhushaka-admin/target/manzhushaka-admin.jar
 ```
 
@@ -143,9 +137,9 @@ npm run dev
 
 | 用户名 | 密码 |
 | --- | --- |
-| `admin` | `Qx9@Rv72` |
+| `admin` | `admin@123` |
 
-系统参数 `sys.user.initPassword` 的默认值同样为 `Qx9@Rv72`，用于新建或导入用户时设置初始密码。
+系统参数 `sys.user.initPassword` 的默认值同样为 `admin@123`，用于新建或导入用户时设置初始密码。
 
 如果初始化脚本或本地数据库已调整，以本地数据库为准。
 
