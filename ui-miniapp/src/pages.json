@@ -52,7 +52,8 @@
     {
       "path": "pages/coupon/mine",
       "style": {
-        "navigationBarTitleText": "我的券"
+        "navigationBarTitleText": "我的券",
+        "enablePullDownRefresh": true
       }
     },
     {
@@ -85,32 +86,45 @@
       "style": {
         "navigationBarTitleText": "我的"
       }
+    },
+    {
+      "path": "pages/activity/rules",
+      "style": {
+        "navigationBarTitleText": "活动规则",
+        "enablePullDownRefresh": false
+      }
     }
   ],
   "globalStyle": {
-    "navigationBarTextStyle": "white",
+    "navigationBarTextStyle": "black",
     "navigationBarTitleText": "发票积分平台",
-    "navigationBarBackgroundColor": "#ff6a2a",
-    "backgroundColor": "#faf8f5",
+    "navigationBarBackgroundColor": "#f6f1e6",
+    "backgroundColor": "#f6f1e6",
     "backgroundTextStyle": "dark"
   },
   "tabBar": {
-    "color": "#9a8f83",
-    "selectedColor": "#ff6a2a",
+    "color": "#8d8478",
+    "selectedColor": "#c93418",
     "backgroundColor": "#ffffff",
-    "borderStyle": "black",
+    "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "首页"
+        "text": "首页",
+        "iconPath": "static/tabbar/home.png",
+        "selectedIconPath": "static/tabbar/home-active.png"
       },
       {
         "pagePath": "pages/coupon/mall",
-        "text": "商城"
+        "text": "商城",
+        "iconPath": "static/tabbar/mall.png",
+        "selectedIconPath": "static/tabbar/mall-active.png"
       },
       {
         "pagePath": "pages/mine/index",
-        "text": "我的"
+        "text": "我的",
+        "iconPath": "static/tabbar/mine.png",
+        "selectedIconPath": "static/tabbar/mine-active.png"
       }
     ]
   }

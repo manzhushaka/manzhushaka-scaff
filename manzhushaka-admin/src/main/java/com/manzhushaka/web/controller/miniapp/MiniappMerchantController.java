@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.manzhushaka.common.annotation.Log;
 import com.manzhushaka.common.core.controller.BaseController;
@@ -70,18 +71,30 @@ public class MiniappMerchantController extends BaseController
     }
 
     /**
+     * 查询本商户核销工作台统计（今日/累计的核销笔数与消耗积分，仅状态正常的商户可查询）
+     */
+    @Log(title = "小程序商户", businessType = BusinessType.OTHER)
+    @GetMapping("/verify/stats")
+    public AjaxResult verifyStats()
+    {
+        MerchantResult merchant = merchantAppService.getVerifiableMerchant(SecurityContextHelper.getUserId());
+        return success(merchantAppService.getVerifyStats(merchant.merchantId()));
+    }
+
+    /**
      * 查询本商户核销记录。
      *
      * 分页参数 pageNum/pageSize 由请求查询参数传入（与后台列表一致，由 startPage 读取）；
+     * days 可选（1/7/30 语义为最近 N 天，不传为全部）；
      * 返回 TableDataInfo（rows 为核销记录列表，total 为总数），仅状态正常的商户可查询。
      */
     @Log(title = "小程序商户", businessType = BusinessType.OTHER)
     @GetMapping("/verify/records")
-    public TableDataInfo verifyRecords()
+    public TableDataInfo verifyRecords(@RequestParam(required = false) Integer days)
     {
         MerchantResult merchant = merchantAppService.getVerifiableMerchant(SecurityContextHelper.getUserId());
         startPage();
-        List<VerifyRecordResult> list = merchantAppService.listVerifyRecords(merchant.merchantId());
+        List<VerifyRecordResult> list = merchantAppService.listVerifyRecords(merchant.merchantId(), days);
         return getDataTable(list);
     }
 }

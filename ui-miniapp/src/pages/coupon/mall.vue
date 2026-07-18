@@ -1,75 +1,89 @@
 <template>
   <view class="page">
-    <!-- 未登录引导 -->
+    <!-- 游客引导 -->
     <view v-if="!userStore.isLogin" class="guest">
       <view class="iip-empty">
-        <view class="iip-empty__icon" :style="{ backgroundImage: icons.empty }"></view>
-        <text>登录后逛积分商城</text>
+        <view class="iip-empty__icon" :style="{ backgroundImage: icons.coupon }"></view>
+        <view class="iip-empty__title">登录后兑换心仪权益</view>
       </view>
       <button class="iip-btn guest__btn" @click="goLogin">去登录</button>
     </view>
 
-    <!-- 券卡片列表 -->
     <template v-else>
-      <!-- 品类分类 tab -->
-      <scroll-view scroll-x class="category-tabs">
-        <view
-          v-for="tab in categoryTabs"
-          :key="tab.label"
-          class="category-tabs__item"
-          :class="{ 'is-active': activeCategory === tab.value }"
-          @click="switchCategory(tab.value)"
-        >
-          {{ tab.label }}
+      <!-- 品类 pilltabs 横滑：全部 + 按接口返回实际出现的品类动态生成 -->
+      <scroll-view scroll-x class="tabs">
+        <view class="iip-pilltabs tabs__inner">
+          <view
+            v-for="tab in categoryTabs"
+            :key="tab.value"
+            class="iip-pilltabs__item"
+            :class="{ 'is-on': activeCategory === tab.value }"
+            @click="switchCategory(tab.value)"
+          >
+            {{ tab.label }}
+          </view>
         </view>
       </scroll-view>
 
       <view class="list">
-        <view
-          class="coupon iip-card"
-          :class="{ 'coupon--soldout': item.remainStock === 0 }"
-          v-for="item in list"
-          :key="item.couponId"
-          @click="goDetail(item)"
-        >
-          <image
-            v-if="item.coverImage"
-            class="coupon__cover"
-            :src="resolveFileUrl(item.coverImage)"
-            mode="aspectFill"
-          />
-          <view v-else class="coupon__cover coupon__cover--plain">
-            <view class="coupon__cover-icon" :style="{ backgroundImage: icons.ticket }"></view>
-          </view>
-          <view class="coupon__body">
-            <view class="coupon__name">{{ item.couponName }}</view>
-            <view class="coupon__tags">
-              <text class="coupon__tag coupon__tag--category">{{ couponCategoryName(item.category) }}</text>
-              <text
-                v-if="couponSponsorText(item.sponsorType, item.sponsorName)"
-                class="coupon__tag coupon__tag--sponsor"
-              >
-                {{ couponSponsorText(item.sponsorType, item.sponsorName) }}
-              </text>
+        <!-- 骨架：首次加载 3 条券票卡 -->
+        <template v-if="loading && !allList.length">
+          <view class="iip-ticket skel-ticket" v-for="i in 3" :key="'skel' + i">
+            <view class="iip-ticket__stub">
+              <view class="iip-skel iip-skel--row skel-ticket__num"></view>
+              <view class="iip-skel skel-ticket__note"></view>
             </view>
-            <view class="coupon__target" v-if="item.targetName">适用：{{ item.targetName }}</view>
-            <view class="coupon__meta">
-              <text class="coupon__stock">{{ stockText(item) }}</text>
-              <text class="coupon__limit">{{ limitText(item) }}</text>
-            </view>
-            <view class="coupon__bottom">
-              <view class="coupon__cost">
-                <text class="coupon__points">{{ item.pointsCost }}</text>
-                <text class="coupon__unit">积分</text>
-              </view>
-              <text v-if="item.remainStock === 0" class="coupon__soldout">已售罄</text>
+            <view class="iip-ticket__main">
+              <view class="iip-skel iip-skel--row"></view>
+              <view class="iip-skel iip-skel--row skel-row--mid"></view>
+              <view class="iip-skel iip-skel--row skel-row--short"></view>
             </view>
           </view>
-        </view>
+        </template>
 
-        <view v-if="!loading && !list.length" class="iip-empty">
+        <!-- 券票卡 -->
+        <template v-else-if="list.length">
+          <view
+            class="iip-ticket ticket"
+            :class="{ 'ticket--soldout': isSoldOut(item) }"
+            v-for="item in list"
+            :key="item.couponId"
+            @click="goDetail(item)"
+            hover-class="iip-tap"
+          >
+            <view class="iip-ticket__stub">
+              <view class="ticket__points">
+                <text class="ticket__points-num iip-num">{{ fmtThousands(item.pointsCost) }}</text>
+                <text class="ticket__points-unit">分</text>
+              </view>
+              <!-- CouponMallItemResult 暂无门市价字段，stub 小字统一为「积分兑换」 -->
+              <text class="ticket__stub-note">积分兑换</text>
+            </view>
+            <view class="iip-ticket__main">
+              <view class="ticket__name">{{ item.couponName }}</view>
+              <view class="ticket__sponsor" v-if="sponsorChip(item)">
+                <text class="iip-chip" :class="sponsorChip(item).chipClass">{{ sponsorChip(item).text }}</text>
+              </view>
+              <view class="ticket__meta" v-if="metaText(item)">{{ metaText(item) }}</view>
+              <view class="ticket__bottom">
+                <text class="ticket__stock iip-num">{{ stockText(item) }}</text>
+                <button
+                  class="iip-btn ticket__exbtn"
+                  :class="{ 'is-disabled': isSoldOut(item) }"
+                  @click.stop="goDetail(item)"
+                >
+                  {{ isSoldOut(item) ? '已抢光' : '兑换' }}
+                </button>
+              </view>
+            </view>
+          </view>
+        </template>
+
+        <!-- 空状态 -->
+        <view v-else-if="!loading" class="iip-empty">
           <view class="iip-empty__icon" :style="{ backgroundImage: icons.empty }"></view>
-          <text>暂无可兑换的券</text>
+          <view class="iip-empty__title">暂无可兑换的券</view>
+          <view class="iip-empty__desc">换个品类看看，或下拉刷新</view>
         </view>
       </view>
     </template>
@@ -77,34 +91,62 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 import { useUserStore } from '@/store/user.js'
 import { getMallCoupons } from '@/api/coupon.js'
-import { resolveFileUrl } from '@/common/config.js'
+import { fmtThousands } from '@/common/format.js'
 import { redirectToLogin } from '@/common/request.js'
-import { couponCategoryName, couponSponsorText } from '@/common/format.js'
 import icons from '@/common/icons.js'
 
 const userStore = useUserStore()
 
-/** 品类分类 tab（全部不传 category） */
-const categoryTabs = [
-  { label: '全部', value: '' },
-  { label: '门票', value: 'scenic_ticket' },
-  { label: '酒店', value: 'hotel' },
-  { label: '餐饮', value: 'dining' },
-  { label: '机票+', value: 'flight_package' },
-  { label: '免税', value: 'duty_free' },
-  { label: '通用', value: 'general' }
+/** 品类 tab 文案映射（数组顺序即 tab 展示顺序；全部不传 category） */
+const CATEGORY_TABS = [
+  { value: 'general', label: '通用' },
+  { value: 'scenic_ticket', label: '景区门票' },
+  { value: 'hotel', label: '酒店券' },
+  { value: 'dining', label: '餐饮券' },
+  { value: 'flight_package', label: '机票+权益' },
+  { value: 'duty_free', label: '免税周边' }
 ]
 
-const list = ref([])
+const allList = ref([])
 const loading = ref(false)
 const activeCategory = ref('')
 
+/** 品类 tab：全部 + 接口返回中实际出现的品类 */
+const categoryTabs = computed(() => {
+  const present = new Set(allList.value.map((item) => item.category))
+  const tabs = [{ value: '', label: '全部' }]
+  CATEGORY_TABS.forEach((tab) => {
+    if (present.has(tab.value)) {
+      tabs.push(tab)
+    }
+  })
+  return tabs
+})
+
+/** 当前品类下的券列表（全部 = 不过滤） */
+const list = computed(() => {
+  if (!activeCategory.value) {
+    return allList.value
+  }
+  return allList.value.filter((item) => item.category === activeCategory.value)
+})
+
 /**
- * 库存文案（remainStock -1 表示不限）。
+ * 是否售罄（remainStock -1 表示不限库存，仅 0 视为售罄）。
+ *
+ * @param {object} item CouponMallItemResult
+ * @returns {boolean} 是否售罄
+ */
+function isSoldOut(item) {
+  return item.remainStock === 0
+}
+
+/**
+ * 库存文案（-1 不限，大于 999 显示 999+）。
  *
  * @param {object} item CouponMallItemResult
  * @returns {string} 库存文案
@@ -113,23 +155,69 @@ function stockText(item) {
   if (item.remainStock === -1) {
     return '库存充足'
   }
-  if (item.remainStock === 0) {
-    return '已售罄'
+  if (isSoldOut(item)) {
+    return '已抢光'
   }
-  return '剩余 ' + item.remainStock
+  if (item.remainStock > 999) {
+    return '剩余 999+ 张'
+  }
+  return '剩余 ' + item.remainStock + ' 张'
 }
 
 /**
- * 限兑文案（perMemberLimit -1 表示不限）。
+ * 有效期文案（fixed 为止期日期 yyyy.MM.dd 止，days 为兑后 N 天有效）。
  *
  * @param {object} item CouponMallItemResult
- * @returns {string} 限兑文案
+ * @returns {string} 有效期文案，无有效信息时返回空串
  */
-function limitText(item) {
-  if (item.perMemberLimit === -1) {
-    return '不限兑'
+function validText(item) {
+  if (item.validType === 'days' && item.validDays) {
+    return '兑后 ' + item.validDays + ' 天有效'
   }
-  return '每人限兑 ' + item.perMemberLimit + ' 张'
+  if (item.validEndTime) {
+    return String(item.validEndTime).slice(0, 10).replace(/-/g, '.') + ' 止'
+  }
+  return ''
+}
+
+/**
+ * meta 行：targetName ｜ 有效期 ｜ 每人限兑 N（perMemberLimit -1 不限则不显示）。
+ *
+ * @param {object} item CouponMallItemResult
+ * @returns {string} meta 文案
+ */
+function metaText(item) {
+  const parts = []
+  if (item.targetName) {
+    parts.push(item.targetName)
+  }
+  const valid = validText(item)
+  if (valid) {
+    parts.push(valid)
+  }
+  if (item.perMemberLimit !== -1 && item.perMemberLimit != null) {
+    parts.push('每人限兑 ' + item.perMemberLimit)
+  }
+  return parts.join('｜')
+}
+
+/**
+ * 赞助方 chip（bank 金色「银行赞助」、merchant 灰色「商户赞助」、platform 或无名称不展示）。
+ *
+ * @param {object} item CouponMallItemResult
+ * @returns {object|null} { text, chipClass } 或 null
+ */
+function sponsorChip(item) {
+  if (!item.sponsorName) {
+    return null
+  }
+  if (item.sponsorType === 'bank') {
+    return { text: '银行赞助·' + item.sponsorName, chipClass: 'iip-chip--y' }
+  }
+  if (item.sponsorType === 'merchant') {
+    return { text: '商户赞助·' + item.sponsorName, chipClass: 'iip-chip--gray' }
+  }
+  return null
 }
 
 async function loadList() {
@@ -138,7 +226,11 @@ async function loadList() {
   }
   loading.value = true
   try {
-    list.value = await getMallCoupons(activeCategory.value)
+    allList.value = await getMallCoupons()
+    // 刷新后当前品类可能已无上架券，回退到全部
+    if (activeCategory.value && !allList.value.some((item) => item.category === activeCategory.value)) {
+      activeCategory.value = ''
+    }
   } catch (e) {
     // 错误提示已由 request 封装统一处理
   } finally {
@@ -147,22 +239,15 @@ async function loadList() {
 }
 
 /**
- * 切换品类 tab 并按品类重新请求列表（全部不传 category）。
+ * 切换品类（客户端过滤，不重复请求）。
  *
  * @param {string} value 品类值，空串表示全部
  */
 function switchCategory(value) {
-  if (activeCategory.value === value) {
-    return
-  }
   activeCategory.value = value
-  loadList()
 }
 
 function goDetail(item) {
-  if (item.remainStock === 0) {
-    return
-  }
   uni.navigateTo({ url: '/pages/coupon/detail?id=' + item.couponId })
 }
 
@@ -188,138 +273,104 @@ onPullDownRefresh(async () => {
   margin: 0 64rpx;
 }
 
-/* 品类分类 tab（横向滑动，视觉对齐全局 iip-tabs） */
-.category-tabs {
+/* 品类 pilltabs 横滑（滚动条由 App.vue 全局规则隐藏） */
+.tabs {
   white-space: nowrap;
-  background-color: var(--iip-panel);
-  border-bottom: 1rpx solid var(--iip-border);
+  padding: var(--iip-sp-24) var(--iip-sp-24) 0;
 }
-.category-tabs__item {
-  display: inline-block;
-  padding: 24rpx 32rpx;
-  font-size: 28rpx;
-  color: var(--iip-text-secondary);
-  position: relative;
-}
-.category-tabs__item.is-active {
-  color: var(--iip-primary-deep);
-  font-weight: 600;
-}
-.category-tabs__item.is-active::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  bottom: 0;
-  transform: translateX(-50%);
-  width: 40rpx;
-  height: 6rpx;
-  border-radius: 3rpx;
-  background-color: var(--iip-primary);
+.tabs__inner {
+  display: inline-flex;
+  min-width: 100%;
 }
 
 .list {
-  padding: 24rpx;
+  padding: var(--iip-sp-24);
 }
-.coupon {
-  display: flex;
-  margin-bottom: 24rpx;
-  padding: 0;
-  overflow: hidden;
+.ticket {
+  margin-bottom: var(--iip-sp-24);
 }
-.coupon--soldout {
+.ticket--soldout {
   opacity: 0.55;
 }
-.coupon__cover {
-  width: 220rpx;
-  min-height: 220rpx;
-  flex-shrink: 0;
-}
-.coupon__cover--plain {
-  background-color: var(--iip-primary-soft);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.coupon__cover-icon {
-  width: 88rpx;
-  height: 88rpx;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-}
-.coupon__body {
-  flex: 1;
-  padding: 24rpx;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-.coupon__name {
-  font-size: 30rpx;
-  font-weight: 600;
-  color: var(--iip-text);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.coupon__tags {
-  margin-top: 10rpx;
-  display: flex;
-  flex-wrap: wrap;
-}
-.coupon__tag {
-  display: inline-flex;
-  align-items: center;
-  height: 36rpx;
-  padding: 0 14rpx;
-  margin-right: 12rpx;
-  border-radius: 8rpx;
-  font-size: 20rpx;
-}
-.coupon__tag--category {
-  background-color: var(--iip-primary-soft);
-  color: var(--iip-primary-deep);
-}
-.coupon__tag--sponsor {
-  background-color: var(--iip-pending-soft);
-  color: var(--iip-pending);
-}
-.coupon__target {
-  margin-top: 8rpx;
-  font-size: 24rpx;
-  color: var(--iip-text-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.coupon__meta {
-  margin-top: 12rpx;
-  display: flex;
-  font-size: 22rpx;
-  color: var(--iip-text-secondary);
-}
-.coupon__limit {
-  margin-left: 24rpx;
-}
-.coupon__bottom {
-  margin-top: auto;
-  padding-top: 16rpx;
+
+/* stub：积分大数字 + 灰色小字 */
+.ticket__points {
   display: flex;
   align-items: baseline;
+  color: var(--iip-color-primary);
+}
+.ticket__points-num {
+  font-size: 44rpx;
+  font-weight: 900;
+  line-height: 1.1;
+}
+.ticket__points-unit {
+  margin-left: 4rpx;
+  font-size: var(--iip-fs-20);
+  font-weight: 700;
+}
+.ticket__stub-note {
+  font-size: var(--iip-fs-20);
+  color: var(--iip-color-text-secondary);
+}
+
+/* main：券名 / 赞助 chip / meta / 底行 */
+.ticket__name {
+  font-size: var(--iip-fs-30);
+  font-weight: 800;
+  color: var(--iip-color-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ticket__sponsor {
+  margin-top: 10rpx;
+  display: flex;
+}
+.ticket__meta {
+  margin-top: 10rpx;
+  font-size: var(--iip-fs-22);
+  color: var(--iip-color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ticket__bottom {
+  margin-top: 16rpx;
+  display: flex;
+  align-items: center;
   justify-content: space-between;
 }
-.coupon__points {
-  font-size: 44rpx;
-  font-weight: 700;
-  color: var(--iip-primary-deep);
+.ticket__stock {
+  font-size: var(--iip-fs-22);
+  font-weight: 600;
+  color: var(--iip-color-gold);
 }
-.coupon__unit {
-  margin-left: 6rpx;
-  font-size: 22rpx;
-  color: var(--iip-text-muted);
+.ticket__exbtn {
+  flex-shrink: 0;
+  padding: 12rpx 32rpx;
+  font-size: var(--iip-fs-24);
+  box-shadow: none;
 }
-.coupon__soldout {
-  font-size: 24rpx;
-  color: var(--iip-text-muted);
+
+/* 骨架券票卡 */
+.skel-ticket {
+  margin-bottom: var(--iip-sp-24);
+}
+.skel-ticket__num {
+  width: 120rpx;
+}
+.skel-ticket__note {
+  width: 88rpx;
+  height: 22rpx;
+}
+.skel-ticket .iip-ticket__main .iip-skel + .iip-skel {
+  margin-top: 16rpx;
+}
+.skel-row--mid {
+  width: 80%;
+}
+.skel-row--short {
+  width: 55%;
 }
 </style>

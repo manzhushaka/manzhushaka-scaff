@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.manzhushaka.common.exception.ServiceException;
 import com.manzhushaka.common.utils.DateUtils;
 import com.manzhushaka.common.utils.StringUtils;
+import com.manzhushaka.iip.application.merchant.result.MerchantVerifyStatsResult;
 import com.manzhushaka.iip.domain.IipCoupon;
 import com.manzhushaka.iip.domain.IipCouponRecord;
 import com.manzhushaka.iip.domain.IipMerchant;
@@ -273,12 +274,25 @@ public class IipMerchantServiceImpl implements IIipMerchantService
      * 查询指定商户的核销记录（按核销时间倒序）
      *
      * @param merchantId 商户ID
+     * @param days 最近天数（可空）
      * @return 核销记录集合
      */
     @Override
-    public List<IipCouponRecord> selectVerifyRecordsByMerchantId(Long merchantId)
+    public List<IipCouponRecord> selectVerifyRecordsByMerchantId(Long merchantId, Integer days)
     {
-        return merchantVerifyMapper.selectVerifyRecordsByMerchantId(merchantId);
+        return merchantVerifyMapper.selectVerifyRecordsByMerchantId(merchantId, days);
+    }
+
+    /**
+     * 统计指定商户的核销数据（仅已核销 status='1' 记录）
+     *
+     * @param merchantId 商户ID
+     * @return 核销统计
+     */
+    @Override
+    public MerchantVerifyStatsResult getVerifyStatsByMerchantId(Long merchantId)
+    {
+        return merchantVerifyMapper.selectVerifyStatsByMerchantId(merchantId);
     }
 
     /**

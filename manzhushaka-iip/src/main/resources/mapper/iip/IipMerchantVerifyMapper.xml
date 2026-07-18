@@ -47,13 +47,27 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where record_id = #{recordId} and status = '0'
     </update>
 
-    <select id="selectVerifyRecordsByMerchantId" parameterType="Long" resultMap="IipCouponRecordResult">
+    <select id="selectVerifyRecordsByMerchantId" resultMap="IipCouponRecordResult">
         select record_id, coupon_id, coupon_name, coupon_type, member_id, points_cost, verify_code, status,
             exchange_time, valid_start_time, valid_end_time, verify_time, verify_merchant_id, verify_by,
             activity_id, create_by, create_time, update_by, update_time, remark
         from iip_coupon_record
         where verify_merchant_id = #{merchantId}
+        <if test="days != null">
+            and verify_time &gt;= date_sub(sysdate(), interval #{days} day)
+        </if>
         order by verify_time desc, record_id desc
+    </select>
+
+    <!-- 核销工作台统计：仅统计已核销（status='1'）记录，今日口径为 verify_time 不早于当日 00:00 -->
+    <select id="selectVerifyStatsByMerchantId" resultType="com.manzhushaka.iip.application.merchant.result.MerchantVerifyStatsResult">
+        select
+            coalesce(sum(case when verify_time &gt;= curdate() then 1 else 0 end), 0) as todayCount,
+            coalesce(sum(case when verify_time &gt;= curdate() then points_cost else 0 end), 0) as todayPoints,
+            count(*) as totalCount,
+            coalesce(sum(points_cost), 0) as totalPoints
+        from iip_coupon_record
+        where verify_merchant_id = #{merchantId} and status = '1'
     </select>
 
 </mapper>

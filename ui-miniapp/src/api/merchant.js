@@ -36,9 +36,19 @@ export async function verifyCoupon(verifyCode) {
 }
 
 /**
+ * 核销工作台统计（GET /miniapp/merchant/verify/stats）。
+ *
+ * @returns {Promise<object>} { todayCount, todayPoints, totalCount, totalPoints }
+ */
+export async function getVerifyStats() {
+  const res = await request({ url: '/miniapp/merchant/verify/stats' })
+  return res.data
+}
+
+/**
  * 本商户核销记录分页查询（TableDataInfo { rows, total }）。
  *
- * @param {object} params { pageNum, pageSize }
+ * @param {object} params { pageNum, pageSize, days } days 可选：1=今天 / 7=近7天 / 30=近30天，不传为全部
  * @returns {Promise<{rows: Array, total: number}>} rows 为 VerifyRecordResult[]
  */
 export async function getVerifyRecords(params) {

@@ -14,6 +14,7 @@ import com.manzhushaka.iip.application.merchant.command.SaveMerchantCommand;
 import com.manzhushaka.iip.application.merchant.query.MerchantQuery;
 import com.manzhushaka.iip.application.merchant.result.MerchantResult;
 import com.manzhushaka.iip.application.merchant.result.MerchantVerifyResult;
+import com.manzhushaka.iip.application.merchant.result.MerchantVerifyStatsResult;
 import com.manzhushaka.iip.application.merchant.result.VerifyRecordResult;
 import com.manzhushaka.iip.application.merchant.service.MerchantAppService;
 import com.manzhushaka.iip.domain.IipCouponRecord;
@@ -124,11 +125,17 @@ public class MerchantAppServiceImpl implements MerchantAppService
     }
 
     @Override
-    public List<VerifyRecordResult> listVerifyRecords(Long merchantId)
+    public List<VerifyRecordResult> listVerifyRecords(Long merchantId, Integer days)
     {
-        return merchantService.selectVerifyRecordsByMerchantId(merchantId).stream()
+        return merchantService.selectVerifyRecordsByMerchantId(merchantId, days).stream()
                 .map(this::toVerifyRecordResult)
                 .toList();
+    }
+
+    @Override
+    public MerchantVerifyStatsResult getVerifyStats(Long merchantId)
+    {
+        return merchantService.getVerifyStatsByMerchantId(merchantId);
     }
 
     private IipMerchant toEntity(MerchantQuery query)

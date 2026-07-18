@@ -3,7 +3,15 @@
     <view class="iip-card form">
       <view class="form__item">
         <view class="label">商户名称 <text class="required">*</text></view>
-        <input class="form__input" v-model.trim="form.merchantName" maxlength="128" placeholder="请输入商户名称" />
+        <input
+          class="form__input"
+          :class="{ 'is-focus': focusKey === 'merchantName' }"
+          v-model.trim="form.merchantName"
+          maxlength="128"
+          placeholder="请输入商户名称"
+          @focus="focusKey = 'merchantName'"
+          @blur="focusKey = ''"
+        />
       </view>
       <view class="form__item">
         <view class="label">商户分类 <text class="required">*</text></view>
@@ -15,25 +23,51 @@
       </view>
       <view class="form__item">
         <view class="label">联系人 <text class="required">*</text></view>
-        <input class="form__input" v-model.trim="form.contactName" maxlength="64" placeholder="请输入联系人姓名" />
+        <input
+          class="form__input"
+          :class="{ 'is-focus': focusKey === 'contactName' }"
+          v-model.trim="form.contactName"
+          maxlength="64"
+          placeholder="请输入联系人姓名"
+          @focus="focusKey = 'contactName'"
+          @blur="focusKey = ''"
+        />
       </view>
       <view class="form__item">
         <view class="label">联系电话 <text class="required">*</text></view>
-        <input class="form__input" v-model.trim="form.contactPhone" type="number" maxlength="20" placeholder="请输入联系电话" />
+        <input
+          class="form__input"
+          :class="{ 'is-focus': focusKey === 'contactPhone' }"
+          v-model.trim="form.contactPhone"
+          type="number"
+          maxlength="20"
+          placeholder="请输入联系电话"
+          @focus="focusKey = 'contactPhone'"
+          @blur="focusKey = ''"
+        />
       </view>
       <view class="form__item">
         <view class="label">商户地址 <text class="required">*</text></view>
-        <input class="form__input" v-model.trim="form.address" maxlength="255" placeholder="请输入商户地址" />
+        <input
+          class="form__input"
+          :class="{ 'is-focus': focusKey === 'address' }"
+          v-model.trim="form.address"
+          maxlength="255"
+          placeholder="请输入商户地址"
+          @focus="focusKey = 'address'"
+          @blur="focusKey = ''"
+        />
       </view>
       <view class="form__item">
         <view class="label">营业执照 <text class="required">*</text></view>
-        <view class="uploader" @click="chooseLicense">
+        <view class="uploader" hover-class="iip-tap" @click="chooseLicense">
           <image v-if="preview" class="uploader__image" :src="preview" mode="aspectFill" />
           <view v-else class="uploader__placeholder">
             <view class="uploader__icon" :style="{ backgroundImage: icons.camera }"></view>
             <text class="uploader__text">上传营业执照照片</text>
           </view>
         </view>
+        <view v-if="preview" class="uploader__tip">已上传，点击可重新选择</view>
       </view>
     </view>
 
@@ -64,6 +98,8 @@ const form = reactive({
 const categoryIndex = ref(-1)
 const preview = ref('')
 const submitting = ref(false)
+/** 当前聚焦的输入框（驱动 focus 红边） */
+const focusKey = ref('')
 
 function onCategoryChange(e) {
   categoryIndex.value = Number(e.detail.value)
@@ -147,13 +183,17 @@ async function handleSubmit() {
   padding: 24rpx;
 }
 
+.form {
+  padding: 32rpx;
+}
+
 .label {
-  font-size: 26rpx;
-  color: var(--iip-text-secondary);
   margin-bottom: 16rpx;
+  font-size: var(--iip-fs-26);
+  color: var(--iip-color-text-secondary);
 }
 .required {
-  color: var(--iip-danger);
+  color: var(--iip-color-primary);
 }
 
 .form__item {
@@ -163,25 +203,29 @@ async function handleSubmit() {
   margin-bottom: 0;
 }
 .form__input {
-  height: 84rpx;
-  border: 1rpx solid var(--iip-border);
-  border-radius: 12rpx;
-  padding: 0 24rpx;
-  font-size: 28rpx;
-  background-color: #ffffff;
-  color: var(--iip-text);
   display: flex;
   align-items: center;
+  height: 84rpx;
+  padding: 0 24rpx;
+  font-size: var(--iip-fs-28);
+  color: var(--iip-color-ink);
+  background-color: var(--iip-color-surface);
+  border: 1rpx solid var(--iip-color-line);
+  border-radius: var(--iip-radius-16);
+}
+.form__input.is-focus {
+  border-color: var(--iip-color-primary);
 }
 .form__input--empty {
-  color: var(--iip-text-muted);
+  color: var(--iip-color-text-faint);
 }
 
+/* 营业执照虚线上传区（upload dropbox 小版） */
 .uploader {
-  border: 2rpx dashed var(--iip-border);
-  border-radius: 12rpx;
   height: 280rpx;
   overflow: hidden;
+  border: 2rpx dashed var(--iip-color-line);
+  border-radius: var(--iip-radius-16);
 }
 .uploader__image {
   width: 100%;
@@ -203,8 +247,14 @@ async function handleSubmit() {
 }
 .uploader__text {
   margin-top: 16rpx;
-  font-size: 26rpx;
-  color: var(--iip-text-muted);
+  font-size: var(--iip-fs-26);
+  color: var(--iip-color-text-faint);
+}
+.uploader__tip {
+  margin-top: 14rpx;
+  font-size: var(--iip-fs-22);
+  color: var(--iip-color-text-secondary);
+  text-align: center;
 }
 
 .submit {

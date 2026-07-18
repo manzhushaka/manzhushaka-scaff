@@ -1,113 +1,144 @@
 <template>
   <view class="page">
-    <!-- 当前活动 banner -->
-    <view class="banner" v-if="activity">
-      <image
-        v-if="activity.coverImage"
-        class="banner__image"
-        :src="resolveFileUrl(activity.coverImage)"
-        mode="aspectFill"
-      />
-      <view v-else class="banner__image banner__image--plain">
-        <view class="banner__logo">发票积分</view>
-      </view>
-      <view class="banner__mask">
-        <view class="banner__name">{{ activity.activityName }}</view>
-        <view class="banner__time">
-          {{ fmtDate(activity.startTime) }} 至 {{ fmtDate(activity.endTime) }}
-        </view>
-        <view class="banner__ratio" v-if="activity.pointsRatio">
-          发票面额 × {{ ratioText }} = 获得积分
-        </view>
-      </view>
-    </view>
-    <view class="banner banner--empty iip-card" v-else>
-      <view class="banner__empty-text">当前暂无进行中的活动</view>
+    <!-- 首屏骨架屏 -->
+    <view v-if="firstLoading" class="skel">
+      <view class="iip-skel skel__hero"></view>
+      <view class="iip-skel skel__strip"></view>
+      <view class="iip-skel iip-skel--row skel__row"></view>
+      <view class="iip-skel iip-skel--row skel__row skel__row--short"></view>
+      <view class="iip-skel skel__block"></view>
     </view>
 
-    <!-- 进行中的活动列表（多活动并行展示） -->
-    <view class="activities" v-if="activities.length">
-      <view class="activities__header">
-        <text class="activities__title">进行中的活动</text>
-      </view>
-      <view
-        class="activity-item iip-card"
-        v-for="item in activities"
-        :key="item.activityId || item.activityName"
-      >
-        <view class="activity-item__top">
-          <text class="activity-item__name">{{ item.activityName }}</text>
-          <text class="activity-item__region">{{ regionText(item) }}</text>
+    <template v-else>
+      <!-- 城市 / 活动规则 小行 -->
+      <view class="topline">
+        <view class="topline__loc">
+          <view class="topline__loc-icon" :style="{ backgroundImage: icons.location }"></view>
+          <text class="topline__city">{{ cityText }}</text>
         </view>
-        <view class="activity-item__time">
-          {{ fmtDate(item.startTime) }} 至 {{ fmtDate(item.endTime) }}
+        <view class="topline__rules" @click="goRules">活动规则 ›</view>
+      </view>
+
+      <!-- 活动大横幅 -->
+      <view class="iip-hero hero">
+        <view class="hero__tag">以票促消 · 以游惠民</view>
+        <view class="hero__title">{{ activity ? activity.activityName : '发票积分 · 惠游全城' }}</view>
+        <view class="hero__desc">{{ heroDesc }}</view>
+        <view class="hero__date" v-if="activity">
+          活动期：{{ fmtDateDot(activity.startTime) }} ~ {{ fmtDateDot(activity.endTime) }}
+        </view>
+        <view class="hero__date" v-else>上传发票攒积分，兑换超值优惠好礼</view>
+      </view>
+
+      <!-- 我的积分白条 -->
+      <view class="iip-card strip">
+        <view class="strip__main">
+          <view class="strip__lab">
+            我的积分
+            <text class="strip__detail" @click.stop="goPoints">明细 ›</text>
+          </view>
+          <view v-if="userStore.isLogin" class="strip__num iip-num">
+            {{ fmtThousands(userStore.availablePoints) }}<text class="strip__unit">分</text>
+          </view>
+          <view v-else class="strip__guest">登录后查看积分</view>
+        </view>
+        <button v-if="userStore.isLogin" class="iip-btn iip-btn--ghost strip__go" @click="goMall">去兑换</button>
+        <button v-else class="iip-btn iip-btn--ghost strip__go" @click="goLogin">去登录</button>
+      </view>
+
+      <!-- 参与活动流程 -->
+      <view class="iip-card steps">
+        <view class="iip-sect">参与活动流程</view>
+        <view class="steps__row">
+          <view class="steps__line"></view>
+          <view class="step" v-for="(item, index) in steps" :key="index">
+            <view class="step__ic">
+              <view class="step__icon" :style="{ backgroundImage: item.icon }"></view>
+            </view>
+            <text class="step__name">{{ item.name }}</text>
+            <text class="step__note">{{ item.note }}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 双入口格 -->
+      <view class="entry">
+        <view class="entry__main" hover-class="iip-tap" @click="goUpload">
+          <view class="entry__title">上传发票换积分</view>
+          <view class="entry__desc">餐饮 / 住宿 / 加油发票，按面额 1:{{ ratioText }} 积分</view>
+          <view class="entry__arrow">去上传 ›</view>
+        </view>
+        <view class="entry__side">
+          <view class="entry__mini" hover-class="iip-tap" @click="goMyCoupons">
+            <view class="entry__mini-title">我的券包</view>
+            <view class="entry__mini-desc">{{ couponCountText }}</view>
+          </view>
+          <view class="entry__mini" hover-class="iip-tap" @click="goRules">
+            <view class="entry__mini-title">活动规则</view>
+            <view class="entry__mini-desc">积分与核销说明</view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 进行中的活动列表 -->
+      <template v-if="activities.length">
+        <view class="sect-row">
+          <view class="iip-sect">进行中活动</view>
         </view>
         <view
-          class="activity-item__ratio"
-          :class="{ 'activity-item__ratio--boost': isBoostedRatio(item) }"
+          class="iip-card act"
+          v-for="item in activities"
+          :key="item.activityId || item.activityName"
         >
-          1 元 = {{ ratioOf(item) }} 分
+          <view class="act__top">
+            <text class="act__name">{{ item.activityName }}</text>
+            <text class="iip-chip" :class="regionChipClass(item)">{{ regionChip(item) }}</text>
+          </view>
+          <view class="act__region">{{ regionText(item) }}</view>
+          <view class="act__bottom">
+            <text class="act__ratio">1 元 = {{ ratioOf(item) }} 分</text>
+            <text class="act__time">{{ fmtDateDot(item.startTime) }} ~ {{ fmtDateDot(item.endTime) }}</text>
+          </view>
         </view>
-      </view>
-    </view>
+      </template>
 
-    <!-- 参与流程四步 -->
-    <view class="steps iip-card">
-      <view class="steps__item" v-for="(step, index) in steps" :key="index">
-        <view class="steps__icon" :style="{ backgroundImage: step.icon }"></view>
-        <text class="steps__label">{{ step.label }}</text>
-        <text v-if="index < steps.length - 1" class="steps__arrow">›</text>
+      <!-- 积分商城优选券 -->
+      <view class="sect-row">
+        <view class="iip-sect">积分商城</view>
+        <text class="sect-row__more" @click="goMall">更多 ›</text>
       </view>
-    </view>
-
-    <!-- 我的积分卡片 -->
-    <view class="points iip-card" @click="onPointsCardClick">
-      <view class="points__info">
-        <view class="points__label">我的可用积分</view>
-        <view class="points__value" v-if="userStore.isLogin">{{ userStore.availablePoints }}</view>
-        <view class="points__value points__value--login" v-else>去登录</view>
-      </view>
-      <view class="points__side">
-        <view class="points__detail">积分明细 ›</view>
-      </view>
-    </view>
-
-    <!-- 优选券推荐 -->
-    <view class="recommend">
-      <view class="recommend__header">
-        <text class="recommend__title">优选券推荐</text>
-        <text class="recommend__more" @click="goMall">更多 ›</text>
-      </view>
-      <scroll-view v-if="userStore.isLogin && coupons.length" scroll-x class="recommend__scroll">
+      <scroll-view v-if="userStore.isLogin && coupons.length" scroll-x class="mall-scroll">
         <view
-          class="coupon-card"
+          class="mini-coupon"
+          hover-class="iip-tap"
           v-for="item in coupons"
           :key="item.couponId"
           @click="goCouponDetail(item.couponId)"
         >
           <image
             v-if="item.coverImage"
-            class="coupon-card__cover"
+            class="mini-coupon__cover"
             :src="resolveFileUrl(item.coverImage)"
             mode="aspectFill"
           />
-          <view v-else class="coupon-card__cover coupon-card__cover--plain">
-            <view class="coupon-card__cover-icon" :style="{ backgroundImage: icons.ticket }"></view>
+          <view v-else class="mini-coupon__cover mini-coupon__cover--plain">
+            <view class="mini-coupon__cover-icon" :style="{ backgroundImage: icons.ticket }"></view>
           </view>
-          <view class="coupon-card__name">{{ item.couponName }}</view>
-          <view class="coupon-card__cost">
-            <text class="coupon-card__points">{{ item.pointsCost }}</text>
-            <text class="coupon-card__unit">积分</text>
+          <view class="mini-coupon__name">{{ item.couponName }}</view>
+          <view class="mini-coupon__cost">
+            <text class="mini-coupon__points iip-num">{{ item.pointsCost }}</text>
+            <text class="mini-coupon__unit">积分</text>
           </view>
         </view>
       </scroll-view>
-      <view v-else class="recommend__guest iip-card">
-        <view class="recommend__guest-text">
-          {{ userStore.isLogin ? '暂无推荐优惠券' : '登录后查看优选优惠券' }}
-        </view>
-        <button v-if="!userStore.isLogin" class="iip-btn iip-btn--small" @click="goLogin">去登录</button>
+      <view v-else-if="!userStore.isLogin" class="iip-card mall-guest">
+        <text class="mall-guest__text">登录后查看优选优惠券</text>
+        <button class="iip-btn iip-btn--ghost mall-guest__btn" @click="goLogin">去登录</button>
       </view>
-    </view>
+      <view v-else class="iip-card mall-guest">
+        <text class="mall-guest__text">暂无推荐优惠券</text>
+      </view>
+    </template>
   </view>
 </template>
 
@@ -116,10 +147,10 @@ import { ref, computed } from 'vue'
 import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 import { useUserStore } from '@/store/user.js'
 import { getCurrentActivity, getActivityList } from '@/api/activity.js'
-import { getMallCoupons } from '@/api/coupon.js'
+import { getMallCoupons, getMyCoupons } from '@/api/coupon.js'
 import { resolveFileUrl } from '@/common/config.js'
-import { fmtDate } from '@/common/format.js'
 import { redirectToLogin } from '@/common/request.js'
+import { fmtThousands } from '@/common/format.js'
 import icons from '@/common/icons.js'
 
 const userStore = useUserStore()
@@ -127,14 +158,59 @@ const userStore = useUserStore()
 const activity = ref(null)
 const activities = ref([])
 const coupons = ref([])
+const myCouponCount = ref(null)
+const firstLoading = ref(true)
 
-/** 积分比例展示（BigDecimal 序列化如 1.00，去尾零后展示） */
-const ratioText = computed(() => {
-  if (!activity.value || activity.value.pointsRatio == null) {
-    return '1'
+/** 城市小行文案：当前活动 city，无 city 或无活动则为「全省通用」 */
+const cityText = computed(() => {
+  if (activity.value && activity.value.city) {
+    return activity.value.city
   }
-  return String(parseFloat(activity.value.pointsRatio))
+  return '全省通用'
 })
+
+/** Hero 摘要：活动 description，缺省时给平台通用文案 */
+const heroDesc = computed(() => {
+  if (activity.value && activity.value.description) {
+    return activity.value.description
+  }
+  if (activity.value) {
+    return '上传发票攒积分，兑换超值优惠好礼'
+  }
+  return '消费留票，积分换礼，文旅惠民活动陆续上线'
+})
+
+/** 当前活动积分比例展示（BigDecimal 序列化如 1.00，去尾零后展示） */
+const ratioText = computed(() => ratioOf(activity.value))
+
+/** 我的券包副文案 */
+const couponCountText = computed(() => {
+  if (!userStore.isLogin) {
+    return '登录后查看'
+  }
+  if (myCouponCount.value == null) {
+    return '查看全部'
+  }
+  return myCouponCount.value + ' 张待使用'
+})
+
+/** 参与流程四步（上传发票 → 获得积分 → 兑换优惠 → 景区核销） */
+const steps = [
+  { name: '上传发票', note: '拍照 / PDF', icon: icons.stepInvoice },
+  { name: '获得积分', note: '按面额比例', icon: icons.stepPoints },
+  { name: '兑换优惠', note: '门票 / 满减券', icon: icons.stepCoupon },
+  { name: '景区核销', note: '扫码入园', icon: icons.stepVerify }
+]
+
+/**
+ * 日期展示为 yyyy.MM.dd。
+ *
+ * @param {string} value 后端日期时间字符串
+ * @returns {string} yyyy.MM.dd 或空串
+ */
+function fmtDateDot(value) {
+  return value ? String(value).slice(0, 10).replace(/-/g, '.') : ''
+}
 
 /**
  * 单个活动的积分比例展示（去尾零）。
@@ -147,16 +223,6 @@ function ratioOf(item) {
     return '1'
   }
   return String(parseFloat(item.pointsRatio))
-}
-
-/**
- * 积分比例是否非 1（非 1 时醒目展示）。
- *
- * @param {object} item 活动对象
- * @returns {boolean} 是否加码比例
- */
-function isBoostedRatio(item) {
-  return !!item && item.pointsRatio != null && parseFloat(item.pointsRatio) !== 1
 }
 
 /**
@@ -183,17 +249,41 @@ function regionText(item) {
   return item.regionName || item.city || ''
 }
 
-/** 参与流程四步（上传发票 → 获得积分 → 兑换优惠券 → 到店核销） */
-const steps = [
-  { label: '上传发票', icon: icons.stepInvoice },
-  { label: '获得积分', icon: icons.stepPoints },
-  { label: '兑换优惠券', icon: icons.stepCoupon },
-  { label: '到店核销', icon: icons.stepVerify }
-]
+/**
+ * 活动类型 chip 文案。
+ *
+ * @param {object} item 活动对象
+ * @returns {string} chip 文案
+ */
+function regionChip(item) {
+  const names = {
+    province: '全省',
+    city: '城市',
+    business_district: '商圈',
+    scenic: '景区'
+  }
+  return names[item && item.regionType] || '全省'
+}
 
 /**
- * 加载首页数据：活动 banner + 活动列表 + 优选券（商城前 4 条）。
- * 商城接口需登录，游客跳过并展示登录引导。
+ * 活动类型 chip 配色类。
+ *
+ * @param {object} item 活动对象
+ * @returns {string} iip-chip 变体类名
+ */
+function regionChipClass(item) {
+  const classes = {
+    province: 'iip-chip--g',
+    city: 'iip-chip--y',
+    business_district: 'iip-chip--y',
+    scenic: 'iip-chip--r'
+  }
+  return classes[item && item.regionType] || 'iip-chip--g'
+}
+
+/**
+ * 加载首页数据：当前活动 + 活动列表；登录后追加积分资料、券包张数与商城优选券（前 6）。
+ * 游客与接口失败均静默降级。
  */
 async function loadData() {
   const tasks = [
@@ -213,20 +303,29 @@ async function loadData() {
   if (userStore.isLogin) {
     tasks.push(
       userStore.fetchProfile().catch(() => {}),
+      getMyCoupons('0')
+        .then((list) => {
+          myCouponCount.value = list.length
+        })
+        .catch(() => {
+          myCouponCount.value = null
+        }),
       getMallCoupons()
         .then((list) => {
-          coupons.value = list.slice(0, 4)
+          coupons.value = list.slice(0, 6)
         })
         .catch(() => {})
     )
   } else {
     coupons.value = []
+    myCouponCount.value = null
   }
   await Promise.all(tasks)
 }
 
-onShow(() => {
-  loadData()
+onShow(async () => {
+  await loadData()
+  firstLoading.value = false
 })
 
 onPullDownRefresh(async () => {
@@ -234,12 +333,28 @@ onPullDownRefresh(async () => {
   uni.stopPullDownRefresh()
 })
 
-function onPointsCardClick() {
+function goRules() {
+  uni.navigateTo({ url: '/pages/activity/rules' })
+}
+
+function goPoints() {
   if (!userStore.isLogin) {
     redirectToLogin()
     return
   }
   uni.navigateTo({ url: '/pages/points/records' })
+}
+
+function goUpload() {
+  uni.navigateTo({ url: '/pages/invoice/upload' })
+}
+
+function goMyCoupons() {
+  if (!userStore.isLogin) {
+    redirectToLogin()
+    return
+  }
+  uni.navigateTo({ url: '/pages/coupon/mine' })
 }
 
 function goMall() {
@@ -260,266 +375,374 @@ function goLogin() {
   padding: 24rpx;
 }
 
-/* 活动 banner */
-.banner {
-  position: relative;
-  border-radius: 16rpx;
-  overflow: hidden;
-  height: 300rpx;
-}
-.banner__image {
-  width: 100%;
-  height: 100%;
-}
-.banner__image--plain {
-  background-color: var(--iip-primary);
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding-right: 48rpx;
-}
-.banner__logo {
-  color: rgba(255, 255, 255, 0.28);
-  font-size: 64rpx;
-  font-weight: 700;
-  letter-spacing: 8rpx;
-}
-.banner__mask {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 32rpx;
-  background-color: rgba(58, 47, 40, 0.45);
-}
-.banner__name {
-  color: #ffffff;
-  font-size: 34rpx;
-  font-weight: 600;
-}
-.banner__time {
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 24rpx;
-  margin-top: 8rpx;
-}
-.banner__ratio {
-  display: inline-flex;
-  margin-top: 16rpx;
-  padding: 6rpx 18rpx;
-  border-radius: 8rpx;
-  background-color: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-  font-size: 22rpx;
-}
-.banner--empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 200rpx;
-}
-.banner__empty-text {
-  color: var(--iip-text-muted);
-  font-size: 26rpx;
-}
-
-/* 进行中的活动列表 */
-.activities {
-  margin-top: 32rpx;
-}
-.activities__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20rpx;
-}
-.activities__title {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: var(--iip-text);
-}
-.activity-item {
-  margin-bottom: 20rpx;
-}
-.activity-item__top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.activity-item__name {
-  flex: 1;
-  margin-right: 16rpx;
-  font-size: 30rpx;
-  font-weight: 600;
-  color: var(--iip-text);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.activity-item__region {
-  flex-shrink: 0;
-  padding: 4rpx 16rpx;
-  border-radius: 8rpx;
-  background-color: var(--iip-primary-soft);
-  color: var(--iip-primary-deep);
-  font-size: 22rpx;
-}
-.activity-item__time {
-  margin-top: 10rpx;
-  font-size: 24rpx;
-  color: var(--iip-text-muted);
-}
-.activity-item__ratio {
-  margin-top: 12rpx;
-  font-size: 24rpx;
-  color: var(--iip-text-secondary);
-}
-.activity-item__ratio--boost {
-  display: inline-flex;
-  padding: 6rpx 18rpx;
-  border-radius: 8rpx;
-  background-color: var(--iip-primary);
-  color: #ffffff;
-  font-weight: 600;
-}
-
-/* 参与流程 */
-.steps {
-  display: flex;
+/* 首屏骨架屏 */
+.skel__hero {
+  height: 360rpx;
+  border-radius: 40rpx;
   margin-top: 24rpx;
-  padding: 32rpx 12rpx;
 }
-.steps__item {
-  flex: 1;
+.skel__strip {
+  height: 128rpx;
+  border-radius: 32rpx;
+  margin-top: 24rpx;
+}
+.skel__row {
+  margin-top: 24rpx;
+}
+.skel__row--short {
+  width: 60%;
+}
+.skel__block {
+  height: 220rpx;
+  border-radius: 32rpx;
+  margin-top: 24rpx;
+}
+
+/* 城市 / 活动规则 小行 */
+.topline {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  position: relative;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
 }
-.steps__icon {
-  width: 76rpx;
-  height: 76rpx;
+.topline__loc {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+.topline__loc-icon {
+  width: 28rpx;
+  height: 28rpx;
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
 }
-.steps__label {
-  margin-top: 14rpx;
-  font-size: 24rpx;
-  color: var(--iip-text-secondary);
+.topline__city {
+  font-size: var(--iip-fs-28);
+  font-weight: 700;
+  color: var(--iip-color-ink);
 }
-.steps__arrow {
-  position: absolute;
-  top: 22rpx;
-  right: -8rpx;
-  color: var(--iip-text-muted);
-  font-size: 32rpx;
+.topline__rules {
+  padding: 8rpx 24rpx;
+  font-size: var(--iip-fs-22);
+  color: var(--iip-color-text-secondary);
+  background-color: var(--iip-color-surface);
+  border: 1rpx solid var(--iip-color-line);
+  border-radius: var(--iip-radius-pill);
 }
 
-/* 我的积分卡片 */
-.points {
+/* 活动大横幅 */
+.hero {
+  padding: 44rpx 40rpx 52rpx;
+}
+.hero__tag {
+  display: inline-block;
+  padding: 6rpx 20rpx;
+  font-size: var(--iip-fs-22);
+  letter-spacing: 2rpx;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: var(--iip-radius-pill);
+}
+.hero__title {
+  margin-top: 20rpx;
+  font-size: 48rpx;
+  font-weight: 900;
+  letter-spacing: 2rpx;
+  line-height: 1.3;
+}
+.hero__desc {
+  margin-top: 12rpx;
+  font-size: var(--iip-fs-24);
+  line-height: 1.6;
+  opacity: 0.9;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.hero__date {
+  display: inline-block;
+  margin-top: 24rpx;
+  padding-top: 20rpx;
+  font-size: var(--iip-fs-22);
+  opacity: 0.85;
+  border-top: 1rpx dashed rgba(255, 255, 255, 0.35);
+}
+
+/* 我的积分白条 */
+.strip {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-top: 24rpx;
-  background-color: var(--iip-primary);
-  border: none;
+  padding: 28rpx 32rpx;
 }
-.points__label {
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 24rpx;
+.strip__lab {
+  font-size: var(--iip-fs-24);
+  color: var(--iip-color-text-secondary);
 }
-.points__value {
-  color: #ffffff;
-  font-size: 56rpx;
-  font-weight: 700;
+.strip__detail {
+  margin-left: 12rpx;
+  font-size: var(--iip-fs-20);
+  text-decoration: underline;
+}
+.strip__num {
   margin-top: 8rpx;
+  font-size: 52rpx;
+  font-weight: 900;
+  line-height: 1.1;
+  color: var(--iip-color-ink);
 }
-.points__value--login {
-  font-size: 34rpx;
+.strip__unit {
+  margin-left: 8rpx;
+  font-size: var(--iip-fs-24);
+  font-weight: 400;
+  color: var(--iip-color-gold);
 }
-.points__detail {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 24rpx;
+.strip__guest {
+  margin-top: 12rpx;
+  font-size: var(--iip-fs-26);
+  color: var(--iip-color-text-secondary);
+}
+.strip__go {
+  padding: 14rpx 32rpx;
+  font-size: var(--iip-fs-24);
+  flex: 0 0 auto;
 }
 
-/* 优选券推荐 */
-.recommend {
-  margin-top: 32rpx;
+/* 参与活动流程 */
+.steps {
+  margin-top: 24rpx;
+  padding: 32rpx;
 }
-.recommend__header {
+.steps__row {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20rpx;
+  position: relative;
+  margin-top: 28rpx;
 }
-.recommend__title {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: var(--iip-text);
+.steps__line {
+  position: absolute;
+  top: 38rpx;
+  left: 12%;
+  right: 12%;
+  height: 2rpx;
+  background-color: var(--iip-color-line);
 }
-.recommend__more {
-  font-size: 24rpx;
-  color: var(--iip-text-muted);
-}
-.recommend__scroll {
-  white-space: nowrap;
-}
-.coupon-card {
-  display: inline-flex;
+.step {
+  flex: 1;
+  position: relative;
+  display: flex;
   flex-direction: column;
-  width: 240rpx;
-  margin-right: 20rpx;
-  background-color: var(--iip-panel);
-  border: 1rpx solid var(--iip-border);
-  border-radius: 16rpx;
-  overflow: hidden;
-  vertical-align: top;
+  align-items: center;
 }
-.coupon-card__cover {
-  width: 100%;
-  height: 160rpx;
-}
-.coupon-card__cover--plain {
-  background-color: var(--iip-primary-soft);
+.step__ic {
+  width: 76rpx;
+  height: 76rpx;
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: var(--iip-color-cream);
+  border: 1rpx solid var(--iip-color-line);
+  border-radius: 24rpx;
 }
-.coupon-card__cover-icon {
+.step__icon {
+  width: 40rpx;
+  height: 40rpx;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.step__name {
+  margin-top: 14rpx;
+  font-size: var(--iip-fs-22);
+  font-weight: 600;
+  color: var(--iip-color-ink);
+}
+.step__note {
+  margin-top: 4rpx;
+  font-size: var(--iip-fs-20);
+  color: var(--iip-color-text-secondary);
+}
+
+/* 双入口格 */
+.entry {
+  display: flex;
+  gap: 20rpx;
+  margin-top: 24rpx;
+}
+.entry__main {
+  flex: 1.35;
+  position: relative;
+  padding: 32rpx 28rpx 72rpx;
+  background-color: var(--iip-color-surface);
+  border: 3rpx solid var(--iip-color-primary);
+  border-radius: var(--iip-radius-32);
+}
+.entry__title {
+  font-size: var(--iip-fs-30);
+  font-weight: 800;
+  color: var(--iip-color-ink);
+}
+.entry__desc {
+  margin-top: 8rpx;
+  font-size: var(--iip-fs-22);
+  line-height: 1.5;
+  color: var(--iip-color-text-secondary);
+}
+.entry__arrow {
+  position: absolute;
+  right: 24rpx;
+  bottom: 24rpx;
+  font-size: var(--iip-fs-22);
+  font-weight: 700;
+  color: var(--iip-color-primary);
+}
+.entry__side {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+.entry__mini {
+  flex: 1;
+  padding: 24rpx;
+  background-color: var(--iip-color-surface);
+  border: 1rpx solid var(--iip-color-line);
+  border-radius: var(--iip-radius-32);
+}
+.entry__mini-title {
+  font-size: var(--iip-fs-26);
+  font-weight: 800;
+  color: var(--iip-color-ink);
+}
+.entry__mini-desc {
+  margin-top: 6rpx;
+  font-size: var(--iip-fs-20);
+  color: var(--iip-color-text-secondary);
+}
+
+/* 章节行 */
+.sect-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 32rpx 4rpx 20rpx;
+}
+.sect-row__more {
+  font-size: var(--iip-fs-24);
+  color: var(--iip-color-text-secondary);
+}
+
+/* 活动卡 */
+.act {
+  padding: 28rpx 32rpx;
+  margin-bottom: 20rpx;
+}
+.act__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+.act__name {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--iip-fs-28);
+  font-weight: 700;
+  color: var(--iip-color-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.act__region {
+  margin-top: 8rpx;
+  font-size: var(--iip-fs-22);
+  color: var(--iip-color-text-secondary);
+}
+.act__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16rpx;
+}
+.act__ratio {
+  font-size: var(--iip-fs-22);
+  font-weight: 700;
+  color: var(--iip-color-primary);
+}
+.act__time {
+  font-size: var(--iip-fs-20);
+  color: var(--iip-color-text-secondary);
+}
+
+/* 积分商城横滑券卡 */
+.mall-scroll {
+  white-space: nowrap;
+}
+.mini-coupon {
+  display: inline-flex;
+  flex-direction: column;
+  width: 260rpx;
+  margin-right: 20rpx;
+  background-color: var(--iip-color-surface);
+  border: 1rpx solid var(--iip-color-line);
+  border-radius: var(--iip-radius-24);
+  overflow: hidden;
+  vertical-align: top;
+}
+.mini-coupon__cover {
+  width: 100%;
+  height: 170rpx;
+}
+.mini-coupon__cover--plain {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--iip-color-cream);
+}
+.mini-coupon__cover-icon {
   width: 72rpx;
   height: 72rpx;
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
 }
-.coupon-card__name {
-  padding: 16rpx 16rpx 0;
-  font-size: 26rpx;
-  color: var(--iip-text);
+.mini-coupon__name {
+  padding: 16rpx 20rpx 0;
+  font-size: var(--iip-fs-24);
+  color: var(--iip-color-ink);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.coupon-card__cost {
-  padding: 8rpx 16rpx 18rpx;
+.mini-coupon__cost {
+  padding: 8rpx 20rpx 20rpx;
 }
-.coupon-card__points {
-  color: var(--iip-primary-deep);
-  font-size: 36rpx;
+.mini-coupon__points {
+  font-size: var(--iip-fs-36);
   font-weight: 700;
+  color: var(--iip-color-primary);
 }
-.coupon-card__unit {
-  color: var(--iip-text-muted);
-  font-size: 22rpx;
+.mini-coupon__unit {
   margin-left: 6rpx;
+  font-size: var(--iip-fs-20);
+  color: var(--iip-color-text-secondary);
 }
-.recommend__guest {
+
+/* 商城游客 / 空态 */
+.mall-guest {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 28rpx 32rpx;
 }
-.recommend__guest-text {
-  color: var(--iip-text-muted);
-  font-size: 26rpx;
+.mall-guest__text {
+  font-size: var(--iip-fs-26);
+  color: var(--iip-color-text-secondary);
+}
+.mall-guest__btn {
+  padding: 12rpx 32rpx;
+  font-size: var(--iip-fs-24);
+  flex: 0 0 auto;
 }
 </style>

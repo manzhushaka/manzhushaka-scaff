@@ -33,10 +33,13 @@ function build(body, color) {
   return svgUri(svg)
 }
 
-const PRIMARY = '#ff6a2a'
-const MUTED = '#9a8f83'
+/* 色板对齐 App.vue 全局 token；INK / GOLD 预留给后续页面图标使用 */
+const PRIMARY = '#c93418'
+const MUTED = '#8d8478'
+const INK = '#221e18'
 const WHITE = '#ffffff'
-const SUCCESS = '#1f8a5b'
+const GOLD = '#c8891a'
+const GREEN = '#2f7d50'
 
 const icons = {
   /* 参与流程四步 */
@@ -113,7 +116,7 @@ const icons = {
     '<rect x="15" y="15" width="24" height="24" rx="3"/><path d="M33 15V12a3 3 0 0 0-3-3H12a3 3 0 0 0-3 3v18a3 3 0 0 0 3 3h3"/>',
     PRIMARY
   ),
-  check: build('<path d="M10 25l9 9 19-19"/>', SUCCESS),
+  check: build('<path d="M10 25l9 9 19-19"/>', GREEN),
   checkWhite: build('<path d="M10 25l9 9 19-19"/>', WHITE),
   camera: build(
     '<path d="M8 16h6l3-5h14l3 5h6a2 2 0 0 1 2 2v18a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V18a2 2 0 0 1 2-2z"/><circle cx="24" cy="27" r="7"/>',

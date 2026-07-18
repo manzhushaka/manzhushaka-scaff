@@ -1,6 +1,7 @@
 package com.manzhushaka.iip.service;
 
 import java.util.List;
+import com.manzhushaka.iip.application.merchant.result.MerchantVerifyStatsResult;
 import com.manzhushaka.iip.domain.IipCouponRecord;
 import com.manzhushaka.iip.domain.IipMerchant;
 
@@ -135,7 +136,16 @@ public interface IIipMerchantService
      * 查询指定商户的核销记录（按核销时间倒序）
      *
      * @param merchantId 商户ID
+     * @param days 最近天数（可空，如 1/7/30 表示最近 N 天；null 为全部）
      * @return 核销记录集合
      */
-    public List<IipCouponRecord> selectVerifyRecordsByMerchantId(Long merchantId);
+    public List<IipCouponRecord> selectVerifyRecordsByMerchantId(Long merchantId, Integer days);
+
+    /**
+     * 统计指定商户的核销数据（仅已核销 status='1' 记录）
+     *
+     * @param merchantId 商户ID
+     * @return 核销统计（今日笔数/今日积分/累计笔数/累计积分）
+     */
+    public MerchantVerifyStatsResult getVerifyStatsByMerchantId(Long merchantId);
 }

@@ -94,3 +94,18 @@ export function pointsBizName(bizType) {
   }
   return names[bizType] || '积分变动'
 }
+
+/**
+ * 数字千分位展示（2,480）。
+ * 手写实现，不用 toLocaleString，兼容小程序 JSCore；非有限数字返回 '0'。
+ *
+ * @param {number|string} value 数值
+ * @returns {string} 千分位逗号字符串
+ */
+export function fmtThousands(value) {
+  const n = Number(value)
+  if (!Number.isFinite(n)) {
+    return '0'
+  }
+  return String(Math.trunc(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}
