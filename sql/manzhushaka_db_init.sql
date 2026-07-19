@@ -1082,7 +1082,28 @@ create table iip_activity_coupon (
 ) engine=innodb auto_increment=100 comment = '活动券配置表';
 
 -- ----------------------------
--- iip 12、菜单权限（menu_id 200~236）
+-- iip 11.1、首页轮播banner表
+-- ----------------------------
+drop table if exists iip_banner;
+create table iip_banner (
+  banner_id          bigint(20)      not null auto_increment    comment 'banner ID',
+  activity_id        bigint(20)      default null               comment '关联活动ID',
+  title              varchar(128)    not null default ''        comment '标题',
+  image_url          varchar(255)    not null default ''        comment '图片地址',
+  link_type          varchar(16)     not null default 'none'    comment '跳转类型 none纯展示/rules活动规则/mall积分商城',
+  link_value         varchar(255)    not null default ''        comment '跳转参数',
+  sort               int(11)         not null default 0         comment '排序越小越前',
+  status             char(1)         not null default '0'       comment '状态（0启用 1停用）',
+  create_by          varchar(64)     default ''                 comment '创建者',
+  create_time        datetime                                   comment '创建时间',
+  update_by          varchar(64)     default ''                 comment '更新者',
+  update_time        datetime                                   comment '更新时间',
+  remark             varchar(500)    default null               comment '备注',
+  primary key (banner_id)
+) engine=innodb comment = '首页轮播banner';
+
+-- ----------------------------
+-- iip 12、菜单权限（menu_id 200~241）
 -- ----------------------------
 -- 一级目录
 insert into sys_menu values('200', '发票积分', '0', '8', 'iip', null, '', '', 1, 0, 'M', '0', '0', '', 'guide', 'admin', sysdate(), '', null, '发票积分目录');
@@ -1095,6 +1116,7 @@ insert into sys_menu values('205', '积分流水', '200', '5', 'points', 'iip/po
 insert into sys_menu values('206', '券管理', '200', '6', 'coupon', 'iip/coupon/index', '', '', 1, 0, 'C', '0', '0', 'iip:coupon:list', 'gift', 'admin', sysdate(), '', null, '券管理菜单');
 insert into sys_menu values('207', '兑换记录', '200', '7', 'exchange', 'iip/exchange/index', '', '', 1, 0, 'C', '0', '0', 'iip:exchange:list', 'list', 'admin', sysdate(), '', null, '兑换记录菜单');
 insert into sys_menu values('208', '活动管理', '200', '8', 'activity', 'iip/activity/index', '', '', 1, 0, 'C', '0', '0', 'iip:activity:list', 'tab', 'admin', sysdate(), '', null, '活动管理菜单');
+insert into sys_menu values('237', 'banner管理', '200', '9', 'banner', 'iip/banner/index', '', '', 1, 0, 'C', '0', '0', 'iip:banner:list', 'tab', 'admin', sysdate(), '', null, 'banner管理菜单');
 -- 用户管理按钮
 insert into sys_menu values('211', '用户查询', '202', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'iip:member:query', '#', 'admin', sysdate(), '', null, '用户查询按钮');
 insert into sys_menu values('212', '用户停用启用', '202', '2', '', null, '', '', 1, 0, 'F', '0', '0', 'iip:member:edit', '#', 'admin', sysdate(), '', null, '用户停用启用按钮');
@@ -1128,7 +1150,12 @@ insert into sys_menu values('233', '活动新增', '208', '2', '', null, '', '',
 insert into sys_menu values('234', '活动修改', '208', '3', '', null, '', '', 1, 0, 'F', '0', '0', 'iip:activity:edit', '#', 'admin', sysdate(), '', null, '活动修改按钮');
 insert into sys_menu values('235', '活动删除', '208', '4', '', null, '', '', 1, 0, 'F', '0', '0', 'iip:activity:remove', '#', 'admin', sysdate(), '', null, '活动删除按钮');
 insert into sys_menu values('236', '活动配置', '208', '5', '', null, '', '', 1, 0, 'F', '0', '0', 'iip:activity:config', '#', 'admin', sysdate(), '', null, '活动配置按钮');
--- 角色默认授权（role_id=2 授予 200~236 全部）
+-- banner管理按钮
+insert into sys_menu values('238', 'banner查询', '237', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'iip:banner:query', '#', 'admin', sysdate(), '', null, 'banner查询按钮');
+insert into sys_menu values('239', 'banner新增', '237', '2', '', null, '', '', 1, 0, 'F', '0', '0', 'iip:banner:add', '#', 'admin', sysdate(), '', null, 'banner新增按钮');
+insert into sys_menu values('240', 'banner修改', '237', '3', '', null, '', '', 1, 0, 'F', '0', '0', 'iip:banner:edit', '#', 'admin', sysdate(), '', null, 'banner修改按钮');
+insert into sys_menu values('241', 'banner删除', '237', '4', '', null, '', '', 1, 0, 'F', '0', '0', 'iip:banner:remove', '#', 'admin', sysdate(), '', null, 'banner删除按钮');
+-- 角色默认授权（role_id=2 授予 200~241 全部）
 insert into sys_role_menu values ('2', '200');
 insert into sys_role_menu values ('2', '201');
 insert into sys_role_menu values ('2', '202');
@@ -1164,6 +1191,11 @@ insert into sys_role_menu values ('2', '233');
 insert into sys_role_menu values ('2', '234');
 insert into sys_role_menu values ('2', '235');
 insert into sys_role_menu values ('2', '236');
+insert into sys_role_menu values ('2', '237');
+insert into sys_role_menu values ('2', '238');
+insert into sys_role_menu values ('2', '239');
+insert into sys_role_menu values ('2', '240');
+insert into sys_role_menu values ('2', '241');
 
 -- ----------------------------
 -- iip 13、种子数据（商户/券/活动/关联）

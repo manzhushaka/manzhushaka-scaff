@@ -19,8 +19,25 @@
         <view class="topline__rules" @click="goRules">活动规则 ›</view>
       </view>
 
-      <!-- 活动大横幅 -->
-      <view class="iip-hero hero">
+      <!-- Banner 轮播（后台配置有数据时替代活动大横幅） -->
+      <swiper
+        v-if="banners.length"
+        class="banner"
+        autoplay
+        :interval="4000"
+        :duration="400"
+        circular
+        indicator-dots
+        indicator-color="rgba(255, 255, 255, 0.4)"
+        indicator-active-color="#ffffff"
+      >
+        <swiper-item v-for="item in banners" :key="item.bannerId" @click="goBanner(item)">
+          <image class="banner__image" :src="resolveFileUrl(item.imageUrl)" mode="aspectFill" />
+        </swiper-item>
+      </swiper>
+
+      <!-- 活动大横幅（无 banner 数据或请求失败时兜底） -->
+      <view v-else class="iip-hero hero">
         <view class="hero__tag">以票促消 · 以游惠民</view>
         <view class="hero__title">{{ activity ? activity.activityName : '发票积分 · 惠游全城' }}</view>
         <view class="hero__desc">{{ heroDesc }}</view>
@@ -147,6 +164,7 @@ import { ref, computed } from 'vue'
 import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 import { useUserStore } from '@/store/user.js'
 import { getCurrentActivity, getActivityList } from '@/api/activity.js'
+import { listBanners } from '@/api/banner.js'
 import { getMallCoupons, getMyCoupons } from '@/api/coupon.js'
 import { resolveFileUrl } from '@/common/config.js'
 import { redirectToLogin } from '@/common/request.js'
@@ -157,6 +175,7 @@ const userStore = useUserStore()
 
 const activity = ref(null)
 const activities = ref([])
+const banners = ref([])
 const coupons = ref([])
 const myCouponCount = ref(null)
 const firstLoading = ref(true)
@@ -282,11 +301,18 @@ function regionChipClass(item) {
 }
 
 /**
- * 加载首页数据：当前活动 + 活动列表；登录后追加积分资料、券包张数与商城优选券（前 6）。
+ * 加载首页数据：banner 轮播 + 当前活动 + 活动列表；登录后追加积分资料、券包张数与商城优选券（前 6）。
  * 游客与接口失败均静默降级。
  */
 async function loadData() {
   const tasks = [
+    listBanners()
+      .then((list) => {
+        banners.value = list
+      })
+      .catch(() => {
+        banners.value = []
+      }),
     getCurrentActivity()
       .then((data) => {
         activity.value = data
@@ -335,6 +361,24 @@ onPullDownRefresh(async () => {
 
 function goRules() {
   uni.navigateTo({ url: '/pages/activity/rules' })
+}
+
+/**
+ * 点击 banner：rules 跳活动规则页，mall 切商城 tab，none 或其他不响应。
+ *
+ * @param {object} item banner 对象（含 linkType/linkValue）
+ */
+function goBanner(item) {
+  if (!item || !item.linkType || item.linkType === 'none') {
+    return
+  }
+  if (item.linkType === 'rules') {
+    uni.navigateTo({ url: '/pages/activity/rules' })
+    return
+  }
+  if (item.linkType === 'mall') {
+    uni.switchTab({ url: '/pages/coupon/mall' })
+  }
 }
 
 function goPoints() {
@@ -429,6 +473,26 @@ function goLogin() {
   background-color: var(--iip-color-surface);
   border: 1rpx solid var(--iip-color-line);
   border-radius: var(--iip-radius-pill);
+}
+
+/* Banner 轮播（与 hero 同高同圆角，加载完成直接渐显） */
+.banner {
+  height: 360rpx;
+  border-radius: 40rpx;
+  overflow: hidden;
+  animation: banner-fade 0.4s ease;
+}
+.banner__image {
+  width: 100%;
+  height: 100%;
+}
+@keyframes banner-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* 活动大横幅 */

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.manzhushaka.iip.mapper.IipBannerMapper">
+
+    <resultMap type="IipBanner" id="IipBannerResult">
+    	<id     property="bannerId"   column="banner_id"   />
+        <result property="activityId" column="activity_id" />
+        <result property="title"      column="title"       />
+        <result property="imageUrl"   column="image_url"   />
+        <result property="linkType"   column="link_type"   />
+        <result property="linkValue"  column="link_value"  />
+        <result property="sort"       column="sort"        />
+        <result property="status"     column="status"      />
+        <result property="createBy"   column="create_by"   />
+        <result property="createTime" column="create_time" />
+        <result property="updateBy"   column="update_by"   />
+        <result property="updateTime" column="update_time" />
+        <result property="remark"     column="remark"      />
+    </resultMap>
+
+    <sql id="selectIipBannerVo">
+        select banner_id, activity_id, title, image_url, link_type, link_value, sort, status, create_by, create_time, update_by, update_time, remark
+		from iip_banner
+    </sql>
+
+    <select id="selectIipBannerList" parameterType="IipBanner" resultMap="IipBannerResult">
+        <include refid="selectIipBannerVo"/>
+        <where>
+			<if test="title != null and title != ''">
+				AND title like concat('%', #{title}, '%')
+			</if>
+			<if test="status != null and status != ''">
+				AND status = #{status}
+			</if>
+		</where>
+		order by sort asc, banner_id asc
+    </select>
+
+    <select id="selectIipBannerById" parameterType="Long" resultMap="IipBannerResult">
+        <include refid="selectIipBannerVo"/>
+        where banner_id = #{bannerId}
+    </select>
+
+    <!-- 启用中的轮播图列表：status为'0'，按排序升序 -->
+    <select id="selectEnabledIipBannerList" resultMap="IipBannerResult">
+        <include refid="selectIipBannerVo"/>
+        where status = '0'
+        order by sort asc, banner_id asc
+    </select>
+
+    <insert id="insertIipBanner" parameterType="IipBanner" useGeneratedKeys="true" keyProperty="bannerId">
+        insert into iip_banner (
+			<if test="activityId != null">activity_id,</if>
+			<if test="title != null and title != '' ">title,</if>
+			<if test="imageUrl != null and imageUrl != '' ">image_url,</if>
+			<if test="linkType != null and linkType != '' ">link_type,</if>
+			<if test="linkValue != null and linkValue != '' ">link_value,</if>
+			<if test="sort != null">sort,</if>
+			<if test="status != null and status != '' ">status,</if>
+			<if test="createBy != null and createBy != ''">create_by,</if>
+			<if test="remark != null and remark != ''">remark,</if>
+ 			create_time
+        )values(
+			<if test="activityId != null">#{activityId},</if>
+			<if test="title != null and title != ''">#{title},</if>
+			<if test="imageUrl != null and imageUrl != ''">#{imageUrl},</if>
+			<if test="linkType != null and linkType != ''">#{linkType},</if>
+			<if test="linkValue != null and linkValue != ''">#{linkValue},</if>
+			<if test="sort != null">#{sort},</if>
+			<if test="status != null and status != ''">#{status},</if>
+			<if test="createBy != null and createBy != ''">#{createBy},</if>
+			<if test="remark != null and remark != ''">#{remark},</if>
+ 			sysdate()
+		)
+    </insert>
+
+    <update id="updateIipBanner" parameterType="IipBanner">
+        update iip_banner
+        <set>
+            <if test="activityId != null">activity_id = #{activityId},</if>
+            <if test="title != null and title != ''">title = #{title},</if>
+            <if test="imageUrl != null and imageUrl != ''">image_url = #{imageUrl},</if>
+            <if test="linkType != null and linkType != ''">link_type = #{linkType},</if>
+            <if test="linkValue != null">link_value = #{linkValue},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+ 			update_time = sysdate()
+        </set>
+        where banner_id = #{bannerId}
+    </update>
+
+    <delete id="deleteIipBannerById" parameterType="Long">
+        delete from iip_banner where banner_id = #{bannerId}
+    </delete>
+
+    <delete id="deleteIipBannerByIds" parameterType="Long">
+        delete from iip_banner where banner_id in
+        <foreach item="bannerId" collection="array" open="(" separator="," close=")">
+        	#{bannerId}
+        </foreach>
+    </delete>
+
+</mapper>
