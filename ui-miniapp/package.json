@@ -4,7 +4,7 @@
   "private": true,
   "description": "发票积分平台小程序端（uni-app Vue3 + Vite + pinia，编译目标 mp-weixin / mp-alipay / h5）",
   "scripts": {
-    "dev:h5": "uni",
+    "dev:h5": "uni --host",
     "dev:mp-weixin": "uni -p mp-weixin",
     "dev:mp-alipay": "uni -p mp-alipay",
     "build:h5": "uni build",
