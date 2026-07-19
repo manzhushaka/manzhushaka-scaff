@@ -24,6 +24,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="auditBy"         column="audit_by"         />
         <result property="auditTime"       column="audit_time"       />
         <result property="auditRemark"     column="audit_remark"     />
+        <result property="isRecommend"     column="is_recommend"     />
         <result property="createBy"        column="create_by"        />
         <result property="createTime"      column="create_time"      />
         <result property="updateBy"        column="update_by"        />
@@ -32,7 +33,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
     
     <sql id="selectIipMerchantVo">
-        select merchant_id, merchant_no, merchant_name, category, city, contact_name, contact_phone, address, description, logo, business_hours, longitude, latitude, business_license, member_id, status, audit_by, audit_time, audit_remark, create_by, create_time, update_by, update_time, remark 
+        select merchant_id, merchant_no, merchant_name, category, city, contact_name, contact_phone, address, description, logo, business_hours, longitude, latitude, business_license, member_id, status, audit_by, audit_time, audit_remark, is_recommend, create_by, create_time, update_by, update_time, remark 
 		from iip_merchant
     </sql>
     
@@ -75,6 +76,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectIipMerchantVo"/>
         where merchant_no = #{merchantNo} limit 1
     </select>
+
+    <!-- C端推荐商户列表：仅正常且推荐（status='0' 且 is_recommend='0'），按更新时间倒序，limit 由调用方做参数保护 -->
+    <select id="selectRecommendMerchantList" resultMap="IipMerchantResult">
+        <include refid="selectIipMerchantVo"/>
+        where status = '0' and is_recommend = '0'
+        <if test="category != null and category != ''">
+            and category = #{category}
+        </if>
+        <if test="excludeCategory != null and excludeCategory != ''">
+            and category != #{excludeCategory}
+        </if>
+        order by update_time desc, merchant_id desc
+        limit #{limit}
+    </select>
     
     <select id="selectMaxMerchantNo" resultType="String">
         select max(merchant_no) from iip_merchant
@@ -112,6 +127,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="auditBy != null and auditBy != '' ">audit_by,</if>
 			<if test="auditTime != null">audit_time,</if>
 			<if test="auditRemark != null and auditRemark != '' ">audit_remark,</if>
+			<if test="isRecommend != null and isRecommend != '' ">is_recommend,</if>
 			<if test="createBy != null and createBy != ''">create_by,</if>
 			<if test="remark != null and remark != ''">remark,</if>
  			create_time
@@ -134,6 +150,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="auditBy != null and auditBy != ''">#{auditBy},</if>
 			<if test="auditTime != null">#{auditTime},</if>
 			<if test="auditRemark != null and auditRemark != ''">#{auditRemark},</if>
+			<if test="isRecommend != null and isRecommend != ''">#{isRecommend},</if>
 			<if test="createBy != null and createBy != ''">#{createBy},</if>
 			<if test="remark != null and remark != ''">#{remark},</if>
  			sysdate()
@@ -161,6 +178,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="auditBy != null">audit_by = #{auditBy},</if>
             <if test="auditTime != null">audit_time = #{auditTime},</if>
             <if test="auditRemark != null">audit_remark = #{auditRemark},</if>
+            <if test="isRecommend != null and isRecommend != ''">is_recommend = #{isRecommend},</if>
             <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
             <if test="remark != null">remark = #{remark},</if>
  			update_time = sysdate()

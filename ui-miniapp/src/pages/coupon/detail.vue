@@ -142,12 +142,11 @@
       </view>
     </template>
 
-    <!-- 加载失败/游客降级（游客无 token 时详情接口 reject） -->
+    <!-- 加载失败空态 -->
     <view v-else-if="loadFailed" class="iip-empty failed">
       <view class="iip-empty__icon" :style="{ backgroundImage: icons.empty }"></view>
       <view class="iip-empty__title">券详情加载失败</view>
-      <view class="iip-empty__desc">{{ userStore.isLogin ? '请稍后重试' : '登录后可查看券详情并兑换' }}</view>
-      <button v-if="!userStore.isLogin" class="iip-btn failed__btn" @click="goLogin">去登录</button>
+      <view class="iip-empty__desc">请稍后重试</view>
     </view>
   </view>
 </template>
@@ -176,12 +175,15 @@ onLoad((options) => {
   loadDetail()
 })
 
+/**
+ * 加载券详情（接口支持匿名，游客可查看）；登录态下顺带刷新积分余额供底部兑换栏展示。
+ */
 async function loadDetail() {
   loadFailed.value = false
   try {
     detail.value = await getCouponDetail(couponId.value)
   } catch (e) {
-    // 错误提示已由 request 封装统一处理；游客无 token 时展示降级空态
+    // 错误提示已由 request 封装统一处理
     loadFailed.value = true
   }
   if (userStore.isLogin) {
@@ -326,13 +328,13 @@ const exchangeDisabled = computed(() => {
   return detail.value.remainStock === 0 || !!windowClosedText.value || overLimit.value || pointsNotEnough.value
 })
 
-/** 兑换按钮文案（库存为 0 或不在兑换窗口时显示原因） */
+/** 兑换按钮文案（游客固定「兑换」，点击引导登录；库存为 0 或不在兑换窗口时显示原因） */
 const exchangeButtonText = computed(() => {
   if (!detail.value) {
     return '加载中'
   }
   if (!userStore.isLogin) {
-    return '登录后兑换'
+    return '兑换'
   }
   if (detail.value.remainStock === 0) {
     return '已售罄'
@@ -435,10 +437,6 @@ function goMine() {
 function closeSuccess() {
   exchangeResult.value = null
   loadDetail()
-}
-
-function goLogin() {
-  redirectToLogin()
 }
 </script>
 
@@ -792,12 +790,8 @@ function goLogin() {
   font-size: var(--iip-fs-26);
 }
 
-/* 加载失败/游客降级 */
+/* 加载失败空态 */
 .failed {
   padding-top: 160rpx;
-}
-.failed__btn {
-  margin-top: 32rpx;
-  padding: 16rpx 64rpx;
 }
 </style>

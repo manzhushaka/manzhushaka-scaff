@@ -55,7 +55,7 @@ public class MiniappCouponAppServiceImpl implements MiniappCouponAppService
      * 查询券详情（含当前用户已兑数量；券绑定商户且商户存在时附带商户展示信息，否则商户字段为 null）。
      *
      * @param couponId 券ID
-     * @param memberId 当前用户ID
+     * @param memberId 当前用户ID，null 表示游客（已兑数量按 0 处理）
      * @return 券详情
      */
     @Override
@@ -66,7 +66,8 @@ public class MiniappCouponAppServiceImpl implements MiniappCouponAppService
         {
             throw new ServiceException("券不存在");
         }
-        int exchangedCount = couponRecordService.countByCouponAndMember(couponId, memberId);
+        // 游客（memberId 为 null）已兑数量按 0 处理；不能直接传 null 给 mapper，否则会统计该券全量兑换数
+        int exchangedCount = memberId == null ? 0 : couponRecordService.countByCouponAndMember(couponId, memberId);
         // 券未绑定商户或商户已删除时不补商户信息，不影响详情主流程
         IipMerchant merchant = coupon.getMerchantId() == null ? null
                 : merchantService.selectIipMerchantById(coupon.getMerchantId());

@@ -1,92 +1,81 @@
 <template>
   <view class="page">
-    <!-- 游客引导 -->
-    <view v-if="!userStore.isLogin" class="guest">
-      <view class="iip-empty">
-        <view class="iip-empty__icon" :style="{ backgroundImage: icons.coupon }"></view>
-        <view class="iip-empty__title">登录后兑换心仪权益</view>
+    <!-- 品类 pilltabs 横滑：全部 + 按接口返回实际出现的品类动态生成 -->
+    <scroll-view scroll-x class="tabs">
+      <view class="iip-pilltabs tabs__inner">
+        <view
+          v-for="tab in categoryTabs"
+          :key="tab.value"
+          class="iip-pilltabs__item"
+          :class="{ 'is-on': activeCategory === tab.value }"
+          @click="switchCategory(tab.value)"
+        >
+          {{ tab.label }}
+        </view>
       </view>
-      <button class="iip-btn guest__btn" @click="goLogin">去登录</button>
+    </scroll-view>
+
+    <view class="list">
+      <!-- 骨架：首次加载 3 条券票卡 -->
+      <template v-if="loading && !allList.length">
+        <view class="iip-ticket skel-ticket" v-for="i in 3" :key="'skel' + i">
+          <view class="iip-ticket__stub">
+            <view class="iip-skel iip-skel--row skel-ticket__num"></view>
+            <view class="iip-skel skel-ticket__note"></view>
+          </view>
+          <view class="iip-ticket__main">
+            <view class="iip-skel iip-skel--row"></view>
+            <view class="iip-skel iip-skel--row skel-row--mid"></view>
+            <view class="iip-skel iip-skel--row skel-row--short"></view>
+          </view>
+        </view>
+      </template>
+
+      <!-- 券票卡 -->
+      <template v-else-if="list.length">
+        <view
+          class="iip-ticket ticket"
+          :class="{ 'ticket--soldout': isSoldOut(item) }"
+          v-for="item in list"
+          :key="item.couponId"
+          @click="goDetail(item)"
+          hover-class="iip-tap"
+        >
+          <view class="iip-ticket__stub">
+            <view class="ticket__points">
+              <text class="ticket__points-num iip-num">{{ fmtThousands(item.pointsCost) }}</text>
+              <text class="ticket__points-unit">分</text>
+            </view>
+            <!-- CouponMallItemResult 暂无门市价字段，stub 小字统一为「积分兑换」 -->
+            <text class="ticket__stub-note">积分兑换</text>
+          </view>
+          <view class="iip-ticket__main">
+            <view class="ticket__name">{{ item.couponName }}</view>
+            <view class="ticket__sponsor" v-if="sponsorChip(item)">
+              <text class="iip-chip" :class="sponsorChip(item).chipClass">{{ sponsorChip(item).text }}</text>
+            </view>
+            <view class="ticket__meta" v-if="metaText(item)">{{ metaText(item) }}</view>
+            <view class="ticket__bottom">
+              <text class="ticket__stock iip-num">{{ stockText(item) }}</text>
+              <button
+                class="iip-btn ticket__exbtn"
+                :class="{ 'is-disabled': isSoldOut(item) }"
+                @click.stop="handleExchangeEntry(item)"
+              >
+                {{ isSoldOut(item) ? '已抢光' : '兑换' }}
+              </button>
+            </view>
+          </view>
+        </view>
+      </template>
+
+      <!-- 空状态 -->
+      <view v-else-if="!loading" class="iip-empty">
+        <view class="iip-empty__icon" :style="{ backgroundImage: icons.empty }"></view>
+        <view class="iip-empty__title">暂无可兑换的券</view>
+        <view class="iip-empty__desc">换个品类看看，或下拉刷新</view>
+      </view>
     </view>
-
-    <template v-else>
-      <!-- 品类 pilltabs 横滑：全部 + 按接口返回实际出现的品类动态生成 -->
-      <scroll-view scroll-x class="tabs">
-        <view class="iip-pilltabs tabs__inner">
-          <view
-            v-for="tab in categoryTabs"
-            :key="tab.value"
-            class="iip-pilltabs__item"
-            :class="{ 'is-on': activeCategory === tab.value }"
-            @click="switchCategory(tab.value)"
-          >
-            {{ tab.label }}
-          </view>
-        </view>
-      </scroll-view>
-
-      <view class="list">
-        <!-- 骨架：首次加载 3 条券票卡 -->
-        <template v-if="loading && !allList.length">
-          <view class="iip-ticket skel-ticket" v-for="i in 3" :key="'skel' + i">
-            <view class="iip-ticket__stub">
-              <view class="iip-skel iip-skel--row skel-ticket__num"></view>
-              <view class="iip-skel skel-ticket__note"></view>
-            </view>
-            <view class="iip-ticket__main">
-              <view class="iip-skel iip-skel--row"></view>
-              <view class="iip-skel iip-skel--row skel-row--mid"></view>
-              <view class="iip-skel iip-skel--row skel-row--short"></view>
-            </view>
-          </view>
-        </template>
-
-        <!-- 券票卡 -->
-        <template v-else-if="list.length">
-          <view
-            class="iip-ticket ticket"
-            :class="{ 'ticket--soldout': isSoldOut(item) }"
-            v-for="item in list"
-            :key="item.couponId"
-            @click="goDetail(item)"
-            hover-class="iip-tap"
-          >
-            <view class="iip-ticket__stub">
-              <view class="ticket__points">
-                <text class="ticket__points-num iip-num">{{ fmtThousands(item.pointsCost) }}</text>
-                <text class="ticket__points-unit">分</text>
-              </view>
-              <!-- CouponMallItemResult 暂无门市价字段，stub 小字统一为「积分兑换」 -->
-              <text class="ticket__stub-note">积分兑换</text>
-            </view>
-            <view class="iip-ticket__main">
-              <view class="ticket__name">{{ item.couponName }}</view>
-              <view class="ticket__sponsor" v-if="sponsorChip(item)">
-                <text class="iip-chip" :class="sponsorChip(item).chipClass">{{ sponsorChip(item).text }}</text>
-              </view>
-              <view class="ticket__meta" v-if="metaText(item)">{{ metaText(item) }}</view>
-              <view class="ticket__bottom">
-                <text class="ticket__stock iip-num">{{ stockText(item) }}</text>
-                <button
-                  class="iip-btn ticket__exbtn"
-                  :class="{ 'is-disabled': isSoldOut(item) }"
-                  @click.stop="goDetail(item)"
-                >
-                  {{ isSoldOut(item) ? '已抢光' : '兑换' }}
-                </button>
-              </view>
-            </view>
-          </view>
-        </template>
-
-        <!-- 空状态 -->
-        <view v-else-if="!loading" class="iip-empty">
-          <view class="iip-empty__icon" :style="{ backgroundImage: icons.empty }"></view>
-          <view class="iip-empty__title">暂无可兑换的券</view>
-          <view class="iip-empty__desc">换个品类看看，或下拉刷新</view>
-        </view>
-      </view>
-    </template>
   </view>
 </template>
 
@@ -220,10 +209,10 @@ function sponsorChip(item) {
   return null
 }
 
+/**
+ * 加载商城券列表（游客可浏览，失败时错误提示已由 request 封装统一处理）。
+ */
 async function loadList() {
-  if (!userStore.isLogin) {
-    return
-  }
   loading.value = true
   try {
     allList.value = await getMallCoupons()
@@ -251,8 +240,21 @@ function goDetail(item) {
   uni.navigateTo({ url: '/pages/coupon/detail?id=' + item.couponId })
 }
 
-function goLogin() {
-  redirectToLogin()
+/**
+ * 券卡「兑换」按钮入口：售罄时仅进入详情查看；未登录先引导登录，已登录进入券详情走原兑换流程。
+ *
+ * @param {object} item CouponMallItemResult
+ */
+function handleExchangeEntry(item) {
+  if (isSoldOut(item)) {
+    goDetail(item)
+    return
+  }
+  if (!userStore.isLogin) {
+    redirectToLogin()
+    return
+  }
+  goDetail(item)
 }
 
 onShow(() => {
@@ -266,13 +268,6 @@ onPullDownRefresh(async () => {
 </script>
 
 <style scoped>
-.guest {
-  padding: 96rpx 32rpx;
-}
-.guest__btn {
-  margin: 0 64rpx;
-}
-
 /* 品类 pilltabs 横滑（滚动条由 App.vue 全局规则隐藏） */
 .tabs {
   white-space: nowrap;

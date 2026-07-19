@@ -55,3 +55,14 @@ export async function getVerifyRecords(params) {
   const res = await request({ url: '/miniapp/merchant/verify/records', data: params })
   return { rows: res.rows || [], total: res.total || 0 }
 }
+
+/**
+ * 查询推荐商户列表（无需登录，游客可访问）。
+ *
+ * @param {object} [params] 查询条件：category 限定分类（如「景区」），excludeCategory 排除分类，limit 返回条数上限
+ * @returns {Promise<Array>} 推荐商户列表 [{merchantId,merchantName,category,city,logo,description,businessHours,address}]，无数据返回空数组
+ */
+export async function listRecommendMerchants(params) {
+  const res = await request({ url: '/miniapp/merchant/recommend', data: params })
+  return res.data || []
+}

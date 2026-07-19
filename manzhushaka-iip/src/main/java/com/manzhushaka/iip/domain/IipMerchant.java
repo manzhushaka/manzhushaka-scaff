@@ -75,6 +75,9 @@ public class IipMerchant extends BaseEntity
     /** 审核备注 */
     private String auditRemark;
 
+    /** 是否推荐（0推荐 1不推荐） */
+    private String isRecommend;
+
     public Long getMerchantId()
     {
         return merchantId;
@@ -273,6 +276,16 @@ public class IipMerchant extends BaseEntity
         this.auditRemark = auditRemark;
     }
 
+    public String getIsRecommend()
+    {
+        return isRecommend;
+    }
+
+    public void setIsRecommend(String isRecommend)
+    {
+        this.isRecommend = isRecommend;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
@@ -291,6 +304,7 @@ public class IipMerchant extends BaseEntity
             .append("auditBy", getAuditBy())
             .append("auditTime", getAuditTime())
             .append("auditRemark", getAuditRemark())
+            .append("isRecommend", getIsRecommend())
             .append("createBy", getCreateBy())
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())

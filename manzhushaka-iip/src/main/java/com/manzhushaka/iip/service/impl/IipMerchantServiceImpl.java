@@ -108,6 +108,20 @@ public class IipMerchantServiceImpl implements IIipMerchantService
     }
 
     /**
+     * 查询C端推荐商户列表（仅正常且推荐，按 update_time desc, merchant_id desc）
+     *
+     * @param category 商户类别，精确匹配，null或空表示不限
+     * @param excludeCategory 排除的商户类别，null或空表示不排除
+     * @param limit 返回条数上限，由调用方做参数保护
+     * @return 推荐商户集合，无推荐商户时返回空集合
+     */
+    @Override
+    public List<IipMerchant> selectRecommendMerchantList(String category, String excludeCategory, int limit)
+    {
+        return merchantMapper.selectRecommendMerchantList(category, excludeCategory, limit);
+    }
+
+    /**
      * 查询当前用户名下可核销商户（必须存在且 status='0' 正常）
      *
      * @param memberId 用户ID

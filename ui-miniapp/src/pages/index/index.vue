@@ -124,7 +124,7 @@
         <view class="iip-sect">积分商城</view>
         <text class="sect-row__more" @click="goMall">更多 ›</text>
       </view>
-      <scroll-view v-if="userStore.isLogin && coupons.length" scroll-x class="mall-scroll">
+      <scroll-view v-if="coupons.length" scroll-x class="mall-scroll">
         <view
           class="mini-coupon"
           hover-class="iip-tap"
@@ -148,13 +148,56 @@
           </view>
         </view>
       </scroll-view>
-      <view v-else-if="!userStore.isLogin" class="iip-card mall-guest">
-        <text class="mall-guest__text">登录后查看优选优惠券</text>
-        <button class="iip-btn iip-btn--ghost mall-guest__btn" @click="goLogin">去登录</button>
-      </view>
       <view v-else class="iip-card mall-guest">
         <text class="mall-guest__text">暂无推荐优惠券</text>
       </view>
+
+      <!-- 推荐景区（纯展示不可点击，空数据或接口失败时整块不渲染） -->
+      <template v-if="scenicMerchants.length">
+        <view class="sect-row">
+          <view class="iip-sect">推荐景区</view>
+        </view>
+        <scroll-view scroll-x class="mall-scroll">
+          <view class="mini-scenic" v-for="item in scenicMerchants" :key="item.merchantId">
+            <image
+              v-if="item.logo"
+              class="mini-scenic__cover"
+              :src="resolveFileUrl(item.logo)"
+              mode="aspectFill"
+            />
+            <view v-else class="mini-scenic__cover mini-scenic__cover--plain">
+              <view class="mini-scenic__cover-icon" :style="{ backgroundImage: icons.location }"></view>
+            </view>
+            <view class="mini-scenic__name">{{ item.merchantName }}</view>
+            <view v-if="scenicMeta(item)" class="mini-scenic__meta">{{ scenicMeta(item) }}</view>
+          </view>
+        </scroll-view>
+      </template>
+
+      <!-- 推荐商户（纯展示不可点击，空数据或接口失败时整块不渲染） -->
+      <template v-if="recommendMerchants.length">
+        <view class="sect-row">
+          <view class="iip-sect">推荐商户</view>
+        </view>
+        <scroll-view scroll-x class="mall-scroll">
+          <view class="mini-merchant" v-for="item in recommendMerchants" :key="item.merchantId">
+            <image
+              v-if="item.logo"
+              class="mini-merchant__cover"
+              :src="resolveFileUrl(item.logo)"
+              mode="aspectFill"
+            />
+            <view v-else class="mini-merchant__cover mini-merchant__cover--plain">
+              <view class="mini-merchant__cover-icon" :style="{ backgroundImage: icons.shop }"></view>
+            </view>
+            <view class="mini-merchant__name">{{ item.merchantName }}</view>
+            <view v-if="item.category" class="mini-merchant__tag">
+              <text class="iip-chip iip-chip--gray">{{ item.category }}</text>
+            </view>
+            <view v-if="item.description" class="mini-merchant__desc">{{ item.description }}</view>
+          </view>
+        </scroll-view>
+      </template>
     </template>
   </view>
 </template>
@@ -166,6 +209,7 @@ import { useUserStore } from '@/store/user.js'
 import { getCurrentActivity, getActivityList } from '@/api/activity.js'
 import { listBanners } from '@/api/banner.js'
 import { getMallCoupons, getMyCoupons } from '@/api/coupon.js'
+import { listRecommendMerchants } from '@/api/merchant.js'
 import { resolveFileUrl } from '@/common/config.js'
 import { redirectToLogin } from '@/common/request.js'
 import { fmtThousands } from '@/common/format.js'
@@ -178,6 +222,8 @@ const activities = ref([])
 const banners = ref([])
 const coupons = ref([])
 const myCouponCount = ref(null)
+const scenicMerchants = ref([])
+const recommendMerchants = ref([])
 const firstLoading = ref(true)
 
 /** 城市小行文案：当前活动 city，无 city 或无活动则为「全省通用」 */
@@ -301,8 +347,21 @@ function regionChipClass(item) {
 }
 
 /**
- * 加载首页数据：banner 轮播 + 当前活动 + 活动列表；登录后追加积分资料、券包张数与商城优选券（前 6）。
- * 游客与接口失败均静默降级。
+ * 推荐景区卡副文案：优先展示地址，其次营业时间。
+ *
+ * @param {object} item 推荐商户对象（含 address/businessHours）
+ * @returns {string} 副文案，无信息时返回空串
+ */
+function scenicMeta(item) {
+  if (!item) {
+    return ''
+  }
+  return item.address || item.businessHours || ''
+}
+
+/**
+ * 加载首页数据：banner 轮播 + 当前活动 + 活动列表 + 商城优选券（前 6）+ 推荐景区/商户；
+ * 登录后追加积分资料与券包张数。游客与接口失败均静默降级。
  */
 async function loadData() {
   const tasks = [
@@ -324,6 +383,25 @@ async function loadData() {
       })
       .catch(() => {
         activities.value = []
+      }),
+    getMallCoupons()
+      .then((list) => {
+        coupons.value = list.slice(0, 6)
+      })
+      .catch(() => {}),
+    listRecommendMerchants({ category: '景区', limit: 6 })
+      .then((list) => {
+        scenicMerchants.value = list
+      })
+      .catch(() => {
+        scenicMerchants.value = []
+      }),
+    listRecommendMerchants({ excludeCategory: '景区', limit: 6 })
+      .then((list) => {
+        recommendMerchants.value = list
+      })
+      .catch(() => {
+        recommendMerchants.value = []
       })
   ]
   if (userStore.isLogin) {
@@ -335,15 +413,9 @@ async function loadData() {
         })
         .catch(() => {
           myCouponCount.value = null
-        }),
-      getMallCoupons()
-        .then((list) => {
-          coupons.value = list.slice(0, 6)
         })
-        .catch(() => {})
     )
   } else {
-    coupons.value = []
     myCouponCount.value = null
   }
   await Promise.all(tasks)
@@ -793,7 +865,111 @@ function goLogin() {
   color: var(--iip-color-text-secondary);
 }
 
-/* 商城游客 / 空态 */
+/* 推荐景区横滑大卡（视觉参照 mini-coupon，尺寸略大） */
+.mini-scenic {
+  display: inline-flex;
+  flex-direction: column;
+  width: 292rpx;
+  margin-right: 20rpx;
+  background-color: var(--iip-color-surface);
+  border: 1rpx solid var(--iip-color-line);
+  border-radius: var(--iip-radius-24);
+  overflow: hidden;
+  vertical-align: top;
+}
+.mini-scenic__cover {
+  width: 100%;
+  height: 200rpx;
+}
+.mini-scenic__cover--plain {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--iip-color-cream);
+}
+.mini-scenic__cover-icon {
+  width: 72rpx;
+  height: 72rpx;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.mini-scenic__name {
+  padding: 16rpx 20rpx 0;
+  font-size: var(--iip-fs-26);
+  font-weight: 700;
+  color: var(--iip-color-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mini-scenic__name:last-child {
+  padding-bottom: 20rpx;
+}
+.mini-scenic__meta {
+  padding: 8rpx 20rpx 20rpx;
+  font-size: var(--iip-fs-20);
+  color: var(--iip-color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 推荐商户横滑卡 */
+.mini-merchant {
+  display: inline-flex;
+  flex-direction: column;
+  width: 260rpx;
+  margin-right: 20rpx;
+  background-color: var(--iip-color-surface);
+  border: 1rpx solid var(--iip-color-line);
+  border-radius: var(--iip-radius-24);
+  overflow: hidden;
+  vertical-align: top;
+}
+.mini-merchant__cover {
+  width: 100%;
+  height: 170rpx;
+}
+.mini-merchant__cover--plain {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--iip-color-cream);
+}
+.mini-merchant__cover-icon {
+  width: 72rpx;
+  height: 72rpx;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.mini-merchant__name {
+  padding: 16rpx 20rpx 0;
+  font-size: var(--iip-fs-24);
+  color: var(--iip-color-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mini-merchant__tag {
+  display: flex;
+  padding: 10rpx 20rpx 0;
+}
+.mini-merchant__name:last-child,
+.mini-merchant__tag:last-child {
+  padding-bottom: 20rpx;
+}
+.mini-merchant__desc {
+  padding: 8rpx 20rpx 20rpx;
+  font-size: var(--iip-fs-20);
+  color: var(--iip-color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 商城空态 */
 .mall-guest {
   display: flex;
   align-items: center;
@@ -803,10 +979,5 @@ function goLogin() {
 .mall-guest__text {
   font-size: var(--iip-fs-26);
   color: var(--iip-color-text-secondary);
-}
-.mall-guest__btn {
-  padding: 12rpx 32rpx;
-  font-size: var(--iip-fs-24);
-  flex: 0 0 auto;
 }
 </style>

@@ -26,7 +26,7 @@ public interface MiniappCouponAppService
      * 查询券详情（含当前用户已兑数量）。
      *
      * @param couponId 券ID
-     * @param memberId 当前用户ID
+     * @param memberId 当前用户ID，null 表示游客（已兑数量按 0 处理）
      * @return 券详情
      */
     CouponDetailResult getCouponDetail(Long couponId, Long memberId);

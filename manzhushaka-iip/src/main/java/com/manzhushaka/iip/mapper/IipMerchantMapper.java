@@ -70,11 +70,22 @@ public interface IipMerchantMapper
 
     /**
      * 按商户编号查询商户（merchant_no 唯一性校验）
-     * 
+     *
      * @param merchantNo 商户编号
      * @return 商户信息，不存在时返回null
      */
     public IipMerchant selectByMerchantNo(String merchantNo);
+
+    /**
+     * 查询C端推荐商户列表（仅 status='0' 正常且 is_recommend='0' 推荐，按更新时间倒序）
+     *
+     * @param category 商户类别，精确匹配，null或空表示不限
+     * @param excludeCategory 排除的商户类别，null或空表示不排除
+     * @param limit 返回条数上限，由调用方做参数保护
+     * @return 推荐商户集合，无推荐商户时返回空集合
+     */
+    public List<IipMerchant> selectRecommendMerchantList(@Param("category") String category,
+            @Param("excludeCategory") String excludeCategory, @Param("limit") int limit);
 
     /**
      * 查询指定编号前缀下的最大商户编号（merchant_no 序号生成）

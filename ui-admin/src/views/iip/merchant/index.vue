@@ -111,6 +111,16 @@
                </el-tag>
             </template>
          </el-table-column>
+         <el-table-column label="推荐" align="center" prop="isRecommend" width="80">
+            <template #default="scope">
+               <el-switch
+                  v-model="scope.row.isRecommend"
+                  active-value="0"
+                  inactive-value="1"
+                  @change="handleRecommendChange(scope.row)"
+               />
+            </template>
+         </el-table-column>
          <el-table-column label="创建时间" align="center" prop="createTime" width="180">
             <template #default="scope">
                <span>{{ parseTime(scope.row.createTime) }}</span>
@@ -188,6 +198,9 @@
             </el-form-item>
             <el-form-item label="绑定会员ID" prop="memberId">
                <el-input-number v-model="form.memberId" :min="1" :precision="0" controls-position="right" placeholder="绑定后该会员可在小程序端核销" style="width: 100%" />
+            </el-form-item>
+            <el-form-item label="是否推荐" prop="isRecommend">
+               <el-switch v-model="form.isRecommend" active-value="0" inactive-value="1" active-text="推荐" inactive-text="不推荐" />
             </el-form-item>
             <el-form-item label="备注" prop="remark">
                <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" maxlength="500" />
@@ -336,6 +349,7 @@ function reset() {
     logo: undefined,
     description: undefined,
     memberId: undefined,
+    isRecommend: "1",
     remark: undefined
   }
   proxy.resetForm("merchantRef")
@@ -397,6 +411,18 @@ function submitForm() {
         })
       }
     }
+  })
+}
+
+/** 推荐开关切换（isRecommend 0推荐 1不推荐，直接提交该行完整数据，失败时回滚开关状态） */
+function handleRecommendChange(row) {
+  // el-switch 的 v-model 已先改写 row.isRecommend，这里取反得到切换前的值，用于失败回滚
+  const oldValue = row.isRecommend === "0" ? "1" : "0"
+  const text = row.isRecommend === "0" ? "已设为推荐" : "已取消推荐"
+  updateMerchant(row).then(() => {
+    proxy.$modal.msgSuccess(text)
+  }).catch(() => {
+    row.isRecommend = oldValue
   })
 }
 

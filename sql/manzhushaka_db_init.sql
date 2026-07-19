@@ -859,6 +859,7 @@ create table iip_merchant (
   business_license  varchar(255)    default ''                 comment '营业执照图片',
   member_id         bigint(20)      default null               comment '绑定的登录用户ID',
   status            char(1)         default '2'                comment '状态（0正常 1停用 2待审核）',
+  is_recommend      char(1)         default '1'                comment '是否推荐（0推荐 1不推荐）',
   audit_by          varchar(64)     default ''                 comment '审核人',
   audit_time        datetime        default null               comment '审核时间',
   audit_remark      varchar(255)    default ''                 comment '审核备注',
@@ -1200,10 +1201,10 @@ insert into sys_role_menu values ('2', '241');
 -- ----------------------------
 -- iip 13、种子数据（商户/券/活动/关联）
 -- ----------------------------
-insert into iip_merchant (merchant_id, merchant_no, merchant_name, category, contact_name, contact_phone, address, description, logo, business_hours, longitude, latitude, status, audit_by, audit_time, create_by, create_time, remark) values
-(1, 'M20260700001', '老字号烩面馆', '餐饮', '王掌柜', '0372-5550001', '安阳市文峰区老街12号', '安阳本地经营三十余年的老字号面馆，主打手工烩面、羊肉鲜汤和豫北家常菜，汤头每日现熬、面条现擀现煮，是街坊聚餐和游客品尝地道安阳味道的热门去处。', '/profile/avatar/merchant/1.png', '10:00-22:00', 114.357500, 36.098700, '0', 'admin', sysdate(), 'admin', sysdate(), '种子商户'),
-(2, 'M20260700002', '殷都宾馆', '住宿', '李经理', '0372-5550002', '安阳市殷都区殷墟路8号', '紧邻殷墟景区的中档商务宾馆，设有标准间、大床房和多功能会议室，提供自助早餐、免费停车和景区票务代办服务，适合探访殷商文化的游客与商务差旅人士入住。', '/profile/avatar/merchant/2.png', '00:00-24:00', 114.316700, 36.109300, '0', 'admin', sysdate(), 'admin', sysdate(), '种子商户'),
-(3, 'M20260700003', '中石化安阳加油站', '加油', '赵站长', '0372-5550003', '安阳市北关区人民大道100号', '中石化直营站点，供应92号、95号汽油及0号柴油，油品计量准确、质量有保障，配套易捷便利店、免费洗车和司机休息区，支持加油卡与移动支付，全天24小时营业。', '/profile/avatar/merchant/3.png', '00:00-24:00', 114.372100, 36.112500, '0', 'admin', sysdate(), 'admin', sysdate(), '种子商户');
+insert into iip_merchant (merchant_id, merchant_no, merchant_name, category, contact_name, contact_phone, address, description, logo, business_hours, longitude, latitude, status, is_recommend, audit_by, audit_time, create_by, create_time, remark) values
+(1, 'M20260700001', '老字号烩面馆', '餐饮', '王掌柜', '0372-5550001', '安阳市文峰区老街12号', '安阳本地经营三十余年的老字号面馆，主打手工烩面、羊肉鲜汤和豫北家常菜，汤头每日现熬、面条现擀现煮，是街坊聚餐和游客品尝地道安阳味道的热门去处。', '/profile/upload/2026/07/19/merchant-demo-1.jpg', '10:00-22:00', 114.357500, 36.098700, '0', '0', 'admin', sysdate(), 'admin', sysdate(), '种子商户'),
+(2, 'M20260700002', '殷都宾馆', '住宿', '李经理', '0372-5550002', '安阳市殷都区殷墟路8号', '紧邻殷墟景区的中档商务宾馆，设有标准间、大床房和多功能会议室，提供自助早餐、免费停车和景区票务代办服务，适合探访殷商文化的游客与商务差旅人士入住。', '/profile/upload/2026/07/19/merchant-demo-2.jpg', '00:00-24:00', 114.316700, 36.109300, '0', '0', 'admin', sysdate(), 'admin', sysdate(), '种子商户'),
+(3, 'M20260700003', '中石化安阳加油站', '加油', '赵站长', '0372-5550003', '安阳市北关区人民大道100号', '中石化直营站点，供应92号、95号汽油及0号柴油，油品计量准确、质量有保障，配套易捷便利店、免费洗车和司机休息区，支持加油卡与移动支付，全天24小时营业。', '/profile/avatar/merchant/3.png', '00:00-24:00', 114.372100, 36.112500, '0', '1', 'admin', sysdate(), 'admin', sysdate(), '种子商户');
 
 insert into iip_coupon (coupon_id, coupon_name, coupon_type, target_name, points_cost, total_stock, remain_stock, per_member_limit, valid_type, valid_start_time, valid_end_time, threshold_amount, discount_amount, use_desc, status, sort, create_by, create_time, remark) values
 (1, '殷墟博物馆首道门票', 'ticket', '殷墟博物馆', 2000, 1000, 1000, 2, 'fixed', '2026-07-01 00:00:00', '2027-05-31 23:59:59', null, null, '凭核销码至景区售票处换票入园', '0', 1, 'admin', sysdate(), '种子券'),
@@ -1232,9 +1233,9 @@ insert into iip_activity_coupon (activity_id, coupon_id, issue_limit, issued_cou
 -- ----------------------------
 -- iip 13.1、海南化种子（海南商户/活动/特色券/关联）
 -- ----------------------------
-insert into iip_merchant (merchant_id, merchant_no, merchant_name, category, city, contact_name, contact_phone, address, description, logo, business_hours, longitude, latitude, status, audit_by, audit_time, create_by, create_time, remark) values
-(4, 'M20260800001', '三亚湾海鲜广场', '餐饮', '三亚', '陈老板', '0898-88000001', '三亚市天涯区三亚湾路18号', '坐落于三亚湾路的临海海鲜餐饮广场，每日直供南海新鲜渔获，主打和乐蟹、芒果螺、清蒸石斑鱼等现捞现做的琼味海鲜，设有观海餐位，是游客赏三亚湾日落、品海鲜盛宴的热门打卡地。', '/profile/avatar/merchant/4.png', '10:00-23:00', 109.508300, 18.254700, '0', 'admin', sysdate(), 'admin', sysdate(), '海南种子商户'),
-(5, 'M20260800002', '东坡文化旅游区文创店', '景区', '儋州', '符店长', '0898-23000002', '儋州市中和镇东坡文化旅游区内', '位于东坡文化旅游区内的特色文创零售店，售卖东坡书院主题文具、儋州调声非遗周边、椰雕和黎锦工艺品，并提供景区纪念盖章服务，是游客选购海南文化伴手礼的官方门店。', '/profile/avatar/merchant/5.png', '08:30-17:30', 109.576800, 19.521000, '0', 'admin', sysdate(), 'admin', sysdate(), '海南种子商户');
+insert into iip_merchant (merchant_id, merchant_no, merchant_name, category, city, contact_name, contact_phone, address, description, logo, business_hours, longitude, latitude, status, is_recommend, audit_by, audit_time, create_by, create_time, remark) values
+(4, 'M20260800001', '三亚湾海鲜广场', '餐饮', '三亚', '陈老板', '0898-88000001', '三亚市天涯区三亚湾路18号', '坐落于三亚湾路的临海海鲜餐饮广场，每日直供南海新鲜渔获，主打和乐蟹、芒果螺、清蒸石斑鱼等现捞现做的琼味海鲜，设有观海餐位，是游客赏三亚湾日落、品海鲜盛宴的热门打卡地。', '/profile/avatar/merchant/4.png', '10:00-23:00', 109.508300, 18.254700, '0', '1', 'admin', sysdate(), 'admin', sysdate(), '海南种子商户'),
+(5, 'M20260800002', '东坡文化旅游区文创店', '景区', '儋州', '符店长', '0898-23000002', '儋州市中和镇东坡文化旅游区内', '位于东坡文化旅游区内的特色文创零售店，售卖东坡书院主题文具、儋州调声非遗周边、椰雕和黎锦工艺品，并提供景区纪念盖章服务，是游客选购海南文化伴手礼的官方门店。', '/profile/upload/2026/07/19/merchant-demo-5.jpg', '08:30-17:30', 109.576800, 19.521000, '0', '0', 'admin', sysdate(), 'admin', sysdate(), '海南种子商户');
 
 insert into iip_activity (activity_id, activity_no, activity_name, description, start_time, end_time, points_ratio, merchant_limit, coupon_quota, city, region_type, region_name, priority, status, create_by, create_time, remark) values
 (2, 'A2026080001', '海南发票积分常态化促消费活动', '全省常态化活动：在参与商户消费取得发票并上传，审核通过后按发票面额1:1发放积分，积分可兑换海南特色券。', '2026-08-01 00:00:00', '2030-12-31 23:59:59', 1.00, -1, -1, '', 'province', '', 0, '0', 'admin', sysdate(), '海南种子活动'),
@@ -1264,6 +1265,15 @@ insert into iip_activity_coupon (activity_id, coupon_id, issue_limit, issued_cou
 (2, 12, 2000, 0, 'admin', sysdate()),
 (2, 13, 300, 0, 'admin', sysdate()),
 (2, 14, 500, 0, 'admin', sysdate());
+
+-- ----------------------------
+-- iip 13.2、安阳景区演示商户（推荐位演示数据）
+-- ----------------------------
+insert into iip_merchant (merchant_id, merchant_no, merchant_name, category, city, contact_name, contact_phone, address, description, logo, business_hours, longitude, latitude, status, is_recommend, audit_by, audit_time, create_by, create_time, remark) values
+(6, 'M20260700004', '殷墟博物馆', '景区', '安阳', '周馆长', '0372-5550006', '安阳市殷都区殷墟路1号', '世界文化遗产殷墟的核心展示场馆，馆藏甲骨文、青铜器、玉器等殷商文物四千余件，系统展示三千多年前商代都城文明，是探访中华文明源头、研学殷商历史文化的必到之地。', '/profile/upload/2026/07/19/merchant-scenic-1.jpg', '08:00-17:30', 114.318500, 36.123600, '0', '0', 'admin', sysdate(), 'admin', sysdate(), '安阳景区演示商户'),
+(7, 'M20260700005', '红旗渠风景区', '景区', '安阳', '秦主任', '0372-5550007', '安阳市林州市太行路225号', '国家5A级旅游景区，以“人工天河”红旗渠为主体，含分水苑、青年洞、络丝潭三大景区，渠水蜿蜒于太行绝壁之间，是感悟红旗渠精神、观赏太行山水的红色旅游胜地。', '/profile/upload/2026/07/19/merchant-scenic-2.jpg', '08:00-18:00', 113.824600, 36.064200, '0', '0', 'admin', sysdate(), 'admin', sysdate(), '安阳景区演示商户'),
+(8, 'M20260700006', '太行大峡谷景区', '景区', '安阳', '杨经理', '0372-5550008', '安阳市林州市石板岩镇', '国家5A级旅游景区，境内断崖高起、群峰峥嵘，拥有桃花谷、王相岩、太行天路等核心景点，谷内溪流飞瀑、植被葱郁，是北雄风光的典型代表和避暑休闲胜地。', '/profile/upload/2026/07/19/merchant-scenic-3.jpg', '07:30-18:00', 113.715800, 36.128900, '0', '0', 'admin', sysdate(), 'admin', sysdate(), '安阳景区演示商户'),
+(9, 'M20260700007', '羑里城遗址', '景区', '安阳', '孔馆长', '0372-5550009', '安阳市汤阴县文王路羑里城遗址', '中国历史上有文字记载的第一座国家监狱遗址，周文王在此推演八卦、著《周易》，现存演易坊、大殿、御碑亭等建筑，是周易文化发祥地和易学研学圣地。', '/profile/upload/2026/07/19/merchant-scenic-4.jpg', '08:30-17:30', 114.367200, 35.921800, '0', '0', 'admin', sysdate(), 'admin', sysdate(), '安阳景区演示商户');
 
 -- ----------------------------
 -- iip 14、定时任务种子（积分过期结转）
