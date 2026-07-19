@@ -179,7 +179,9 @@ onShow(() => {
 
 <style scoped>
 .page {
+  min-height: 100vh;
   padding: 24rpx;
+  background-color: var(--iip-color-bg);
 }
 
 .user {

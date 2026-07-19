@@ -81,9 +81,10 @@
       <!-- 双入口格 -->
       <view class="entry">
         <view class="entry__main" hover-class="iip-tap" @click="goUpload">
-          <view class="entry__title">上传发票换积分</view>
-          <view class="entry__desc">餐饮 / 住宿 / 加油发票，按面额 1:{{ ratioText }} 积分</view>
-          <view class="entry__arrow">去上传 ›</view>
+          <view class="entry__art" :style="{ backgroundImage: icons.invoice }"></view>
+          <view class="entry__title entry__content">上传发票换积分</view>
+          <view class="entry__desc entry__content">餐饮 / 住宿 / 加油发票，按面额 1:{{ ratioText }} 积分</view>
+          <view class="entry__arrow entry__content">去上传 ›</view>
         </view>
         <view class="entry__side">
           <view class="entry__mini" hover-class="iip-tap" @click="goMyCoupons">
@@ -613,6 +614,10 @@ function goLogin() {
   margin-top: 24rpx;
   padding: 28rpx 32rpx;
 }
+.strip__main {
+  flex: 1 1 0;
+  min-width: 0;
+}
 .strip__lab {
   font-size: var(--iip-fs-24);
   color: var(--iip-color-text-secondary);
@@ -641,6 +646,7 @@ function goLogin() {
   color: var(--iip-color-text-secondary);
 }
 .strip__go {
+  margin-left: auto;
   padding: 14rpx 32rpx;
   font-size: var(--iip-fs-24);
   flex: 0 0 auto;
@@ -709,10 +715,26 @@ function goLogin() {
 .entry__main {
   flex: 1.35;
   position: relative;
+  overflow: hidden;
   padding: 32rpx 28rpx 72rpx;
   background-color: var(--iip-color-surface);
   border: 3rpx solid var(--iip-color-primary);
   border-radius: var(--iip-radius-32);
+}
+.entry__art {
+  position: absolute;
+  top: 16rpx;
+  right: 16rpx;
+  width: 112rpx;
+  height: 112rpx;
+  opacity: 0.06;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+.entry__content {
+  position: relative;
+  z-index: 1;
 }
 .entry__title {
   font-size: var(--iip-fs-30);

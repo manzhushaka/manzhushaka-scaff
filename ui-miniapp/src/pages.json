@@ -96,6 +96,7 @@
     }
   ],
   "globalStyle": {
+    "navigationStyle": "custom",
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "发票积分平台",
     "navigationBarBackgroundColor": "#f6f1e6",
