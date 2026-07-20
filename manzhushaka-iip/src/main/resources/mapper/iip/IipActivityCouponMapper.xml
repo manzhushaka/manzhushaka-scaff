@@ -125,6 +125,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where id = #{id}
           and (issue_limit = -1 or issued_count &lt; issue_limit)
     </update>
+
+    <update id="decrIssued">
+        update iip_activity_coupon
+        set issued_count = issued_count - 1,
+            update_time = sysdate()
+        where activity_id = #{activityId}
+          and coupon_id = #{couponId}
+          and issued_count &gt; 0
+    </update>
 	
     <delete id="deleteIipActivityCouponById" parameterType="Long">
         delete from iip_activity_coupon where id = #{id}

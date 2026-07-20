@@ -10,7 +10,7 @@
     </view>
 
     <template v-else>
-      <!-- 状态 pilltabs：可使用 / 已使用 / 已过期 -->
+      <!-- 状态 pilltabs：可使用 / 已使用 / 已过期 / 已作废 -->
       <view class="tabs">
         <view class="iip-pilltabs">
           <view
@@ -80,7 +80,7 @@
             </view>
             <view class="qrt__foot">
               <text>兑换时间 {{ fmtDate(item.exchangeTime) }}</text>
-              <text>实名 · {{ maskedName }}</text>
+              <text>持券账号 · {{ maskedName }}</text>
             </view>
           </view>
 
@@ -106,16 +106,16 @@
             </view>
           </view>
 
-          <!-- 已使用 / 已过期：简版行卡，整卡灰化 -->
+          <!-- 已使用 / 已过期 / 已作废：简版行卡，整卡灰化 -->
           <view v-else class="iip-card done">
             <view class="done__head">
               <text class="done__name">{{ item.couponName }}</text>
-              <text class="iip-chip iip-chip--gray">{{ item.status === '1' ? '已使用' : '已过期' }}</text>
+              <text class="iip-chip iip-chip--gray">{{ statusLabel(item.status) }}</text>
             </view>
             <view class="done__sub">
               <text class="iip-chip iip-chip--gray">{{ couponTypeName(item.couponType) }}</text>
               <text class="done__time">
-                {{ item.status === '1' ? '使用时间 ' + fmtMinute(item.verifyTime) : '过期时间 ' + fmtDate(item.validEndTime) }}
+                {{ statusTimeText(item) }}
               </text>
             </view>
           </view>
@@ -143,18 +143,19 @@ import QrCode from '@/components/QrCode.vue'
 
 const userStore = useUserStore()
 
-/** 状态 tab（value 对应后端 status：0未使用 1已使用 2已过期） */
+/** 状态 tab（value 对应后端 status：0未使用 1已使用 2已过期 3已作废） */
 const tabs = [
   { label: '可使用', value: '0' },
   { label: '已使用', value: '1' },
-  { label: '已过期', value: '2' }
+  { label: '已过期', value: '2' },
+  { label: '已作废', value: '3' }
 ]
 
 const activeStatus = ref('0')
 const list = ref([])
 const loading = ref(false)
 
-/** 实名脱敏名：首字+*，无昵称显示「会员」（QR 券卡 footer 用） */
+/** 持券账号脱敏名：首字+*，无昵称显示「会员」（QR 券卡 footer 用） */
 const maskedName = computed(() => {
   const nickname = userStore.member && userStore.member.nickname
   if (!nickname) {
@@ -164,9 +165,25 @@ const maskedName = computed(() => {
 })
 
 const emptyText = computed(() => {
-  const map = { 0: '暂无未使用的券', 1: '暂无已使用的券', 2: '暂无已过期的券' }
+  const map = { 0: '暂无未使用的券', 1: '暂无已使用的券', 2: '暂无已过期的券', 3: '暂无已作废的券' }
   return map[activeStatus.value]
 })
+
+/** 券实例状态文案 */
+function statusLabel(status) {
+  return { 1: '已使用', 2: '已过期', 3: '已作废' }[status] || '不可使用'
+}
+
+/** 已结束券的时间说明 */
+function statusTimeText(item) {
+  if (item.status === '1') {
+    return '使用时间 ' + fmtMinute(item.verifyTime)
+  }
+  if (item.status === '3') {
+    return '作废时间 ' + fmtMinute(item.voidTime)
+  }
+  return '过期时间 ' + fmtDate(item.validEndTime)
+}
 
 async function loadList() {
   if (!userStore.isLogin) {
@@ -223,7 +240,7 @@ onShow(() => {
     list.value = []
     return
   }
-  /* 刷新资料，保证券卡 footer 实名信息可用 */
+  /* 刷新资料，保证券卡 footer 持券账号信息可用 */
   userStore.fetchProfile().catch(() => {})
   loadList()
 })

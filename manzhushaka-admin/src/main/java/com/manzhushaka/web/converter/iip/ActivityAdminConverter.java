@@ -31,7 +31,8 @@ public final class ActivityAdminConverter
         return new SaveActivityCommand(request.getActivityId(), request.getActivityName(), request.getCoverImage(),
                 request.getDescription(), request.getStartTime(), request.getEndTime(), request.getPointsRatio(),
                 request.getMerchantLimit(), request.getCouponQuota(), request.getCity(), request.getRegionType(),
-                request.getRegionName(), request.getPriority(), request.getStatus(), request.getRemark());
+                request.getRegionName(), request.getPriority(), request.getStatus(), request.getRemark(),
+                request.getSingleInvoiceCap(), request.getMonthlyMemberCap(), request.getMerchantScope());
     }
 
     public static ActivityMerchantCommand toMerchantCommand(ActivityMerchantConfigRequest request)

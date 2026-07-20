@@ -71,6 +71,17 @@ public class MiniappMerchantController extends BaseController
     }
 
     /**
+     * 预检待核销券，返回券条件和持券账号提示，不修改券状态。
+     */
+    @Log(title = "小程序商户", businessType = BusinessType.OTHER)
+    @PostMapping("/verify/preview")
+    public AjaxResult verifyPreview(@Validated @RequestBody MerchantVerifyRequest request)
+    {
+        return success(merchantAppService.previewCoupon(MerchantMiniappConverter.toVerifyCommand(request),
+                SecurityContextHelper.getUserId()));
+    }
+
+    /**
      * 查询本商户核销工作台统计（今日/累计的核销笔数与消耗积分，仅状态正常的商户可查询）
      */
     @Log(title = "小程序商户", businessType = BusinessType.OTHER)

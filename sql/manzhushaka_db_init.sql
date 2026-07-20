@@ -890,6 +890,9 @@ create table iip_invoice (
   status            char(1)         default '0'                comment '状态（0待审核 1已通过 2已驳回）',
   points            int(11)         default 0                  comment '发放积分数',
   activity_id       bigint(20)      default null               comment '发分依据的活动ID',
+  points_rule_id    bigint(20)      default null               comment '发分依据的积分规则ID',
+  points_ratio_snapshot decimal(10,2) default null             comment '发分比例快照',
+  points_rule_snapshot varchar(500) default ''                 comment '积分计算规则快照',
   audit_by          varchar(64)     default ''                 comment '审核人',
   audit_time        datetime        default null               comment '审核时间',
   audit_remark      varchar(255)    default ''                 comment '审核备注（驳回填原因）',
@@ -934,7 +937,7 @@ create table iip_points_record (
   change_type       varchar(16)     not null                   comment '变动类型（earn获得 consume消费 expire过期 adjust调整）',
   points            int(11)         not null                   comment '变动数量（正数）',
   balance_after     int(11)         not null                   comment '变动后可用余额',
-  biz_type          varchar(32)     default ''                 comment '业务来源（invoice_audit/coupon_exchange/admin_adjust/point_expire）',
+  biz_type          varchar(32)     default ''                 comment '业务来源（invoice_audit/coupon_exchange/coupon_void_refund/admin_adjust/point_expire）',
   biz_id            varchar(64)     default ''                 comment '业务单据ID（幂等用）',
   remaining         int(11)         default 0                  comment '该批剩余未消耗（仅earn）',
   expire_time       datetime        default null               comment '批次过期时间（仅earn）',
@@ -997,7 +1000,7 @@ create table iip_coupon_record (
   member_id          bigint(20)      not null                   comment '兑换用户ID',
   points_cost        int(11)         default 0                  comment '兑换消耗积分',
   verify_code        varchar(32)     not null                   comment '核销码',
-  status             char(1)         default '0'                comment '状态（0未使用 1已使用 2已过期）',
+  status             char(1)         default '0'                comment '状态（0未使用 1已使用 2已过期 3已作废）',
   exchange_time      datetime        default null               comment '兑换时间',
   valid_start_time   datetime        default null               comment '有效期开始',
   valid_end_time     datetime        default null               comment '有效期结束',
@@ -1005,6 +1008,9 @@ create table iip_coupon_record (
   verify_merchant_id bigint(20)      default null               comment '核销商户ID',
   verify_by          varchar(64)     default ''                 comment '核销操作人',
   activity_id        bigint(20)      default null               comment '来源活动ID',
+  void_time          datetime        default null               comment '作废时间',
+  void_by            varchar(64)     default ''                 comment '作废操作人',
+  void_reason        varchar(255)    default ''                 comment '作废原因',
   create_by          varchar(64)     default ''                 comment '创建者',
   create_time        datetime                                   comment '创建时间',
   update_by          varchar(64)     default ''                 comment '更新者',
@@ -1046,7 +1052,39 @@ create table iip_activity (
 ) engine=innodb auto_increment=100 comment = '活动表';
 
 -- ----------------------------
--- iip 10、活动商户关联表
+-- iip 10、活动积分规则与月度额度表
+-- ----------------------------
+drop table if exists iip_points_monthly_quota;
+drop table if exists iip_points_rule;
+create table iip_points_rule (
+  rule_id            bigint(20)      not null auto_increment    comment '规则ID',
+  activity_id        bigint(20)      not null                   comment '活动ID',
+  single_invoice_cap int(11)         default -1                 comment '单张发票积分上限（-1不限）',
+  monthly_member_cap int(11)         default -1                 comment '活动内每人每月积分上限（-1不限）',
+  merchant_scope     varchar(16)     default 'all'              comment '商户范围（all全部 whitelist活动商户白名单）',
+  create_by          varchar(64)     default ''                 comment '创建者',
+  create_time        datetime                                   comment '创建时间',
+  update_by          varchar(64)     default ''                 comment '更新者',
+  update_time        datetime                                   comment '更新时间',
+  remark             varchar(500)    default ''                 comment '备注',
+  primary key (rule_id),
+  unique key uk_activity (activity_id)
+) engine=innodb auto_increment=100 comment = '活动积分规则表';
+
+create table iip_points_monthly_quota (
+  quota_id           bigint(20)      not null auto_increment    comment '额度ID',
+  rule_id            bigint(20)      not null                   comment '积分规则ID',
+  member_id          bigint(20)      not null                   comment '用户ID',
+  quota_month        char(7)         not null                   comment '额度月份（yyyy-MM）',
+  awarded_points     int(11)         default 0                  comment '当月已发积分',
+  create_time        datetime                                   comment '创建时间',
+  update_time        datetime                                   comment '更新时间',
+  primary key (quota_id),
+  unique key uk_rule_member_month (rule_id, member_id, quota_month)
+) engine=innodb auto_increment=1000 comment = '积分月度额度表';
+
+-- ----------------------------
+-- iip 11、活动商户关联表
 -- ----------------------------
 drop table if exists iip_activity_merchant;
 create table iip_activity_merchant (
@@ -1064,7 +1102,7 @@ create table iip_activity_merchant (
 ) engine=innodb auto_increment=100 comment = '活动商户关联表';
 
 -- ----------------------------
--- iip 11、活动券配置表
+-- iip 12、活动券配置表
 -- ----------------------------
 drop table if exists iip_activity_coupon;
 create table iip_activity_coupon (
@@ -1083,7 +1121,7 @@ create table iip_activity_coupon (
 ) engine=innodb auto_increment=100 comment = '活动券配置表';
 
 -- ----------------------------
--- iip 11.1、首页轮播banner表
+-- iip 12.1、首页轮播banner表
 -- ----------------------------
 drop table if exists iip_banner;
 create table iip_banner (
@@ -1104,7 +1142,7 @@ create table iip_banner (
 ) engine=innodb comment = '首页轮播banner';
 
 -- ----------------------------
--- iip 12、菜单权限（menu_id 200~241）
+-- iip 13、菜单权限（menu_id 200~242）
 -- ----------------------------
 -- 一级目录
 insert into sys_menu values('200', '发票积分', '0', '8', 'iip', null, '', '', 1, 0, 'M', '0', '0', '', 'guide', 'admin', sysdate(), '', null, '发票积分目录');
@@ -1145,6 +1183,7 @@ insert into sys_menu values('229', '券导出', '206', '5', '', null, '', '', 1,
 -- 兑换记录按钮
 insert into sys_menu values('230', '兑换查询', '207', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'iip:exchange:query', '#', 'admin', sysdate(), '', null, '兑换查询按钮');
 insert into sys_menu values('231', '兑换导出', '207', '2', '', null, '', '', 1, 0, 'F', '0', '0', 'iip:exchange:export', '#', 'admin', sysdate(), '', null, '兑换导出按钮');
+insert into sys_menu values('242', '兑换作废', '207', '3', '', null, '', '', 1, 0, 'F', '0', '0', 'iip:exchange:void', '#', 'admin', sysdate(), '', null, '兑换作废按钮');
 -- 活动管理按钮
 insert into sys_menu values('232', '活动查询', '208', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'iip:activity:query', '#', 'admin', sysdate(), '', null, '活动查询按钮');
 insert into sys_menu values('233', '活动新增', '208', '2', '', null, '', '', 1, 0, 'F', '0', '0', 'iip:activity:add', '#', 'admin', sysdate(), '', null, '活动新增按钮');
@@ -1156,7 +1195,7 @@ insert into sys_menu values('238', 'banner查询', '237', '1', '', null, '', '',
 insert into sys_menu values('239', 'banner新增', '237', '2', '', null, '', '', 1, 0, 'F', '0', '0', 'iip:banner:add', '#', 'admin', sysdate(), '', null, 'banner新增按钮');
 insert into sys_menu values('240', 'banner修改', '237', '3', '', null, '', '', 1, 0, 'F', '0', '0', 'iip:banner:edit', '#', 'admin', sysdate(), '', null, 'banner修改按钮');
 insert into sys_menu values('241', 'banner删除', '237', '4', '', null, '', '', 1, 0, 'F', '0', '0', 'iip:banner:remove', '#', 'admin', sysdate(), '', null, 'banner删除按钮');
--- 角色默认授权（role_id=2 授予 200~241 全部）
+-- 角色默认授权（role_id=2 授予 iip 全部菜单与按钮权限）
 insert into sys_role_menu values ('2', '200');
 insert into sys_role_menu values ('2', '201');
 insert into sys_role_menu values ('2', '202');
@@ -1197,9 +1236,10 @@ insert into sys_role_menu values ('2', '238');
 insert into sys_role_menu values ('2', '239');
 insert into sys_role_menu values ('2', '240');
 insert into sys_role_menu values ('2', '241');
+insert into sys_role_menu values ('2', '242');
 
 -- ----------------------------
--- iip 13、种子数据（商户/券/活动/关联）
+-- iip 14、种子数据（商户/券/活动/关联）
 -- ----------------------------
 insert into iip_merchant (merchant_id, merchant_no, merchant_name, category, contact_name, contact_phone, address, description, logo, business_hours, longitude, latitude, status, is_recommend, audit_by, audit_time, create_by, create_time, remark) values
 (1, 'M20260700001', '老字号烩面馆', '餐饮', '王掌柜', '0372-5550001', '安阳市文峰区老街12号', '安阳本地经营三十余年的老字号面馆，主打手工烩面、羊肉鲜汤和豫北家常菜，汤头每日现熬、面条现擀现煮，是街坊聚餐和游客品尝地道安阳味道的热门去处。', '/profile/upload/2026/07/19/merchant-demo-1.jpg', '10:00-22:00', 114.357500, 36.098700, '0', '0', 'admin', sysdate(), 'admin', sysdate(), '种子商户'),
@@ -1217,6 +1257,9 @@ insert into iip_coupon (coupon_id, coupon_name, coupon_type, target_name, points
 insert into iip_activity (activity_id, activity_no, activity_name, description, start_time, end_time, points_ratio, merchant_limit, coupon_quota, status, create_by, create_time, remark) values
 (1, 'A2026070001', '乐享安阳——发票核验积分兑换活动', '在参与商户消费取得发票并上传，审核通过后按发票面额1:1发放积分，积分可兑换景区门票与商户优惠券。', '2026-07-01 00:00:00', '2027-05-31 23:59:59', 1.00, -1, -1, '0', 'admin', sysdate(), '种子活动');
 
+insert into iip_points_rule (activity_id, single_invoice_cap, monthly_member_cap, merchant_scope, create_by, create_time) values
+(1, -1, -1, 'all', 'admin', sysdate());
+
 insert into iip_activity_merchant (activity_id, merchant_id, status, create_by, create_time) values
 (1, 1, '0', 'admin', sysdate()),
 (1, 2, '0', 'admin', sysdate()),
@@ -1231,7 +1274,7 @@ insert into iip_activity_coupon (activity_id, coupon_id, issue_limit, issued_cou
 (1, 6, -1, 0, 'admin', sysdate());
 
 -- ----------------------------
--- iip 13.1、海南化种子（海南商户/活动/特色券/关联）
+-- iip 14.1、海南化种子（海南商户/活动/特色券/关联）
 -- ----------------------------
 insert into iip_merchant (merchant_id, merchant_no, merchant_name, category, city, contact_name, contact_phone, address, description, logo, business_hours, longitude, latitude, status, is_recommend, audit_by, audit_time, create_by, create_time, remark) values
 (4, 'M20260800001', '三亚湾海鲜广场', '餐饮', '三亚', '陈老板', '0898-88000001', '三亚市天涯区三亚湾路18号', '坐落于三亚湾路的临海海鲜餐饮广场，每日直供南海新鲜渔获，主打和乐蟹、芒果螺、清蒸石斑鱼等现捞现做的琼味海鲜，设有观海餐位，是游客赏三亚湾日落、品海鲜盛宴的热门打卡地。', '/profile/avatar/merchant/4.png', '10:00-23:00', 109.508300, 18.254700, '0', '1', 'admin', sysdate(), 'admin', sysdate(), '海南种子商户'),
@@ -1244,6 +1287,14 @@ insert into iip_activity (activity_id, activity_no, activity_name, description, 
 (5, 'A2026080004', '中国国际消费品博览会专场', '消博会会期专场：全省参与商户发票按1:1.5发放积分。', '2027-04-13 00:00:00', '2027-04-18 23:59:59', 1.50, -1, -1, '', 'province', '', 20, '0', 'admin', sysdate(), '海南种子活动'),
 (6, 'A2026080005', '海南欢乐节专场', '海南欢乐节窗口专场：全省参与商户发票按1:1.5发放积分。', '2026-12-20 00:00:00', '2026-12-31 23:59:59', 1.50, -1, -1, '', 'province', '', 20, '0', 'admin', sysdate(), '海南种子活动'),
 (7, 'A2026080006', '海南春节旅游季专场', '2027春节旅游季专场：全省参与商户发票按1:1.5发放积分。', '2027-02-01 00:00:00', '2027-02-14 23:59:59', 1.50, -1, -1, '', 'province', '', 20, '0', 'admin', sysdate(), '海南种子活动');
+
+insert into iip_points_rule (activity_id, single_invoice_cap, monthly_member_cap, merchant_scope, create_by, create_time) values
+(2, -1, -1, 'all', 'admin', sysdate()),
+(3, -1, -1, 'all', 'admin', sysdate()),
+(4, -1, -1, 'all', 'admin', sysdate()),
+(5, -1, -1, 'all', 'admin', sysdate()),
+(6, -1, -1, 'all', 'admin', sysdate()),
+(7, -1, -1, 'all', 'admin', sysdate());
 
 insert into iip_coupon (coupon_id, coupon_name, coupon_type, category, target_name, points_cost, total_stock, remain_stock, per_member_limit, valid_type, valid_start_time, valid_end_time, threshold_amount, discount_amount, merchant_id, sponsor_type, sponsor_name, use_desc, status, sort, create_by, create_time, remark) values
 (7, '蜈支洲岛景区门票券', 'ticket', 'scenic_ticket', '蜈支洲岛景区', 2000, 1000, 1000, 2, 'fixed', '2026-08-01 00:00:00', '2027-07-31 23:59:59', null, null, null, 'platform', '', '凭核销码至景区售票处换票入园', '0', 7, 'admin', sysdate(), '海南特色券'),
@@ -1267,7 +1318,7 @@ insert into iip_activity_coupon (activity_id, coupon_id, issue_limit, issued_cou
 (2, 14, 500, 0, 'admin', sysdate());
 
 -- ----------------------------
--- iip 13.2、安阳景区演示商户（推荐位演示数据）
+-- iip 14.2、安阳景区演示商户（推荐位演示数据）
 -- ----------------------------
 insert into iip_merchant (merchant_id, merchant_no, merchant_name, category, city, contact_name, contact_phone, address, description, logo, business_hours, longitude, latitude, status, is_recommend, audit_by, audit_time, create_by, create_time, remark) values
 (6, 'M20260700004', '殷墟博物馆', '景区', '安阳', '周馆长', '0372-5550006', '安阳市殷都区殷墟路1号', '世界文化遗产殷墟的核心展示场馆，馆藏甲骨文、青铜器、玉器等殷商文物四千余件，系统展示三千多年前商代都城文明，是探访中华文明源头、研学殷商历史文化的必到之地。', '/profile/upload/2026/07/19/merchant-scenic-1.jpg', '08:00-17:30', 114.318500, 36.123600, '0', '0', 'admin', sysdate(), 'admin', sysdate(), '安阳景区演示商户'),
@@ -1276,6 +1327,6 @@ insert into iip_merchant (merchant_id, merchant_no, merchant_name, category, cit
 (9, 'M20260700007', '羑里城遗址', '景区', '安阳', '孔馆长', '0372-5550009', '安阳市汤阴县文王路羑里城遗址', '中国历史上有文字记载的第一座国家监狱遗址，周文王在此推演八卦、著《周易》，现存演易坊、大殿、御碑亭等建筑，是周易文化发祥地和易学研学圣地。', '/profile/upload/2026/07/19/merchant-scenic-4.jpg', '08:30-17:30', 114.367200, 35.921800, '0', '0', 'admin', sysdate(), 'admin', sysdate(), '安阳景区演示商户');
 
 -- ----------------------------
--- iip 14、定时任务种子（积分过期结转）
+-- iip 15、定时任务种子（积分过期结转）
 -- ----------------------------
 insert into sys_job values(4, '积分过期结转', 'DEFAULT', 'pointExpireTask.expire()', '0 17 2 * * ?', '3', '1', '0', 'admin', sysdate(), '', null, '每日扫描过期积分批次并结转');

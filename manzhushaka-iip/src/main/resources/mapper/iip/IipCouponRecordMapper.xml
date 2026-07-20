@@ -20,6 +20,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="verifyMerchantId" column="verify_merchant_id" />
         <result property="verifyBy"         column="verify_by"          />
         <result property="activityId"       column="activity_id"        />
+        <result property="voidTime"         column="void_time"          />
+        <result property="voidBy"           column="void_by"            />
+        <result property="voidReason"       column="void_reason"        />
         <result property="createBy"         column="create_by"          />
         <result property="createTime"       column="create_time"        />
         <result property="updateBy"         column="update_by"          />
@@ -28,7 +31,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
     
     <sql id="selectIipCouponRecordVo">
-        select record_id, coupon_id, coupon_name, coupon_type, member_id, points_cost, verify_code, status, exchange_time, valid_start_time, valid_end_time, verify_time, verify_merchant_id, verify_by, activity_id, create_by, create_time, update_by, update_time, remark 
+        select record_id, coupon_id, coupon_name, coupon_type, member_id, points_cost, verify_code, status,
+               exchange_time, valid_start_time, valid_end_time, verify_time, verify_merchant_id, verify_by,
+               activity_id, void_time, void_by, void_reason, create_by, create_time, update_by, update_time, remark
 		from iip_coupon_record
     </sql>
     
@@ -76,6 +81,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="countByCouponAndMember" resultType="int">
         select count(*) from iip_coupon_record
         where coupon_id = #{couponId}
+          and status != '3'
         <if test="memberId != null">
             and member_id = #{memberId}
         </if>
@@ -101,6 +107,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
           and valid_end_time is not null
           and valid_end_time &lt; #{now}
     </update>
+
+    <update id="voidUnusedAtomic">
+        update iip_coupon_record
+        set status = '3',
+            void_time = sysdate(),
+            void_by = #{voidBy},
+            void_reason = #{voidReason},
+            update_by = #{voidBy},
+            update_time = sysdate()
+        where record_id = #{recordId}
+          and status = '0'
+    </update>
     
     <insert id="insertIipCouponRecord" parameterType="IipCouponRecord" useGeneratedKeys="true" keyProperty="recordId">
         insert into iip_coupon_record (
@@ -117,7 +135,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="verifyTime != null">verify_time,</if>
 			<if test="verifyMerchantId != null">verify_merchant_id,</if>
 			<if test="verifyBy != null and verifyBy != '' ">verify_by,</if>
-			<if test="activityId != null">activity_id,</if>
+				<if test="activityId != null">activity_id,</if>
+				<if test="voidTime != null">void_time,</if>
+				<if test="voidBy != null and voidBy != ''">void_by,</if>
+				<if test="voidReason != null and voidReason != ''">void_reason,</if>
 			<if test="createBy != null and createBy != ''">create_by,</if>
 			<if test="remark != null and remark != ''">remark,</if>
  			create_time
@@ -135,7 +156,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="verifyTime != null">#{verifyTime},</if>
 			<if test="verifyMerchantId != null">#{verifyMerchantId},</if>
 			<if test="verifyBy != null and verifyBy != ''">#{verifyBy},</if>
-			<if test="activityId != null">#{activityId},</if>
+				<if test="activityId != null">#{activityId},</if>
+				<if test="voidTime != null">#{voidTime},</if>
+				<if test="voidBy != null and voidBy != ''">#{voidBy},</if>
+				<if test="voidReason != null and voidReason != ''">#{voidReason},</if>
 			<if test="createBy != null and createBy != ''">#{createBy},</if>
 			<if test="remark != null and remark != ''">#{remark},</if>
  			sysdate()
@@ -159,6 +183,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="verifyMerchantId != null">verify_merchant_id = #{verifyMerchantId},</if>
             <if test="verifyBy != null">verify_by = #{verifyBy},</if>
             <if test="activityId != null">activity_id = #{activityId},</if>
+            <if test="voidTime != null">void_time = #{voidTime},</if>
+            <if test="voidBy != null">void_by = #{voidBy},</if>
+            <if test="voidReason != null">void_reason = #{voidReason},</if>
             <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
             <if test="remark != null">remark = #{remark},</if>
  			update_time = sysdate()

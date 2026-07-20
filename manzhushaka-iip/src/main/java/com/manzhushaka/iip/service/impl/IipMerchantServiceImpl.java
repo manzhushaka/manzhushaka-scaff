@@ -1,5 +1,6 @@
 package com.manzhushaka.iip.service.impl;
 
+import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -240,6 +241,40 @@ public class IipMerchantServiceImpl implements IIipMerchantService
     @Transactional
     public IipCouponRecord verifyCoupon(Long memberId, String verifyCode, String verifyBy)
     {
+        VerifyContext context = validateCoupon(memberId, verifyCode);
+        IipMerchant merchant = context.merchant();
+        IipCouponRecord record = context.record();
+        int rows = merchantVerifyMapper.verifyCouponRecordAtomic(record.getRecordId(), merchant.getMerchantId(),
+                verifyBy);
+        if (rows == 0)
+        {
+            throw new ServiceException("券状态已变化，请重试");
+        }
+        return record;
+    }
+
+    /**
+     * 预检待核销券，不修改券状态。
+     *
+     * @param memberId 当前商户操作员用户ID
+     * @param verifyCode 核销码
+     * @return 通过校验的券实例
+     */
+    @Override
+    public IipCouponRecord previewCoupon(Long memberId, String verifyCode)
+    {
+        return validateCoupon(memberId, verifyCode).record();
+    }
+
+    /**
+     * 校验核销码状态、有效期和适用商户。
+     *
+     * @param memberId 当前商户操作员用户ID
+     * @param verifyCode 核销码
+     * @return 核销上下文
+     */
+    private VerifyContext validateCoupon(Long memberId, String verifyCode)
+    {
         IipMerchant merchant = getVerifiableMerchant(memberId);
         IipCouponRecord record = couponRecordMapper.selectByVerifyCode(verifyCode);
         if (record == null)
@@ -248,11 +283,15 @@ public class IipMerchantServiceImpl implements IIipMerchantService
         }
         if (!RECORD_STATUS_UNUSED.equals(record.getStatus()))
         {
-            throw new ServiceException("券已使用或已过期");
+            throw new ServiceException("券已使用、已过期或已作废");
         }
-        if (record.getValidEndTime() != null && record.getValidEndTime().before(DateUtils.getNowDate()))
+        Date now = DateUtils.getNowDate();
+        if (record.getValidStartTime() != null && now.before(record.getValidStartTime()))
         {
-            // 独立事务先提交过期置位，再抛出业务异常，避免外层事务回滚导致状态未落库
+            throw new ServiceException("券尚未到可用时间");
+        }
+        if (record.getValidEndTime() != null && now.after(record.getValidEndTime()))
+        {
             selfProxy.markCouponRecordExpired(record.getRecordId());
             throw new ServiceException("券已过期");
         }
@@ -262,13 +301,11 @@ public class IipMerchantServiceImpl implements IIipMerchantService
         {
             throw new ServiceException("本券不可在贵店核销");
         }
-        int rows = merchantVerifyMapper.verifyCouponRecordAtomic(record.getRecordId(), merchant.getMerchantId(),
-                verifyBy);
-        if (rows == 0)
-        {
-            throw new ServiceException("券状态已变化，请重试");
-        }
-        return record;
+        return new VerifyContext(merchant, record);
+    }
+
+    private record VerifyContext(IipMerchant merchant, IipCouponRecord record)
+    {
     }
 
     /**

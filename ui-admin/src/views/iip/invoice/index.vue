@@ -131,6 +131,9 @@
             <el-descriptions-item label="发票金额">{{ viewForm.amount }} 元</el-descriptions-item>
             <el-descriptions-item label="开票日期">{{ parseTime(viewForm.invoiceDate, "{y}-{m}-{d}") }}</el-descriptions-item>
             <el-descriptions-item label="发放积分">{{ viewForm.status === "1" && viewForm.points != null ? viewForm.points : "-" }}</el-descriptions-item>
+            <el-descriptions-item v-if="viewForm.status === '1'" label="积分计算" :span="2">
+               {{ viewForm.pointsRuleSnapshot || "按默认 1:1 规则计算" }}
+            </el-descriptions-item>
             <el-descriptions-item label="状态">
                <el-tag :type="formatInvoiceStatus(viewForm.status).type">
                   {{ formatInvoiceStatus(viewForm.status).label }}

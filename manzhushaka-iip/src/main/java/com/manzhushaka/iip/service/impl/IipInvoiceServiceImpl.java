@@ -12,11 +12,13 @@ import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.iip.domain.IipActivity;
 import com.manzhushaka.iip.domain.IipInvoice;
 import com.manzhushaka.iip.domain.IipMerchant;
+import com.manzhushaka.iip.domain.IipPointsRule;
 import com.manzhushaka.iip.mapper.IipActivityMapper;
 import com.manzhushaka.iip.mapper.IipInvoiceMapper;
 import com.manzhushaka.iip.mapper.IipMerchantMapper;
 import com.manzhushaka.iip.service.IIipInvoiceService;
 import com.manzhushaka.iip.service.IIipPointsService;
+import com.manzhushaka.iip.service.IIipPointsRuleService;
 
 /**
  * 发票 服务层实现
@@ -56,6 +58,9 @@ public class IipInvoiceServiceImpl implements IIipInvoiceService
 
     @Autowired
     private IIipPointsService pointsService;
+
+    @Autowired
+    private IIipPointsRuleService pointsRuleService;
 
     /**
      * 通过ID查询发票
@@ -152,17 +157,18 @@ public class IipInvoiceServiceImpl implements IIipInvoiceService
         Date now = new Date();
         Integer points = null;
         Long activityId = null;
+        Long pointsRuleId = null;
+        BigDecimal pointsRatioSnapshot = null;
+        String pointsRuleSnapshot = null;
         if (pass)
         {
-            IipActivity activity = matchPointsActivity(invoice, now);
-            BigDecimal ratio = activity != null && activity.getPointsRatio() != null
-                    ? activity.getPointsRatio() : BigDecimal.ONE;
-            points = invoice.getAmount().multiply(ratio).setScale(0, RoundingMode.HALF_UP).intValueExact();
-            if (points <= 0)
-            {
-                throw new ServiceException("发票金额过低无法发放积分");
-            }
-            activityId = activity == null ? null : activity.getActivityId();
+            PointsActivityMatch match = matchPointsActivity(invoice, now);
+            PointsCalculation calculation = calculatePoints(invoice, match, now);
+            points = calculation.actualPoints();
+            activityId = match.activity() == null ? null : match.activity().getActivityId();
+            pointsRuleId = match.rule().getRuleId();
+            pointsRatioSnapshot = calculation.ratio();
+            pointsRuleSnapshot = calculation.snapshot();
         }
 
         IipInvoice update = new IipInvoice();
@@ -170,6 +176,9 @@ public class IipInvoiceServiceImpl implements IIipInvoiceService
         update.setStatus(pass ? STATUS_APPROVED : STATUS_REJECTED);
         update.setPoints(points);
         update.setActivityId(activityId);
+        update.setPointsRuleId(pointsRuleId);
+        update.setPointsRatioSnapshot(pointsRatioSnapshot);
+        update.setPointsRuleSnapshot(pointsRuleSnapshot);
         update.setAuditBy(auditBy);
         update.setAuditTime(now);
         update.setAuditRemark(auditRemark);
@@ -180,7 +189,7 @@ public class IipInvoiceServiceImpl implements IIipInvoiceService
             throw new ServiceException("该发票已审核过");
         }
 
-        if (pass)
+        if (pass && points > 0)
         {
             Date expireTime = new Date(System.currentTimeMillis() + POINTS_VALID_DAYS * MILLIS_PER_DAY);
             pointsService.awardPoints(invoice.getMemberId(), points, BIZ_TYPE_INVOICE_AUDIT,
@@ -195,28 +204,110 @@ public class IipInvoiceServiceImpl implements IIipInvoiceService
      *
      * @param invoice 发票信息
      * @param now 当前时间
-     * @return 命中的活动，无生效活动或无匹配时返回null
+     * @return 命中的活动与积分规则；无生效活动或无地域匹配时返回1:1兼容规则
      */
-    private IipActivity matchPointsActivity(IipInvoice invoice, Date now)
+    private PointsActivityMatch matchPointsActivity(IipInvoice invoice, Date now)
     {
         List<IipActivity> activities = activityMapper.selectActiveActivities(now);
         if (activities.isEmpty())
         {
-            return null;
+            return new PointsActivityMatch(null, defaultRule());
         }
         String merchantCity = resolveMerchantCity(invoice);
+        boolean regionMatched = false;
         for (IipActivity activity : activities)
         {
-            if (StringUtils.isEmpty(activity.getCity()))
+            boolean matchesRegion = StringUtils.isEmpty(activity.getCity())
+                    || (StringUtils.isNotEmpty(merchantCity) && activity.getCity().equals(merchantCity));
+            if (!matchesRegion)
             {
-                return activity;
+                continue;
             }
-            if (StringUtils.isNotEmpty(merchantCity) && activity.getCity().equals(merchantCity))
+            regionMatched = true;
+            IipPointsRule rule = pointsRuleService.getRule(activity.getActivityId());
+            if (pointsRuleService.isMerchantEligible(rule, invoice.getMerchantId()))
             {
-                return activity;
+                return new PointsActivityMatch(activity, rule);
             }
         }
-        return null;
+        if (regionMatched)
+        {
+            throw new ServiceException("发票商户不在当前积分活动范围");
+        }
+        return new PointsActivityMatch(null, defaultRule());
+    }
+
+    /**
+     * 按比例、单张上限和月度剩余额度计算最终积分。
+     *
+     * @param invoice 发票
+     * @param match 活动与规则匹配结果
+     * @param now 当前时间
+     * @return 积分计算结果
+     */
+    private PointsCalculation calculatePoints(IipInvoice invoice, PointsActivityMatch match, Date now)
+    {
+        IipActivity activity = match.activity();
+        IipPointsRule rule = match.rule();
+        BigDecimal ratio = activity != null && activity.getPointsRatio() != null
+                ? activity.getPointsRatio() : BigDecimal.ONE;
+        int rawPoints = invoice.getAmount().multiply(ratio).setScale(0, RoundingMode.HALF_UP).intValueExact();
+        if (rawPoints <= 0)
+        {
+            throw new ServiceException("发票金额过低无法发放积分");
+        }
+        int singleCappedPoints = applyCap(rawPoints, rule.getSingleInvoiceCap());
+        int actualPoints = pointsRuleService.reserveMonthlyPoints(rule, invoice.getMemberId(), singleCappedPoints,
+                now);
+        String snapshot = StringUtils.format("金额={}，比例={}，原始积分={}，单张上限={}，月度上限={}，实际积分={}",
+                invoice.getAmount(), ratio, rawPoints, formatCap(rule.getSingleInvoiceCap()),
+                formatCap(rule.getMonthlyMemberCap()), actualPoints);
+        return new PointsCalculation(ratio, actualPoints, snapshot);
+    }
+
+    /**
+     * 应用积分上限。
+     *
+     * @param points 原始积分
+     * @param cap 上限，-1表示不限
+     * @return 封顶后的积分
+     */
+    private int applyCap(int points, Integer cap)
+    {
+        return cap == null || cap == -1 ? points : Math.min(points, cap);
+    }
+
+    /**
+     * 格式化规则快照中的上限。
+     *
+     * @param cap 上限
+     * @return 上限文案
+     */
+    private String formatCap(Integer cap)
+    {
+        return cap == null || cap == -1 ? "不限" : cap.toString();
+    }
+
+    /**
+     * 构造兼容旧行为的不限额默认规则。
+     *
+     * @return 默认规则
+     */
+    private IipPointsRule defaultRule()
+    {
+        IipPointsRule rule = new IipPointsRule();
+        rule.setSingleInvoiceCap(-1);
+        rule.setMonthlyMemberCap(-1);
+        rule.setMerchantScope("all");
+        return rule;
+    }
+
+    private record PointsActivityMatch(IipActivity activity, IipPointsRule rule)
+    {
+    }
+
+    private record PointsCalculation(BigDecimal ratio, int actualPoints, String snapshot)
+    {
     }
 
     /**

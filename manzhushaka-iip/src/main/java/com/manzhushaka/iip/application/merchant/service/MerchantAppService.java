@@ -8,6 +8,7 @@ import com.manzhushaka.iip.application.merchant.command.SaveMerchantCommand;
 import com.manzhushaka.iip.application.merchant.query.MerchantQuery;
 import com.manzhushaka.iip.application.merchant.result.MerchantResult;
 import com.manzhushaka.iip.application.merchant.result.MerchantVerifyResult;
+import com.manzhushaka.iip.application.merchant.result.MerchantVerifyPreviewResult;
 import com.manzhushaka.iip.application.merchant.result.MerchantVerifyStatsResult;
 import com.manzhushaka.iip.application.merchant.result.VerifyRecordResult;
 
@@ -102,6 +103,15 @@ public interface MerchantAppService
      * @return 核销成功结果
      */
     MerchantVerifyResult verifyCoupon(MerchantVerifyCommand command, Long memberId, String operatorName);
+
+    /**
+     * 小程序商户核销预检，不修改券状态。
+     *
+     * @param command 核销命令
+     * @param memberId 当前用户ID
+     * @return 券条件与持券账号提示
+     */
+    MerchantVerifyPreviewResult previewCoupon(MerchantVerifyCommand command, Long memberId);
 
     /**
      * 查询指定商户的核销记录（小程序，按核销时间倒序）。

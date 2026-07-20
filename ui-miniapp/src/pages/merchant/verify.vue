@@ -25,18 +25,28 @@
     <button
       class="iip-btn submit"
       :class="{ 'is-disabled': !verifyCode }"
-      :disabled="!verifyCode || verifying"
+      :disabled="!verifyCode || verifying || previewing"
       @click="openConfirm"
     >
-      {{ verifying ? '核销中' : '确认核销' }}
+      {{ previewing ? '校验中' : '确认核销' }}
     </button>
 
     <!-- 核销二次确认 bottom sheet -->
     <view v-if="confirming" class="mask" @click="closeConfirm">
       <view class="sheet" @click.stop>
         <view class="sheet__title">确认核销</view>
+        <view v-if="preview" class="preview">
+          <view class="preview__name">{{ preview.couponName }}</view>
+          <view class="preview__row">券类型：{{ couponTypeName(preview.couponType) }}</view>
+          <view v-if="benefitText" class="preview__row">使用门槛：{{ benefitText }}</view>
+          <view v-if="preview.targetName" class="preview__row">适用对象：{{ preview.targetName }}</view>
+          <view class="preview__row">持券账号：{{ preview.holderDisplayName }}</view>
+          <view class="preview__row">有效期：{{ fmtSecond(preview.validStartTime) }} 至 {{ fmtSecond(preview.validEndTime) }}</view>
+          <view v-if="preview.useDesc" class="preview__desc">{{ preview.useDesc }}</view>
+          <view v-if="preview.identityCheckSuggested" class="preview__warn">门票券请按现场规则核验持券人身份</view>
+        </view>
         <view class="sheet__code">{{ maskedCode }}</view>
-        <view class="sheet__desc">确认核销该券？核销后不可撤销</view>
+        <view class="sheet__desc">请确认券条件已满足，核销后不可撤销</view>
         <view class="sheet__actions">
           <button class="sheet__btn sheet__btn--plain" :disabled="verifying" @click="closeConfirm">取消</button>
           <button class="sheet__btn sheet__btn--primary" :disabled="verifying" @click="handleVerify">
@@ -65,7 +75,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { verifyCoupon } from '@/api/merchant.js'
+import { previewCoupon as requestPreviewCoupon, verifyCoupon } from '@/api/merchant.js'
 import { couponTypeName } from '@/common/format.js'
 import icons from '@/common/icons.js'
 
@@ -73,6 +83,16 @@ const verifyCode = ref('')
 const result = ref(null)
 const verifying = ref(false)
 const confirming = ref(false)
+const previewing = ref(false)
+const preview = ref(null)
+
+/** 满减券门槛文案，消费金额由商户线下核对 */
+const benefitText = computed(() => {
+  if (!preview.value || preview.value.thresholdAmount == null || preview.value.discountAmount == null) {
+    return ''
+  }
+  return `满 ${Number(preview.value.thresholdAmount)} 元减 ${Number(preview.value.discountAmount)} 元`
+})
 
 /** 确认弹层中的脱敏券码：保留前 4 位与后 2 位，中间以 * 代替 */
 const maskedCode = computed(() => {
@@ -90,6 +110,7 @@ const maskedCode = computed(() => {
  */
 function onCodeInput(e) {
   verifyCode.value = (e.detail.value || '').toUpperCase().trim()
+  preview.value = null
 }
 
 /**
@@ -100,6 +121,7 @@ function scanCode() {
     success: (res) => {
       if (res.result) {
         verifyCode.value = String(res.result).toUpperCase().trim()
+        openConfirm()
       }
     },
     fail: () => {
@@ -111,11 +133,19 @@ function scanCode() {
 /**
  * 打开二次确认弹层（无码或核销中不响应）。
  */
-function openConfirm() {
-  if (!verifyCode.value || verifying.value) {
+async function openConfirm() {
+  if (!verifyCode.value || verifying.value || previewing.value) {
     return
   }
-  confirming.value = true
+  previewing.value = true
+  try {
+    preview.value = await requestPreviewCoupon(verifyCode.value)
+    confirming.value = true
+  } catch (e) {
+    preview.value = null
+  } finally {
+    previewing.value = false
+  }
 }
 
 /**
@@ -139,6 +169,7 @@ async function handleVerify() {
   try {
     result.value = await verifyCoupon(verifyCode.value)
     verifyCode.value = ''
+    preview.value = null
     confirming.value = false
   } catch (e) {
     // 核销失败原因（券不存在/已使用/已过期/非本商户券）已由 request 封装 toast
@@ -163,6 +194,7 @@ function fmtSecond(value) {
  */
 function resetVerify() {
   result.value = null
+  preview.value = null
 }
 </script>
 
@@ -330,6 +362,33 @@ function resetVerify() {
   font-size: var(--iip-fs-32);
   font-weight: 800;
   color: var(--iip-color-ink);
+}
+.preview {
+  margin-top: 28rpx;
+  padding: 24rpx;
+  border: 1rpx solid var(--iip-color-line);
+  border-radius: var(--iip-radius-16);
+  background-color: var(--iip-color-bg);
+}
+.preview__name {
+  font-size: var(--iip-fs-30);
+  font-weight: 700;
+  color: var(--iip-color-ink);
+}
+.preview__row,
+.preview__desc,
+.preview__warn {
+  margin-top: 12rpx;
+  font-size: var(--iip-fs-24);
+  line-height: 1.6;
+  color: var(--iip-color-text-secondary);
+}
+.preview__desc {
+  padding-top: 12rpx;
+  border-top: 1rpx solid var(--iip-color-line);
+}
+.preview__warn {
+  color: var(--iip-color-primary);
 }
 .sheet__code {
   margin-top: 24rpx;

@@ -129,7 +129,8 @@ public class InvoiceAppServiceImpl implements InvoiceAppService
         return new InvoiceResult(invoice.getInvoiceId(), invoice.getMemberId(), invoice.getMerchantId(),
                 invoice.getMerchantName(), invoice.getInvoiceCode(), invoice.getInvoiceNo(),
                 invoice.getInvoiceDate(), invoice.getAmount(), invoice.getImageUrl(), invoice.getStatus(),
-                invoice.getPoints(), invoice.getActivityId(), invoice.getAuditBy(), invoice.getAuditTime(),
-                invoice.getAuditRemark(), invoice.getCreateTime(), invoice.getRemark());
+                invoice.getPoints(), invoice.getActivityId(), invoice.getPointsRuleId(),
+                invoice.getPointsRatioSnapshot(), invoice.getPointsRuleSnapshot(), invoice.getAuditBy(),
+                invoice.getAuditTime(), invoice.getAuditRemark(), invoice.getCreateTime(), invoice.getRemark());
     }
 }

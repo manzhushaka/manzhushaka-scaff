@@ -11,7 +11,8 @@ import java.util.Date;
  */
 public record SaveActivityCommand(Long activityId, String activityName, String coverImage, String description,
         Date startTime, Date endTime, BigDecimal pointsRatio, Integer merchantLimit, Integer couponQuota,
-        String city, String regionType, String regionName, Integer priority, String status, String remark)
+        String city, String regionType, String regionName, Integer priority, String status, String remark,
+        Integer singleInvoiceCap, Integer monthlyMemberCap, String merchantScope)
 {
     @Override
     public String toString()

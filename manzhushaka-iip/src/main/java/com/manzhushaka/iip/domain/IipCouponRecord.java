@@ -39,7 +39,7 @@ public class IipCouponRecord extends BaseEntity
     /** 核销码 */
     private String verifyCode;
 
-    /** 状态（0未使用 1已使用 2已过期） */
+    /** 状态（0未使用 1已使用 2已过期 3已作废） */
     private String status;
 
     /** 兑换时间 */
@@ -62,6 +62,15 @@ public class IipCouponRecord extends BaseEntity
 
     /** 来源活动ID */
     private Long activityId;
+
+    /** 作废时间 */
+    private Date voidTime;
+
+    /** 作废操作人 */
+    private String voidBy;
+
+    /** 作废原因 */
+    private String voidReason;
 
     public Long getRecordId()
     {
@@ -218,6 +227,36 @@ public class IipCouponRecord extends BaseEntity
         this.activityId = activityId;
     }
 
+    public Date getVoidTime()
+    {
+        return voidTime;
+    }
+
+    public void setVoidTime(Date voidTime)
+    {
+        this.voidTime = voidTime;
+    }
+
+    public String getVoidBy()
+    {
+        return voidBy;
+    }
+
+    public void setVoidBy(String voidBy)
+    {
+        this.voidBy = voidBy;
+    }
+
+    public String getVoidReason()
+    {
+        return voidReason;
+    }
+
+    public void setVoidReason(String voidReason)
+    {
+        this.voidReason = voidReason;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
@@ -236,6 +275,9 @@ public class IipCouponRecord extends BaseEntity
             .append("verifyMerchantId", getVerifyMerchantId())
             .append("verifyBy", getVerifyBy())
             .append("activityId", getActivityId())
+            .append("voidTime", getVoidTime())
+            .append("voidBy", getVoidBy())
+            .append("voidReason", getVoidReason())
             .append("createBy", getCreateBy())
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())

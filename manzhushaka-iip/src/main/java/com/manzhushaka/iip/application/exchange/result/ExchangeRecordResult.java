@@ -19,7 +19,7 @@ public record ExchangeRecordResult(
         @Excel(name = "用户ID", cellType = ColumnType.NUMERIC) Long memberId,
         @Excel(name = "消耗积分", cellType = ColumnType.NUMERIC) Integer pointsCost,
         @Excel(name = "核销码") String verifyCode,
-        @Excel(name = "状态", readConverterExp = "0=未使用,1=已使用,2=已过期") String status,
+        @Excel(name = "状态", readConverterExp = "0=未使用,1=已使用,2=已过期,3=已作废") String status,
         @Excel(name = "兑换时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss") @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date exchangeTime,
         @Excel(name = "有效期开始", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss") @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date validStartTime,
         @Excel(name = "有效期结束", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss") @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date validEndTime,
@@ -27,6 +27,9 @@ public record ExchangeRecordResult(
         @Excel(name = "核销商户ID", cellType = ColumnType.NUMERIC) Long verifyMerchantId,
         @Excel(name = "核销操作人") String verifyBy,
         @Excel(name = "来源活动ID", cellType = ColumnType.NUMERIC) Long activityId,
+        @Excel(name = "作废时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss") @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date voidTime,
+        @Excel(name = "作废操作人") String voidBy,
+        @Excel(name = "作废原因") String voidReason,
         String remark)
 {
     @Override

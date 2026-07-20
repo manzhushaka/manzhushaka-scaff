@@ -102,6 +102,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where member_id = #{memberId}
           and available_points &gt;= #{points}
     </update>
+
+    <update id="refundUsed">
+        update iip_points_account
+        set available_points = available_points + #{points},
+            used_points = used_points - #{points},
+            update_time = sysdate()
+        where member_id = #{memberId}
+          and used_points &gt;= #{points}
+    </update>
     
     <!-- 原子扣减可用积分并累加已过期积分（过期结转场景，余额不足时不更新） -->
     <update id="expirePoints">

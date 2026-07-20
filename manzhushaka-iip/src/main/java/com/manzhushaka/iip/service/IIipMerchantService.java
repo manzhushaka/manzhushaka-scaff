@@ -132,6 +132,15 @@ public interface IIipMerchantService
     public IipCouponRecord verifyCoupon(Long memberId, String verifyCode, String verifyBy);
 
     /**
+     * 预检待核销券，不修改券状态。
+     *
+     * @param memberId 当前商户操作员用户ID
+     * @param verifyCode 核销码
+     * @return 通过状态、有效期和适用商户校验的券实例
+     */
+    public IipCouponRecord previewCoupon(Long memberId, String verifyCode);
+
+    /**
      * 将未使用券实例置为已过期（独立事务）。
      *
      * 供核销流程在抛出"券已过期"前独立提交置位，避免外层事务回滚导致状态未落库。

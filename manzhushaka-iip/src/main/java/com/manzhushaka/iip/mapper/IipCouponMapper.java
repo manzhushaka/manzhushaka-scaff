@@ -70,6 +70,14 @@ public interface IipCouponMapper
     public int decrStock(Long couponId);
 
     /**
+     * 作废未使用券后恢复一份库存；不限库存券保持不变。
+     *
+     * @param couponId 券ID
+     * @return 影响行数
+     */
+    public int restoreStock(Long couponId);
+
+    /**
      * 查询积分商城券列表（上架且兑换窗口为空或当前在窗口内，按 sort、create_time desc）
      *
      * @param now 当前时间

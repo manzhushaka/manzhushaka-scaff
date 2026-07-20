@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.manzhushaka.iip.mapper.IipPointsRuleMapper">
+
+    <resultMap type="IipPointsRule" id="IipPointsRuleResult">
+        <id property="ruleId" column="rule_id" />
+        <result property="activityId" column="activity_id" />
+        <result property="singleInvoiceCap" column="single_invoice_cap" />
+        <result property="monthlyMemberCap" column="monthly_member_cap" />
+        <result property="merchantScope" column="merchant_scope" />
+        <result property="createBy" column="create_by" />
+        <result property="createTime" column="create_time" />
+        <result property="updateBy" column="update_by" />
+        <result property="updateTime" column="update_time" />
+        <result property="remark" column="remark" />
+    </resultMap>
+
+    <select id="selectByActivityId" parameterType="Long" resultMap="IipPointsRuleResult">
+        select rule_id, activity_id, single_invoice_cap, monthly_member_cap, merchant_scope,
+               create_by, create_time, update_by, update_time, remark
+        from iip_points_rule
+        where activity_id = #{activityId}
+        limit 1
+    </select>
+
+    <insert id="upsert" parameterType="IipPointsRule" useGeneratedKeys="true" keyProperty="ruleId">
+        insert into iip_points_rule (
+            activity_id, single_invoice_cap, monthly_member_cap, merchant_scope,
+            create_by, create_time, update_by, update_time, remark
+        ) values (
+            #{activityId}, #{singleInvoiceCap}, #{monthlyMemberCap}, #{merchantScope},
+            #{createBy}, sysdate(), #{updateBy}, sysdate(), #{remark}
+        )
+        on duplicate key update
+            single_invoice_cap = values(single_invoice_cap),
+            monthly_member_cap = values(monthly_member_cap),
+            merchant_scope = values(merchant_scope),
+            update_by = values(update_by),
+            update_time = sysdate(),
+            remark = values(remark)
+    </insert>
+
+    <delete id="deleteByActivityIds">
+        delete from iip_points_rule
+        where activity_id in
+        <foreach item="activityId" collection="activityIds" open="(" separator="," close=")">
+            #{activityId}
+        </foreach>
+    </delete>
+</mapper>

@@ -3,6 +3,7 @@ package com.manzhushaka.iip.application.exchange.service.impl;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.manzhushaka.iip.application.exchange.query.ExchangeQuery;
 import com.manzhushaka.iip.application.exchange.result.ExchangeRecordResult;
 import com.manzhushaka.iip.application.exchange.service.ExchangeAppService;
@@ -47,6 +48,20 @@ public class ExchangeAppServiceImpl implements ExchangeAppService
         return toResult(couponRecordService.selectIipCouponRecordById(recordId));
     }
 
+    /**
+     * 作废未使用券并退回兑换积分。
+     *
+     * @param recordId 记录ID
+     * @param operatorUsername 操作人账号
+     * @param voidReason 作废原因
+     */
+    @Override
+    @Transactional
+    public void voidExchange(Long recordId, String operatorUsername, String voidReason)
+    {
+        couponRecordService.voidUnusedCoupon(recordId, operatorUsername, voidReason);
+    }
+
     private IipCouponRecord toEntity(ExchangeQuery query)
     {
         IipCouponRecord record = new IipCouponRecord();
@@ -79,6 +94,6 @@ public class ExchangeAppServiceImpl implements ExchangeAppService
                 record.getCouponType(), record.getMemberId(), record.getPointsCost(), record.getVerifyCode(),
                 record.getStatus(), record.getExchangeTime(), record.getValidStartTime(), record.getValidEndTime(),
                 record.getVerifyTime(), record.getVerifyMerchantId(), record.getVerifyBy(), record.getActivityId(),
-                record.getRemark());
+                record.getVoidTime(), record.getVoidBy(), record.getVoidReason(), record.getRemark());
     }
 }

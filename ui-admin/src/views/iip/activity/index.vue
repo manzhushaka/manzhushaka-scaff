@@ -168,6 +168,39 @@
             </el-row>
             <el-row>
                <el-col :span="12">
+                  <el-form-item label="单张上限" prop="singleInvoiceCap">
+                     <el-input-number
+                        v-model="form.singleInvoiceCap"
+                        :precision="0"
+                        :min="-1"
+                        controls-position="right"
+                        style="width: 100%"
+                     />
+                     <div class="form-tip">单张发票最多发放积分，-1 表示不限</div>
+                  </el-form-item>
+               </el-col>
+               <el-col :span="12">
+                  <el-form-item label="月度上限" prop="monthlyMemberCap">
+                     <el-input-number
+                        v-model="form.monthlyMemberCap"
+                        :precision="0"
+                        :min="-1"
+                        controls-position="right"
+                        style="width: 100%"
+                     />
+                     <div class="form-tip">本活动内每人每月积分上限，-1 表示不限</div>
+                  </el-form-item>
+               </el-col>
+            </el-row>
+            <el-form-item label="积分商户" prop="merchantScope">
+               <el-radio-group v-model="form.merchantScope">
+                  <el-radio value="all">全部符合地域的商户</el-radio>
+                  <el-radio value="whitelist">仅活动已配置商户</el-radio>
+               </el-radio-group>
+               <div class="form-tip">选择白名单后，请在活动配置的“参与商户”中维护可积分商户</div>
+            </el-form-item>
+            <el-row>
+               <el-col :span="12">
                   <el-form-item label="积分比例" prop="pointsRatio">
                      <el-input-number
                         v-model="form.pointsRatio"
@@ -476,6 +509,7 @@ const data = reactive({
     startTime: [{ required: true, message: "开始时间不能为空", trigger: "change" }],
     endTime: [{ required: true, message: "结束时间不能为空", trigger: "change" }],
     pointsRatio: [{ required: true, message: "积分比例不能为空", trigger: "blur" }],
+    merchantScope: [{ required: true, message: "积分商户范围不能为空", trigger: "change" }],
     status: [{ required: true, message: "状态不能为空", trigger: "change" }],
     regionType: [{ required: true, message: "联营范围不能为空", trigger: "change" }],
     city: [{ validator: validateCity, trigger: "blur" }],
@@ -570,6 +604,9 @@ function reset() {
     startTime: undefined,
     endTime: undefined,
     pointsRatio: 1.00,
+    singleInvoiceCap: -1,
+    monthlyMemberCap: -1,
+    merchantScope: "all",
     merchantLimit: -1,
     couponQuota: -1,
     coverImage: undefined,
@@ -620,6 +657,9 @@ function handleUpdate(row) {
     // 旧数据可能无新增地域字段，补默认值保证表单状态完整
     form.value.regionType = response.data.regionType || "province"
     form.value.priority = response.data.priority === undefined || response.data.priority === null ? 0 : response.data.priority
+    form.value.singleInvoiceCap = response.data.singleInvoiceCap ?? -1
+    form.value.monthlyMemberCap = response.data.monthlyMemberCap ?? -1
+    form.value.merchantScope = response.data.merchantScope || "all"
     open.value = true
     title.value = "修改活动"
   })

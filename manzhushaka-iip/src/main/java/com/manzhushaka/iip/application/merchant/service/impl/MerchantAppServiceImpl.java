@@ -14,12 +14,17 @@ import com.manzhushaka.iip.application.merchant.command.SaveMerchantCommand;
 import com.manzhushaka.iip.application.merchant.query.MerchantQuery;
 import com.manzhushaka.iip.application.merchant.result.MerchantResult;
 import com.manzhushaka.iip.application.merchant.result.MerchantVerifyResult;
+import com.manzhushaka.iip.application.merchant.result.MerchantVerifyPreviewResult;
 import com.manzhushaka.iip.application.merchant.result.MerchantVerifyStatsResult;
 import com.manzhushaka.iip.application.merchant.result.VerifyRecordResult;
 import com.manzhushaka.iip.application.merchant.service.MerchantAppService;
 import com.manzhushaka.iip.domain.IipCouponRecord;
+import com.manzhushaka.iip.domain.IipCoupon;
+import com.manzhushaka.iip.domain.IipMember;
 import com.manzhushaka.iip.domain.IipMerchant;
 import com.manzhushaka.iip.service.IIipMerchantService;
+import com.manzhushaka.iip.service.IIipCouponService;
+import com.manzhushaka.iip.service.IIipMemberService;
 
 /**
  * 商户应用服务实现。
@@ -32,6 +37,12 @@ public class MerchantAppServiceImpl implements MerchantAppService
 {
     @Autowired
     private IIipMerchantService merchantService;
+
+    @Autowired
+    private IIipCouponService couponService;
+
+    @Autowired
+    private IIipMemberService memberService;
 
     @Override
     public List<MerchantResult> listMerchants(MerchantQuery query)
@@ -122,6 +133,35 @@ public class MerchantAppServiceImpl implements MerchantAppService
         IipCouponRecord record = merchantService.verifyCoupon(memberId, command.verifyCode(), operatorName);
         return new MerchantVerifyResult(record.getRecordId(), record.getCouponName(), record.getCouponType(),
                 record.getPointsCost(), record.getVerifyCode(), new Date());
+    }
+
+    @Override
+    public MerchantVerifyPreviewResult previewCoupon(MerchantVerifyCommand command, Long memberId)
+    {
+        IipCouponRecord record = merchantService.previewCoupon(memberId, command.verifyCode());
+        IipCoupon coupon = couponService.selectIipCouponById(record.getCouponId());
+        IipMember holder = memberService.selectMemberById(record.getMemberId());
+        return new MerchantVerifyPreviewResult(record.getRecordId(), record.getCouponName(), record.getCouponType(),
+                coupon == null ? null : coupon.getThresholdAmount(),
+                coupon == null ? null : coupon.getDiscountAmount(),
+                coupon == null ? null : coupon.getTargetName(), coupon == null ? null : coupon.getUseDesc(),
+                record.getValidStartTime(), record.getValidEndTime(), maskHolder(holder),
+                "ticket".equals(record.getCouponType()));
+    }
+
+    /**
+     * 脱敏展示持券账号昵称。
+     *
+     * @param holder 持券用户
+     * @return 脱敏昵称
+     */
+    private String maskHolder(IipMember holder)
+    {
+        if (holder == null || StringUtils.isEmpty(holder.getNickname()))
+        {
+            return "会员";
+        }
+        return holder.getNickname().substring(0, 1) + "*";
     }
 
     @Override

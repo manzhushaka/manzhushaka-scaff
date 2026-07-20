@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.manzhushaka.common.exception.ServiceException;
+import com.manzhushaka.common.utils.StringUtils;
 import com.manzhushaka.iip.domain.IipActivity;
 import com.manzhushaka.iip.domain.IipActivityCoupon;
 import com.manzhushaka.iip.domain.IipCoupon;
@@ -45,6 +46,12 @@ public class IipCouponRecordServiceImpl implements IIipCouponRecordService
 
     /** 积分消费业务来源：券兑换 */
     private static final String BIZ_TYPE_COUPON_EXCHANGE = "coupon_exchange";
+
+    /** 积分退款业务来源：管理员作废券 */
+    private static final String BIZ_TYPE_COUPON_VOID_REFUND = "coupon_void_refund";
+
+    /** 作废退回积分有效期天数 */
+    private static final int REFUND_POINTS_VALID_DAYS = 365;
 
     @Autowired
     private IipCouponRecordMapper couponRecordMapper;
@@ -89,7 +96,7 @@ public class IipCouponRecordServiceImpl implements IIipCouponRecordService
      * 查询用户本人的券实例列表（按兑换时间倒序）
      * 
      * @param memberId 用户ID
-     * @param status 状态（0未使用 1已使用 2已过期），null 或空表示全部
+     * @param status 状态（0未使用 1已使用 2已过期 3已作废），null 或空表示全部
      * @return 券实例集合
      */
     @Override
@@ -199,6 +206,45 @@ public class IipCouponRecordServiceImpl implements IIipCouponRecordService
 
         // i. 返回含核销码的券实例
         return record;
+    }
+
+    /**
+     * 管理员作废未使用券，恢复库存和活动额度并退回原兑换积分。
+     *
+     * @param recordId 券实例ID
+     * @param voidBy 操作人
+     * @param voidReason 作废原因
+     */
+    @Override
+    @Transactional
+    public void voidUnusedCoupon(Long recordId, String voidBy, String voidReason)
+    {
+        if (recordId == null || StringUtils.isBlank(voidBy) || StringUtils.isBlank(voidReason))
+        {
+            throw new ServiceException("作废参数不完整");
+        }
+        IipCouponRecord record = couponRecordMapper.selectIipCouponRecordById(recordId);
+        if (record == null)
+        {
+            throw new ServiceException("兑换记录不存在");
+        }
+        if (couponRecordMapper.voidUnusedAtomic(recordId, voidBy, voidReason) == 0)
+        {
+            throw new ServiceException("仅未使用券可以作废");
+        }
+        couponMapper.restoreStock(record.getCouponId());
+        if (record.getActivityId() != null)
+        {
+            activityCouponMapper.decrIssued(record.getActivityId(), record.getCouponId());
+        }
+        if (record.getPointsCost() != null && record.getPointsCost() > 0)
+        {
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.DAY_OF_YEAR, REFUND_POINTS_VALID_DAYS);
+            pointsService.refundConsumedPoints(record.getMemberId(), record.getPointsCost(),
+                    BIZ_TYPE_COUPON_VOID_REFUND, String.valueOf(recordId), calendar.getTime(),
+                    "管理员作废券退回积分：" + record.getCouponName());
+        }
     }
 
     /**

@@ -44,7 +44,7 @@ public interface MiniappCouponAppService
      * 查询我的券（查询前先将本人已过期未使用券置为已过期，按兑换时间倒序）。
      *
      * @param memberId 当前用户ID
-     * @param status 状态（0未使用 1已使用 2已过期），null 或空表示全部
+     * @param status 状态（0未使用 1已使用 2已过期 3已作废），null 或空表示全部
      * @return 我的券列表
      */
     List<MyCouponResult> listMyCoupons(Long memberId, String status);

@@ -21,6 +21,7 @@ public record MyCouponResult(
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date validStartTime,
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date validEndTime,
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date verifyTime,
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date voidTime,
         Long activityId,
         String category,
         String sponsorType,

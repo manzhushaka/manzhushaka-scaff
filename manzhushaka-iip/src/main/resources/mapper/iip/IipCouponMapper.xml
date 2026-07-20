@@ -168,6 +168,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
           and remain_stock &gt; 0
     </update>
 
+    <update id="restoreStock" parameterType="Long">
+        update iip_coupon
+        set remain_stock = remain_stock + 1,
+            update_time = sysdate()
+        where coupon_id = #{couponId}
+          and total_stock != -1
+    </update>
+
     <!-- 积分商城券列表：上架且兑换窗口为空或当前在窗口内，可按品类筛选 -->
     <select id="selectMallCouponList" resultMap="IipCouponResult">
         <include refid="selectIipCouponVo"/>

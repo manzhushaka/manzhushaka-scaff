@@ -31,7 +31,7 @@ public interface IIipCouponRecordService
      * 查询用户本人的券实例列表（按兑换时间倒序）
      * 
      * @param memberId 用户ID
-     * @param status 状态（0未使用 1已使用 2已过期），null 或空表示全部
+     * @param status 状态（0未使用 1已使用 2已过期 3已作废），null 或空表示全部
      * @return 券实例集合
      */
     public List<IipCouponRecord> selectByMember(Long memberId, String status);
@@ -61,4 +61,13 @@ public interface IIipCouponRecordService
      * @return 兑换成功的券实例（含核销码）
      */
     public IipCouponRecord exchangeCoupon(Long memberId, Long couponId);
+
+    /**
+     * 管理员作废未使用券，恢复库存和活动额度并退回积分。
+     *
+     * @param recordId 券实例ID
+     * @param voidBy 操作人
+     * @param voidReason 作废原因
+     */
+    public void voidUnusedCoupon(Long recordId, String voidBy, String voidReason);
 }

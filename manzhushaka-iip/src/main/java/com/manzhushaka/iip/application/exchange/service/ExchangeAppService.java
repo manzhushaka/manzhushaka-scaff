@@ -27,4 +27,13 @@ public interface ExchangeAppService
      * @return 兑换记录详情，不存在时返回 null
      */
     ExchangeRecordResult getExchangeRecord(Long recordId);
+
+    /**
+     * 作废未使用券并退回兑换积分。
+     *
+     * @param recordId 记录ID
+     * @param operatorUsername 操作人账号
+     * @param voidReason 作废原因
+     */
+    void voidExchange(Long recordId, String operatorUsername, String voidReason);
 }

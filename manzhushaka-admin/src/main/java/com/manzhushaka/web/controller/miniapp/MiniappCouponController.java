@@ -41,7 +41,7 @@ public class MiniappCouponController extends BaseController
     }
 
     /**
-     * 获取我的券列表（status 可选 0未使用/1已使用/2已过期）
+     * 获取我的券列表（status 可选 0未使用/1已使用/2已过期/3已作废）
      */
     @GetMapping("/mine")
     public AjaxResult mine(@RequestParam(value = "status", required = false) String status)

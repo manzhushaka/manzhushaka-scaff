@@ -105,6 +105,24 @@
                <span v-else>-</span>
             </template>
          </el-table-column>
+         <el-table-column label="作废信息" align="center" width="160" :show-overflow-tooltip="true">
+            <template #default="scope">
+               <span v-if="scope.row.status === '3'">{{ scope.row.voidReason || '-' }}</span>
+               <span v-else>-</span>
+            </template>
+         </el-table-column>
+         <el-table-column label="操作" align="center" width="90" fixed="right">
+            <template #default="scope">
+               <el-button
+                  v-if="scope.row.status === '0'"
+                  link
+                  type="danger"
+                  icon="CircleClose"
+                  v-hasPermi="['iip:exchange:void']"
+                  @click="handleVoid(scope.row)"
+               >作废</el-button>
+            </template>
+         </el-table-column>
       </el-table>
       </div>
 
@@ -119,17 +137,18 @@
 </template>
 
 <script setup name="IipExchange">
-import { listExchange, exportExchange } from "@/api/iip/exchange"
+import { listExchange, exportExchange, voidExchange } from "@/api/iip/exchange"
 import { saveAs } from "file-saver"
 import { blobValidate } from "@/utils/manzhushaka"
 
 const { proxy } = getCurrentInstance()
 
-// 券实例状态（与后端 iip_coupon_record.status 一致：0未使用 1已使用 2已过期）
+// 券实例状态（与后端 iip_coupon_record.status 一致：0未使用 1已使用 2已过期 3已作废）
 const statusOptions = [
   { value: "0", label: "未使用", tag: "success" },
   { value: "1", label: "已使用", tag: "info" },
-  { value: "2", label: "已过期", tag: "warning" }
+  { value: "2", label: "已过期", tag: "warning" },
+  { value: "3", label: "已作废", tag: "danger" }
 ]
 
 const exchangeList = ref([])
@@ -183,6 +202,22 @@ function resetQuery() {
   dateRange.value = []
   proxy.resetForm("queryRef")
   handleQuery()
+}
+
+/** 作废未使用券；后端事务内恢复库存、活动额度并退回积分 */
+function handleVoid(row) {
+  proxy.$prompt(`请输入「${row.couponName}」的作废原因`, "作废兑换券", {
+    confirmButtonText: "确定作废",
+    cancelButtonText: "取消",
+    inputPattern: /\S+/,
+    inputErrorMessage: "作废原因不能为空",
+    inputValidator: value => !value || value.length <= 255 || "作废原因不能超过255个字符"
+  }).then(({ value }) => {
+    return voidExchange(row.recordId, value.trim())
+  }).then(() => {
+    proxy.$modal.msgSuccess("作废成功，兑换积分已退回")
+    getList()
+  }).catch(() => {})
 }
 
 /** 导出按钮操作（后端为 GET 导出，request 返回 blob 后自行保存） */

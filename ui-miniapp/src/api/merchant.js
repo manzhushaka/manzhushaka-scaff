@@ -36,6 +36,17 @@ export async function verifyCoupon(verifyCode) {
 }
 
 /**
+ * 预检待核销券，不修改券状态。
+ *
+ * @param {string} verifyCode 核销码
+ * @returns {Promise<object>} 券条件、有效期和持券账号提示
+ */
+export async function previewCoupon(verifyCode) {
+  const res = await request({ url: '/miniapp/merchant/verify/preview', method: 'POST', data: { verifyCode } })
+  return res.data
+}
+
+/**
  * 核销工作台统计（GET /miniapp/merchant/verify/stats）。
  *
  * @returns {Promise<object>} { todayCount, todayPoints, totalCount, totalPoints }

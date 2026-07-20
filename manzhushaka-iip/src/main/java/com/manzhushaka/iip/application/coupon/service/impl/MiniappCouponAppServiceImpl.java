@@ -110,7 +110,7 @@ public class MiniappCouponAppServiceImpl implements MiniappCouponAppService
      * 券品类与赞助方取自券定义，券已删除时对应字段为 null）。
      *
      * @param memberId 当前用户ID
-     * @param status 状态（0未使用 1已使用 2已过期），null 或空表示全部
+     * @param status 状态（0未使用 1已使用 2已过期 3已作废），null 或空表示全部
      * @return 我的券列表
      */
     @Override
@@ -142,7 +142,7 @@ public class MiniappCouponAppServiceImpl implements MiniappCouponAppService
         return new MyCouponResult(record.getRecordId(), record.getCouponId(), record.getCouponName(),
                 record.getCouponType(), record.getPointsCost(), record.getVerifyCode(), record.getStatus(),
                 record.getExchangeTime(), record.getValidStartTime(), record.getValidEndTime(),
-                record.getVerifyTime(), record.getActivityId(),
+                record.getVerifyTime(), record.getVoidTime(), record.getActivityId(),
                 coupon == null ? null : coupon.getCategory(),
                 coupon == null ? null : coupon.getSponsorType(),
                 coupon == null ? null : coupon.getSponsorName());

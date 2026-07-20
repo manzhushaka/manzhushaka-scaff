@@ -20,7 +20,9 @@ import com.manzhushaka.iip.application.service.ActivityAppService;
 import com.manzhushaka.iip.domain.IipActivity;
 import com.manzhushaka.iip.domain.IipActivityCoupon;
 import com.manzhushaka.iip.domain.IipActivityMerchant;
+import com.manzhushaka.iip.domain.IipPointsRule;
 import com.manzhushaka.iip.service.IIipActivityService;
+import com.manzhushaka.iip.service.IIipPointsRuleService;
 
 /**
  * 活动应用服务实现。
@@ -33,6 +35,9 @@ public class ActivityAppServiceImpl implements ActivityAppService
 {
     @Autowired
     private IIipActivityService activityService;
+
+    @Autowired
+    private IIipPointsRuleService pointsRuleService;
 
     @Override
     public List<ActivityResult> listActivities(ActivityQuery query)
@@ -54,7 +59,9 @@ public class ActivityAppServiceImpl implements ActivityAppService
     {
         IipActivity activity = toEntity(command);
         activity.setCreateBy(operatorUsername);
-        return activityService.insertIipActivity(activity);
+        int rows = activityService.insertIipActivity(activity);
+        pointsRuleService.saveRule(toPointsRule(activity.getActivityId(), command, operatorUsername, true));
+        return rows;
     }
 
     @Override
@@ -63,7 +70,9 @@ public class ActivityAppServiceImpl implements ActivityAppService
     {
         IipActivity activity = toEntity(command);
         activity.setUpdateBy(operatorUsername);
-        return activityService.updateIipActivity(activity);
+        int rows = activityService.updateIipActivity(activity);
+        pointsRuleService.saveRule(toPointsRule(activity.getActivityId(), command, operatorUsername, false));
+        return rows;
     }
 
     @Override
@@ -71,6 +80,7 @@ public class ActivityAppServiceImpl implements ActivityAppService
     public void deleteActivities(Long[] activityIds)
     {
         activityService.deleteIipActivityByIds(activityIds);
+        pointsRuleService.deleteByActivityIds(activityIds);
     }
 
     @Override
@@ -237,12 +247,42 @@ public class ActivityAppServiceImpl implements ActivityAppService
         {
             return null;
         }
+        IipPointsRule rule = pointsRuleService.getRule(activity.getActivityId());
         return new ActivityResult(activity.getActivityId(), activity.getActivityNo(), activity.getActivityName(),
                 activity.getCoverImage(), activity.getDescription(), activity.getStartTime(), activity.getEndTime(),
                 activity.getPointsRatio(), activity.getMerchantLimit(), activity.getCouponQuota(),
                 activity.getCity(), activity.getRegionType(), activity.getRegionName(), activity.getPriority(),
                 activity.getStatus(), activity.getCreateBy(), activity.getCreateTime(), activity.getUpdateBy(),
-                activity.getUpdateTime(), activity.getRemark());
+                activity.getUpdateTime(), activity.getRemark(), rule.getSingleInvoiceCap(),
+                rule.getMonthlyMemberCap(), rule.getMerchantScope());
+    }
+
+    /**
+     * 将活动保存命令转换为积分规则。
+     *
+     * @param activityId 活动ID
+     * @param command 活动保存命令
+     * @param operatorUsername 操作人
+     * @param create 是否新增
+     * @return 积分规则
+     */
+    private IipPointsRule toPointsRule(Long activityId, SaveActivityCommand command, String operatorUsername,
+            boolean create)
+    {
+        IipPointsRule rule = new IipPointsRule();
+        rule.setActivityId(activityId);
+        rule.setSingleInvoiceCap(command.singleInvoiceCap() == null ? -1 : command.singleInvoiceCap());
+        rule.setMonthlyMemberCap(command.monthlyMemberCap() == null ? -1 : command.monthlyMemberCap());
+        rule.setMerchantScope(command.merchantScope() == null ? "all" : command.merchantScope());
+        if (create)
+        {
+            rule.setCreateBy(operatorUsername);
+        }
+        else
+        {
+            rule.setUpdateBy(operatorUsername);
+        }
+        return rule;
     }
 
     private ActivityMerchantResult toMerchantResult(IipActivityMerchant activityMerchant)

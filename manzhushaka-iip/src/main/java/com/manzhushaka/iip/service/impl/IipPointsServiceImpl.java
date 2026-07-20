@@ -148,6 +148,49 @@ public class IipPointsServiceImpl implements IIipPointsService
     }
 
     /**
+     * 退回已消费积分，恢复可用余额并减少已使用积分；以业务类型和业务ID保证幂等。
+     *
+     * @param memberId 用户ID
+     * @param points 退回数量（正数）
+     * @param bizType 退款业务来源
+     * @param bizId 退款业务单据ID
+     * @param expireTime 退款积分过期时间
+     * @param remark 备注
+     * @return 实际退回积分，幂等命中时返回0
+     */
+    @Override
+    @Transactional
+    public int refundConsumedPoints(Long memberId, Integer points, String bizType, String bizId,
+            Date expireTime, String remark)
+    {
+        if (memberId == null || points == null || points <= 0)
+        {
+            throw new ServiceException("退回积分参数不合法");
+        }
+        IipPointsRecord existRecord = pointsRecordMapper.selectByBiz(bizType, bizId);
+        if (existRecord != null && CHANGE_TYPE_EARN.equals(existRecord.getChangeType()))
+        {
+            return 0;
+        }
+        if (pointsAccountMapper.refundUsed(memberId, points) == 0)
+        {
+            throw new ServiceException("已使用积分不足，无法退回");
+        }
+        IipPointsRecord record = new IipPointsRecord();
+        record.setMemberId(memberId);
+        record.setChangeType(CHANGE_TYPE_EARN);
+        record.setPoints(points);
+        record.setBalanceAfter(getAvailablePoints(memberId));
+        record.setBizType(bizType);
+        record.setBizId(bizId);
+        record.setRemaining(points);
+        record.setExpireTime(expireTime);
+        record.setRemark(remark);
+        pointsRecordMapper.insertIipPointsRecord(record);
+        return points;
+    }
+
+    /**
      * 查询可用积分，无账户返回 0
      * 
      * @param memberId 用户ID

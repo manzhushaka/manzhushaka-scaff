@@ -85,6 +85,15 @@ public interface IipActivityCouponMapper
     public int incrIssued(Long id);
 
     /**
+     * 作废来源活动券后归还一份已发行额度。
+     *
+     * @param activityId 活动ID
+     * @param couponId 券ID
+     * @return 影响行数
+     */
+    public int decrIssued(@Param("activityId") Long activityId, @Param("couponId") Long couponId);
+
+    /**
      * 按活动ID删除全部活动券配置（删除活动级联用）
      *
      * @param activityId 活动ID

@@ -82,7 +82,7 @@ public interface IipCouponRecordMapper
      * 查询用户本人的券实例列表（按兑换时间倒序）
      *
      * @param memberId 用户ID
-     * @param status 状态（0未使用 1已使用 2已过期），null 或空表示全部
+     * @param status 状态（0未使用 1已使用 2已过期 3已作废），null 或空表示全部
      * @return 券实例集合
      */
     public List<IipCouponRecord> selectByMember(@Param("memberId") Long memberId, @Param("status") String status);
@@ -95,4 +95,15 @@ public interface IipCouponRecordMapper
      * @return 影响行数
      */
     public int expireByMember(@Param("memberId") Long memberId, @Param("now") Date now);
+
+    /**
+     * 原子作废未使用券。
+     *
+     * @param recordId 券实例ID
+     * @param voidBy 操作人
+     * @param voidReason 作废原因
+     * @return 影响行数，0表示券不存在或不再是未使用状态
+     */
+    public int voidUnusedAtomic(@Param("recordId") Long recordId, @Param("voidBy") String voidBy,
+            @Param("voidReason") String voidReason);
 }

@@ -13,7 +13,7 @@ public record ActivityResult(Long activityId, String activityNo, String activity
         String description, Date startTime, Date endTime, BigDecimal pointsRatio, Integer merchantLimit,
         Integer couponQuota, String city, String regionType, String regionName, Integer priority,
         String status, String createBy, Date createTime, String updateBy, Date updateTime,
-        String remark)
+        String remark, Integer singleInvoiceCap, Integer monthlyMemberCap, String merchantScope)
 {
     @Override
     public String toString()

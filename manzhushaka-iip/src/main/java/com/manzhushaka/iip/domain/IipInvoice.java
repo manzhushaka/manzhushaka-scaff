@@ -55,6 +55,15 @@ public class IipInvoice extends BaseEntity
     /** 发分依据的活动ID */
     private Long activityId;
 
+    /** 发分依据的积分规则ID */
+    private Long pointsRuleId;
+
+    /** 发分比例快照 */
+    private BigDecimal pointsRatioSnapshot;
+
+    /** 积分计算规则快照 */
+    private String pointsRuleSnapshot;
+
     /** 审核人 */
     private String auditBy;
 
@@ -194,6 +203,36 @@ public class IipInvoice extends BaseEntity
         this.activityId = activityId;
     }
 
+    public Long getPointsRuleId()
+    {
+        return pointsRuleId;
+    }
+
+    public void setPointsRuleId(Long pointsRuleId)
+    {
+        this.pointsRuleId = pointsRuleId;
+    }
+
+    public BigDecimal getPointsRatioSnapshot()
+    {
+        return pointsRatioSnapshot;
+    }
+
+    public void setPointsRatioSnapshot(BigDecimal pointsRatioSnapshot)
+    {
+        this.pointsRatioSnapshot = pointsRatioSnapshot;
+    }
+
+    public String getPointsRuleSnapshot()
+    {
+        return pointsRuleSnapshot;
+    }
+
+    public void setPointsRuleSnapshot(String pointsRuleSnapshot)
+    {
+        this.pointsRuleSnapshot = pointsRuleSnapshot;
+    }
+
     public String getAuditBy()
     {
         return auditBy;
@@ -239,6 +278,9 @@ public class IipInvoice extends BaseEntity
             .append("status", getStatus())
             .append("points", getPoints())
             .append("activityId", getActivityId())
+            .append("pointsRuleId", getPointsRuleId())
+            .append("pointsRatioSnapshot", getPointsRatioSnapshot())
+            .append("pointsRuleSnapshot", getPointsRuleSnapshot())
             .append("auditBy", getAuditBy())
             .append("auditTime", getAuditTime())
             .append("auditRemark", getAuditRemark())

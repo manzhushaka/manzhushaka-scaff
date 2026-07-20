@@ -87,6 +87,15 @@ public interface IipPointsAccountMapper
     public int incrUsed(@Param("memberId") Long memberId, @Param("points") Integer points);
 
     /**
+     * 退回已消费积分，恢复可用余额并减少已使用积分。
+     *
+     * @param memberId 用户ID
+     * @param points 退回积分
+     * @return 影响行数
+     */
+    public int refundUsed(@Param("memberId") Long memberId, @Param("points") Integer points);
+
+    /**
      * 原子扣减可用积分并累加已过期积分（过期结转场景，余额不足时不更新）
      * 
      * @param memberId 用户ID

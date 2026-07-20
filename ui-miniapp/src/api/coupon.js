@@ -46,7 +46,7 @@ export async function exchangeCoupon(couponId) {
 /**
  * 我的券列表。
  *
- * @param {string} [status] 0未使用 1已使用 2已过期，不传为全部
+ * @param {string} [status] 0未使用 1已使用 2已过期 3已作废，不传为全部
  * @returns {Promise<Array>} MyCouponResult[]
  */
 export async function getMyCoupons(status) {

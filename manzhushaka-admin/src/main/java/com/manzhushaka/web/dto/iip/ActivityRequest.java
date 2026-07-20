@@ -70,6 +70,16 @@ public class ActivityRequest
 
     private String remark;
 
+    /** 单张发票积分上限（-1不限） */
+    private Integer singleInvoiceCap;
+
+    /** 活动内每人每月积分上限（-1不限） */
+    private Integer monthlyMemberCap;
+
+    /** 商户积分范围（all全部 whitelist活动商户白名单） */
+    @Size(max = 16, message = "商户积分范围不能超过16个字符")
+    private String merchantScope;
+
     public Map<String, Object> getParams()
     {
         return params;
@@ -238,5 +248,35 @@ public class ActivityRequest
     public void setRemark(String remark)
     {
         this.remark = remark;
+    }
+
+    public Integer getSingleInvoiceCap()
+    {
+        return singleInvoiceCap;
+    }
+
+    public void setSingleInvoiceCap(Integer singleInvoiceCap)
+    {
+        this.singleInvoiceCap = singleInvoiceCap;
+    }
+
+    public Integer getMonthlyMemberCap()
+    {
+        return monthlyMemberCap;
+    }
+
+    public void setMonthlyMemberCap(Integer monthlyMemberCap)
+    {
+        this.monthlyMemberCap = monthlyMemberCap;
+    }
+
+    public String getMerchantScope()
+    {
+        return merchantScope;
+    }
+
+    public void setMerchantScope(String merchantScope)
+    {
+        this.merchantScope = merchantScope;
     }
 }
