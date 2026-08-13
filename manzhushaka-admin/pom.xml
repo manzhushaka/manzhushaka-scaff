@@ -54,12 +54,6 @@
             <artifactId>manzhushaka-quartz</artifactId>
         </dependency>
 
-        <!-- iip发票积分平台-->
-        <dependency>
-            <groupId>com.manzhushaka</groupId>
-            <artifactId>manzhushaka-iip</artifactId>
-        </dependency>
-
         <!-- Spring Boot Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

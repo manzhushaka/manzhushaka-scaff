@@ -4,9 +4,9 @@
       <div class="login-intro__content">
         <div class="login-brand">
           <div class="login-brand__mark">
-            <img :src="brandLogo" class="login-brand__icon" alt="IIP 管理后台" />
+            <img :src="brandLogo" class="login-brand__icon" alt="manzhushaka - scaff" />
           </div>
-          <strong>IIP 管理后台</strong>
+          <strong>manzhushaka - scaff</strong>
           <span class="login-brand__status"><i aria-hidden="true"></i>SECURE ACCESS</span>
         </div>
 

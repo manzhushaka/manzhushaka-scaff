@@ -48,7 +48,6 @@ logs/
 !*/build/*.java
 !*/build/*.html
 !*/build/*.xml
-
 # macOS system files
 .DS_Store
 
