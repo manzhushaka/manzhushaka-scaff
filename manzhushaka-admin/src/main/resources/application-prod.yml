@@ -1,0 +1,56 @@
+# 生产环境只声明基础设施连接，凭据由 /home/app/manzhushaka-scaff/shared/app.env 注入。
+manzhushaka:
+  crypto:
+    enabled: ${SENSITIVE_FIELD_CRYPTO_ENABLED:true}
+    aes-key: ${SENSITIVE_FIELD_CRYPTO_AES_KEY}
+    hmac-key: ${SENSITIVE_FIELD_CRYPTO_HMAC_KEY}
+
+spring:
+  devtools:
+    restart:
+      enabled: false
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    druid:
+      master:
+        url: ${JDBC_MASTER_URL}
+        username: ${JDBC_MASTER_USERNAME}
+        password: ${JDBC_MASTER_PASSWORD}
+      slave:
+        enabled: false
+      initialSize: ${DRUID_INITIAL_SIZE:5}
+      minIdle: ${DRUID_MIN_IDLE:5}
+      maxActive: ${DRUID_MAX_ACTIVE:20}
+      maxWait: ${DRUID_MAX_WAIT:60000}
+      connectTimeout: ${DRUID_CONNECT_TIMEOUT:30000}
+      socketTimeout: ${DRUID_SOCKET_TIMEOUT:60000}
+      timeBetweenEvictionRunsMillis: ${DRUID_TBERM:60000}
+      minEvictableIdleTimeMillis: ${DRUID_MIN_EVICTABLE:300000}
+      maxEvictableIdleTimeMillis: ${DRUID_MAX_EVICTABLE:900000}
+      validationQuery: ${DRUID_VALIDATION_QUERY:SELECT 1}
+      testWhileIdle: ${DRUID_TEST_WHILE_IDLE:true}
+      testOnBorrow: ${DRUID_TEST_ON_BORROW:false}
+      testOnReturn: ${DRUID_TEST_ON_RETURN:false}
+      webStatFilter:
+        enabled: false
+      statViewServlet:
+        enabled: false
+      filter:
+        stat:
+          enabled: true
+          log-slow-sql: ${DRUID_FILTER_STAT_LOG_SLOW_SQL:true}
+          slow-sql-millis: ${DRUID_FILTER_STAT_SLOW_SQL_MILLIS:1000}
+          merge-sql: ${DRUID_FILTER_STAT_MERGE_SQL:true}
+        wall:
+          config:
+            multi-statement-allow: ${DRUID_FILTER_WALL_MULTI_STATEMENT_ALLOW:false}
+
+management:
+  endpoint:
+    health:
+      show-details: never
+  endpoints:
+    web:
+      exposure:
+        include: health
