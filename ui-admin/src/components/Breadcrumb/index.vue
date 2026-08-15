@@ -106,7 +106,7 @@ getBreadcrumb()
   }
 
   .no-redirect {
-    color: #97a8be;
+    color: var(--ui-text-muted);
     cursor: text;
   }
 }

@@ -273,10 +273,11 @@
 
 // Button style updates — size 10.6
 .el-button {
-  min-height: 32px;
+  min-height: var(--ui-form-control-height);
   padding: 0 12px;
   border-radius: var(--ui-radius-control, 6px);
-  font-size: 13px;
+  font-family: var(--ui-font-family);
+  font-size: var(--ui-font-size-ui);
   font-weight: 500;
   transition: background var(--ui-transition-fast), border-color var(--ui-transition-fast), color var(--ui-transition-fast), box-shadow var(--ui-transition-fast), transform var(--ui-transition-fast);
 
@@ -311,10 +312,14 @@
   min-height: var(--ui-form-control-height);
   border-radius: var(--ui-radius-control, 6px);
   background: var(--ui-bg-panel);
-  box-shadow: 0 0 0 1px var(--ui-border) inset;
+  box-shadow: 0 0 0 1px var(--ui-border-control) inset;
 
   &:hover {
-    box-shadow: 0 0 0 1px var(--ui-border-strong) inset;
+    box-shadow: 0 0 0 1px var(--ui-border-control-hover) inset;
+  }
+
+  &.is-focus {
+    box-shadow: 0 0 0 1px var(--ui-border-focus) inset, var(--ui-focus-ring) !important;
   }
 }
 
@@ -327,10 +332,14 @@
   min-height: var(--ui-form-control-height, 36px);
   border-radius: var(--ui-radius-control, 6px);
   background: var(--ui-bg-panel);
-  box-shadow: 0 0 0 1px var(--ui-border) inset;
+  box-shadow: 0 0 0 1px var(--ui-border-control) inset;
 
   &:hover {
-    box-shadow: 0 0 0 1px var(--ui-border-strong) inset;
+    box-shadow: 0 0 0 1px var(--ui-border-control-hover) inset;
+  }
+
+  &.is-focused {
+    box-shadow: 0 0 0 1px var(--ui-border-focus) inset, var(--ui-focus-ring) !important;
   }
 }
 
@@ -416,16 +425,73 @@
 
 .el-form-item__label {
   color: var(--ui-text-secondary);
-  font-size: 13px;
+  font-family: var(--ui-font-family);
+  font-size: var(--ui-font-size-ui);
   font-weight: 600;
 }
 
 .el-textarea__inner {
   border-radius: var(--ui-radius-control);
   background: var(--ui-bg-panel);
-  box-shadow: 0 0 0 1px var(--ui-border) inset;
+  box-shadow: 0 0 0 1px var(--ui-border-control) inset;
 
   &:hover {
-    box-shadow: 0 0 0 1px var(--ui-border-strong) inset;
+    box-shadow: 0 0 0 1px var(--ui-border-control-hover) inset;
   }
+
+  &:focus {
+    box-shadow: 0 0 0 1px var(--ui-border-focus) inset, var(--ui-focus-ring) !important;
+  }
+}
+
+// All form controls share one border, radius, height and focus treatment.
+.el-date-editor.el-input__wrapper,
+.el-range-editor.el-input__wrapper,
+.el-cascader .el-input__wrapper,
+.el-autocomplete .el-input__wrapper,
+.el-tree-select .el-select__wrapper,
+.el-input-number .el-input__wrapper {
+  min-height: var(--ui-form-control-height);
+  border-radius: var(--ui-radius-control);
+  box-shadow: 0 0 0 1px var(--ui-border-control) inset;
+
+  &:hover {
+    box-shadow: 0 0 0 1px var(--ui-border-control-hover) inset;
+  }
+
+  &.is-focus,
+  &.is-focused {
+    box-shadow: 0 0 0 1px var(--ui-border-focus) inset, var(--ui-focus-ring) !important;
+  }
+}
+
+.el-input__wrapper.is-disabled,
+.el-select__wrapper.is-disabled,
+.el-textarea.is-disabled .el-textarea__inner {
+  background: var(--ui-bg-panel-soft);
+  box-shadow: 0 0 0 1px var(--ui-border-subtle) inset;
+}
+
+.el-checkbox__inner,
+.el-radio__inner {
+  border-color: var(--ui-border-control);
+  background: var(--ui-bg-panel);
+}
+
+.el-checkbox__input:hover .el-checkbox__inner,
+.el-radio__input:hover .el-radio__inner {
+  border-color: var(--ui-primary);
+}
+
+.el-tag {
+  min-height: 24px;
+  padding: 0 8px;
+  border: 1px solid var(--el-tag-border-color) !important;
+  border-radius: var(--ui-radius-subtle);
+  background: var(--el-tag-bg-color) !important;
+  color: var(--el-tag-text-color) !important;
+  font-family: var(--ui-font-family);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 22px;
 }

@@ -50,7 +50,7 @@ const header = computed(() => buildPageHeader(route))
 
 .page-header__eyebrow {
   color: var(--ui-primary-active);
-  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  font-family: var(--ui-font-family-mono);
   font-size: 11px;
   font-weight: 600;
   line-height: 1.2;
@@ -61,6 +61,7 @@ const header = computed(() => buildPageHeader(route))
 .page-header__title {
   margin: 6px 0 0;
   color: var(--ui-text-primary);
+  font-family: var(--ui-font-family);
   font-size: 22px;
   font-weight: 750;
   line-height: 1.3;

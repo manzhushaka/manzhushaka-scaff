@@ -71,7 +71,7 @@ const getLogoTextColor = computed(() => 'var(--ui-sidebar-text-active)')
       font-weight: 600;
       line-height: var(--ui-layout-topbar-height, 52px);
       font-size: 14px;
-      font-family: "Space Grotesk", "Noto Sans SC", "PingFang SC", sans-serif;
+      font-family: var(--ui-font-family);
       vertical-align: middle;
       letter-spacing: 0;
     }

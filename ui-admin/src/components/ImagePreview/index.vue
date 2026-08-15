@@ -70,8 +70,8 @@ const realHeight = computed(() =>
 <style lang="scss" scoped>
 .el-image {
   border-radius: 5px;
-  background-color: #ebeef5;
-  box-shadow: 0 0 5px 1px #ccc;
+  background-color: var(--ui-bg-panel-muted);
+  box-shadow: var(--ui-shadow-subtle);
   :deep(.el-image__inner) {
     transition: all 0.3s;
     cursor: pointer;
@@ -85,7 +85,7 @@ const realHeight = computed(() =>
     align-items: center;
     width: 100%;
     height: 100%;
-    color: #909399;
+    color: var(--ui-text-muted);
     font-size: 30px;
   }
 }

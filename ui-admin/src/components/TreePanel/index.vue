@@ -405,7 +405,7 @@ onBeforeUnmount(() => {
   
   .tree-sidebar.collapsed & {
     right: 0;
-    background: var(--ui-bg-panel-soft, #f7f8fa);
+    background: var(--ui-bg-panel-soft);
     border-radius: 0 4px 4px 0;
   }
   
@@ -416,7 +416,7 @@ onBeforeUnmount(() => {
 
 .collapse-button {
   font-size: 20px;
-  color: var(--ui-text-secondary, #909399);
+  color: var(--ui-text-secondary);
   cursor: pointer;
   padding: 4px;
   border-radius: 4px;
@@ -487,29 +487,29 @@ onBeforeUnmount(() => {
   :deep(.el-input__wrapper) {
     min-height: 36px;
     border-radius: 7px;
-    background: var(--ui-bg-panel-soft, #f6f9fc);
-    box-shadow: 0 0 0 1px var(--ui-border, #dcdfe6) inset;
+    background: var(--ui-bg-panel-soft);
+    box-shadow: 0 0 0 1px var(--ui-border-control) inset;
     transition: box-shadow 0.2s ease, background 0.2s ease;
 
     &:hover {
-      box-shadow: 0 0 0 1px var(--ui-border-strong, #c7d2df) inset;
+      box-shadow: 0 0 0 1px var(--ui-border-control-hover) inset;
     }
 
     &.is-focus {
-      background: var(--ui-bg-panel, #ffffff);
-      box-shadow: var(--ui-focus-ring, 0 0 0 2px rgba(64, 158, 255, 0.18)) !important;
+      background: var(--ui-bg-panel);
+      box-shadow: 0 0 0 1px var(--ui-border-focus) inset, var(--ui-focus-ring) !important;
     }
   }
 
   :deep(.el-input__prefix) {
-    color: var(--ui-text-muted, #a8abb2);
+    color: var(--ui-text-muted);
     margin-right: 6px;
   }
 
   :deep(.el-input__inner) {
     height: 36px;
     background: transparent;
-    color: var(--ui-text-primary, #303133);
+    color: var(--ui-text-primary);
   }
 }
 
@@ -550,7 +550,7 @@ onBeforeUnmount(() => {
     flex: 0 0 18px;
     width: 18px;
     margin-right: 2px;
-    color: var(--ui-text-muted, #a8abb2);
+    color: var(--ui-text-muted);
   }
 
   :deep(.el-tree-node__expand-icon.is-leaf) {
@@ -585,11 +585,11 @@ onBeforeUnmount(() => {
   }
 
   .folder-icon {
-    color: #f59e0b;
+    color: var(--ui-warning);
   }
 
   .leaf-icon {
-    color: #f59e0b;
+    color: var(--ui-warning);
     font-size: 15px;
   }
 

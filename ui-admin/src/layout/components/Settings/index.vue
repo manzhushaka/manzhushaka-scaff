@@ -126,7 +126,7 @@ defineExpose({
 
 <style lang='scss' scoped>
 .drawer-item {
-  color: var(--el-text-color-regular, rgba(0, 0, 0, 0.65));
+  color: var(--ui-text-regular);
   padding: 12px 0;
   font-size: 14px;
 
@@ -155,7 +155,7 @@ defineExpose({
     width: 56px;
     height: 48px;
     border-radius: 4px;
-    background: #f0f2f5;
+    background: var(--ui-bg-panel-muted);
     border: 2px solid transparent;
   }
 
@@ -163,11 +163,11 @@ defineExpose({
     b:first-child {
       display: block;
       height: 30%;
-      background: #fff;
+      background: var(--ui-bg-panel);
     }
     b:last-child {
       width: 30%;
-      background: #1b2a47;
+      background: var(--ui-bg-sidebar);
       position: absolute;
       height: 100%;
       top: 0;
@@ -179,11 +179,11 @@ defineExpose({
       border-radius: 4px 4px 0 0;
       display: block;
       height: 30%;
-      background: #1b2a47;
+      background: var(--ui-bg-sidebar);
     }
     b:last-child {
       width: 30%;
-      background: #1b2a47;
+      background: var(--ui-bg-sidebar);
       position: absolute;
       height: 70%;
       border-radius: 0 0 0 4px;

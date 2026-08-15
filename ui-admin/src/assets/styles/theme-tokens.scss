@@ -12,16 +12,28 @@
   --ui-layout-tags-height: 42px;
   --ui-layout-content-padding: 18px;
 
+  --ui-font-family: "IBM Plex Sans", "Noto Sans SC", "PingFang SC", system-ui, sans-serif;
+  --ui-font-family-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  --ui-font-size-body: 14px;
+  --ui-font-size-ui: 13px;
+  --ui-space-1: 4px;
+  --ui-space-2: 8px;
+  --ui-space-3: 12px;
+  --ui-space-4: 16px;
+  --ui-space-5: 20px;
+  --ui-space-6: 24px;
+  --ui-space-8: 32px;
+
   --ui-radius-control: 8px;
   --ui-radius-panel: 8px;
   --ui-radius-popover: 8px;
   --ui-radius-subtle: 4px;
   --ui-table-row-height: 40px;
-  --ui-form-control-height: 40px;
+  --ui-form-control-height: 36px;
 
   --ui-transition-fast: 160ms ease;
   --ui-transition-normal: 240ms ease;
-  --ui-focus-ring: 0 0 0 3px color-mix(in srgb, var(--ui-primary) 18%, transparent);
+  --ui-focus-ring: 0 0 0 3px rgba(255, 106, 42, 0.18);
 }
 
 // 根节点基础文本和背景
@@ -61,9 +73,14 @@
   --ui-sidebar-item-active-border: #ff6a2a;
   --ui-sidebar-border: #302c27;
 
-  --ui-border: #dad8d1;
-  --ui-border-strong: #8a8377;
+  --ui-border: #dfdcd5;
+  --ui-border-subtle: #ebe8e2;
+  --ui-border-strong: #b4aea2;
+  --ui-border-control: #c7c2b9;
+  --ui-border-control-hover: #9e9588;
+  --ui-border-focus: var(--ui-primary);
   --ui-divider: rgba(22, 19, 15, 0.10);
+  --ui-overlay-backdrop: rgba(22, 19, 15, 0.28);
 
   --ui-primary: #ff6a2a;
   --ui-primary-hover: #f15a1b;
@@ -133,13 +150,13 @@
   --el-text-color-regular: var(--ui-text-regular);
   --el-text-color-secondary: var(--ui-text-secondary);
 
-  --el-border-color: var(--ui-border-strong);
+  --el-border-color: var(--ui-border-control);
   --el-border-color-light: var(--ui-border);
-  --el-border-color-lighter: color-mix(in srgb, var(--ui-border) 68%, transparent);
+  --el-border-color-lighter: var(--ui-border-subtle);
 
   --el-border-radius-base: var(--ui-radius-control);
   --el-border-radius-small: 6px;
-  --el-font-family: "IBM Plex Sans", "Noto Sans SC", "PingFang SC", system-ui, sans-serif;
+  --el-font-family: var(--ui-font-family);
   --el-fill-color-light: var(--ui-bg-panel-soft);
   --el-fill-color-lighter: var(--ui-bg-panel-muted);
   --el-fill-color-blank: var(--ui-bg-panel);
@@ -604,30 +621,36 @@
 }
 
 // 状态标签使用主题变量
-.el-tag--primary {
+.el-tag.el-tag--primary {
   --el-tag-bg-color: var(--ui-primary-soft);
   --el-tag-text-color: var(--ui-primary-active);
   --el-tag-border-color: color-mix(in srgb, var(--ui-primary) 30%, transparent);
 }
-.el-tag--success {
+.el-tag.el-tag--success {
   --el-tag-bg-color: color-mix(in srgb, var(--ui-success) 14%, transparent);
   --el-tag-text-color: var(--ui-success);
   --el-tag-border-color: color-mix(in srgb, var(--ui-success) 30%, transparent);
 }
-.el-tag--warning {
+.el-tag.el-tag--warning {
   --el-tag-bg-color: color-mix(in srgb, var(--ui-warning) 14%, transparent);
   --el-tag-text-color: var(--ui-warning);
   --el-tag-border-color: color-mix(in srgb, var(--ui-warning) 30%, transparent);
 }
-.el-tag--danger {
+.el-tag.el-tag--danger {
   --el-tag-bg-color: color-mix(in srgb, var(--ui-danger) 14%, transparent);
   --el-tag-text-color: var(--ui-danger);
   --el-tag-border-color: color-mix(in srgb, var(--ui-danger) 30%, transparent);
 }
-.el-tag--info {
+.el-tag.el-tag--info {
   --el-tag-bg-color: color-mix(in srgb, var(--ui-info) 14%, transparent);
   --el-tag-text-color: var(--ui-info);
   --el-tag-border-color: color-mix(in srgb, var(--ui-info) 30%, transparent);
+}
+
+.el-tag--default {
+  --el-tag-bg-color: var(--ui-bg-panel-muted);
+  --el-tag-text-color: var(--ui-text-secondary);
+  --el-tag-border-color: var(--ui-border);
 }
 
 // 树侧栏主题 token 化
@@ -778,17 +801,17 @@
 .el-input__wrapper.is-focus,
 .el-select__wrapper.is-focused,
 .el-textarea__inner:focus {
-  box-shadow: var(--ui-focus-ring) !important;
+  box-shadow: 0 0 0 1px var(--ui-border-focus) inset, var(--ui-focus-ring) !important;
 }
 
 // ------------------------------------------------------------
 // 图表色类
 // ------------------------------------------------------------
-.tone-primary  { --tone-bg: #fff0e8; --tone-color: var(--ui-chart-1); }
-.tone-success  { --tone-bg: #eaf6f0; --tone-color: var(--ui-chart-2); }
-.tone-warning  { --tone-bg: #fff5df; --tone-color: var(--ui-chart-3); }
-.tone-accent   { --tone-bg: #edf3ff; --tone-color: var(--ui-chart-4); }
-.tone-supplement { --tone-bg: #f5eef5; --tone-color: var(--ui-chart-5); }
+.tone-primary  { --tone-bg: color-mix(in srgb, var(--ui-chart-1) 12%, transparent); --tone-color: var(--ui-chart-1); }
+.tone-success  { --tone-bg: color-mix(in srgb, var(--ui-chart-2) 12%, transparent); --tone-color: var(--ui-chart-2); }
+.tone-warning  { --tone-bg: color-mix(in srgb, var(--ui-chart-3) 12%, transparent); --tone-color: var(--ui-chart-3); }
+.tone-accent   { --tone-bg: color-mix(in srgb, var(--ui-chart-4) 12%, transparent); --tone-color: var(--ui-chart-4); }
+.tone-supplement { --tone-bg: color-mix(in srgb, var(--ui-chart-5) 12%, transparent); --tone-color: var(--ui-chart-5); }
 
 // ------------------------------------------------------------
 // 5. color-mix() 降级回退
@@ -804,7 +827,7 @@
     --el-border-color-lighter: var(--ui-border-lighter-static);
   }
 
-  .el-tag--success {
+  .el-tag.el-tag--success {
     --el-tag-bg-color: var(--ui-tag-bg-static);
     --el-tag-border-color: var(--ui-tag-border-static);
   }
