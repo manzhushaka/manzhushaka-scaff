@@ -1,119 +1,117 @@
 <template>
    <div class="app-container ui-list-page">
-      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px" class="ui-filter-card">
-         <el-form-item label="登录地址" prop="ipaddr">
-            <el-input
+      <a-form :model="queryParams" ref="queryRef" layout="inline" v-show="showSearch" :label-col-props="{ flex: '68px' }" class="ui-filter-card">
+         <a-form-item label="登录地址" field="ipaddr">
+            <a-input
                v-model="queryParams.ipaddr"
                placeholder="请输入登录地址"
-               clearable
+               allow-clear
                style="width: 240px;"
                @keyup.enter="handleQuery"
             />
-         </el-form-item>
-         <el-form-item label="用户名称" prop="userName">
-            <el-input
+         </a-form-item>
+         <a-form-item label="用户名称" field="userName">
+            <a-input
                v-model="queryParams.userName"
                placeholder="请输入用户名称"
-               clearable
+               allow-clear
                style="width: 240px;"
                @keyup.enter="handleQuery"
             />
-         </el-form-item>
-         <el-form-item label="状态" prop="status">
-            <el-select
+         </a-form-item>
+         <a-form-item label="状态" field="status">
+            <a-select
                v-model="queryParams.status"
                placeholder="登录状态"
-               clearable
+               allow-clear
                style="width: 240px"
             >
-               <el-option
+               <a-option
                   v-for="dict in sys_common_status"
                   :key="dict.value"
                   :label="dict.label"
                   :value="dict.value"
                />
-            </el-select>
-         </el-form-item>
-         <el-form-item label="登录时间" style="width: 308px">
-            <el-date-picker
+            </a-select>
+         </a-form-item>
+         <a-form-item label="登录时间" style="width: 308px">
+            <a-range-picker
                v-model="dateRange"
                value-format="YYYY-MM-DD HH:mm:ss"
-               type="daterange"
-               range-separator="-"
-               start-placeholder="开始日期"
-               end-placeholder="结束日期"
-               :default-time="[new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 1, 1, 23, 59, 59)]"
-            ></el-date-picker>
-         </el-form-item>
-         <el-form-item>
-            <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-            <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-         </el-form-item>
-      </el-form>
 
-      <el-row :gutter="10" class="mb8 ui-action-bar">
-         <el-col :span="1.5">
-            <el-button
-               type="danger"
-               plain
-               icon="Delete"
+               separator="-"
+               :placeholder="['开始日期', '结束日期']"
+               :default-time="[new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 1, 1, 23, 59, 59)]"
+            ></a-range-picker>
+         </a-form-item>
+         <a-form-item>
+            <a-button type="primary" @click="handleQuery"><template #icon><Search /></template>搜索</a-button>
+            <a-button @click="resetQuery"><template #icon><Refresh /></template>重置</a-button>
+         </a-form-item>
+      </a-form>
+
+      <a-row :gutter="10" class="mb8 ui-action-bar">
+         <a-col :span="1.5">
+            <a-button
+               status="danger"
+
+
                :disabled="multiple"
                @click="handleDelete"
                v-hasPermi="['monitor:logininfor:remove']"
-            >删除</el-button>
-         </el-col>
-         <el-col :span="1.5">
-            <el-button
-               type="danger"
-               plain
-               icon="Delete"
+             type="outline"><template #icon><Delete /></template>删除</a-button>
+         </a-col>
+         <a-col :span="1.5">
+            <a-button
+               status="danger"
+
+
                @click="handleClean"
                v-hasPermi="['monitor:logininfor:remove']"
-            >清空</el-button>
-         </el-col>
-         <el-col :span="1.5">
-            <el-button
-               type="primary"
-               plain
-               icon="Unlock"
+             type="outline"><template #icon><Delete /></template>清空</a-button>
+         </a-col>
+         <a-col :span="1.5">
+            <a-button
+
+
+
                :disabled="single"
                @click="handleUnlock"
                v-hasPermi="['monitor:logininfor:unlock']"
-            >解锁</el-button>
-         </el-col>
-         <el-col :span="1.5">
-            <el-button
-               type="warning"
-               plain
-               icon="Download"
+             type="outline"><template #icon><Unlock /></template>解锁</a-button>
+         </a-col>
+         <a-col :span="1.5">
+            <a-button
+               status="warning"
+
+
                @click="handleExport"
                v-hasPermi="['monitor:logininfor:export']"
-            >导出</el-button>
-         </el-col>
+             type="outline"><template #icon><Download /></template>导出</a-button>
+         </a-col>
          <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
-      </el-row>
+      </a-row>
 
       <div class="ui-table-card">
-      <el-table ref="logininforRef" v-loading="loading" :data="logininforList" @selection-change="handleSelectionChange" :default-sort="defaultSort" @sort-change="handleSortChange">
-         <el-table-column type="selection" width="55" align="center" />
-         <el-table-column label="访问编号" align="center" prop="infoId" />
-         <el-table-column label="用户名称" align="center" prop="userName" :show-overflow-tooltip="true" sortable="custom" :sort-orders="['descending', 'ascending']" />
-         <el-table-column label="地址" align="center" prop="ipaddr" :show-overflow-tooltip="true" />
-         <el-table-column label="登录地点" align="center" prop="loginLocation" :show-overflow-tooltip="true" />
-         <el-table-column label="操作系统" align="center" prop="os" :show-overflow-tooltip="true" />
-         <el-table-column label="浏览器" align="center" prop="browser" :show-overflow-tooltip="true" />
-         <el-table-column label="登录状态" align="center" prop="status">
-            <template #default="scope">
-               <dict-tag :options="sys_common_status" :value="scope.row.status" />
+      <a-table :loading="loading" :data="logininforList" :row-selection="{ type: 'checkbox', showCheckedAll: true }" :row-key="record => record.infoId" :pagination="false" @selection-change="handleSelectionChange" @sorter-change="handleSortChange">
+         <a-table-column title="访问编号" align="center" data-index="infoId" />
+         <a-table-column title="用户名称" align="center" data-index="userName" ellipsis :sortable="{ sortDirections: ['descend', 'ascend'], sorter: true }" tooltip />
+         <a-table-column title="地址" align="center" data-index="ipaddr" ellipsis tooltip />
+         <a-table-column title="登录地点" align="center" data-index="loginLocation" ellipsis tooltip />
+         <a-table-column title="操作系统" align="center" data-index="os" ellipsis tooltip />
+         <a-table-column title="浏览器" align="center" data-index="browser" ellipsis tooltip />
+         <a-table-column title="登录状态" align="center" data-index="status">
+            <template #cell="{ record, rowIndex }">
+               <dict-tag :options="sys_common_status" :value="record.status" />
             </template>
-         </el-table-column>
-         <el-table-column label="描述" align="center" prop="msg" :show-overflow-tooltip="true" />
-         <el-table-column label="访问时间" align="center" prop="loginTime" sortable="custom" :sort-orders="['descending', 'ascending']" width="180">
-            <template #default="scope">
-               <span>{{ parseTime(scope.row.loginTime) }}</span>
+         </a-table-column>
+         <a-table-column title="描述" align="center" data-index="msg" ellipsis tooltip />
+         <a-table-column title="访问时间" align="center" data-index="loginTime" :sortable="{ sortDirections: ['descend', 'ascend'], sorter: true, defaultSortOrder: 'descend' }" width="180">
+            <template #cell="{ record, rowIndex }">
+               <span>{{ parseTime(record.loginTime) }}</span>
             </template>
-         </el-table-column>
-      </el-table>
+         </a-table-column>
+      </a-table>
       </div>
 
       <pagination
@@ -175,21 +173,25 @@ function resetQuery() {
   dateRange.value = []
   proxy.resetForm("queryRef")
   queryParams.value.pageNum = 1
-  proxy.$refs["logininforRef"].sort(defaultSort.value.prop, defaultSort.value.order)
+  queryParams.value.orderByColumn = defaultSort.value.prop
+  queryParams.value.isAsc = defaultSort.value.order
+  getList()
 }
 
 /** 多选框选中数据 */
-function handleSelectionChange(selection) {
-  ids.value = selection.map(item => item.infoId)
-  multiple.value = !selection.length
-  single.value = selection.length != 1
-  selectName.value = selection.map(item => item.userName)
+function handleSelectionChange(selectedKeys) {
+  ids.value = selectedKeys
+  multiple.value = !selectedKeys.length
+  single.value = selectedKeys.length != 1
+  selectName.value = logininforList.value
+    .filter(item => selectedKeys.includes(item.infoId))
+    .map(item => item.userName)
 }
 
 /** 排序触发事件 */
-function handleSortChange(column, prop, order) {
-  queryParams.value.orderByColumn = column.prop
-  queryParams.value.isAsc = column.order
+function handleSortChange(dataIndex, direction) {
+  queryParams.value.orderByColumn = dataIndex
+  queryParams.value.isAsc = direction === 'ascend' ? 'ascending' : 'descending'
   getList()
 }
 

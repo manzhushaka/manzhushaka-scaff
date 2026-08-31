@@ -1,57 +1,57 @@
 <template>
   <div class="app-container runtime-log-page">
     <section class="runtime-log-card">
-      <el-tabs v-model="activeLevelTab" class="runtime-level-tabs" @tab-change="handleLevelTabChange">
-        <el-tab-pane label="全部" name="ALL" />
-        <el-tab-pane label="INFO" name="INFO" />
-        <el-tab-pane label="WARN" name="WARN" />
-        <el-tab-pane label="ERROR" name="ERROR" />
-      </el-tabs>
+      <a-tabs v-model:active-key="activeLevelTab" class="runtime-level-tabs" @change="handleLevelTabChange">
+        <a-tab-pane title="全部" key="ALL" />
+        <a-tab-pane title="INFO" key="INFO" />
+        <a-tab-pane title="WARN" key="WARN" />
+        <a-tab-pane title="ERROR" key="ERROR" />
+      </a-tabs>
 
       <div class="runtime-log-panel">
-        <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px" class="ui-filter-card">
-          <el-form-item label="关键字" prop="keyword">
-            <el-input v-model="queryParams.keyword" placeholder="请输入关键字" clearable style="width: 240px" @keyup.enter="handleQuery" />
-          </el-form-item>
-          <el-form-item label="读取行数" prop="lineCount">
-            <el-input-number v-model="queryParams.lineCount" :min="50" :max="5000" :step="100" controls-position="right" style="width: 160px" />
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-            <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-          </el-form-item>
-        </el-form>
+        <a-form :model="queryParams" ref="queryRef" layout="inline" v-show="showSearch" :label-col-props="{ flex: '68px' }" class="ui-filter-card">
+          <a-form-item label="关键字" field="keyword">
+            <a-input v-model="queryParams.keyword" placeholder="请输入关键字" allow-clear style="width: 240px" @keyup.enter="handleQuery" />
+          </a-form-item>
+          <a-form-item label="读取行数" field="lineCount">
+            <a-input-number v-model="queryParams.lineCount" :min="50" :max="5000" :step="100" controls-position="right" style="width: 160px" />
+          </a-form-item>
+          <a-form-item>
+            <a-button type="primary" @click="handleQuery"><template #icon><Search /></template>搜索</a-button>
+            <a-button @click="resetQuery"><template #icon><Refresh /></template>重置</a-button>
+          </a-form-item>
+        </a-form>
 
-        <el-row :gutter="10" class="mb8 ui-action-bar">
-          <el-col :span="1.5">
-            <el-button type="warning" plain icon="Download" @click="handleDownload" v-hasPermi="['monitor:runtimelog:download']">下载</el-button>
-          </el-col>
+        <a-row :gutter="10" class="mb8 ui-action-bar">
+          <a-col :span="1.5">
+            <a-button status="warning" @click="handleDownload" v-hasPermi="['monitor:runtimelog:download']" type="outline"><template #icon><Download /></template>下载</a-button>
+          </a-col>
           <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" />
-        </el-row>
+        </a-row>
 
         <div class="ui-table-card runtime-log-table-card">
-          <el-table v-loading="loading" :data="runtimeLogList" style="width: 100%">
-            <el-table-column label="行号" align="center" prop="lineNumber" width="90" />
-            <el-table-column label="时间" align="center" prop="time" width="130" />
-            <el-table-column label="级别" align="center" prop="level" width="90">
-              <template #default="scope">
-                <el-tag :type="levelTagType(scope.row.level)" effect="plain">{{ scope.row.level }}</el-tag>
+          <a-table :loading="loading" :data="runtimeLogList" style="width: 100%" :pagination="false">
+            <a-table-column title="行号" align="center" data-index="lineNumber" width="90" />
+            <a-table-column title="时间" align="center" data-index="time" width="130" />
+            <a-table-column title="级别" align="center" data-index="level" width="90">
+              <template #cell="{ record, rowIndex }">
+                <a-tag :color="levelTagColor(record.level)">{{ record.level }}</a-tag>
               </template>
-            </el-table-column>
-            <el-table-column label="内容" prop="content" :show-overflow-tooltip="true" min-width="420" />
-            <el-table-column label="堆栈" align="center" width="90">
-              <template #default="scope">
-                <el-button link type="primary" icon="View" @click="handleDetail(scope.row)" v-hasPermi="['monitor:runtimelog:query']">查看</el-button>
+            </a-table-column>
+            <a-table-column title="内容" data-index="content" ellipsis min-width="420" tooltip />
+            <a-table-column title="堆栈" align="center" width="90">
+              <template #cell="{ record, rowIndex }">
+                <a-button @click="handleDetail(record)" v-hasPermi="['monitor:runtimelog:query']"><template #icon><View /></template>查看</a-button>
               </template>
-            </el-table-column>
-          </el-table>
+            </a-table-column>
+          </a-table>
         </div>
       </div>
     </section>
 
-    <el-dialog title="运行日志详情" v-model="detailVisible" width="860px" append-to-body>
+    <a-modal title="运行日志详情" v-model:visible="detailVisible" width="860px" render-to-body :footer="false">
       <pre class="runtime-log-pre">{{ detailContent }}</pre>
-    </el-dialog>
+    </a-modal>
   </div>
 </template>
 
@@ -112,14 +112,14 @@ function handleDownload() {
   window.open(baseUrl + '/monitor/runtimeLog/download?fileName=' + encodeURIComponent(queryParams.value.fileName), '_blank')
 }
 
-function levelTagType(level) {
+function levelTagColor(level) {
   if (level === 'ERROR') {
-    return 'danger'
+    return 'red'
   }
   if (level === 'WARN') {
-    return 'warning'
+    return 'orange'
   }
-  return 'success'
+  return 'green'
 }
 
 getList()
@@ -145,24 +145,24 @@ getList()
 }
 
 .runtime-level-tabs {
-  :deep(.el-tabs__header) {
+  :deep(.arco-tabs-nav) {
     margin: 0;
     padding: 0 20px;
-    border-bottom: 1px solid var(--el-border-color-lighter);
+    border-bottom: 1px solid var(--ui-border);
     background: var(--ui-bg-panel-muted);
   }
 
-  :deep(.el-tabs__nav-wrap::after) {
+  :deep(.arco-tabs-nav::before) {
     display: none;
   }
 
-  :deep(.el-tabs__item) {
+  :deep(.arco-tabs-tab) {
     height: 52px;
     font-size: 14px;
     font-weight: 600;
   }
 
-  :deep(.el-tabs__content) {
+  :deep(.arco-tabs-content) {
     display: none;
   }
 }
@@ -187,7 +187,7 @@ getList()
 
 @media (max-width: 768px) {
   .runtime-level-tabs {
-    :deep(.el-tabs__header) {
+    :deep(.arco-tabs-nav) {
       padding: 0 14px;
     }
   }

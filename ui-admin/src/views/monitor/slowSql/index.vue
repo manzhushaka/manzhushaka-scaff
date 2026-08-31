@@ -1,72 +1,71 @@
 <template>
   <div class="app-container ui-list-page">
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="96px" class="ui-filter-card slow-sql-filter">
-      <el-form-item label="SQL关键字" prop="sqlText">
-        <el-input v-model="queryParams.sqlText" placeholder="请输入 SQL 关键字" clearable style="width: 240px" @keyup.enter="handleQuery" />
-      </el-form-item>
-      <el-form-item label="Mapper" prop="mapperId">
-        <el-input v-model="queryParams.mapperId" placeholder="请输入 Mapper" clearable style="width: 240px" @keyup.enter="handleQuery" />
-      </el-form-item>
-      <el-form-item label="最小耗时" prop="costTime">
-        <el-input-number v-model="queryParams.costTime" :min="0" :step="100" controls-position="right" style="width: 160px" />
-      </el-form-item>
-      <el-form-item label="执行时间" style="width: 308px">
-        <el-date-picker v-model="dateRange" value-format="YYYY-MM-DD HH:mm:ss" type="daterange" range-separator="-"
-          start-placeholder="开始日期" end-placeholder="结束日期"
+    <a-form :model="queryParams" ref="queryRef" layout="inline" v-show="showSearch" :label-col-props="{ flex: '96px' }" class="ui-filter-card slow-sql-filter">
+      <a-form-item label="SQL关键字" field="sqlText">
+        <a-input v-model="queryParams.sqlText" placeholder="请输入 SQL 关键字" allow-clear style="width: 240px" @keyup.enter="handleQuery" />
+      </a-form-item>
+      <a-form-item label="Mapper" field="mapperId">
+        <a-input v-model="queryParams.mapperId" placeholder="请输入 Mapper" allow-clear style="width: 240px" @keyup.enter="handleQuery" />
+      </a-form-item>
+      <a-form-item label="最小耗时" field="costTime">
+        <a-input-number v-model="queryParams.costTime" :min="0" :step="100" controls-position="right" style="width: 160px" />
+      </a-form-item>
+      <a-form-item label="执行时间" style="width: 308px">
+        <a-range-picker v-model="dateRange" value-format="YYYY-MM-DD HH:mm:ss" separator="-"
+          :placeholder="['开始日期', '结束日期']"
           :default-time="[new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 1, 1, 23, 59, 59)]" />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-      </el-form-item>
-    </el-form>
+      </a-form-item>
+      <a-form-item>
+        <a-button type="primary" @click="handleQuery"><template #icon><Search /></template>搜索</a-button>
+        <a-button @click="resetQuery"><template #icon><Refresh /></template>重置</a-button>
+      </a-form-item>
+    </a-form>
 
-    <el-row :gutter="10" class="mb8 ui-action-bar">
-      <el-col :span="1.5">
-        <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete" v-hasPermi="['monitor:slowsql:remove']">删除</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button type="danger" plain icon="Delete" @click="handleClean" v-hasPermi="['monitor:slowsql:remove']">清空</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button type="warning" plain icon="Download" @click="handleExport" v-hasPermi="['monitor:slowsql:export']">导出</el-button>
-      </el-col>
+    <a-row :gutter="10" class="mb8 ui-action-bar">
+      <a-col :span="1.5">
+        <a-button status="danger" :disabled="multiple" @click="handleDelete" v-hasPermi="['monitor:slowsql:remove']" type="outline"><template #icon><Delete /></template>删除</a-button>
+      </a-col>
+      <a-col :span="1.5">
+        <a-button status="danger" @click="handleClean" v-hasPermi="['monitor:slowsql:remove']" type="outline"><template #icon><Delete /></template>清空</a-button>
+      </a-col>
+      <a-col :span="1.5">
+        <a-button status="warning" @click="handleExport" v-hasPermi="['monitor:slowsql:export']" type="outline"><template #icon><Download /></template>导出</a-button>
+      </a-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" />
-    </el-row>
+    </a-row>
 
     <div class="ui-table-card">
-      <el-table v-loading="loading" :data="slowSqlList" @selection-change="handleSelectionChange">
-        <el-table-column type="selection" width="50" align="center" />
-        <el-table-column label="编号" align="center" prop="slowSqlId" width="90" />
-        <el-table-column label="Mapper" prop="mapperId" :show-overflow-tooltip="true" min-width="260" />
-        <el-table-column label="SQL" prop="sqlText" :show-overflow-tooltip="true" min-width="280" />
-        <el-table-column label="数据源" align="center" prop="dataSourceName" width="100" />
-        <el-table-column label="耗时" align="center" prop="costTime" width="110">
-          <template #default="scope">{{ scope.row.costTime }}毫秒</template>
-        </el-table-column>
-        <el-table-column label="执行时间" align="center" prop="executeTime" width="180">
-          <template #default="scope">{{ parseTime(scope.row.executeTime) }}</template>
-        </el-table-column>
-        <el-table-column label="操作" align="center" width="90">
-          <template #default="scope">
-            <el-button link type="primary" icon="View" @click="handleDetail(scope.row)" v-hasPermi="['monitor:slowsql:query']">详细</el-button>
+      <a-table :loading="loading" :data="slowSqlList" :row-selection="{ type: 'checkbox', showCheckedAll: true }" :row-key="record => record.slowSqlId" :pagination="false" @selection-change="handleSelectionChange">
+        <a-table-column title="编号" align="center" data-index="slowSqlId" width="90" />
+        <a-table-column title="Mapper" data-index="mapperId" ellipsis min-width="260" tooltip />
+        <a-table-column title="SQL" data-index="sqlText" ellipsis min-width="280" tooltip />
+        <a-table-column title="数据源" align="center" data-index="dataSourceName" width="100" />
+        <a-table-column title="耗时" align="center" data-index="costTime" width="110">
+          <template #cell="{ record, rowIndex }">{{ record.costTime }}毫秒</template>
+        </a-table-column>
+        <a-table-column title="执行时间" align="center" data-index="executeTime" width="180">
+          <template #cell="{ record, rowIndex }">{{ parseTime(record.executeTime) }}</template>
+        </a-table-column>
+        <a-table-column title="操作" align="center" width="90">
+          <template #cell="{ record, rowIndex }">
+            <a-button @click="handleDetail(record)" v-hasPermi="['monitor:slowsql:query']"><template #icon><View /></template>详细</a-button>
           </template>
-        </el-table-column>
-      </el-table>
+        </a-table-column>
+      </a-table>
     </div>
 
     <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
 
-    <el-dialog title="慢 SQL 详情" v-model="detailVisible" width="820px" append-to-body>
-      <el-descriptions :column="2" border>
-        <el-descriptions-item label="Mapper" :span="2">{{ detailRow.mapperId }}</el-descriptions-item>
-        <el-descriptions-item label="数据源">{{ detailRow.dataSourceName }}</el-descriptions-item>
-        <el-descriptions-item label="耗时">{{ detailRow.costTime }}毫秒</el-descriptions-item>
-        <el-descriptions-item label="执行时间" :span="2">{{ parseTime(detailRow.executeTime) }}</el-descriptions-item>
-        <el-descriptions-item label="SQL" :span="2"><pre class="sql-pre">{{ detailRow.sqlText }}</pre></el-descriptions-item>
-        <el-descriptions-item label="错误消息" :span="2"><pre class="sql-pre">{{ detailRow.errorMsg }}</pre></el-descriptions-item>
-      </el-descriptions>
-    </el-dialog>
+    <a-modal title="慢 SQL 详情" v-model:visible="detailVisible" width="820px" render-to-body :footer="false">
+      <a-descriptions :column="2" bordered>
+        <a-descriptions-item label="Mapper" :span="2">{{ detailRow.mapperId }}</a-descriptions-item>
+        <a-descriptions-item label="数据源">{{ detailRow.dataSourceName }}</a-descriptions-item>
+        <a-descriptions-item label="耗时">{{ detailRow.costTime }}毫秒</a-descriptions-item>
+        <a-descriptions-item label="执行时间" :span="2">{{ parseTime(detailRow.executeTime) }}</a-descriptions-item>
+        <a-descriptions-item label="SQL" :span="2"><pre class="sql-pre">{{ detailRow.sqlText }}</pre></a-descriptions-item>
+        <a-descriptions-item label="错误消息" :span="2"><pre class="sql-pre">{{ detailRow.errorMsg }}</pre></a-descriptions-item>
+      </a-descriptions>
+    </a-modal>
   </div>
 </template>
 
@@ -113,9 +112,9 @@ function resetQuery() {
   handleQuery()
 }
 
-function handleSelectionChange(selection) {
-  ids.value = selection.map(item => item.slowSqlId)
-  multiple.value = !selection.length
+function handleSelectionChange(selectedKeys) {
+  ids.value = selectedKeys
+  multiple.value = !selectedKeys.length
 }
 
 function handleDetail(row) {
@@ -150,7 +149,7 @@ getList()
 </script>
 
 <style scoped>
-.slow-sql-filter :deep(.el-form-item__label) {
+.slow-sql-filter :deep(.arco-form-item-label) {
   white-space: nowrap;
 }
 

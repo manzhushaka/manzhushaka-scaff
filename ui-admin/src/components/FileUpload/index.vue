@@ -1,15 +1,15 @@
 <template>
   <div class="upload-file">
-    <el-upload
+    <a-upload
       multiple
       :action="uploadFileUrl"
       :before-upload="handleBeforeUpload"
       :file-list="fileList"
       :data="data"
       :limit="limit"
-      :on-error="handleUploadError"
-      :on-exceed="handleExceed"
-      :on-success="handleUploadSuccess"
+      @error="handleUploadError"
+      @exceed-limit="handleExceed"
+      @success="handleUploadSuccess"
       :show-file-list="false"
       :headers="headers"
       class="upload-file-uploader"
@@ -17,23 +17,23 @@
       v-if="!disabled"
     >
       <!-- 上传按钮 -->
-      <el-button type="primary">选取文件</el-button>
-    </el-upload>
+      <a-button type="primary">选取文件</a-button>
+    </a-upload>
     <!-- 上传提示 -->
-    <div class="el-upload__tip" v-if="showTip && !disabled">
+    <div class="upload-tip" v-if="showTip && !disabled">
       请上传
       <template v-if="fileSize"> 大小不超过 <b style="color: var(--ui-danger)">{{ fileSize }}MB</b> </template>
       <template v-if="fileType"> 格式为 <b style="color: var(--ui-danger)">{{ fileType.join("/") }}</b> </template>
       的文件
     </div>
     <!-- 文件列表 -->
-    <transition-group ref="uploadFileList" class="upload-file-list el-upload-list el-upload-list--text" name="el-fade-in-linear" tag="ul">
-      <li :key="file.uid" class="el-upload-list__item ele-upload-list__item-content" v-for="(file, index) in fileList">
-        <el-link :href="`${baseUrl}${file.url}`" underline="never" target="_blank">
-          <span class="el-icon-document"> {{ getFileName(file.name) }} </span>
-        </el-link>
+    <transition-group ref="uploadFileList" class="upload-file-list" name="fade" tag="ul">
+      <li :key="file.uid" class="upload-list-item" v-for="(file, index) in fileList">
+        <a-link :href="`${baseUrl}${file.url}`" target="_blank">
+          <span> {{ getFileName(file.name) }} </span>
+        </a-link>
         <div class="ele-upload-list__item-content-action">
-          <el-link underline="never" @click="handleDelete(index)" type="danger" v-if="!disabled">&nbsp;删除</el-link>
+          <a-link @click="handleDelete(index)" status="danger" v-if="!disabled">&nbsp;删除</a-link>
         </div>
       </li>
     </transition-group>
@@ -109,7 +109,7 @@ watch(() => props.modelValue, val => {
       if (typeof item === "string") {
         item = { name: item, url: item }
       }
-      item.uid = item.uid || new Date().getTime() + temp++
+      item.uid = String(item.uid || new Date().getTime() + temp++)
       return item
     })
   } else {
@@ -160,7 +160,8 @@ function handleUploadError(err) {
 }
 
 // 上传成功回调
-function handleUploadSuccess(res, file) {
+function handleUploadSuccess(file) {
+  const res = file.response
   if (res.code === 200) {
     uploadList.value.push({ name: res.fileName, url: res.fileName })
     uploadedSuccessfully()
@@ -168,7 +169,6 @@ function handleUploadSuccess(res, file) {
     number.value--
     proxy.$modal.closeLoading()
     proxy.$modal.msgError(res.msg)
-    proxy.$refs.fileUpload.handleRemove(file)
     uploadedSuccessfully()
   }
 }
@@ -237,20 +237,20 @@ onMounted(() => {
 .upload-file-uploader {
   margin-bottom: 5px;
 }
-.upload-file-list .el-upload-list__item {
+.upload-file-list .upload-list-item {
   border: 1px solid var(--ui-border, #e4e7ed);
   line-height: 2;
   margin-bottom: 10px;
   position: relative;
   transition: none !important;
 }
-.upload-file-list .ele-upload-list__item-content {
+.upload-file-list .upload-list-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   color: inherit;
 }
-.ele-upload-list__item-content-action .el-link {
+.ele-upload-list__item-content-action .arco-link {
   margin-right: 10px;
 }
 </style>

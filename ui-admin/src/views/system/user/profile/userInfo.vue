@@ -1,25 +1,25 @@
 <template>
-   <el-form ref="userRef" :model="form" :rules="rules" label-width="80px">
-      <el-form-item label="用户昵称" prop="nickName">
-         <el-input v-model="form.nickName" maxlength="30" />
-      </el-form-item>
-      <el-form-item label="手机号码" prop="phonenumber">
-         <el-input v-model="form.phonenumber" maxlength="11" />
-      </el-form-item>
-      <el-form-item label="邮箱" prop="email">
-         <el-input v-model="form.email" maxlength="50" />
-      </el-form-item>
-      <el-form-item label="性别">
-         <el-radio-group v-model="form.sex">
-            <el-radio value="0">男</el-radio>
-            <el-radio value="1">女</el-radio>
-         </el-radio-group>
-      </el-form-item>
-      <el-form-item>
-      <el-button type="primary" @click="submit">保存</el-button>
-      <el-button type="danger" @click="close">关闭</el-button>
-      </el-form-item>
-   </el-form>
+   <a-form ref="userRef" :model="form" :rules="rules" :label-col-props="{ flex: '80px' }">
+      <a-form-item label="用户昵称" field="nickName">
+         <a-input v-model="form.nickName" maxlength="30" />
+      </a-form-item>
+      <a-form-item label="手机号码" field="phonenumber">
+         <a-input v-model="form.phonenumber" maxlength="11" />
+      </a-form-item>
+      <a-form-item label="邮箱" field="email">
+         <a-input v-model="form.email" maxlength="50" />
+      </a-form-item>
+      <a-form-item label="性别">
+         <a-radio-group v-model="form.sex">
+            <a-radio value="0">男</a-radio>
+            <a-radio value="1">女</a-radio>
+         </a-radio-group>
+      </a-form-item>
+      <a-form-item>
+      <a-button type="primary" @click="submit">保存</a-button>
+      <a-button status="danger" @click="close">关闭</a-button>
+      </a-form-item>
+   </a-form>
 </template>
 
 <script setup>
@@ -42,8 +42,8 @@ const rules = ref({
 
 /** 提交按钮 */
 function submit() {
-  proxy.$refs.userRef.validate(valid => {
-    if (valid) {
+  proxy.$refs.userRef.validate(errors => {
+    if (!errors) {
       updateUserProfile(form.value).then(() => {
         proxy.$modal.msgSuccess("修改成功")
         props.user.phonenumber = form.value.phonenumber

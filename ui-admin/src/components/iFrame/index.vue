@@ -1,11 +1,11 @@
 <template>
-  <div class="iframe-shell" v-loading="loading" :style="'height:' + height">
-    <iframe 
-      :src="url" 
-      frameborder="no" 
+  <a-spin class="iframe-shell" :loading="loading" :style="'height:' + height">
+    <iframe
+      :src="url"
+      frameborder="no"
       class="iframe-shell__frame"
       scrolling="auto" />
-  </div>
+  </a-spin>
 </template>
 
 <script setup>

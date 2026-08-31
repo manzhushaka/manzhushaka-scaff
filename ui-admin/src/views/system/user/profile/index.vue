@@ -1,8 +1,8 @@
 <template>
    <div class="app-container">
-      <el-row :gutter="20">
-         <el-col :span="6" :xs="24">
-            <el-card class="profile-card box-card">
+      <a-row :gutter="20">
+         <a-col :span="6" :xs="24">
+            <a-card class="profile-card box-card">
                <template v-slot:header>
                  <div class="clearfix">
                    <span>个人信息</span>
@@ -39,26 +39,26 @@
                      </li>
                   </ul>
                </div>
-            </el-card>
-         </el-col>
-         <el-col :span="18" :xs="24">
-            <el-card class="profile-card">
+            </a-card>
+         </a-col>
+         <a-col :span="18" :xs="24">
+            <a-card class="profile-card">
                <template v-slot:header>
                  <div class="clearfix">
                    <span>基本资料</span>
                  </div>
                </template>
-               <el-tabs v-model="selectedTab">
-                  <el-tab-pane label="基本资料" name="userinfo">
+               <a-tabs v-model:active-key="selectedTab">
+                  <a-tab-pane title="基本资料" key="userinfo">
                      <userInfo :user="state.user" />
-                  </el-tab-pane>
-                  <el-tab-pane label="修改密码" name="resetPwd">
+                  </a-tab-pane>
+                  <a-tab-pane title="修改密码" key="resetPwd">
                      <resetPwd />
-                  </el-tab-pane>
-               </el-tabs>
-            </el-card>
-         </el-col>
-      </el-row>
+                  </a-tab-pane>
+               </a-tabs>
+            </a-card>
+         </a-col>
+      </a-row>
    </div>
 </template>
 
@@ -95,14 +95,14 @@ onMounted(() => {
 .profile-card {
   min-height: 100%;
 
-  :deep(.el-card__header) {
+  :deep(.arco-card-header) {
     min-height: 44px;
     padding: 0 16px !important;
     display: flex;
     align-items: center;
   }
 
-  :deep(.el-card__body) {
+  :deep(.arco-card-body) {
     padding: 16px !important;
   }
 }

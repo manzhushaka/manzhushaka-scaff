@@ -1,85 +1,84 @@
 
 <template>
    <div class="app-container ui-list-page">
-      <el-form :model="queryParams" ref="queryRef" v-show="showSearch" :inline="true" class="ui-filter-card">
-         <el-form-item label="用户名称" prop="userName">
-            <el-input
+      <a-form :model="queryParams" ref="queryRef" v-show="showSearch" layout="inline" class="ui-filter-card">
+         <a-form-item label="用户名称" field="userName">
+            <a-input
                v-model="queryParams.userName"
                placeholder="请输入用户名称"
-               clearable
+               allow-clear
                style="width: 240px"
                @keyup.enter="handleQuery"
             />
-         </el-form-item>
-         <el-form-item label="手机号码" prop="phonenumber">
-            <el-input
+         </a-form-item>
+         <a-form-item label="手机号码" field="phonenumber">
+            <a-input
                v-model="queryParams.phonenumber"
                placeholder="请输入手机号码"
-               clearable
+               allow-clear
                style="width: 240px"
                @keyup.enter="handleQuery"
             />
-         </el-form-item>
-         <el-form-item>
-            <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-            <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-         </el-form-item>
-      </el-form>
+         </a-form-item>
+         <a-form-item>
+            <a-button type="primary" @click="handleQuery"><template #icon><Search /></template>搜索</a-button>
+            <a-button @click="resetQuery"><template #icon><Refresh /></template>重置</a-button>
+         </a-form-item>
+      </a-form>
 
-      <el-row :gutter="10" class="mb8 ui-action-bar">
-         <el-col :span="1.5">
-            <el-button
-               type="primary"
-               plain
-               icon="Plus"
+      <a-row :gutter="10" class="mb8 ui-action-bar">
+         <a-col :span="1.5">
+            <a-button
+
+
+
                @click="openSelectUser"
                v-hasPermi="['system:role:add']"
-            >添加用户</el-button>
-         </el-col>
-         <el-col :span="1.5">
-            <el-button
-               type="danger"
-               plain
-               icon="CircleClose"
+             type="outline"><template #icon><Plus /></template>添加用户</a-button>
+         </a-col>
+         <a-col :span="1.5">
+            <a-button
+               status="danger"
+
+
                :disabled="multiple"
                @click="cancelAuthUserAll"
                v-hasPermi="['system:role:remove']"
-            >批量取消授权</el-button>
-         </el-col>
-         <el-col :span="1.5">
-            <el-button 
-               type="warning" 
-               plain 
-               icon="Close"
+             type="outline"><template #icon><CircleClose /></template>批量取消授权</a-button>
+         </a-col>
+         <a-col :span="1.5">
+            <a-button
+               status="warning"
+
+
                @click="handleClose"
-            >关闭</el-button>
-         </el-col>
+             type="outline"><template #icon><Close /></template>关闭</a-button>
+         </a-col>
          <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
-      </el-row>
+      </a-row>
 
       <div class="ui-table-card">
-      <el-table v-loading="loading" :data="userList" @selection-change="handleSelectionChange">
-         <el-table-column type="selection" width="55" align="center" />
-         <el-table-column label="用户名称" prop="userName" :show-overflow-tooltip="true" />
-         <el-table-column label="用户昵称" prop="nickName" :show-overflow-tooltip="true" />
-         <el-table-column label="邮箱" prop="email" :show-overflow-tooltip="true" />
-         <el-table-column label="手机" prop="phonenumber" :show-overflow-tooltip="true" />
-         <el-table-column label="状态" align="center" prop="status">
-            <template #default="scope">
-               <dict-tag :options="sys_normal_disable" :value="scope.row.status" />
+      <a-table :loading="loading" :data="userList" :row-selection="{ type: 'checkbox', showCheckedAll: true }" :row-key="record => record.userId" :pagination="false" @selection-change="handleSelectionChange">
+         <a-table-column title="用户名称" data-index="userName" ellipsis tooltip />
+         <a-table-column title="用户昵称" data-index="nickName" ellipsis tooltip />
+         <a-table-column title="邮箱" data-index="email" ellipsis tooltip />
+         <a-table-column title="手机" data-index="phonenumber" ellipsis tooltip />
+         <a-table-column title="状态" align="center" data-index="status">
+            <template #cell="{ record, rowIndex }">
+               <dict-tag :options="sys_normal_disable" :value="record.status" />
             </template>
-         </el-table-column>
-         <el-table-column label="创建时间" align="center" prop="createTime" width="180">
-            <template #default="scope">
-               <span>{{ parseTime(scope.row.createTime) }}</span>
+         </a-table-column>
+         <a-table-column title="创建时间" align="center" data-index="createTime" width="180">
+            <template #cell="{ record, rowIndex }">
+               <span>{{ parseTime(record.createTime) }}</span>
             </template>
-         </el-table-column>
-         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-            <template #default="scope">
-               <el-button link type="primary" icon="CircleClose" @click="cancelAuthUser(scope.row)" v-hasPermi="['system:role:remove']">取消授权</el-button>
+         </a-table-column>
+         <a-table-column title="操作" align="center" cell-class="small-padding fixed-width">
+            <template #cell="{ record, rowIndex }">
+               <a-button @click="cancelAuthUser(record)" v-hasPermi="['system:role:remove']"><template #icon><CircleClose /></template>取消授权</a-button>
             </template>
-         </el-table-column>
-      </el-table>
+         </a-table-column>
+      </a-table>
 
       <pagination
          v-show="total > 0"
@@ -145,9 +144,9 @@ function resetQuery() {
 }
 
 /** 多选框选中数据 */
-function handleSelectionChange(selection) {
-  userIds.value = selection.map(item => item.userId)
-  multiple.value = !selection.length
+function handleSelectionChange(selectedKeys) {
+  userIds.value = selectedKeys
+  multiple.value = !selectedKeys.length
 }
 
 /** 打开授权用户表弹窗 */

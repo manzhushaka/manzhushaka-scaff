@@ -1,69 +1,69 @@
 <template>
     <div>
-        <el-tabs type="border-card">
-            <el-tab-pane label="秒" v-if="shouldHide('second')">
+        <a-tabs type="card">
+            <a-tab-pane title="秒" v-if="shouldHide('second')">
                 <CrontabSecond
                     @update="updateCrontabValue"
                     :check="checkNumber"
                     :cron="crontabValueObj"
                     ref="cronsecond"
                 />
-            </el-tab-pane>
+            </a-tab-pane>
 
-            <el-tab-pane label="分钟" v-if="shouldHide('min')">
+            <a-tab-pane title="分钟" v-if="shouldHide('min')">
                 <CrontabMin
                     @update="updateCrontabValue"
                     :check="checkNumber"
                     :cron="crontabValueObj"
                     ref="cronmin"
                 />
-            </el-tab-pane>
+            </a-tab-pane>
 
-            <el-tab-pane label="小时" v-if="shouldHide('hour')">
+            <a-tab-pane title="小时" v-if="shouldHide('hour')">
                 <CrontabHour
                     @update="updateCrontabValue"
                     :check="checkNumber"
                     :cron="crontabValueObj"
                     ref="cronhour"
                 />
-            </el-tab-pane>
+            </a-tab-pane>
 
-            <el-tab-pane label="日" v-if="shouldHide('day')">
+            <a-tab-pane title="日" v-if="shouldHide('day')">
                 <CrontabDay
                     @update="updateCrontabValue"
                     :check="checkNumber"
                     :cron="crontabValueObj"
                     ref="cronday"
                 />
-            </el-tab-pane>
+            </a-tab-pane>
 
-            <el-tab-pane label="月" v-if="shouldHide('month')">
+            <a-tab-pane title="月" v-if="shouldHide('month')">
                 <CrontabMonth
                     @update="updateCrontabValue"
                     :check="checkNumber"
                     :cron="crontabValueObj"
                     ref="cronmonth"
                 />
-            </el-tab-pane>
+            </a-tab-pane>
 
-            <el-tab-pane label="周" v-if="shouldHide('week')">
+            <a-tab-pane title="周" v-if="shouldHide('week')">
                 <CrontabWeek
                     @update="updateCrontabValue"
                     :check="checkNumber"
                     :cron="crontabValueObj"
                     ref="cronweek"
                 />
-            </el-tab-pane>
+            </a-tab-pane>
 
-            <el-tab-pane label="年" v-if="shouldHide('year')">
+            <a-tab-pane title="年" v-if="shouldHide('year')">
                 <CrontabYear
                     @update="updateCrontabValue"
                     :check="checkNumber"
                     :cron="crontabValueObj"
                     ref="cronyear"
                 />
-            </el-tab-pane>
-        </el-tabs>
+            </a-tab-pane>
+        </a-tabs>
 
         <div class="popup-main">
             <div class="popup-result">
@@ -79,35 +79,35 @@
                         <tr>
                             <td>
                                 <span v-if="crontabValueObj.second.length < 10">{{crontabValueObj.second}}</span>
-                                <el-tooltip v-else :content="crontabValueObj.second" placement="top"><span>{{crontabValueObj.second}}</span></el-tooltip>
+                                <a-tooltip v-else :content="crontabValueObj.second" position="top"><span>{{crontabValueObj.second}}</span></a-tooltip>
                             </td>
                             <td>
                                 <span v-if="crontabValueObj.min.length < 10">{{crontabValueObj.min}}</span>
-                                <el-tooltip v-else :content="crontabValueObj.min" placement="top"><span>{{crontabValueObj.min}}</span></el-tooltip>
+                                <a-tooltip v-else :content="crontabValueObj.min" position="top"><span>{{crontabValueObj.min}}</span></a-tooltip>
                             </td>
                             <td>
                                 <span v-if="crontabValueObj.hour.length < 10">{{crontabValueObj.hour}}</span>
-                                <el-tooltip v-else :content="crontabValueObj.hour" placement="top"><span>{{crontabValueObj.hour}}</span></el-tooltip>
+                                <a-tooltip v-else :content="crontabValueObj.hour" position="top"><span>{{crontabValueObj.hour}}</span></a-tooltip>
                             </td>
                             <td>
                                 <span v-if="crontabValueObj.day.length < 10">{{crontabValueObj.day}}</span>
-                                <el-tooltip v-else :content="crontabValueObj.day" placement="top"><span>{{crontabValueObj.day}}</span></el-tooltip>
+                                <a-tooltip v-else :content="crontabValueObj.day" position="top"><span>{{crontabValueObj.day}}</span></a-tooltip>
                             </td>
                             <td>
                                 <span v-if="crontabValueObj.month.length < 10">{{crontabValueObj.month}}</span>
-                                <el-tooltip v-else :content="crontabValueObj.month" placement="top"><span>{{crontabValueObj.month}}</span></el-tooltip>
+                                <a-tooltip v-else :content="crontabValueObj.month" position="top"><span>{{crontabValueObj.month}}</span></a-tooltip>
                             </td>
                             <td>
                                 <span v-if="crontabValueObj.week.length < 10">{{crontabValueObj.week}}</span>
-                                <el-tooltip v-else :content="crontabValueObj.week" placement="top"><span>{{crontabValueObj.week}}</span></el-tooltip>
+                                <a-tooltip v-else :content="crontabValueObj.week" position="top"><span>{{crontabValueObj.week}}</span></a-tooltip>
                             </td>
                             <td>
                                 <span v-if="crontabValueObj.year.length < 10">{{crontabValueObj.year}}</span>
-                                <el-tooltip v-else :content="crontabValueObj.year" placement="top"><span>{{crontabValueObj.year}}</span></el-tooltip>
+                                <a-tooltip v-else :content="crontabValueObj.year" position="top"><span>{{crontabValueObj.year}}</span></a-tooltip>
                             </td>
                             <td class="result">
                                 <span v-if="crontabValueString.length < 90">{{crontabValueString}}</span>
-                                <el-tooltip v-else :content="crontabValueString" placement="top"><span>{{crontabValueString}}</span></el-tooltip>
+                                <a-tooltip v-else :content="crontabValueString" position="top"><span>{{crontabValueString}}</span></a-tooltip>
                             </td>
                         </tr>
                     </tbody>
@@ -116,9 +116,9 @@
             <CrontabResult :ex="crontabValueString"></CrontabResult>
 
             <div class="pop_btn">
-                <el-button type="primary" @click="submitFill">确定</el-button>
-                <el-button type="warning" @click="clearCron">重置</el-button>
-                <el-button @click="hidePopup">取消</el-button>
+                <a-button type="primary" @click="submitFill">确定</a-button>
+                <a-button status="warning" @click="clearCron">重置</a-button>
+                <a-button @click="hidePopup">取消</a-button>
             </div>
         </div>
     </div>

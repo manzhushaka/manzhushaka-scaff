@@ -1,10 +1,10 @@
 <template>
-  <div class="app-container server-monitor-page" v-loading="loading">
+  <a-spin class="app-container server-monitor-page" :loading="loading">
     <div class="server-monitor-actions">
-      <el-button type="primary" icon="Refresh" :loading="loading" @click="getList">刷新</el-button>
+      <a-button type="primary" :loading="loading" @click="getList"><template #icon><Refresh /></template>刷新</a-button>
     </div>
 
-    <el-alert
+    <a-alert
       v-if="loadError"
       class="server-monitor-alert"
       title="宿主机监控数据加载失败"
@@ -14,8 +14,8 @@
       :closable="false"
     />
 
-    <el-row v-if="!loadError" :gutter="12">
-      <el-col :xs="24" :sm="24" :md="12" class="server-monitor-col">
+    <a-row v-if="!loadError" :gutter="12">
+      <a-col :xs="24" :sm="24" :md="12" class="server-monitor-col">
         <section class="ui-panel-card server-panel">
           <div class="server-panel__header">
             <Cpu class="server-panel__icon" />
@@ -32,9 +32,9 @@
             </div>
           </div>
         </section>
-      </el-col>
+      </a-col>
 
-      <el-col :xs="24" :sm="24" :md="12" class="server-monitor-col">
+      <a-col :xs="24" :sm="24" :md="12" class="server-monitor-col">
         <section class="ui-panel-card server-panel">
           <div class="server-panel__header">
             <Tickets class="server-panel__icon" />
@@ -53,9 +53,9 @@
             </div>
           </div>
         </section>
-      </el-col>
+      </a-col>
 
-      <el-col :span="24" class="server-monitor-col">
+      <a-col :span="24" class="server-monitor-col">
         <section class="ui-panel-card server-panel">
           <div class="server-panel__header">
             <Monitor class="server-panel__icon" />
@@ -68,9 +68,9 @@
             </div>
           </div>
         </section>
-      </el-col>
+      </a-col>
 
-      <el-col :span="24" class="server-monitor-col">
+      <a-col :span="24" class="server-monitor-col">
         <section class="ui-panel-card server-panel">
           <div class="server-panel__header">
             <CoffeeCup class="server-panel__icon" />
@@ -88,35 +88,35 @@
             </div>
           </div>
         </section>
-      </el-col>
+      </a-col>
 
-      <el-col :span="24" class="server-monitor-col">
+      <a-col :span="24" class="server-monitor-col">
         <section class="ui-panel-card server-panel">
           <div class="server-panel__header">
             <MessageBox class="server-panel__icon" />
             <span>磁盘状态</span>
           </div>
           <div class="server-disk-table">
-            <el-table :data="server.sysFiles || []">
-              <el-table-column label="盘符路径" prop="dirName" min-width="180" show-overflow-tooltip />
-              <el-table-column label="文件系统" prop="sysTypeName" min-width="120" show-overflow-tooltip />
-              <el-table-column label="盘符类型" prop="typeName" min-width="180" show-overflow-tooltip />
-              <el-table-column label="总大小" prop="total" width="110" />
-              <el-table-column label="可用大小" prop="free" width="110" />
-              <el-table-column label="已用大小" prop="used" width="110" />
-              <el-table-column label="已用百分比" width="120">
-                <template #default="scope">
-                  <span class="server-info-value" :class="{ 'is-danger': isDangerUsage(scope.row.usage) }">
-                    {{ formatPercent(scope.row.usage) }}
+            <a-table :data="server.sysFiles || []" :pagination="false">
+              <a-table-column title="盘符路径" data-index="dirName" min-width="180" ellipsis tooltip />
+              <a-table-column title="文件系统" data-index="sysTypeName" min-width="120" ellipsis tooltip />
+              <a-table-column title="盘符类型" data-index="typeName" min-width="180" ellipsis tooltip />
+              <a-table-column title="总大小" data-index="total" width="110" />
+              <a-table-column title="可用大小" data-index="free" width="110" />
+              <a-table-column title="已用大小" data-index="used" width="110" />
+              <a-table-column title="已用百分比" width="120">
+                <template #cell="{ record, rowIndex }">
+                  <span class="server-info-value" :class="{ 'is-danger': isDangerUsage(record.usage) }">
+                    {{ formatPercent(record.usage) }}
                   </span>
                 </template>
-              </el-table-column>
-            </el-table>
+              </a-table-column>
+            </a-table>
           </div>
         </section>
-      </el-col>
-    </el-row>
-  </div>
+      </a-col>
+    </a-row>
+  </a-spin>
 </template>
 
 <script setup name="ServerMonitor">
@@ -318,7 +318,7 @@ getList()
   overflow-x: auto;
 }
 
-:deep(.server-disk-table .el-table) {
+:deep(.server-disk-table .arco-table) {
   min-width: 900px;
 }
 

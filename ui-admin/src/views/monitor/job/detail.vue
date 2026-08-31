@@ -1,67 +1,67 @@
 <template>
-  <el-dialog :title="type === 'log' ? '调度日志详细' : '任务详细'" v-model="dialogVisible" width="780px" append-to-body>
+  <a-modal :title="type === 'log' ? '调度日志详细' : '任务详细'" v-model:visible="dialogVisible" width="780px" render-to-body>
     <div class="detail-wrap">
       <template v-if="type === 'log'">
         <!-- 基本信息 -->
         <div class="detail-card">
           <div class="detail-card-title">
-            <el-icon><InfoFilled /></el-icon> 基本信息
+            <span><InfoFilled /></span> 基本信息
           </div>
-          <el-row class="detail-row">
-            <el-col :span="12">
+          <a-row class="detail-row">
+            <a-col :span="12">
               <div class="detail-item"><span class="detail-label">日志编号</span><span class="detail-value">{{ form.jobLogId }}</span></div>
-            </el-col>
-            <el-col :span="12">
+            </a-col>
+            <a-col :span="12">
               <div class="detail-item">
                 <span class="detail-label">执行状态</span>
-                <el-tag v-if="form.status == 0" type="success" size="small">正常</el-tag>
-                <el-tag v-else type="danger" size="small">失败</el-tag>
+                <a-tag v-if="form.status == 0" color="green" size="small">正常</a-tag>
+                <a-tag v-else color="red" size="small">失败</a-tag>
               </div>
-            </el-col>
-          </el-row>
-          <el-row class="detail-row">
-            <el-col :span="12">
+            </a-col>
+          </a-row>
+          <a-row class="detail-row">
+            <a-col :span="12">
               <div class="detail-item"><span class="detail-label">开始时间</span><span class="detail-value">{{ form.startTime }}</span></div>
-            </el-col>
-            <el-col :span="12">
+            </a-col>
+            <a-col :span="12">
               <div class="detail-item"><span class="detail-label">结束时间</span><span class="detail-value">{{ form.endTime }}</span></div>
-            </el-col>
-          </el-row>
-          <el-row class="detail-row">
-            <el-col :span="12">
+            </a-col>
+          </a-row>
+          <a-row class="detail-row">
+            <a-col :span="12">
               <div class="detail-item"><span class="detail-label">记录时间</span><span class="detail-value">{{ form.createTime }}</span></div>
-            </el-col>
-            <el-col :span="12" v-if="form.status == 0 && form.startTime && form.endTime">
+            </a-col>
+            <a-col :span="12" v-if="form.status == 0 && form.startTime && form.endTime">
               <div class="detail-item"><span class="detail-label">执行耗时</span><span class="detail-value">{{ costTime }} 毫秒</span></div>
-            </el-col>
-          </el-row>
+            </a-col>
+          </a-row>
         </div>
         <!-- 任务信息 -->
         <div class="detail-card">
           <div class="detail-card-title">
-            <el-icon><Clock /></el-icon> 任务信息
+            <span><Clock /></span> 任务信息
           </div>
-          <el-row class="detail-row">
-            <el-col :span="12">
+          <a-row class="detail-row">
+            <a-col :span="12">
               <div class="detail-item"><span class="detail-label">任务名称</span><span class="detail-value">{{ form.jobName }}</span></div>
-            </el-col>
-            <el-col :span="12">
+            </a-col>
+            <a-col :span="12">
               <div class="detail-item">
                 <span class="detail-label">任务分组</span>
                 <dict-tag :options="sys_job_group" :value="form.jobGroup" />
               </div>
-            </el-col>
-          </el-row>
-          <el-row class="detail-row">
-            <el-col :span="24">
+            </a-col>
+          </a-row>
+          <a-row class="detail-row">
+            <a-col :span="24">
               <div class="detail-item"><span class="detail-label">日志信息</span><span class="detail-value">{{ form.jobMessage }}</span></div>
-            </el-col>
-          </el-row>
+            </a-col>
+          </a-row>
         </div>
         <!-- 调用目标 -->
         <div class="detail-card">
           <div class="detail-card-title">
-            <el-icon><Operation /></el-icon> 调用目标
+            <span><Operation /></span> 调用目标
           </div>
           <div class="code-body">
             <div class="code-wrap"><pre class="code-pre">{{ form.invokeTarget || '（无）' }}</pre></div>
@@ -70,24 +70,24 @@
         <!-- 过程日志 -->
         <div class="detail-card">
           <div class="detail-card-title">
-            <el-icon><Document /></el-icon> 过程日志
+            <span><Document /></span> 过程日志
           </div>
-          <div v-loading="processLogLoading" class="process-log-wrap">
-            <el-empty v-if="processLogList.length === 0" :image-size="80" description="暂无过程日志" />
+          <a-spin :loading="processLogLoading" class="process-log-wrap">
+            <a-empty v-if="processLogList.length === 0" :image-size="80" description="暂无过程日志" />
             <div v-else class="process-log-list">
               <div v-for="item in processLogList" :key="item.detailId || item.sortNo" class="process-log-item">
-                <el-tag :type="getLogLevelType(item.logLevel)" size="small" class="process-log-level">
+                <a-tag :color="getLogLevelColor(item.logLevel)" size="small" class="process-log-level">
                   {{ item.logLevel }}
-                </el-tag>
+                </a-tag>
                 <pre class="process-log-content">{{ item.logContent }}</pre>
               </div>
             </div>
-          </div>
+          </a-spin>
         </div>
         <!-- 异常信息 -->
         <div class="detail-card" v-if="form.status == 1">
           <div class="detail-card-title error-title">
-            <el-icon><Warning /></el-icon> 异常信息
+            <span><Warning /></span> 异常信息
           </div>
           <div class="error-body"><div class="error-msg">{{ form.exceptionInfo }}</div></div>
         </div>
@@ -97,68 +97,68 @@
         <!-- 任务配置 -->
         <div class="detail-card">
           <div class="detail-card-title">
-            <el-icon><Setting /></el-icon> 任务配置
+            <span><Setting /></span> 任务配置
           </div>
-          <el-row class="detail-row">
-            <el-col :span="12">
+          <a-row class="detail-row">
+            <a-col :span="12">
               <div class="detail-item"><span class="detail-label">任务编号</span><span class="detail-value">{{ form.jobId }}</span></div>
-            </el-col>
-            <el-col :span="12">
+            </a-col>
+            <a-col :span="12">
               <div class="detail-item"><span class="detail-label">任务名称</span><span class="detail-value">{{ form.jobName }}</span></div>
-            </el-col>
-          </el-row>
-          <el-row class="detail-row">
-            <el-col :span="12">
+            </a-col>
+          </a-row>
+          <a-row class="detail-row">
+            <a-col :span="12">
               <div class="detail-item">
                 <span class="detail-label">任务分组</span>
                 <dict-tag :options="sys_job_group" :value="form.jobGroup" />
               </div>
-            </el-col>
-            <el-col :span="12">
+            </a-col>
+            <a-col :span="12">
               <div class="detail-item">
                 <span class="detail-label">执行状态</span>
-                <el-tag v-if="form.status == 0" type="success" size="small">正常</el-tag>
-                <el-tag v-else type="info" size="small">暂停</el-tag>
+                <a-tag v-if="form.status == 0" color="green" size="small">正常</a-tag>
+                <a-tag v-else color="gray" size="small">暂停</a-tag>
               </div>
-            </el-col>
-          </el-row>
+            </a-col>
+          </a-row>
         </div>
         <!-- 调度信息 -->
         <div class="detail-card">
           <div class="detail-card-title">
-            <el-icon><Calendar /></el-icon> 调度信息
+            <span><Calendar /></span> 调度信息
           </div>
-          <el-row class="detail-row">
-            <el-col :span="12">
+          <a-row class="detail-row">
+            <a-col :span="12">
               <div class="detail-item"><span class="detail-label">cron 表达式</span><span class="detail-value mono">{{ form.cronExpression }}</span></div>
-            </el-col>
-            <el-col :span="12">
+            </a-col>
+            <a-col :span="12">
               <div class="detail-item"><span class="detail-label">下次执行时间</span><span class="detail-value">{{ parseTime(form.nextValidTime) }}</span></div>
-            </el-col>
-          </el-row>
-          <el-row class="detail-row">
-            <el-col :span="12">
+            </a-col>
+          </a-row>
+          <a-row class="detail-row">
+            <a-col :span="12">
               <div class="detail-item">
                 <span class="detail-label">执行策略</span>
-                <el-tag v-if="form.misfirePolicy == 0" type="info" size="small">默认策略</el-tag>
-                <el-tag v-else-if="form.misfirePolicy == 1" type="warning" size="small">立即执行</el-tag>
-                <el-tag v-else-if="form.misfirePolicy == 2" type="primary" size="small">执行一次</el-tag>
-                <el-tag v-else-if="form.misfirePolicy == 3" type="danger" size="small">放弃执行</el-tag>
+                <a-tag v-if="form.misfirePolicy == 0" color="gray" size="small">默认策略</a-tag>
+                <a-tag v-else-if="form.misfirePolicy == 1" color="orange" size="small">立即执行</a-tag>
+                <a-tag v-else-if="form.misfirePolicy == 2" color="arcoblue" size="small">执行一次</a-tag>
+                <a-tag v-else-if="form.misfirePolicy == 3" color="red" size="small">放弃执行</a-tag>
               </div>
-            </el-col>
-            <el-col :span="12">
+            </a-col>
+            <a-col :span="12">
               <div class="detail-item">
                 <span class="detail-label">并发执行</span>
-                <el-tag v-if="form.concurrent == 0" type="success" size="small">允许</el-tag>
-                <el-tag v-else type="danger" size="small">禁止</el-tag>
+                <a-tag v-if="form.concurrent == 0" color="green" size="small">允许</a-tag>
+                <a-tag v-else color="red" size="small">禁止</a-tag>
               </div>
-            </el-col>
-          </el-row>
+            </a-col>
+          </a-row>
         </div>
         <!-- 执行方法 -->
         <div class="detail-card">
           <div class="detail-card-title">
-            <el-icon><Operation /></el-icon> 执行方法
+            <span><Operation /></span> 执行方法
           </div>
           <div class="code-body">
             <div class="code-wrap"><pre class="code-pre">{{ form.invokeTarget || '（无）' }}</pre></div>
@@ -167,38 +167,38 @@
         <!-- 元信息 -->
         <div class="detail-card">
           <div class="detail-card-title">
-            <el-icon><Document /></el-icon> 元信息
+            <span><Document /></span> 元信息
           </div>
-          <el-row class="detail-row">
-            <el-col :span="12">
+          <a-row class="detail-row">
+            <a-col :span="12">
               <div class="detail-item"><span class="detail-label">创建人</span><span class="detail-value">{{ form.createBy || '-' }}</span></div>
-            </el-col>
-            <el-col :span="12">
+            </a-col>
+            <a-col :span="12">
               <div class="detail-item"><span class="detail-label">创建时间</span><span class="detail-value">{{ form.createTime }}</span></div>
-            </el-col>
-          </el-row>
-          <el-row class="detail-row">
-            <el-col :span="12">
+            </a-col>
+          </a-row>
+          <a-row class="detail-row">
+            <a-col :span="12">
               <div class="detail-item"><span class="detail-label">更新人</span><span class="detail-value">{{ form.updateBy || '-' }}</span></div>
-            </el-col>
-            <el-col :span="12">
+            </a-col>
+            <a-col :span="12">
               <div class="detail-item"><span class="detail-label">更新时间</span><span class="detail-value">{{ form.updateTime || '-' }}</span></div>
-            </el-col>
-          </el-row>
-          <el-row class="detail-row" v-if="form.remark">
-            <el-col :span="24">
+            </a-col>
+          </a-row>
+          <a-row class="detail-row" v-if="form.remark">
+            <a-col :span="24">
               <div class="detail-item"><span class="detail-label">备注</span><span class="detail-value">{{ form.remark }}</span></div>
-            </el-col>
-          </el-row>
+            </a-col>
+          </a-row>
         </div>
       </template>
     </div>
     <template #footer>
       <div class="dialog-footer">
-        <el-button @click="dialogVisible = false">关 闭</el-button>
+        <a-button @click="dialogVisible = false">关 闭</a-button>
       </div>
     </template>
-  </el-dialog>
+  </a-modal>
 </template>
 
 <script setup name="JobDetail">
@@ -251,10 +251,10 @@ function loadProcessLog(jobLogId) {
   })
 }
 
-function getLogLevelType(logLevel) {
-  if (logLevel === 'ERROR') return 'danger'
-  if (logLevel === 'WARN') return 'warning'
-  return 'info'
+function getLogLevelColor(logLevel) {
+  if (logLevel === 'ERROR') return 'red'
+  if (logLevel === 'WARN') return 'orange'
+  return 'gray'
 }
 </script>
 

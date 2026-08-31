@@ -1,9 +1,9 @@
 <template>
-  <el-drawer :model-value="visible" direction="rtl" size="700px" append-to-body @update:model-value="$emit('update:visible', $event)">
+  <a-drawer :visible="visible" size="700px" render-to-body :footer="false" @update:visible="$emit('update:visible', $event)">
     <!-- 自定义标题 -->
     <template #header>
       <div class="drawer-head">
-        <el-icon class="drawer-head-icon"><List /></el-icon>
+        <span class="drawer-head-icon"><List /></span>
         <span class="drawer-head-name">{{ row.dictName }}</span>
         <span class="drawer-head-type">{{ row.dictType }}</span>
       </div>
@@ -12,45 +12,45 @@
     <div class="drawer-wrap">
       <!-- 加载中 -->
       <div v-if="loading" class="drawer-loading">
-        <el-icon class="is-loading"><Loading /></el-icon>
+        <span class="is-loading"><Loading /></span>
         <span>加载中...</span>
       </div>
 
       <!-- 空数据 -->
       <div v-else-if="!dataList.length" class="drawer-empty">
-        <el-icon style="font-size:36px;"><Document /></el-icon>
+        <span style="font-size:36px;"><Document /></span>
         <div>暂无字典数据</div>
       </div>
 
       <template v-else>
         <!-- 统计卡片 -->
-        <el-row :gutter="12" class="stat-row">
-          <el-col :span="disabledCount > 0 ? 8 : 12">
+        <a-row :gutter="12" class="stat-row">
+          <a-col :span="disabledCount > 0 ? 8 : 12">
             <div class="stat-card">
               <div class="stat-num">{{ dataList.length }}</div>
               <div class="stat-label">共计条目</div>
             </div>
-          </el-col>
-          <el-col :span="disabledCount > 0 ? 8 : 12">
+          </a-col>
+          <a-col :span="disabledCount > 0 ? 8 : 12">
             <div class="stat-card">
               <div class="stat-num success">{{ normalCount }}</div>
               <div class="stat-label">正常</div>
             </div>
-          </el-col>
-          <el-col v-if="disabledCount > 0" :span="8">
+          </a-col>
+          <a-col v-if="disabledCount > 0" :span="8">
             <div class="stat-card">
               <div class="stat-num danger">{{ disabledCount }}</div>
               <div class="stat-label">停用</div>
             </div>
-          </el-col>
-        </el-row>
+          </a-col>
+        </a-row>
 
         <!-- 数据列表 -->
         <div v-for="item in dataList" :key="item.dictCode" class="dict-item">
           <div class="dict-cell">
             <div class="dict-cell-key">标签</div>
             <div class="dict-cell-val">
-              <el-tag v-if="item.listClass && item.listClass !== 'default'" :type="item.listClass === 'primary' ? undefined : item.listClass" size="small">{{ item.dictLabel }}</el-tag>
+              <a-tag v-if="item.listClass && item.listClass !== 'default'" :color="getTagColor(item.listClass)" size="small">{{ item.dictLabel }}</a-tag>
               <span v-else>{{ item.dictLabel }}</span>
             </div>
           </div>
@@ -61,15 +61,15 @@
           <div class="dict-cell">
             <div class="dict-cell-key">状态</div>
             <div class="dict-cell-val">
-              <el-tag :type="item.status === '0' ? 'success' : 'danger'" size="small">
+              <a-tag :color="item.status === '0' ? 'green' : 'red'" size="small">
                 {{ item.status === '0' ? '正常' : '停用' }}
-              </el-tag>
+              </a-tag>
             </div>
           </div>
         </div>
       </template>
     </div>
-  </el-drawer>
+  </a-drawer>
 </template>
 
 <script setup>
@@ -87,6 +87,10 @@ const dataList = ref([])
 
 const normalCount = computed(() => dataList.value.filter(r => r.status === '0').length)
 const disabledCount = computed(() => dataList.value.filter(r => r.status !== '0').length)
+
+function getTagColor(type) {
+  return { primary: 'arcoblue', success: 'green', warning: 'orange', danger: 'red', info: 'gray' }[type]
+}
 
 watch(() => props.visible, (val) => {
   if (val) {
@@ -146,7 +150,7 @@ function loadData() {
   padding: 60px 0;
   font-size: 13px;
 }
-.drawer-empty .el-icon {
+.drawer-empty .arco-icon {
   display: block;
   margin: 0 auto 8px;
 }

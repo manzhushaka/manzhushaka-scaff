@@ -1,71 +1,71 @@
 <template>
-    <el-form>
-        <el-form-item>
-            <el-radio v-model='radioValue' :value="1">
+    <a-form>
+        <a-form-item>
+            <a-radio v-model='radioValue' :value="1">
                 周，允许的通配符[, - * ? / L #]
-            </el-radio>
-        </el-form-item>
+            </a-radio>
+        </a-form-item>
 
-        <el-form-item>
-            <el-radio v-model='radioValue' :value="2">
+        <a-form-item>
+            <a-radio v-model='radioValue' :value="2">
                 不指定
-            </el-radio>
-        </el-form-item>
+            </a-radio>
+        </a-form-item>
 
-        <el-form-item>
-            <el-radio v-model='radioValue' :value="3">
+        <a-form-item>
+            <a-radio v-model='radioValue' :value="3">
                 周期从
-                <el-select clearable v-model="cycle01">
-                    <el-option
+                <a-select allow-clear v-model="cycle01">
+                    <a-option
                         v-for="(item,index) of weekList"
                         :key="index"
                         :label="item.value"
                         :value="item.key"
                         :disabled="item.key === 7"
-                    >{{item.value}}</el-option>
-                </el-select>
+                    >{{item.value}}</a-option>
+                </a-select>
                 -
-                <el-select clearable v-model="cycle02">
-                    <el-option
+                <a-select allow-clear v-model="cycle02">
+                    <a-option
                         v-for="(item,index) of weekList"
                         :key="index"
                         :label="item.value"
                         :value="item.key"
                         :disabled="item.key <= cycle01"
-                    >{{item.value}}</el-option>
-                </el-select>
-            </el-radio>
-        </el-form-item>
+                    >{{item.value}}</a-option>
+                </a-select>
+            </a-radio>
+        </a-form-item>
 
-        <el-form-item>
-            <el-radio v-model='radioValue' :value="4">
+        <a-form-item>
+            <a-radio v-model='radioValue' :value="4">
                 第
-                <el-input-number v-model='average01' :min="1" :max="4" /> 周的
-                <el-select clearable v-model="average02">
-                    <el-option v-for="item in weekList" :key="item.key" :label="item.value" :value="item.key" />
-                </el-select>
-            </el-radio>
-        </el-form-item>
+                <a-input-number v-model='average01' :min="1" :max="4" /> 周的
+                <a-select allow-clear v-model="average02">
+                    <a-option v-for="item in weekList" :key="item.key" :label="item.value" :value="item.key" />
+                </a-select>
+            </a-radio>
+        </a-form-item>
 
-        <el-form-item>
-            <el-radio v-model='radioValue' :value="5">
+        <a-form-item>
+            <a-radio v-model='radioValue' :value="5">
                 本月最后一个
-                <el-select clearable v-model="weekday">
-                    <el-option v-for="item in weekList" :key="item.key" :label="item.value" :value="item.key" />
-                </el-select>
-            </el-radio>
-        </el-form-item>
+                <a-select allow-clear v-model="weekday">
+                    <a-option v-for="item in weekList" :key="item.key" :label="item.value" :value="item.key" />
+                </a-select>
+            </a-radio>
+        </a-form-item>
 
-        <el-form-item>
-            <el-radio v-model='radioValue' :value="6">
+        <a-form-item>
+            <a-radio v-model='radioValue' :value="6">
                 指定
-                <el-select class="multiselect" clearable v-model="checkboxList" placeholder="可多选" multiple :multiple-limit="6">
-                    <el-option v-for="item in weekList" :key="item.key" :label="item.value" :value="item.key" />
-                </el-select>
-            </el-radio>
-        </el-form-item>
+                <a-select class="multiselect" allow-clear v-model="checkboxList" placeholder="可多选" multiple :limit="6">
+                    <a-option v-for="item in weekList" :key="item.key" :label="item.value" :value="item.key" />
+                </a-select>
+            </a-radio>
+        </a-form-item>
 
-    </el-form>
+    </a-form>
 </template>
 
 <script setup>
@@ -185,13 +185,13 @@ function onRadioChange() {
 </script>
 
 <style lang="scss" scoped>
-.el-input-number--small, .el-select, .el-select--small {
+.arco-input-number, .arco-select {
     margin: 0 0.5rem;
 }
-.el-select, .el-select--small {
+.arco-select {
     width: 8rem;
 }
-.el-select.multiselect, .el-select--small.multiselect {
+.arco-select.multiselect {
     width: 17.8rem;
 }
 </style>

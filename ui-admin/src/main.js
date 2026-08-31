@@ -1,14 +1,7 @@
 import { createApp } from 'vue'
 
-import Cookies from 'js-cookie'
-
 import ArcoVue from '@arco-design/web-vue'
 import '@arco-design/web-vue/dist/arco.css'
-
-import ElementPlus from 'element-plus'
-import 'element-plus/dist/index.css'
-import 'element-plus/theme-chalk/dark/css-vars.css'
-import locale from 'element-plus/es/locale/lang/zh-cn'
 
 import '@/assets/styles/index.scss' // global css
 
@@ -81,12 +74,5 @@ app.use(elementIcons)
 app.component('svg-icon', SvgIcon)
 
 directive(app)
-
-// 使用element-plus 并且设置全局的大小
-app.use(ElementPlus, {
-  locale: locale,
-  // 支持 large、default、small
-  size: Cookies.get('size') || 'default'
-})
 
 app.mount('#app')

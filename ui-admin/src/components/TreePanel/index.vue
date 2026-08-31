@@ -4,78 +4,72 @@
     <div v-if="!collapsed" class="resize-handle" @mousedown="startResize" @touchstart="startResize" :class="{ active: isResizing }" />
     <div class="tree-header">
       <span class="tree-title" v-show="!collapsed">
-        <el-icon><component :is="titleIcon" /></el-icon> {{ title }}
+        <span><component :is="titleIcon" /></span> {{ title }}
       </span>
       <div class="tree-actions" v-show="!collapsed">
-        <el-tooltip :content="isExpandedAll ? '收起全部' : '展开全部'" placement="right">
-          <el-icon class="tree-action-icon" @click="toggleExpandAll">
+        <a-tooltip :content="isExpandedAll ? '收起全部' : '展开全部'" position="right">
+          <span class="tree-action-icon" @click="toggleExpandAll">
             <ArrowDown v-if="isExpandedAll" />
             <ArrowUp v-else />
-          </el-icon>
-        </el-tooltip>
-        <el-tooltip content="刷新" placement="right">
-          <el-icon class="tree-action-icon" @click="handleRefresh"><Refresh /></el-icon>
-        </el-tooltip>
+          </span>
+        </a-tooltip>
+        <a-tooltip content="刷新" position="right">
+          <span class="tree-action-icon" @click="handleRefresh"><Refresh /></span>
+        </a-tooltip>
         <slot name="actions"></slot>
       </div>
     </div>
-    
+
     <!-- 侧边栏展开/收起按钮 -->
     <div class="collapse-button-container">
-      <el-tooltip :content="collapsed ? '展开' : '收起'" placement="right">
-        <el-icon class="collapse-button" @click="toggleCollapsed">
+      <a-tooltip :content="collapsed ? '展开' : '收起'" position="right">
+        <span class="collapse-button" @click="toggleCollapsed">
           <DArrowRight v-if="collapsed" />
           <DArrowLeft v-else />
-        </el-icon>
-      </el-tooltip>
+        </span>
+      </a-tooltip>
     </div>
 
     <div class="tree-search" v-show="!collapsed" v-if="showSearch">
-      <el-input v-model="searchKeyword" :placeholder="searchPlaceholder" clearable>
+      <a-input v-model="searchKeyword" :placeholder="searchPlaceholder" allow-clear>
         <template #prefix>
-          <el-icon><Search /></el-icon>
+          <span><Search /></span>
         </template>
-      </el-input>
+      </a-input>
     </div>
 
     <div class="tree-wrap" v-show="!collapsed">
-      <el-tree 
-        ref="treeRef" 
-        :data="treeData" 
-        :props="treeProps" 
-        :expand-on-click-node="expandOnClickNode"
-        :filter-node-method="filterNodeMethod"
+      <a-tree
+        ref="treeRef"
+        v-model:selected-keys="selectedKeys"
+        v-model:checked-keys="checkedKeys"
+        :data="filteredTreeData"
+        :field-names="fieldNames"
+        :action-on-node-click="expandOnClickNode ? 'expand' : undefined"
         :default-expand-all="defaultExpandAll"
         :default-expanded-keys="defaultExpandedKeys"
-        :node-key="nodeKey"
         :check-strictly="checkStrictly"
-        :show-checkbox="showCheckbox"
-        @node-click="onNodeClick"
+        :checkable="showCheckbox"
+        @select="onNodeClick"
         @check="onCheck"
-        @node-expand="onNodeExpand"
-        @node-collapse="onNodeCollapse"
+        @expand="onExpand"
       >
-        <template #default="{ node, data }">
-          <slot name="node" :node="node" :data="data">
+        <template #title="{ title }">
+          <slot name="node" :title="title">
             <span class="tree-node">
-              <el-icon class="node-icon" :class="data.children && data.children.length ? 'folder-icon' : 'leaf-icon'">
-                <Folder v-if="data.children && data.children.length" />
-                <Document v-else />
-              </el-icon>
-              <span class="node-label" :title="node.label">{{ node.label }}</span>
+              <span class="node-icon leaf-icon"><Document /></span>
+              <span class="node-label" :title="title">{{ title }}</span>
             </span>
           </slot>
         </template>
-      </el-tree>
+      </a-tree>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
+import { ref, watch, nextTick, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useTreePanelResize } from './useTreePanelResize'
-import { useTreePanelSearch } from './useTreePanelSearch'
-import { useTreePanelExpansion } from './useTreePanelExpansion'
 
 const props = defineProps({
   // 树形数据
@@ -195,6 +189,17 @@ const emit = defineEmits([
 ])
 
 const treeRef = ref(null)
+const searchKeyword = ref('')
+const selectedKeys = ref([])
+const checkedKeys = ref([])
+const expandedAll = ref(props.defaultExpandAll)
+const isExpandedAll = computed(() => expandedAll.value)
+const fieldNames = computed(() => ({
+  key: props.nodeKey,
+  title: props.treeProps.label || 'label',
+  children: props.treeProps.children || 'children'
+}))
+const filteredTreeData = computed(() => filterTree(props.treeData, searchKeyword.value))
 
 // composables
 const {
@@ -203,66 +208,41 @@ const {
   cleanupResize, loadSavedWidth
 } = useTreePanelResize(props)
 
-const {
-  searchKeyword, filterNodeMethod, clearSearch, filter
-} = useTreePanelSearch(props, emit, treeRef)
-
-const {
-  expandedAll, isExpandedAll, toggleExpandAll, expandAllNodes, collapseAllNodes
-} = useTreePanelExpansion(emit, treeRef)
-
 // 事件处理
 const handleRefresh = () => {
   emit('refresh')
 }
 
-const onNodeClick = (data, node, e) => {
-  emit('node-click', data, node, e)
+const onNodeClick = (keys, event) => {
+  emit('node-click', event.node, event)
 }
 
-const onCheck = (data, checkedInfo) => {
-  emit('check', data, checkedInfo)
+const onCheck = (keys, event) => {
+  emit('check', keys, event)
 }
 
-const onNodeExpand = (data, node, e) => {
-  emit('node-expand', data, node, e)
-}
-
-const onNodeCollapse = (data, node, e) => {
-  emit('node-collapse', data, node, e)
+const onExpand = (keys, event) => {
+  emit(event.expanded ? 'node-expand' : 'node-collapse', event.node, event)
 }
 
 const setCurrentKey = (key) => {
-  if (treeRef.value) {
-    treeRef.value.setCurrentKey(key)
-  }
+  selectedKeys.value = key === null || key === undefined ? [] : [key]
 }
 
 const getCurrentNode = () => {
-  if (treeRef.value) {
-    return treeRef.value.getCurrentNode()
-  }
-  return null
+  return treeRef.value?.getSelectedNodes()?.[0] || null
 }
 
 const getCurrentKey = () => {
-  if (treeRef.value) {
-    return treeRef.value.getCurrentKey()
-  }
-  return null
+  return selectedKeys.value[0]
 }
 
 const setCheckedKeys = (keys) => {
-  if (treeRef.value && props.showCheckbox) {
-    treeRef.value.setCheckedKeys(keys)
-  }
+  checkedKeys.value = props.showCheckbox ? keys : []
 }
 
 const getCheckedKeys = () => {
-  if (treeRef.value && props.showCheckbox) {
-    return treeRef.value.getCheckedKeys()
-  }
-  return []
+  return props.showCheckbox ? checkedKeys.value : []
 }
 
 const getCheckedNodes = () => {
@@ -270,6 +250,44 @@ const getCheckedNodes = () => {
     return treeRef.value.getCheckedNodes()
   }
   return []
+}
+
+const clearSearch = () => {
+  searchKeyword.value = ''
+}
+
+const filter = (value) => {
+  searchKeyword.value = value || ''
+}
+
+const toggleExpandAll = () => {
+  expandedAll.value = !expandedAll.value
+}
+
+const expandAllNodes = () => {
+  treeRef.value?.expandAll(true)
+}
+
+const collapseAllNodes = () => {
+  treeRef.value?.expandAll(false)
+}
+
+function filterTree(nodes, keyword) {
+  if (!keyword) {
+    return nodes
+  }
+  return nodes.reduce((result, node) => {
+    const childrenKey = props.treeProps.children || 'children'
+    const labelKey = props.treeProps.label || 'label'
+    const children = filterTree(node[childrenKey] || [], keyword)
+    const matches = props.filterMethod
+      ? props.filterMethod(keyword, node)
+      : String(node[labelKey] || '').includes(keyword)
+    if (matches || children.length) {
+      result.push({ ...node, [childrenKey]: children })
+    }
+    return result
+  }, [])
 }
 
 defineExpose({
@@ -311,10 +329,7 @@ watch(expandedAll, (newVal) => {
 
 // 监听搜索关键词
 watch(searchKeyword, (val) => {
-  if (treeRef.value) {
-    treeRef.value.filter(val)
-    emit('search', val)
-  }
+  emit('search', val)
 })
 
 onMounted(() => {
@@ -348,20 +363,20 @@ onBeforeUnmount(() => {
   overflow: hidden;
   position: relative;
   transition: width 0.25s ease;
-  
+
   &.collapsed {
     width: 42px;
   }
-  
+
   &.resizing {
     transition: none;
     will-change: width;
-    
+
     * {
       pointer-events: none !important;
     }
   }
-  
+
   &.no-initial-transition {
     transition: none;
   }
@@ -377,7 +392,7 @@ onBeforeUnmount(() => {
   z-index: 20;
   background: transparent;
   transition: background 0.2s;
-  
+
   &:hover {
     background: var(--ui-primary-soft);
   }
@@ -402,13 +417,13 @@ onBeforeUnmount(() => {
   border-radius: 0 4px 4px 0;
   box-shadow: var(--ui-shadow-panel, 0 1px 3px rgba(0, 0, 0, 0.1));
   transition: all 0.2s ease;
-  
+
   .tree-sidebar.collapsed & {
     right: 0;
     background: var(--ui-bg-panel-soft);
     border-radius: 0 4px 4px 0;
   }
-  
+
   .tree-sidebar.resizing & {
     pointer-events: none;
   }
@@ -421,7 +436,7 @@ onBeforeUnmount(() => {
   padding: 4px;
   border-radius: 4px;
   transition: all 0.2s;
-  
+
   &:hover {
     color: var(--ui-primary);
     background: var(--ui-primary-soft);
@@ -448,7 +463,7 @@ onBeforeUnmount(() => {
     align-items: center;
     gap: 5px;
 
-    .el-icon {
+    .arco-icon {
       color: var(--ui-primary);
       font-size: 16px;
     }
@@ -480,11 +495,11 @@ onBeforeUnmount(() => {
   padding: 12px 14px 8px;
   flex-shrink: 0;
 
-  :deep(.el-input) {
+  :deep(.arco-input-wrapper) {
     width: 100%;
   }
 
-  :deep(.el-input__wrapper) {
+  :deep(.arco-input-wrapper) {
     min-height: 36px;
     border-radius: 7px;
     background: var(--ui-bg-panel-soft);
@@ -495,18 +510,18 @@ onBeforeUnmount(() => {
       box-shadow: 0 0 0 1px var(--ui-border-control-hover) inset;
     }
 
-    &.is-focus {
+    &:focus-within {
       background: var(--ui-bg-panel);
       box-shadow: 0 0 0 1px var(--ui-border-focus) inset, var(--ui-focus-ring) !important;
     }
   }
 
-  :deep(.el-input__prefix) {
+  :deep(.arco-input-prefix) {
     color: var(--ui-text-muted);
     margin-right: 6px;
   }
 
-  :deep(.el-input__inner) {
+  :deep(.arco-input) {
     height: 36px;
     background: transparent;
     color: var(--ui-text-primary);
@@ -517,7 +532,7 @@ onBeforeUnmount(() => {
   flex: 1;
   overflow-y: auto;
   padding: 6px 6px 12px;
-  
+
   .tree-sidebar.resizing & {
     overflow: hidden;
   }
@@ -529,13 +544,13 @@ onBeforeUnmount(() => {
   &::-webkit-scrollbar-thumb {
     background: var(--ui-border);
     border-radius: 4px;
-    
+
     &:hover {
       background: var(--ui-border-strong);
     }
   }
 
-  :deep(.el-tree-node__content) {
+  :deep(.arco-tree-node-title) {
     height: 34px;
     border-radius: 4px;
     margin-bottom: 1px;
@@ -546,18 +561,18 @@ onBeforeUnmount(() => {
     }
   }
 
-  :deep(.el-tree-node__expand-icon) {
+  :deep(.arco-tree-node-switcher) {
     flex: 0 0 18px;
     width: 18px;
     margin-right: 2px;
     color: var(--ui-text-muted);
   }
 
-  :deep(.el-tree-node__expand-icon.is-leaf) {
+  :deep(.arco-tree-node-is-leaf .arco-tree-node-switcher) {
     color: transparent;
   }
 
-  :deep(.el-tree-node.is-current > .el-tree-node__content) {
+  :deep(.arco-tree-node-selected .arco-tree-node-title) {
     background: var(--ui-primary-soft);
     color: var(--ui-primary-active);
     font-weight: 600;

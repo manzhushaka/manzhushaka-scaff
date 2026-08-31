@@ -1,145 +1,143 @@
 <template>
    <div class="app-container ui-list-page">
-      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px" class="ui-filter-card">
-         <el-form-item label="操作地址" prop="operIp">
-            <el-input
+      <a-form :model="queryParams" ref="queryRef" layout="inline" v-show="showSearch" :label-col-props="{ flex: '68px' }" class="ui-filter-card">
+         <a-form-item label="操作地址" field="operIp">
+            <a-input
                v-model="queryParams.operIp"
                placeholder="请输入操作地址"
-               clearable
+               allow-clear
                style="width: 240px;"
                @keyup.enter="handleQuery"
             />
-         </el-form-item>
-         <el-form-item label="系统模块" prop="title">
-            <el-input
+         </a-form-item>
+         <a-form-item label="系统模块" field="title">
+            <a-input
                v-model="queryParams.title"
                placeholder="请输入系统模块"
-               clearable
+               allow-clear
                style="width: 240px;"
                @keyup.enter="handleQuery"
             />
-         </el-form-item>
-         <el-form-item label="操作人员" prop="operName">
-            <el-input
+         </a-form-item>
+         <a-form-item label="操作人员" field="operName">
+            <a-input
                v-model="queryParams.operName"
                placeholder="请输入操作人员"
-               clearable
+               allow-clear
                style="width: 240px;"
                @keyup.enter="handleQuery"
             />
-         </el-form-item>
-         <el-form-item label="类型" prop="businessType">
-            <el-select
+         </a-form-item>
+         <a-form-item label="类型" field="businessType">
+            <a-select
                v-model="queryParams.businessType"
                placeholder="操作类型"
-               clearable
+               allow-clear
                style="width: 240px"
             >
-               <el-option
+               <a-option
                   v-for="dict in sys_oper_type"
                   :key="dict.value"
                   :label="dict.label"
                   :value="dict.value"
                />
-            </el-select>
-         </el-form-item>
-         <el-form-item label="状态" prop="status">
-            <el-select
+            </a-select>
+         </a-form-item>
+         <a-form-item label="状态" field="status">
+            <a-select
                v-model="queryParams.status"
                placeholder="操作状态"
-               clearable
+               allow-clear
                style="width: 240px"
             >
-               <el-option
+               <a-option
                   v-for="dict in sys_common_status"
                   :key="dict.value"
                   :label="dict.label"
                   :value="dict.value"
                />
-            </el-select>
-         </el-form-item>
-         <el-form-item label="操作时间" style="width: 308px">
-            <el-date-picker
+            </a-select>
+         </a-form-item>
+         <a-form-item label="操作时间" style="width: 308px">
+            <a-range-picker
                v-model="dateRange"
                value-format="YYYY-MM-DD HH:mm:ss"
-               type="daterange"
-               range-separator="-"
-               start-placeholder="开始日期"
-               end-placeholder="结束日期"
-               :default-time="[new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 1, 1, 23, 59, 59)]"
-            ></el-date-picker>
-         </el-form-item>
-         <el-form-item>
-            <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-            <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-         </el-form-item>
-      </el-form>
 
-      <el-row :gutter="10" class="mb8 ui-action-bar">
-         <el-col :span="1.5">
-            <el-button
-               type="danger"
-               plain
-               icon="Delete"
+               separator="-"
+               :placeholder="['开始日期', '结束日期']"
+               :default-time="[new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 1, 1, 23, 59, 59)]"
+            ></a-range-picker>
+         </a-form-item>
+         <a-form-item>
+            <a-button type="primary" @click="handleQuery"><template #icon><Search /></template>搜索</a-button>
+            <a-button @click="resetQuery"><template #icon><Refresh /></template>重置</a-button>
+         </a-form-item>
+      </a-form>
+
+      <a-row :gutter="10" class="mb8 ui-action-bar">
+         <a-col :span="1.5">
+            <a-button
+               status="danger"
+
+
                :disabled="multiple"
                @click="handleDelete"
                v-hasPermi="['monitor:operlog:remove']"
-            >删除</el-button>
-         </el-col>
-         <el-col :span="1.5">
-            <el-button
-               type="danger"
-               plain
-               icon="Delete"
+             type="outline"><template #icon><Delete /></template>删除</a-button>
+         </a-col>
+         <a-col :span="1.5">
+            <a-button
+               status="danger"
+
+
                @click="handleClean"
                v-hasPermi="['monitor:operlog:remove']"
-            >清空</el-button>
-         </el-col>
-         <el-col :span="1.5">
-            <el-button
-               type="warning"
-               plain
-               icon="Download"
+             type="outline"><template #icon><Delete /></template>清空</a-button>
+         </a-col>
+         <a-col :span="1.5">
+            <a-button
+               status="warning"
+
+
                @click="handleExport"
                v-hasPermi="['monitor:operlog:export']"
-            >导出</el-button>
-         </el-col>
+             type="outline"><template #icon><Download /></template>导出</a-button>
+         </a-col>
          <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
-      </el-row>
+      </a-row>
 
       <div class="ui-table-card">
-      <el-table ref="operlogRef" v-loading="loading" :data="operlogList" @selection-change="handleSelectionChange" :default-sort="defaultSort" @sort-change="handleSortChange">
-         <el-table-column type="selection" width="50" align="center" />
-         <el-table-column label="日志编号" align="center" prop="operId" />
-         <el-table-column label="系统模块" align="center" prop="title" :show-overflow-tooltip="true" />
-         <el-table-column label="操作类型" align="center" prop="businessType">
-            <template #default="scope">
-               <dict-tag :options="sys_oper_type" :value="scope.row.businessType" />
+      <a-table :loading="loading" :data="operlogList" :row-selection="{ type: 'checkbox', showCheckedAll: true }" :row-key="record => record.operId" :pagination="false" @selection-change="handleSelectionChange" @sorter-change="handleSortChange">
+         <a-table-column title="日志编号" align="center" data-index="operId" />
+         <a-table-column title="系统模块" align="center" data-index="title" ellipsis tooltip />
+         <a-table-column title="操作类型" align="center" data-index="businessType">
+            <template #cell="{ record, rowIndex }">
+               <dict-tag :options="sys_oper_type" :value="record.businessType" />
             </template>
-         </el-table-column>
-         <el-table-column label="操作人员" align="center" width="110" prop="operName" :show-overflow-tooltip="true" sortable="custom" :sort-orders="['descending', 'ascending']" />
-         <el-table-column label="操作地址" align="center" prop="operIp" width="130" :show-overflow-tooltip="true" />
-         <el-table-column label="操作状态" align="center" prop="status">
-            <template #default="scope">
-               <dict-tag :options="sys_common_status" :value="scope.row.status" />
+         </a-table-column>
+         <a-table-column title="操作人员" align="center" width="110" data-index="operName" ellipsis :sortable="{ sortDirections: ['descend', 'ascend'], sorter: true }" tooltip />
+         <a-table-column title="操作地址" align="center" data-index="operIp" width="130" ellipsis tooltip />
+         <a-table-column title="操作状态" align="center" data-index="status">
+            <template #cell="{ record, rowIndex }">
+               <dict-tag :options="sys_common_status" :value="record.status" />
             </template>
-         </el-table-column>
-         <el-table-column label="操作日期" align="center" prop="operTime" width="180" sortable="custom" :sort-orders="['descending', 'ascending']">
-            <template #default="scope">
-               <span>{{ parseTime(scope.row.operTime) }}</span>
+         </a-table-column>
+         <a-table-column title="操作日期" align="center" data-index="operTime" width="180" :sortable="{ sortDirections: ['descend', 'ascend'], sorter: true, defaultSortOrder: 'descend' }">
+            <template #cell="{ record, rowIndex }">
+               <span>{{ parseTime(record.operTime) }}</span>
             </template>
-         </el-table-column>
-         <el-table-column label="消耗时间" align="center" prop="costTime" width="110" :show-overflow-tooltip="true" sortable="custom" :sort-orders="['descending', 'ascending']">
-            <template #default="scope">
-               <span>{{ scope.row.costTime }}毫秒</span>
+         </a-table-column>
+         <a-table-column title="消耗时间" align="center" data-index="costTime" width="110" ellipsis :sortable="{ sortDirections: ['descend', 'ascend'], sorter: true }" tooltip>
+            <template #cell="{ record, rowIndex }">
+               <span>{{ record.costTime }}毫秒</span>
             </template>
-         </el-table-column>
-         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-            <template #default="scope">
-               <el-button link type="primary" icon="View" @click="handleDetail(scope.row, scope.index)" v-hasPermi="['monitor:operlog:query']">详细</el-button>
+         </a-table-column>
+         <a-table-column title="操作" align="center" cell-class="small-padding fixed-width">
+            <template #cell="{ record, rowIndex }">
+               <a-button @click="handleDetail(record, scope.index)" v-hasPermi="['monitor:operlog:query']"><template #icon><View /></template>详细</a-button>
             </template>
-         </el-table-column>
-      </el-table>
+         </a-table-column>
+      </a-table>
       </div>
 
       <pagination
@@ -210,19 +208,21 @@ function resetQuery() {
   dateRange.value = []
   proxy.resetForm("queryRef")
   queryParams.value.pageNum = 1
-  proxy.$refs["operlogRef"].sort(defaultSort.value.prop, defaultSort.value.order)
+  queryParams.value.orderByColumn = defaultSort.value.prop
+  queryParams.value.isAsc = defaultSort.value.order
+  getList()
 }
 
 /** 多选框选中数据 */
-function handleSelectionChange(selection) {
-  ids.value = selection.map(item => item.operId)
-  multiple.value = !selection.length
+function handleSelectionChange(selectedKeys) {
+  ids.value = selectedKeys
+  multiple.value = !selectedKeys.length
 }
 
 /** 排序触发事件 */
-function handleSortChange(column, prop, order) {
-  queryParams.value.orderByColumn = column.prop
-  queryParams.value.isAsc = column.order
+function handleSortChange(dataIndex, direction) {
+  queryParams.value.orderByColumn = dataIndex
+  queryParams.value.isAsc = direction === 'ascend' ? 'ascending' : 'descending'
   getList()
 }
 

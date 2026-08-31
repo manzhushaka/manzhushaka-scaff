@@ -1,55 +1,55 @@
 <template>
-    <el-form>
-        <el-form-item>
-            <el-radio v-model='radioValue' :value="1">
+    <a-form>
+        <a-form-item>
+            <a-radio v-model='radioValue' :value="1">
                 日，允许的通配符[, - * ? / L W]
-            </el-radio>
-        </el-form-item>
+            </a-radio>
+        </a-form-item>
 
-        <el-form-item>
-            <el-radio v-model='radioValue' :value="2">
+        <a-form-item>
+            <a-radio v-model='radioValue' :value="2">
                 不指定
-            </el-radio>
-        </el-form-item>
+            </a-radio>
+        </a-form-item>
 
-        <el-form-item>
-            <el-radio v-model='radioValue' :value="3">
+        <a-form-item>
+            <a-radio v-model='radioValue' :value="3">
                 周期从
-                <el-input-number v-model='cycle01' :min="1" :max="30" /> -
-                <el-input-number v-model='cycle02' :min="cycle01 + 1" :max="31" /> 日
-            </el-radio>
-        </el-form-item>
+                <a-input-number v-model='cycle01' :min="1" :max="30" /> -
+                <a-input-number v-model='cycle02' :min="cycle01 + 1" :max="31" /> 日
+            </a-radio>
+        </a-form-item>
 
-        <el-form-item>
-            <el-radio v-model='radioValue' :value="4">
+        <a-form-item>
+            <a-radio v-model='radioValue' :value="4">
                 从
-                <el-input-number v-model='average01' :min="1" :max="30" /> 号开始，每
-                <el-input-number v-model='average02' :min="1" :max="31 - average01" /> 日执行一次
-            </el-radio>
-        </el-form-item>
+                <a-input-number v-model='average01' :min="1" :max="30" /> 号开始，每
+                <a-input-number v-model='average02' :min="1" :max="31 - average01" /> 日执行一次
+            </a-radio>
+        </a-form-item>
 
-        <el-form-item>
-            <el-radio v-model='radioValue' :value="5">
+        <a-form-item>
+            <a-radio v-model='radioValue' :value="5">
                 每月
-                <el-input-number v-model='workday' :min="1" :max="31" /> 号最近的那个工作日
-            </el-radio>
-        </el-form-item>
+                <a-input-number v-model='workday' :min="1" :max="31" /> 号最近的那个工作日
+            </a-radio>
+        </a-form-item>
 
-        <el-form-item>
-            <el-radio v-model='radioValue' :value="6">
+        <a-form-item>
+            <a-radio v-model='radioValue' :value="6">
                 本月最后一天
-            </el-radio>
-        </el-form-item>
+            </a-radio>
+        </a-form-item>
 
-        <el-form-item>
-            <el-radio v-model='radioValue' :value="7">
+        <a-form-item>
+            <a-radio v-model='radioValue' :value="7">
                 指定
-                <el-select clearable v-model="checkboxList" placeholder="可多选" multiple :multiple-limit="10">
-                    <el-option v-for="item in 31" :key="item" :label="item" :value="item" />
-                </el-select>
-            </el-radio>
-        </el-form-item>
-    </el-form>
+                <a-select allow-clear v-model="checkboxList" placeholder="可多选" multiple :limit="10">
+                    <a-option v-for="item in 31" :key="item" :label="item" :value="item" />
+                </a-select>
+            </a-radio>
+        </a-form-item>
+    </a-form>
 </template>
 <script setup>
 const emit = defineEmits(['update'])
@@ -165,10 +165,10 @@ function onRadioChange() {
 </script>
 
 <style lang="scss" scoped>
-.el-input-number--small, .el-select, .el-select--small {
+.arco-input-number, .arco-select {
     margin: 0 0.2rem;
 }
-.el-select, .el-select--small {
+.arco-select {
     width: 18.8rem;
 }
 </style>

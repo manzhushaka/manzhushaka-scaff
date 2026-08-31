@@ -2,50 +2,55 @@
    <div class="app-container">
       <section class="ui-panel-card auth-role-panel">
       <h4 class="form-header h4">基本信息</h4>
-      <el-form :model="form" label-width="80px">
-         <el-row>
-            <el-col :span="8" :offset="2">
-               <el-form-item label="用户昵称" prop="nickName">
-                  <el-input v-model="form.nickName" disabled />
-               </el-form-item>
-            </el-col>
-            <el-col :span="8" :offset="2">
-               <el-form-item label="登录账号" prop="userName">
-                  <el-input v-model="form.userName" disabled />
-               </el-form-item>
-            </el-col>
-         </el-row>
-      </el-form>
+      <a-form :model="form" :label-col-props="{ flex: '80px' }">
+         <a-row>
+            <a-col :span="8" :offset="2">
+               <a-form-item label="用户昵称" field="nickName">
+                  <a-input v-model="form.nickName" disabled />
+               </a-form-item>
+            </a-col>
+            <a-col :span="8" :offset="2">
+               <a-form-item label="登录账号" field="userName">
+                  <a-input v-model="form.userName" disabled />
+               </a-form-item>
+            </a-col>
+         </a-row>
+      </a-form>
       </section>
 
       <section class="ui-table-card auth-role-table">
       <div class="auth-role-table__title">角色信息</div>
-      <el-table v-loading="loading" :row-key="getRowKey" @row-click="clickRow" ref="roleRef" @selection-change="handleSelectionChange" :data="roles.slice((pageNum - 1) * pageSize, pageNum * pageSize)">
-         <el-table-column label="序号" width="55" type="index" align="center">
-            <template #default="scope">
-               <span>{{ (pageNum - 1) * pageSize + scope.$index + 1 }}</span>
+      <a-table
+         ref="roleRef"
+         v-model:selected-keys="roleIds"
+         :loading="loading"
+         :row-key="getRowKey"
+         :row-selection="{ type: 'checkbox', showCheckedAll: true, onlyCurrent: false }"
+         :data="roles.slice((pageNum - 1) * pageSize, pageNum * pageSize)"
+         @row-click="clickRow"
+       :pagination="false">
+         <a-table-column title="序号" width="55" align="center">
+            <template #cell="{ record, rowIndex }">
+               <span>{{ (pageNum - 1) * pageSize + rowIndex + 1 }}</span>
             </template>
-         </el-table-column>
-         <el-table-column type="selection" :reserve-selection="true" :selectable="checkSelectable" width="55"></el-table-column>
-         <el-table-column label="角色编号" align="center" prop="roleId" />
-         <el-table-column label="角色名称" align="center" prop="roleName" />
-         <el-table-column label="权限字符" align="center" prop="roleKey" />
-         <el-table-column label="创建时间" align="center" prop="createTime" width="180">
-            <template #default="scope">
-               <span>{{ parseTime(scope.row.createTime) }}</span>
+         </a-table-column>
+         <a-table-column title="角色编号" align="center" data-index="roleId" />
+         <a-table-column title="角色名称" align="center" data-index="roleName" />
+         <a-table-column title="权限字符" align="center" data-index="roleKey" />
+         <a-table-column title="创建时间" align="center" data-index="createTime" width="180">
+            <template #cell="{ record, rowIndex }">
+               <span>{{ parseTime(record.createTime) }}</span>
             </template>
-         </el-table-column>
-      </el-table>
+         </a-table-column>
+      </a-table>
 
       <pagination v-show="total > 0" :total="total" v-model:page="pageNum" v-model:limit="pageSize" />
       </section>
 
-      <el-form label-width="100px">
-         <div class="auth-role-footer">
-            <el-button type="primary" @click="submitForm()">提交</el-button>
-            <el-button @click="close()">返回</el-button>
-         </div>
-      </el-form>
+      <div class="auth-role-footer">
+         <a-button type="primary" @click="submitForm()">提交</a-button>
+         <a-button @click="close()">返回</a-button>
+      </div>
    </div>
 </template>
 
@@ -70,13 +75,8 @@ const form = ref({
 /** 单击选中行数据 */
 function clickRow(row) {
   if (checkSelectable(row)) {
-    proxy.$refs["roleRef"].toggleRowSelection(row)
+    proxy.$refs["roleRef"].select(row.roleId, !roleIds.value.includes(row.roleId))
   }
-}
-
-/** 多选框选中数据 */
-function handleSelectionChange(selection) {
-  roleIds.value = selection.map(item => item.roleId)
 }
 
 /** 保存选中的数据编号 */
@@ -111,15 +111,9 @@ function submitForm() {
     loading.value = true
     getAuthRole(userId).then(response => {
       form.value = response.user
-      roles.value = response.roles
+      roles.value = response.roles.map(row => ({ ...row, disabled: row.status !== '0' }))
       total.value = roles.value.length
-      nextTick(() => {
-        roles.value.forEach(row => {
-          if (row.flag) {
-            proxy.$refs["roleRef"].toggleRowSelection(row)
-          }
-        })
-      })
+      roleIds.value = roles.value.filter(row => row.flag).map(row => row.roleId)
       loading.value = false
     })
   }

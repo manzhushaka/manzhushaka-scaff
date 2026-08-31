@@ -17,12 +17,10 @@
   },
   "dependencies": {
     "@arco-design/web-vue": "2.58.0",
-    "@element-plus/icons-vue": "2.3.2",
     "@vueup/vue-quill": "1.2.0",
     "@vueuse/core": "14.1.0",
     "axios": "1.18.1",
     "echarts": "6.1.0",
-    "element-plus": "2.13.1",
     "file-saver": "2.0.5",
     "js-cookie": "3.0.8",
     "nprogress": "0.2.0",

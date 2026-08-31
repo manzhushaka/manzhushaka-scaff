@@ -118,7 +118,7 @@ function toggleSearch() {
   let element = proxy.$el
   let formElement = null
   while ((element = element.parentElement) && element !== document.body) {
-    formElement = element.querySelector('.arco-form, .el-form')
+    formElement = element.querySelector('.arco-form')
     if (formElement) {
       break
     }

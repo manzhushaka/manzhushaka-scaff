@@ -1,25 +1,25 @@
 <template>
-  <el-dialog :title="title" v-model="visible" :width="width" append-to-body @close="handleClose">
-    <el-upload ref="uploadRef" :limit="1" accept=".xlsx, .xls" :headers="headers" :action="uploadUrl" :disabled="isUploading" :on-progress="handleProgress" :on-change="handleFileChange" :on-remove="handleFileRemove" :on-success="handleSuccess" :on-error="handleError" :auto-upload="false" drag>
-      <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-      <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+  <a-modal :title="title" v-model:visible="visible" :width="width" render-to-body @close="handleClose">
+    <a-upload ref="uploadRef" v-model:file-list="fileList" :limit="1" accept=".xlsx, .xls" :headers="headers" :action="uploadUrl" :disabled="isUploading" :auto-upload="false" draggable @progress="handleProgress" @change="handleFileChange" @success="handleSuccess" @error="handleError">
+      <span class="upload-icon"><upload-filled /></span>
+      <div class="upload-text">将文件拖到此处，或<em>点击上传</em></div>
       <template #tip>
-        <div class="el-upload__tip text-center">
-          <div class="el-upload__tip">
-            <el-checkbox v-model="updateSupport"> {{ updateSupportLabel }} </el-checkbox>
+        <div class="upload-tip text-center">
+          <div class="upload-tip">
+            <a-checkbox v-model="updateSupport"> {{ updateSupportLabel }} </a-checkbox>
           </div>
           <span>仅允许导入xls、xlsx格式文件。</span>
-          <el-link v-if="templateUrl" type="primary" underline="never" style="font-size: 12px; vertical-align: baseline" @click="handleDownloadTemplate">下载模板</el-link>
+          <a-link v-if="templateUrl" style="font-size: 12px; vertical-align: baseline" @click="handleDownloadTemplate">下载模板</a-link>
         </div>
       </template>
-    </el-upload>
+    </a-upload>
     <template #footer>
       <div class="dialog-footer">
-        <el-button type="primary" @click="handleSubmit">确 定</el-button>
-        <el-button @click="visible = false">取 消</el-button>
+        <a-button type="primary" @click="handleSubmit">确 定</a-button>
+        <a-button @click="visible = false">取 消</a-button>
       </div>
     </template>
-  </el-dialog>
+  </a-modal>
 </template>
 
 <script setup>
@@ -65,6 +65,7 @@ const emit = defineEmits(['success'])
 const uploadRef = ref(null)
 const visible = ref(false)
 const selectedFile = ref(null)
+const fileList = ref([])
 const isUploading = ref(false)
 const updateSupport = ref(false)
 const headers = { Authorization: 'Bearer ' + getToken() }
@@ -82,7 +83,7 @@ function open() {
   visible.value = true
   nextTick(() => {
     selectedFile.value = null
-    uploadRef.value?.clearFiles()
+    fileList.value = []
   })
 }
 
@@ -90,7 +91,7 @@ function open() {
 function handleClose() {
   isUploading.value = false
   selectedFile.value = null
-  uploadRef.value?.clearFiles()
+  fileList.value = []
 }
 
 // 下载模板
@@ -104,22 +105,18 @@ function handleProgress() {
 }
 
 /** 文件选择处理 */
-const handleFileChange = (file, fileList) => {
-  selectedFile.value = file
-}
-
-/** 文件删除处理 */
-const handleFileRemove = (file, fileList) => {
-  selectedFile.value = null
+const handleFileChange = (files, file) => {
+  selectedFile.value = file?.file ? file : null
 }
 
 // 上传成功
-function handleSuccess(response) {
+function handleSuccess(file) {
+  const response = file.response
   visible.value = false
   isUploading.value = false
   selectedFile.value = null
-  uploadRef.value?.clearFiles()
-  proxy.$alert("<div style='overflow:auto;overflow-x:hidden;max-height:70vh;padding:10px 20px 0;'>" + response.msg + '</div>', '导入结果', { dangerouslyUseHTMLString: true })
+  fileList.value = []
+  proxy.$modal.alert(response.msg.replace(/<[^>]*>/g, ' '))
   emit('success')
 }
 

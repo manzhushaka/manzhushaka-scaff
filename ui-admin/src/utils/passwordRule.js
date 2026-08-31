@@ -82,7 +82,7 @@ function getStrongPasswordMessage(value) {
   }
 }
 
-function strongPasswordValidator(rule, value, callback) {
+function strongPasswordValidator(value, callback) {
   const message = getStrongPasswordMessage(value)
   if (message) {
     callback(new Error(message))

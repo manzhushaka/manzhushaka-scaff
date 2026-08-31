@@ -9,7 +9,7 @@
       <div class="avatar-wrap">
         <img :src="userStore.avatar" class="lock-avatar" @error="onAvatarError" />
         <div class="lock-icon">
-          <el-icon><Lock /></el-icon>
+          <span><Lock /></span>
         </div>
       </div>
       <div class="lock-username">{{ userStore.nickName }}</div>
@@ -18,7 +18,7 @@
       <div class="input-wrap" :class="{ shake: isShaking }">
         <input ref="passwordInput" v-model="password" type="password" placeholder="请输入登录密码" class="lock-input" @keydown.enter="handleUnlock" autocomplete="off" />
         <button class="unlock-btn" @click="handleUnlock" :disabled="loading">
-          <el-icon v-if="!loading"><Right /></el-icon>
+          <span v-if="!loading"><Right /></span>
           <span v-else class="loading-dot">···</span>
         </button>
       </div>

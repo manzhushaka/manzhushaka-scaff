@@ -1,5 +1,5 @@
 <template>
-  <div :style="'height:' + height" v-loading="loading" element-loading-text="正在加载页面，请稍候！">
+  <a-spin :loading="loading" tip="正在加载页面，请稍候！" :style="'height:' + height">
     <iframe
       :id="iframeId"
       style="width: 100%; height: 100%"
@@ -7,7 +7,7 @@
       ref="iframeRef"
       frameborder="no"
     ></iframe>
-  </div>
+  </a-spin>
 </template>
 
 <script setup>

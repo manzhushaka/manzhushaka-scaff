@@ -1,115 +1,116 @@
 <template>
   <div class="app-container ui-list-page">
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="90px" class="ui-filter-card">
-      <el-form-item label="消息类型" prop="messageType">
-        <el-input v-model="queryParams.messageType" placeholder="请输入消息类型" clearable style="width: 200px" @keyup.enter="handleQuery" />
-      </el-form-item>
-      <el-form-item label="Stream" prop="streamKey">
-        <el-input v-model="queryParams.streamKey" placeholder="请输入 Stream Key" clearable style="width: 200px" @keyup.enter="handleQuery" />
-      </el-form-item>
-      <el-form-item label="业务Key" prop="businessKey">
-        <el-input v-model="queryParams.businessKey" placeholder="请输入业务 Key" clearable style="width: 200px" @keyup.enter="handleQuery" />
-      </el-form-item>
-      <el-form-item label="状态" prop="status">
-        <el-select v-model="queryParams.status" placeholder="消息状态" clearable style="width: 140px">
-          <el-option v-for="dict in mqStatusOptions" :key="dict.value" :label="dict.label" :value="dict.value" />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="消费时间" style="width: 308px">
-        <el-date-picker v-model="dateRange" value-format="YYYY-MM-DD HH:mm:ss" type="daterange" range-separator="-"
-          start-placeholder="开始日期" end-placeholder="结束日期"
+    <a-form :model="queryParams" ref="queryRef" layout="inline" v-show="showSearch" :label-col-props="{ flex: '90px' }" class="ui-filter-card">
+      <a-form-item label="消息类型" field="messageType">
+        <a-input v-model="queryParams.messageType" placeholder="请输入消息类型" allow-clear style="width: 200px" @keyup.enter="handleQuery" />
+      </a-form-item>
+      <a-form-item label="Stream" field="streamKey">
+        <a-input v-model="queryParams.streamKey" placeholder="请输入 Stream Key" allow-clear style="width: 200px" @keyup.enter="handleQuery" />
+      </a-form-item>
+      <a-form-item label="业务Key" field="businessKey">
+        <a-input v-model="queryParams.businessKey" placeholder="请输入业务 Key" allow-clear style="width: 200px" @keyup.enter="handleQuery" />
+      </a-form-item>
+      <a-form-item label="状态" field="status">
+        <a-select v-model="queryParams.status" placeholder="消息状态" allow-clear style="width: 140px">
+          <a-option v-for="dict in mqStatusOptions" :key="dict.value" :label="dict.label" :value="dict.value" />
+        </a-select>
+      </a-form-item>
+      <a-form-item label="消费时间" style="width: 308px">
+        <a-range-picker v-model="dateRange" value-format="YYYY-MM-DD HH:mm:ss" separator="-"
+          :placeholder="['开始日期', '结束日期']"
           :default-time="[new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 1, 1, 23, 59, 59)]" />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-      </el-form-item>
-    </el-form>
+      </a-form-item>
+      <a-form-item>
+        <a-button type="primary" @click="handleQuery"><template #icon><Search /></template>搜索</a-button>
+        <a-button @click="resetQuery"><template #icon><Refresh /></template>重置</a-button>
+      </a-form-item>
+    </a-form>
 
-    <el-row :gutter="10" class="mb8 ui-action-bar">
-      <el-col :span="1.5">
-        <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete" v-hasPermi="['monitor:mqlog:remove']">删除</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button type="danger" plain icon="Delete" @click="handleClean" v-hasPermi="['monitor:mqlog:remove']">清空</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button type="warning" plain icon="Download" @click="handleExport" v-hasPermi="['monitor:mqlog:export']">导出</el-button>
-      </el-col>
+    <a-row :gutter="10" class="mb8 ui-action-bar">
+      <a-col :span="1.5">
+        <a-button status="danger" :disabled="multiple" @click="handleDelete" v-hasPermi="['monitor:mqlog:remove']" type="outline"><template #icon><Delete /></template>删除</a-button>
+      </a-col>
+      <a-col :span="1.5">
+        <a-button status="danger" @click="handleClean" v-hasPermi="['monitor:mqlog:remove']" type="outline"><template #icon><Delete /></template>清空</a-button>
+      </a-col>
+      <a-col :span="1.5">
+        <a-button status="warning" @click="handleExport" v-hasPermi="['monitor:mqlog:export']" type="outline"><template #icon><Download /></template>导出</a-button>
+      </a-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" />
-    </el-row>
+    </a-row>
 
     <div class="ui-table-card">
-      <el-table v-loading="loading" :data="mqLogList" style="width: 100%" @selection-change="handleSelectionChange">
-        <el-table-column type="selection" width="50" align="center" />
-        <el-table-column label="编号" align="center" prop="messageLogId" width="90" />
-        <el-table-column label="消息类型" prop="messageType" min-width="170" :show-overflow-tooltip="true" />
-        <el-table-column label="Stream" prop="streamKey" min-width="260" :show-overflow-tooltip="true" />
-        <el-table-column label="业务Key" prop="businessKey" min-width="220" :show-overflow-tooltip="true" />
-        <el-table-column label="状态" align="center" prop="status" width="100">
-          <template #default="scope">
-            <dict-tag :options="mqStatusOptions" :value="scope.row.status" />
+      <a-table :loading="loading" :data="mqLogList" style="width: 100%" :row-selection="{ type: 'checkbox', showCheckedAll: true }" :row-key="record => record.messageLogId" :pagination="false" @selection-change="handleSelectionChange">
+        <a-table-column title="编号" align="center" data-index="messageLogId" width="90" />
+        <a-table-column title="消息类型" data-index="messageType" min-width="170" ellipsis tooltip />
+        <a-table-column title="Stream" data-index="streamKey" min-width="260" ellipsis tooltip />
+        <a-table-column title="业务Key" data-index="businessKey" min-width="220" ellipsis tooltip />
+        <a-table-column title="状态" align="center" data-index="status" width="100">
+          <template #cell="{ record, rowIndex }">
+            <dict-tag :options="mqStatusOptions" :value="record.status" />
           </template>
-        </el-table-column>
-        <el-table-column label="重试次数" align="center" prop="retryTimes" width="90" />
-        <el-table-column label="首次消费" align="center" prop="firstConsumeTime" width="180">
-          <template #default="scope">{{ parseTime(scope.row.firstConsumeTime) }}</template>
-        </el-table-column>
-        <el-table-column label="最后消费" align="center" prop="lastConsumeTime" width="180">
-          <template #default="scope">{{ parseTime(scope.row.lastConsumeTime) }}</template>
-        </el-table-column>
-        <el-table-column label="操作" align="center" width="140">
-          <template #default="scope">
-            <el-button link type="primary" icon="View" @click="handleDetail(scope.row)" v-hasPermi="['monitor:mqlog:query']">详细</el-button>
-            <el-button link type="primary" icon="Tickets" @click="handleDetailList(scope.row)" v-hasPermi="['monitor:mqlog:query']">明细</el-button>
+        </a-table-column>
+        <a-table-column title="重试次数" align="center" data-index="retryTimes" width="90" />
+        <a-table-column title="首次消费" align="center" data-index="firstConsumeTime" width="180">
+          <template #cell="{ record, rowIndex }">{{ parseTime(record.firstConsumeTime) }}</template>
+        </a-table-column>
+        <a-table-column title="最后消费" align="center" data-index="lastConsumeTime" width="180">
+          <template #cell="{ record, rowIndex }">{{ parseTime(record.lastConsumeTime) }}</template>
+        </a-table-column>
+        <a-table-column title="操作" align="center" width="140">
+          <template #cell="{ record, rowIndex }">
+            <a-button @click="handleDetail(record)" v-hasPermi="['monitor:mqlog:query']"><template #icon><View /></template>详细</a-button>
+            <a-button @click="handleDetailList(record)" v-hasPermi="['monitor:mqlog:query']"><template #icon><Tickets /></template>明细</a-button>
           </template>
-        </el-table-column>
-      </el-table>
+        </a-table-column>
+      </a-table>
     </div>
 
     <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
 
     <!-- 消息详情对话框 -->
-    <el-dialog title="消息详情" v-model="detailVisible" width="820px" append-to-body>
-      <el-descriptions :column="2" border>
-        <el-descriptions-item label="消息类型" :span="2">{{ detailRow.messageType }}</el-descriptions-item>
-        <el-descriptions-item label="Stream">{{ detailRow.streamKey }}</el-descriptions-item>
-        <el-descriptions-item label="消息ID">{{ detailRow.messageId }}</el-descriptions-item>
-        <el-descriptions-item label="消费者组">{{ detailRow.consumerGroup }}</el-descriptions-item>
-        <el-descriptions-item label="业务Key">{{ detailRow.businessKey }}</el-descriptions-item>
-        <el-descriptions-item label="状态" :span="2">
+    <a-modal title="消息详情" v-model:visible="detailVisible" width="820px" render-to-body :footer="false">
+      <a-descriptions :column="2" bordered>
+        <a-descriptions-item label="消息类型" :span="2">{{ detailRow.messageType }}</a-descriptions-item>
+        <a-descriptions-item label="Stream">{{ detailRow.streamKey }}</a-descriptions-item>
+        <a-descriptions-item label="消息ID">{{ detailRow.messageId }}</a-descriptions-item>
+        <a-descriptions-item label="消费者组">{{ detailRow.consumerGroup }}</a-descriptions-item>
+        <a-descriptions-item label="业务Key">{{ detailRow.businessKey }}</a-descriptions-item>
+        <a-descriptions-item label="状态" :span="2">
           <dict-tag :options="mqStatusOptions" :value="detailRow.status" />
-        </el-descriptions-item>
-        <el-descriptions-item label="重试次数">{{ detailRow.retryTimes }} / {{ detailRow.maxRetryTimes }}</el-descriptions-item>
-        <el-descriptions-item label="首次消费">{{ parseTime(detailRow.firstConsumeTime) }}</el-descriptions-item>
-        <el-descriptions-item label="最后消费">{{ parseTime(detailRow.lastConsumeTime) }}</el-descriptions-item>
-        <el-descriptions-item label="成功时间">{{ parseTime(detailRow.successTime) }}</el-descriptions-item>
-        <el-descriptions-item label="死信时间">{{ parseTime(detailRow.deadLetterTime) }}</el-descriptions-item>
-        <el-descriptions-item label="消息内容" :span="2"><pre class="msg-pre">{{ detailRow.payload }}</pre></el-descriptions-item>
-        <el-descriptions-item label="错误消息" :span="2"><pre class="msg-pre">{{ detailRow.lastErrorMsg || '无' }}</pre></el-descriptions-item>
-      </el-descriptions>
-    </el-dialog>
+        </a-descriptions-item>
+        <a-descriptions-item label="重试次数">{{ detailRow.retryTimes }} / {{ detailRow.maxRetryTimes }}</a-descriptions-item>
+        <a-descriptions-item label="首次消费">{{ parseTime(detailRow.firstConsumeTime) }}</a-descriptions-item>
+        <a-descriptions-item label="最后消费">{{ parseTime(detailRow.lastConsumeTime) }}</a-descriptions-item>
+        <a-descriptions-item label="成功时间">{{ parseTime(detailRow.successTime) }}</a-descriptions-item>
+        <a-descriptions-item label="死信时间">{{ parseTime(detailRow.deadLetterTime) }}</a-descriptions-item>
+        <a-descriptions-item label="消息内容" :span="2"><pre class="msg-pre">{{ detailRow.payload }}</pre></a-descriptions-item>
+        <a-descriptions-item label="错误消息" :span="2"><pre class="msg-pre">{{ detailRow.lastErrorMsg || '无' }}</pre></a-descriptions-item>
+      </a-descriptions>
+    </a-modal>
 
     <!-- 执行明细对话框 -->
-    <el-dialog title="执行明细" v-model="detailListVisible" width="960px" append-to-body>
-      <el-table v-loading="detailLoading" :data="detailList" border>
-        <el-table-column label="序号" align="center" type="index" width="60" />
-        <el-table-column label="尝试次数" align="center" prop="attemptNo" width="90" />
-        <el-table-column label="消费者" prop="consumerName" width="160" :show-overflow-tooltip="true" />
-        <el-table-column label="状态" align="center" prop="status" width="80">
-          <template #default="scope">
-            <dict-tag :options="detailStatusOptions" :value="scope.row.status" />
+    <a-modal title="执行明细" v-model:visible="detailListVisible" width="960px" render-to-body :footer="false">
+      <a-table :loading="detailLoading" :data="detailList" bordered :pagination="false">
+        <a-table-column title="序号" align="center" width="60">
+          <template #cell="{ rowIndex }">{{ rowIndex + 1 }}</template>
+        </a-table-column>
+        <a-table-column title="尝试次数" align="center" data-index="attemptNo" width="90" />
+        <a-table-column title="消费者" data-index="consumerName" width="160" ellipsis tooltip />
+        <a-table-column title="状态" align="center" data-index="status" width="80">
+          <template #cell="{ record, rowIndex }">
+            <dict-tag :options="detailStatusOptions" :value="record.status" />
           </template>
-        </el-table-column>
-        <el-table-column label="开始时间" align="center" prop="startTime" width="180">
-          <template #default="scope">{{ parseTime(scope.row.startTime) }}</template>
-        </el-table-column>
-        <el-table-column label="耗时" align="center" prop="costTime" width="90">
-          <template #default="scope">{{ scope.row.costTime }}ms</template>
-        </el-table-column>
-        <el-table-column label="错误消息" prop="errorMsg" min-width="200" :show-overflow-tooltip="true" />
-      </el-table>
-    </el-dialog>
+        </a-table-column>
+        <a-table-column title="开始时间" align="center" data-index="startTime" width="180">
+          <template #cell="{ record, rowIndex }">{{ parseTime(record.startTime) }}</template>
+        </a-table-column>
+        <a-table-column title="耗时" align="center" data-index="costTime" width="90">
+          <template #cell="{ record, rowIndex }">{{ record.costTime }}ms</template>
+        </a-table-column>
+        <a-table-column title="错误消息" data-index="errorMsg" min-width="200" ellipsis tooltip />
+      </a-table>
+    </a-modal>
   </div>
 </template>
 
@@ -180,9 +181,9 @@ function resetQuery() {
   handleQuery()
 }
 
-function handleSelectionChange(selection) {
-  ids.value = selection.map(item => item.messageLogId)
-  multiple.value = !selection.length
+function handleSelectionChange(selectedKeys) {
+  ids.value = selectedKeys
+  multiple.value = !selectedKeys.length
 }
 
 function handleDetail(row) {

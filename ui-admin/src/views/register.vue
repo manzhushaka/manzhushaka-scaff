@@ -21,22 +21,22 @@
         <h2 class="auth-card__title">注册系统</h2>
         <p class="auth-card__description">填写基础信息后创建后台账号并开始使用</p>
 
-        <el-form ref="registerRef" :model="registerForm" :rules="registerRules" class="auth-form" size="large">
-          <el-form-item prop="username">
-            <el-input
+        <a-form ref="registerRef" :model="registerForm" :rules="registerRules" class="auth-form" layout="vertical" size="large">
+          <a-form-item field="username">
+            <a-input
               v-model="registerForm.username"
               type="text"
               auto-complete="off"
               placeholder="账号"
             >
               <template #prefix>
-                <svg-icon icon-class="user" class="el-input__icon input-icon" />
+                <svg-icon icon-class="user" class="input-icon" />
               </template>
-            </el-input>
-          </el-form-item>
+            </a-input>
+          </a-form-item>
 
-          <el-form-item prop="password" :rules="registerPwdValidator">
-            <el-input
+          <a-form-item field="password" :rules="registerPwdValidator">
+            <a-input
               v-model="registerForm.password"
               type="password"
               auto-complete="off"
@@ -44,13 +44,13 @@
               @keyup.enter="handleRegister"
             >
               <template #prefix>
-                <svg-icon icon-class="password" class="el-input__icon input-icon" />
+                <svg-icon icon-class="password" class="input-icon" />
               </template>
-            </el-input>
-          </el-form-item>
+            </a-input>
+          </a-form-item>
 
-          <el-form-item prop="confirmPassword">
-            <el-input
+          <a-form-item field="confirmPassword">
+            <a-input
               v-model="registerForm.confirmPassword"
               type="password"
               auto-complete="off"
@@ -58,30 +58,30 @@
               @keyup.enter="handleRegister"
             >
               <template #prefix>
-                <svg-icon icon-class="password" class="el-input__icon input-icon" />
+                <svg-icon icon-class="password" class="input-icon" />
               </template>
-            </el-input>
-          </el-form-item>
+            </a-input>
+          </a-form-item>
 
-          <el-form-item v-if="captchaEnabled" prop="code">
+          <a-form-item v-if="captchaEnabled" field="code">
             <div class="auth-code-row">
-              <el-input
+              <a-input
                 v-model="registerForm.code"
                 auto-complete="off"
                 placeholder="验证码"
                 @keyup.enter="handleRegister"
               >
                 <template #prefix>
-                  <svg-icon icon-class="validCode" class="el-input__icon input-icon" />
+                  <svg-icon icon-class="validCode" class="input-icon" />
                 </template>
-              </el-input>
+              </a-input>
               <div class="auth-code-box">
                 <img :src="codeUrl" @click="getCode" class="auth-code-img" alt="验证码" />
               </div>
             </div>
-          </el-form-item>
+          </a-form-item>
 
-          <el-button
+          <a-button
             :loading="loading"
             type="primary"
             class="auth-submit"
@@ -89,13 +89,13 @@
           >
             <span v-if="!loading">注 册</span>
             <span v-else>注 册 中...</span>
-          </el-button>
+          </a-button>
 
           <div class="auth-switch">
             <span class="auth-switch__label">已经有账号？</span>
             <router-link class="auth-link" :to="'/login'">返回登录</router-link>
           </div>
-        </el-form>
+        </a-form>
       </section>
     </div>
 
@@ -106,7 +106,6 @@
 </template>
 
 <script setup>
-import { ElMessageBox } from "element-plus"
 import { getCodeImg, register } from "@/api/login"
 import defaultSettings from '@/settings'
 import { usePasswordRule } from "@/utils/passwordRule"
@@ -127,7 +126,7 @@ const registerForm = ref({
   uuid: ""
 })
 
-const equalToPassword = (rule, value, callback) => {
+const equalToPassword = (value, callback) => {
   if (registerForm.value.password !== value) {
     callback(new Error("两次输入的密码不一致"))
   } else {
@@ -152,17 +151,14 @@ const loading = ref(false)
 const captchaEnabled = ref(true)
 
 function handleRegister() {
-  proxy.$refs.registerRef.validate(valid => {
-    if (valid) {
+  proxy.$refs.registerRef.validate(errors => {
+    if (!errors) {
       loading.value = true
       register(registerForm.value).then(res => {
         const username = registerForm.value.username
-        ElMessageBox.alert("<font color='red'>恭喜你，您的账号 " + username + " 注册成功！</font>", "系统提示", {
-          dangerouslyUseHTMLString: true,
-          type: "success",
-        }).then(() => {
+        proxy.$modal.alertSuccess(`恭喜你，账号 ${username} 注册成功！`).then(() => {
           router.push("/login")
-        }).catch(() => {})
+        })
       }).catch(() => {
         loading.value = false
         if (captchaEnabled) {
@@ -349,11 +345,11 @@ getCode()
 .auth-form {
   margin-top: 24px;
 
-  .el-form-item {
+  .arco-form-item {
     margin-bottom: 16px;
   }
 
-  :deep(.el-input__wrapper) {
+  :deep(.arco-input-wrapper) {
     min-height: 56px;
     padding: 0 18px;
     border: 1px solid var(--ui-border);
@@ -366,14 +362,14 @@ getCode()
       border-color: var(--ui-border-strong);
     }
 
-    &.is-focus {
+    &:focus-within {
       border-color: var(--ui-primary);
       box-shadow: var(--ui-focus-ring);
       transform: translateY(-1px);
     }
   }
 
-  :deep(.el-input__inner) {
+  :deep(.arco-input) {
     height: 56px;
     color: var(--ui-text-primary);
     font-size: 16px;
@@ -391,7 +387,7 @@ getCode()
     color: var(--ui-text-muted);
   }
 
-  :deep(.el-form-item__error) {
+  :deep(.arco-form-item-message) {
     padding-top: 8px;
   }
 }
@@ -596,12 +592,12 @@ getCode()
   .auth-form {
     margin-top: 24px;
 
-    :deep(.el-input__wrapper) {
+    :deep(.arco-input-wrapper) {
       min-height: 58px;
       border-radius: var(--ui-radius-control);
     }
 
-    :deep(.el-input__inner) {
+    :deep(.arco-input) {
       height: 58px;
       font-size: 18px;
     }

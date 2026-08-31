@@ -1,10 +1,10 @@
 <template>
   <div>
-    <el-upload
+    <a-upload
       :action="uploadUrl"
       :before-upload="handleBeforeUpload"
-      :on-success="handleUploadSuccess"
-      :on-error="handleUploadError"
+      @success="handleUploadSuccess"
+      @error="handleUploadError"
       name="file"
       :show-file-list="false"
       :headers="headers"
@@ -12,7 +12,7 @@
       v-if="type == 'url'"
     >
       <i ref="uploadRef" class="editor-img-uploader"></i>
-    </el-upload>
+    </a-upload>
   </div>
   <div class="editor">
     <quill-editor
@@ -150,7 +150,8 @@ function handleBeforeUpload(file) {
 }
 
 // 上传成功处理
-function handleUploadSuccess(res, file) {
+function handleUploadSuccess(file) {
+  const res = file.response || file
   // 如果上传成功
   if (res.code == 200) {
     // 获取富文本实例

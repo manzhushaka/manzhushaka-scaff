@@ -1,18 +1,18 @@
 <template>
   <div class="app-container log-center-page">
     <section class="log-center-card">
-      <el-empty
+      <a-empty
         v-if="!canViewOperlog && !canViewLogininfor"
         description="当前账号暂未分配日志查看权限"
       />
-      <el-tabs v-else v-model="activeTab" class="log-center-tabs">
-        <el-tab-pane v-if="canViewOperlog" label="操作日志" name="operlog" lazy>
+      <a-tabs v-else v-model:active-key="activeTab" class="log-center-tabs" lazy-load>
+        <a-tab-pane v-if="canViewOperlog" title="操作日志" key="operlog">
           <operlog-panel />
-        </el-tab-pane>
-        <el-tab-pane v-if="canViewLogininfor" label="登录日志" name="logininfor" lazy>
+        </a-tab-pane>
+        <a-tab-pane v-if="canViewLogininfor" title="登录日志" key="logininfor">
           <logininfor-panel />
-        </el-tab-pane>
-      </el-tabs>
+        </a-tab-pane>
+      </a-tabs>
     </section>
   </div>
 </template>
@@ -44,24 +44,24 @@ const activeTab = ref(canViewOperlog ? "operlog" : "logininfor")
 }
 
 .log-center-tabs {
-  :deep(.el-tabs__header) {
+  :deep(.arco-tabs-nav) {
     margin: 0;
     padding: 0 20px;
-    border-bottom: 1px solid var(--el-border-color-lighter);
+    border-bottom: 1px solid var(--ui-border);
     background: var(--ui-bg-panel-muted);
   }
 
-  :deep(.el-tabs__nav-wrap::after) {
+  :deep(.arco-tabs-nav::before) {
     display: none;
   }
 
-  :deep(.el-tabs__item) {
+  :deep(.arco-tabs-tab) {
     height: 52px;
     font-size: 14px;
     font-weight: 600;
   }
 
-  :deep(.el-tabs__content) {
+  :deep(.arco-tabs-content) {
     background: var(--ui-bg-panel);
   }
 
@@ -78,7 +78,7 @@ const activeTab = ref(canViewOperlog ? "operlog" : "logininfor")
 
 @media (max-width: 768px) {
   .log-center-tabs {
-    :deep(.el-tabs__header) {
+    :deep(.arco-tabs-nav) {
       padding: 0 14px;
     }
 

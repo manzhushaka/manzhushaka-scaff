@@ -1,5 +1,5 @@
 <template>
-  <el-image
+  <a-image
     :src="`${realSrc}`"
     fit="cover"
     :style="`width:${realWidth};height:${realHeight};`"
@@ -8,10 +8,10 @@
   >
     <template #error>
       <div class="image-slot">
-        <el-icon><picture-filled /></el-icon>
+        <span><picture-filled /></span>
       </div>
     </template>
-  </el-image>
+  </a-image>
 </template>
 
 <script setup>
@@ -68,11 +68,11 @@ const realHeight = computed(() =>
 </script>
 
 <style lang="scss" scoped>
-.el-image {
+.arco-image {
   border-radius: 5px;
   background-color: var(--ui-bg-panel-muted);
   box-shadow: var(--ui-shadow-subtle);
-  :deep(.el-image__inner) {
+  :deep(.arco-image-img) {
     transition: all 0.3s;
     cursor: pointer;
     &:hover {

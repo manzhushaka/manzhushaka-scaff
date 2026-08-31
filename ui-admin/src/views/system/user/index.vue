@@ -3,174 +3,173 @@
     <tree-panel title="组织机构" :tree-data="deptOptions" search-placeholder="请输入部门名称" storage-key="dept-sidebar-width" :defaultExpandAll="true" @node-click="handleNodeClick" @refresh="getDeptTree" ref="deptTreeRef" />
     <div class="tree-sidebar-content">
       <div class="content-inner ui-list-page">
-        <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px" class="ui-filter-card">
-          <el-form-item label="用户名称" prop="userName">
-            <el-input v-model="queryParams.userName" placeholder="请输入用户名称" clearable style="width: 240px" @keyup.enter="handleQuery" />
-          </el-form-item>
-          <el-form-item label="手机号码" prop="phonenumber">
-            <el-input v-model="queryParams.phonenumber" placeholder="请输入手机号码" clearable style="width: 240px" @keyup.enter="handleQuery" />
-          </el-form-item>
-          <el-form-item label="状态" prop="status">
-            <el-select v-model="queryParams.status" placeholder="用户状态" clearable style="width: 240px">
-              <el-option v-for="dict in sys_normal_disable" :key="dict.value" :label="dict.label" :value="dict.value" />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="创建时间" style="width: 308px">
-            <el-date-picker v-model="dateRange" value-format="YYYY-MM-DD" type="daterange" range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-            <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-          </el-form-item>
-        </el-form>
+        <a-form :model="queryParams" ref="queryRef" layout="inline" v-show="showSearch" :label-col-props="{ flex: '68px' }" class="ui-filter-card">
+          <a-form-item label="用户名称" field="userName">
+            <a-input v-model="queryParams.userName" placeholder="请输入用户名称" allow-clear style="width: 240px" @keyup.enter="handleQuery" />
+          </a-form-item>
+          <a-form-item label="手机号码" field="phonenumber">
+            <a-input v-model="queryParams.phonenumber" placeholder="请输入手机号码" allow-clear style="width: 240px" @keyup.enter="handleQuery" />
+          </a-form-item>
+          <a-form-item label="状态" field="status">
+            <a-select v-model="queryParams.status" placeholder="用户状态" allow-clear style="width: 240px">
+              <a-option v-for="dict in sys_normal_disable" :key="dict.value" :label="dict.label" :value="dict.value" />
+            </a-select>
+          </a-form-item>
+          <a-form-item label="创建时间" style="width: 308px">
+            <a-range-picker v-model="dateRange" value-format="YYYY-MM-DD" separator="-" :placeholder="['开始日期', '结束日期']"></a-range-picker>
+          </a-form-item>
+          <a-form-item>
+            <a-button type="primary" @click="handleQuery"><template #icon><Search /></template>搜索</a-button>
+            <a-button @click="resetQuery"><template #icon><Refresh /></template>重置</a-button>
+          </a-form-item>
+        </a-form>
 
-        <el-row :gutter="10" class="mb8 ui-action-bar">
-          <el-col :span="1.5">
-            <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasPermi="['system:user:add']">新增</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate" v-hasPermi="['system:user:edit']">修改</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete" v-hasPermi="['system:user:remove']">删除</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button type="info" plain icon="Upload" @click="handleImport" v-hasPermi="['system:user:import']">导入</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button type="warning" plain icon="Download" @click="handleExport" v-hasPermi="['system:user:export']">导出</el-button>
-          </el-col>
+        <a-row :gutter="10" class="mb8 ui-action-bar">
+          <a-col :span="1.5">
+            <a-button @click="handleAdd" v-hasPermi="['system:user:add']" type="outline"><template #icon><Plus /></template>新增</a-button>
+          </a-col>
+          <a-col :span="1.5">
+            <a-button status="success" :disabled="single" @click="handleUpdate" v-hasPermi="['system:user:edit']" type="outline"><template #icon><Edit /></template>修改</a-button>
+          </a-col>
+          <a-col :span="1.5">
+            <a-button status="danger" :disabled="multiple" @click="handleDelete" v-hasPermi="['system:user:remove']" type="outline"><template #icon><Delete /></template>删除</a-button>
+          </a-col>
+          <a-col :span="1.5">
+            <a-button @click="handleImport" v-hasPermi="['system:user:import']" type="outline"><template #icon><Upload /></template>导入</a-button>
+          </a-col>
+          <a-col :span="1.5">
+            <a-button status="warning" @click="handleExport" v-hasPermi="['system:user:export']" type="outline"><template #icon><Download /></template>导出</a-button>
+          </a-col>
           <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns" storageKey="system-user-columns"></right-toolbar>
-        </el-row>
+        </a-row>
 
         <div class="ui-table-card">
-        <el-table v-loading="loading" :data="userList" @selection-change="handleSelectionChange">
-          <el-table-column type="selection" width="50" align="center" />
-          <el-table-column label="用户编号" align="center" key="userId" prop="userId" v-if="columns.userId.visible" />
-          <el-table-column label="用户名称" align="center" key="userName" v-if="columns.userName.visible" :show-overflow-tooltip="true">
-            <template #default="scope">
-              <a class="link-type" style="cursor:pointer" @click="handleViewData(scope.row)">{{ scope.row.userName }}</a>
+        <a-table :loading="loading" :data="userList" :row-selection="{ type: 'checkbox', showCheckedAll: true }" :row-key="record => record.userId" :pagination="false" @selection-change="handleSelectionChange">
+          <a-table-column title="用户编号" align="center" key="userId" data-index="userId" v-if="columns.userId.visible" />
+          <a-table-column title="用户名称" align="center" key="userName" v-if="columns.userName.visible" ellipsis tooltip>
+            <template #cell="{ record, rowIndex }">
+              <a class="link-type" style="cursor:pointer" @click="handleViewData(record)">{{ record.userName }}</a>
             </template>
-         </el-table-column>
-          <el-table-column label="用户昵称" align="center" key="nickName" prop="nickName" v-if="columns.nickName.visible" :show-overflow-tooltip="true" />
-          <el-table-column label="部门" align="center" key="deptName" prop="dept.deptName" v-if="columns.deptName.visible" :show-overflow-tooltip="true" />
-          <el-table-column label="手机号码" align="center" key="phonenumber" prop="phonenumber" v-if="columns.phonenumber.visible" width="120" />
-          <el-table-column label="状态" align="center" key="status" v-if="columns.status.visible">
-            <template #default="scope">
-              <el-switch
-                v-model="scope.row.status"
-                active-value="0"
-                inactive-value="1"
-                @change="handleStatusChange(scope.row)"
-              ></el-switch>
+         </a-table-column>
+          <a-table-column title="用户昵称" align="center" key="nickName" data-index="nickName" v-if="columns.nickName.visible" ellipsis tooltip />
+          <a-table-column title="部门" align="center" key="deptName" data-index="dept.deptName" v-if="columns.deptName.visible" ellipsis tooltip />
+          <a-table-column title="手机号码" align="center" key="phonenumber" data-index="phonenumber" v-if="columns.phonenumber.visible" width="120" />
+          <a-table-column title="状态" align="center" key="status" v-if="columns.status.visible">
+            <template #cell="{ record, rowIndex }">
+              <a-switch
+                v-model="record.status"
+                checked-value="0"
+                unchecked-value="1"
+                @change="handleStatusChange(record)"
+              ></a-switch>
             </template>
-          </el-table-column>
-          <el-table-column label="创建时间" align="center" prop="createTime" v-if="columns.createTime.visible" width="160">
-            <template #default="scope">
-              <span>{{ parseTime(scope.row.createTime) }}</span>
+          </a-table-column>
+          <a-table-column title="创建时间" align="center" data-index="createTime" v-if="columns.createTime.visible" width="160">
+            <template #cell="{ record, rowIndex }">
+              <span>{{ parseTime(record.createTime) }}</span>
             </template>
-          </el-table-column>
-          <el-table-column label="操作" align="center" width="150" class-name="small-padding fixed-width">
-            <template #default="scope">
-              <el-tooltip content="修改" placement="top" v-if="scope.row.userId !== 1">
-                <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['system:user:edit']"></el-button>
-              </el-tooltip>
-              <el-tooltip content="删除" placement="top" v-if="scope.row.userId !== 1">
-                <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['system:user:remove']"></el-button>
-              </el-tooltip>
-              <el-tooltip content="重置密码" placement="top" v-if="scope.row.userId !== 1">
-                <el-button link type="primary" icon="Key" @click="handleResetPwd(scope.row)" v-hasPermi="['system:user:resetPwd']"></el-button>
-              </el-tooltip>
-              <el-tooltip content="分配角色" placement="top" v-if="scope.row.userId !== 1">
-                <el-button link type="primary" icon="CircleCheck" @click="handleAuthRole(scope.row)" v-hasPermi="['system:user:edit']"></el-button>
-              </el-tooltip>
+          </a-table-column>
+          <a-table-column title="操作" align="center" width="150" cell-class="small-padding fixed-width">
+            <template #cell="{ record, rowIndex }">
+              <a-tooltip content="修改" position="top" v-if="record.userId !== 1">
+                <a-button @click="handleUpdate(record)" v-hasPermi="['system:user:edit']"><template #icon><Edit /></template></a-button>
+              </a-tooltip>
+              <a-tooltip content="删除" position="top" v-if="record.userId !== 1">
+                <a-button @click="handleDelete(record)" v-hasPermi="['system:user:remove']"><template #icon><Delete /></template></a-button>
+              </a-tooltip>
+              <a-tooltip content="重置密码" position="top" v-if="record.userId !== 1">
+                <a-button @click="handleResetPwd(record)" v-hasPermi="['system:user:resetPwd']"><template #icon><Key /></template></a-button>
+              </a-tooltip>
+              <a-tooltip content="分配角色" position="top" v-if="record.userId !== 1">
+                <a-button @click="handleAuthRole(record)" v-hasPermi="['system:user:edit']"><template #icon><CircleCheck /></template></a-button>
+              </a-tooltip>
             </template>
-          </el-table-column>
-        </el-table>
+          </a-table-column>
+        </a-table>
         <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
         </div>
       </div>
     </div>
 
     <!-- 添加或修改用户配置对话框 -->
-    <el-dialog :title="title" v-model="open" width="600px" append-to-body>
-      <el-form :model="form" :rules="rules" ref="userRef" label-width="80px">
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="用户昵称" prop="nickName">
-              <el-input v-model="form.nickName" placeholder="请输入用户昵称" maxlength="30" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="归属部门" prop="deptId">
-              <el-tree-select v-model="form.deptId" :data="enabledDeptOptions" :props="{ value: 'id', label: 'label', children: 'children' }" value-key="id" placeholder="请选择归属部门" clearable check-strictly />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="手机号码" prop="phonenumber">
-              <el-input v-model="form.phonenumber" placeholder="请输入手机号码" maxlength="11" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="邮箱" prop="email">
-              <el-input v-model="form.email" placeholder="请输入邮箱" maxlength="50" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item v-if="form.userId == undefined" label="用户名称" prop="userName">
-              <el-input v-model="form.userName" placeholder="请输入用户名称" maxlength="30" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item v-if="form.userId == undefined" label="用户密码" prop="password" :rules="pwdValidator">
-              <el-input v-model="form.password" placeholder="请输入用户密码" type="password" maxlength="20" show-password />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="用户性别">
-              <el-select v-model="form.sex" placeholder="请选择">
-                <el-option v-for="dict in sys_user_sex" :key="dict.value" :label="dict.label" :value="dict.value"></el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="状态">
-              <el-radio-group v-model="form.status">
-                <el-radio v-for="dict in sys_normal_disable" :key="dict.value" :value="dict.value">{{ dict.label }}</el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="24">
-            <el-form-item label="角色">
-              <el-select v-model="form.roleIds" multiple placeholder="请选择">
-                <el-option v-for="item in roleOptions" :key="item.roleId" :label="item.roleName" :value="item.roleId" :disabled="item.status == 1"></el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="24">
-            <el-form-item label="备注">
-              <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
+    <a-modal :title="title" v-model:visible="open" width="600px" render-to-body>
+      <a-form :model="form" :rules="rules" ref="userRef" :label-col-props="{ flex: '80px' }">
+        <a-row>
+          <a-col :span="12">
+            <a-form-item label="用户昵称" field="nickName">
+              <a-input v-model="form.nickName" placeholder="请输入用户昵称" maxlength="30" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item label="归属部门" field="deptId">
+              <a-tree-select v-model="form.deptId" :data="enabledDeptOptions" :field-names="{ key: 'id', title: 'label', children: 'children' }" placeholder="请选择归属部门" allow-clear />
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row>
+          <a-col :span="12">
+            <a-form-item label="手机号码" field="phonenumber">
+              <a-input v-model="form.phonenumber" placeholder="请输入手机号码" maxlength="11" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item label="邮箱" field="email">
+              <a-input v-model="form.email" placeholder="请输入邮箱" maxlength="50" />
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row>
+          <a-col :span="12">
+            <a-form-item v-if="form.userId == undefined" label="用户名称" field="userName">
+              <a-input v-model="form.userName" placeholder="请输入用户名称" maxlength="30" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item v-if="form.userId == undefined" label="用户密码" field="password" :rules="pwdValidator">
+              <a-input-password v-model="form.password" placeholder="请输入用户密码" maxlength="20"  />
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row>
+          <a-col :span="12">
+            <a-form-item label="用户性别">
+              <a-select v-model="form.sex" placeholder="请选择">
+                <a-option v-for="dict in sys_user_sex" :key="dict.value" :label="dict.label" :value="dict.value"></a-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item label="状态">
+              <a-radio-group v-model="form.status">
+                <a-radio v-for="dict in sys_normal_disable" :key="dict.value" :value="dict.value">{{ dict.label }}</a-radio>
+              </a-radio-group>
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row>
+          <a-col :span="24">
+            <a-form-item label="角色">
+              <a-select v-model="form.roleIds" multiple placeholder="请选择">
+                <a-option v-for="item in roleOptions" :key="item.roleId" :label="item.roleName" :value="item.roleId" :disabled="item.status == 1"></a-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row>
+          <a-col :span="24">
+            <a-form-item label="备注">
+              <a-textarea v-model="form.remark" placeholder="请输入内容"></a-textarea>
+            </a-form-item>
+          </a-col>
+        </a-row>
+      </a-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button type="primary" @click="submitForm">确 定</el-button>
-          <el-button @click="cancel">取 消</el-button>
+          <a-button type="primary" @click="submitForm">确 定</a-button>
+          <a-button @click="cancel">取 消</a-button>
         </div>
       </template>
-    </el-dialog>
+    </a-modal>
 
     <!-- 用户详情抽屉 -->
     <user-view-drawer ref="userViewRef" />
@@ -353,10 +352,10 @@ function handleResetPwd(row) {
 }
 
 /** 选择条数  */
-function handleSelectionChange(selection) {
-  ids.value = selection.map(item => item.userId)
-  single.value = selection.length != 1
-  multiple.value = !selection.length
+function handleSelectionChange(selectedKeys) {
+  ids.value = selectedKeys
+  single.value = selectedKeys.length != 1
+  multiple.value = !selectedKeys.length
 }
 
 /** 详情按钮操作 */
@@ -420,8 +419,8 @@ function handleUpdate(row) {
 
 /** 提交按钮 */
 function submitForm() {
-  proxy.$refs["userRef"].validate(valid => {
-    if (valid) {
+  proxy.$refs["userRef"].validate(errors => {
+    if (!errors) {
       if (form.value.userId != undefined) {
         updateUser(form.value).then(() => {
           proxy.$modal.msgSuccess("修改成功")

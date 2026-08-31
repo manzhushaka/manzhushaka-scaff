@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
-    <el-row :gutter="12">
-      <el-col :span="24" class="card-box">
+    <a-row :gutter="12">
+      <a-col :span="24" class="card-box">
         <section class="ui-panel-card cache-panel">
           <div class="cache-panel__header">
             <Monitor class="cache-panel__icon" />
@@ -14,9 +14,9 @@
             </div>
           </div>
         </section>
-      </el-col>
+      </a-col>
 
-      <el-col :xs="24" :sm="24" :md="12" class="card-box">
+      <a-col :xs="24" :sm="24" :md="12" class="card-box">
         <section class="ui-panel-card cache-panel">
           <div class="cache-panel__header">
             <PieChart class="cache-panel__icon" />
@@ -24,9 +24,9 @@
           </div>
           <div ref="commandstats" class="cache-chart" />
         </section>
-      </el-col>
+      </a-col>
 
-      <el-col :xs="24" :sm="24" :md="12" class="card-box">
+      <a-col :xs="24" :sm="24" :md="12" class="card-box">
         <section class="ui-panel-card cache-panel">
           <div class="cache-panel__header">
             <Odometer class="cache-panel__icon" />
@@ -34,8 +34,8 @@
           </div>
           <div ref="usedmemory" class="cache-chart" />
         </section>
-      </el-col>
-    </el-row>
+      </a-col>
+    </a-row>
   </div>
 </template>
 

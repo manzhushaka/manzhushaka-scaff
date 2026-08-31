@@ -1,157 +1,162 @@
 <template>
   <div class="app-container">
-    <el-row :gutter="12" class="cache-list-grid">
-      <el-col :xs="24" :sm="24" :lg="8">
-        <el-card class="cache-list-card">
-          <template #header>
+    <a-row :gutter="12" class="cache-list-grid">
+      <a-col :xs="24" :sm="24" :lg="8">
+        <a-card class="cache-list-card">
+          <template #title>
             <div class="cache-list-card__header">
               <span><Collection class="cache-list-card__icon" />缓存列表</span>
-            <el-button
-              link
-              type="primary"
-              icon="Refresh"
+            <a-button
+
+
+
               @click="refreshCacheNames()"
-            ></el-button>
+            ><template #icon><Refresh /></template></a-button>
             </div>
           </template>
-          <el-table
-            v-loading="loading"
+          <a-table
+            :loading="loading"
             :data="cacheNames"
-            :height="tableHeight"
+            :row-key="record => record.cacheName"
+            :scroll="{ y: tableHeight }"
             highlight-current-row
             @row-click="getCacheKeys"
-          >
-            <el-table-column
-              label="序号"
+           :pagination="false">
+            <a-table-column
+              title="序号"
               width="60"
-              type="index"
-            ></el-table-column>
-
-            <el-table-column
-              label="缓存名称"
-              align="center"
-              prop="cacheName"
-              :show-overflow-tooltip="true"
-              :formatter="nameFormatter"
-            ></el-table-column>
-
-            <el-table-column
-              label="备注"
-              align="center"
-              prop="remark"
-              :show-overflow-tooltip="true"
-            />
-            <el-table-column
-              label="操作"
-              width="60"
-              align="center"
-              class-name="small-padding fixed-width"
             >
-              <template #default="scope">
-                <el-button
-                  link
-                  type="primary"
-                  icon="Delete"
-                  @click="handleClearCacheName(scope.row)"
-                ></el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-        </el-card>
-      </el-col>
+              <template #cell="{ rowIndex }">{{ rowIndex + 1 }}</template>
+            </a-table-column>
 
-      <el-col :xs="24" :sm="24" :lg="8">
-        <el-card class="cache-list-card">
-          <template #header>
+            <a-table-column
+              title="缓存名称"
+              align="center"
+              data-index="cacheName"
+              ellipsis
+             tooltip>
+              <template #cell="{ record }">{{ nameFormatter(record) }}</template>
+            </a-table-column>
+
+            <a-table-column
+              title="备注"
+              align="center"
+              data-index="remark"
+              ellipsis
+ tooltip />
+            <a-table-column
+              title="操作"
+              width="60"
+              align="center"
+              cell-class="small-padding fixed-width"
+            >
+              <template #cell="{ record, rowIndex }">
+                <a-button
+
+
+
+                  @click="handleClearCacheName(record)"
+                ><template #icon><Delete /></template></a-button>
+              </template>
+            </a-table-column>
+          </a-table>
+        </a-card>
+      </a-col>
+
+      <a-col :xs="24" :sm="24" :lg="8">
+        <a-card class="cache-list-card">
+          <template #title>
             <div class="cache-list-card__header">
               <span><Key class="cache-list-card__icon" />键名列表</span>
-            <el-button
-              link
-              type="primary"
-              icon="Refresh"
+            <a-button
+
+
+
               @click="refreshCacheKeys()"
-            ></el-button>
+            ><template #icon><Refresh /></template></a-button>
             </div>
           </template>
-          <el-table
-            v-loading="subLoading"
+          <a-table
+            :loading="subLoading"
             :data="cacheKeys"
-            :height="tableHeight"
+            :row-key="record => record"
+            :scroll="{ y: tableHeight }"
             highlight-current-row
             @row-click="handleCacheValue"
-          >
-            <el-table-column
-              label="序号"
+           :pagination="false">
+            <a-table-column
+              title="序号"
               width="60"
-              type="index"
-            ></el-table-column>
-            <el-table-column
-              label="缓存键名"
-              align="center"
-              :show-overflow-tooltip="true"
-              :formatter="keyFormatter"
             >
-            </el-table-column>
-            <el-table-column
-              label="操作"
+              <template #cell="{ rowIndex }">{{ rowIndex + 1 }}</template>
+            </a-table-column>
+            <a-table-column
+              title="缓存键名"
+              align="center"
+              ellipsis
+             tooltip>
+              <template #cell="{ record }">{{ keyFormatter(record) }}</template>
+            </a-table-column>
+            <a-table-column
+              title="操作"
               width="60"
               align="center"
-              class-name="small-padding fixed-width"
+              cell-class="small-padding fixed-width"
             >
-              <template #default="scope">
-                <el-button
-                  link
-                  type="primary"
-                  icon="Delete"
-                  @click="handleClearCacheKey(scope.row)"
-                ></el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-        </el-card>
-      </el-col>
+              <template #cell="{ record, rowIndex }">
+                <a-button
 
-      <el-col :xs="24" :sm="24" :lg="8">
-        <el-card class="cache-list-card">
-          <template #header>
+
+
+                  @click="handleClearCacheKey(record)"
+                ><template #icon><Delete /></template></a-button>
+              </template>
+            </a-table-column>
+          </a-table>
+        </a-card>
+      </a-col>
+
+      <a-col :xs="24" :sm="24" :lg="8">
+        <a-card class="cache-list-card">
+          <template #title>
             <div class="cache-list-card__header">
               <span><Document class="cache-list-card__icon" />缓存内容</span>
-            <el-button
-              link
-              type="primary"
-              icon="Refresh"
+            <a-button
+
+
+
               @click="handleClearCacheAll()"
-              >清理全部</el-button
+              ><template #icon><Refresh /></template>清理全部</a-button
             >
             </div>
           </template>
-          <el-form :model="cacheForm">
-            <el-row :gutter="32">
-              <el-col :offset="1" :span="22">
-                <el-form-item label="缓存名称:" prop="cacheName">
-                  <el-input v-model="cacheForm.cacheName" :readOnly="true" />
-                </el-form-item>
-              </el-col>
-              <el-col :offset="1" :span="22">
-                <el-form-item label="缓存键名:" prop="cacheKey">
-                  <el-input v-model="cacheForm.cacheKey" :readOnly="true" />
-                </el-form-item>
-              </el-col>
-              <el-col :offset="1" :span="22">
-                <el-form-item label="缓存内容:" prop="cacheValue">
-                  <el-input
+          <a-form :model="cacheForm">
+            <a-row :gutter="32">
+              <a-col :offset="1" :span="22">
+                <a-form-item label="缓存名称:" field="cacheName">
+                  <a-input v-model="cacheForm.cacheName" :readOnly="true" />
+                </a-form-item>
+              </a-col>
+              <a-col :offset="1" :span="22">
+                <a-form-item label="缓存键名:" field="cacheKey">
+                  <a-input v-model="cacheForm.cacheKey" :readOnly="true" />
+                </a-form-item>
+              </a-col>
+              <a-col :offset="1" :span="22">
+                <a-form-item label="缓存内容:" field="cacheValue">
+                  <a-textarea
                     v-model="cacheForm.cacheValue"
-                    type="textarea"
+
                     :rows="8"
                     :readOnly="true"
-                  />
-                </el-form-item>
-              </el-col>
-            </el-row>
-          </el-form>
-        </el-card>
-      </el-col>
-    </el-row>
+                   />
+                </a-form-item>
+              </a-col>
+            </a-row>
+          </a-form>
+        </a-card>
+      </a-col>
+    </a-row>
   </div>
 </template>
 
@@ -255,11 +260,11 @@ getCacheNames()
   height: calc(100vh - 126px);
   overflow: hidden;
 
-  :deep(.el-card__header) {
+  :deep(.arco-card-header) {
     padding: 0 !important;
   }
 
-  :deep(.el-card__body) {
+  :deep(.arco-card-body) {
     height: calc(100% - 45px);
     padding: 12px !important;
     overflow: auto;

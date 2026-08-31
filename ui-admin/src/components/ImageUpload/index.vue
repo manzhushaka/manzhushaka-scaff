@@ -1,28 +1,28 @@
 <template>
   <div class="component-upload-image">
-    <el-upload
+    <a-upload
       multiple
       :disabled="disabled"
       :action="uploadImgUrl"
       list-type="picture-card"
-      :on-success="handleUploadSuccess"
+      @success="handleUploadSuccess"
       :before-upload="handleBeforeUpload"
       :data="data"
       :limit="limit"
-      :on-error="handleUploadError"
-      :on-exceed="handleExceed"
+      @error="handleUploadError"
+      @exceed-limit="handleExceed"
       ref="imageUpload"
-      :before-remove="handleDelete"
+      :on-before-remove="handleDelete"
       :show-file-list="true"
       :headers="headers"
       :file-list="fileList"
-      :on-preview="handlePictureCardPreview"
+      @preview="handlePictureCardPreview"
       :class="{ hide: fileList.length >= limit }"
     >
-      <el-icon class="avatar-uploader-icon"><plus /></el-icon>
-    </el-upload>
+      <span class="avatar-uploader-icon"><plus /></span>
+    </a-upload>
     <!-- 上传提示 -->
-    <div class="el-upload__tip" v-if="showTip && !disabled">
+    <div class="upload-tip" v-if="showTip && !disabled">
       请上传
       <template v-if="fileSize">
         大小不超过 <b style="color: var(--ui-danger)">{{ fileSize }}MB</b>
@@ -33,17 +33,18 @@
       的文件
     </div>
 
-    <el-dialog
-      v-model="dialogVisible"
+    <a-modal
+      v-model:visible="dialogVisible"
       title="预览"
       width="800px"
-      append-to-body
+      render-to-body
+      :footer="false"
     >
       <img
         :src="dialogImageUrl"
         style="display: block; max-width: 100%; margin: 0 auto"
       />
-    </el-dialog>
+    </a-modal>
   </div>
 </template>
 
@@ -114,7 +115,7 @@ watch(() => props.modelValue, val => {
     // 首先将值转为数组
     const list = Array.isArray(val) ? val : props.modelValue.split(",")
     // 然后将数组转为对象数组
-    fileList.value = list.map(item => {
+    fileList.value = list.map((item, index) => {
       if (typeof item === "string") {
         if (item.indexOf(baseUrl) === -1 && !isExternal(item)) {
           item = { name: baseUrl + item, url: baseUrl + item }
@@ -122,6 +123,7 @@ watch(() => props.modelValue, val => {
           item = { name: item, url: item }
         }
       }
+      item.uid = String(item.uid || `${Date.now()}-${index}`)
       return item
     })
   } else {
@@ -163,6 +165,7 @@ function handleBeforeUpload(file) {
   }
   proxy.$modal.loading("正在上传图片，请稍候...")
   number.value++
+  return true
 }
 
 // 文件个数超出
@@ -171,7 +174,8 @@ function handleExceed() {
 }
 
 // 上传成功回调
-function handleUploadSuccess(res, file) {
+function handleUploadSuccess(file) {
+  const res = file.response
   if (res.code === 200) {
     uploadList.value.push({ name: res.fileName, url: res.fileName })
     uploadedSuccessfully()
@@ -179,7 +183,6 @@ function handleUploadSuccess(res, file) {
     number.value--
     proxy.$modal.closeLoading()
     proxy.$modal.msgError(res.msg)
-    proxy.$refs.imageUpload.handleRemove(file)
     uploadedSuccessfully()
   }
 }
@@ -190,8 +193,8 @@ function handleDelete(file) {
   if (findex > -1 && uploadList.value.length === number.value) {
     fileList.value.splice(findex, 1)
     emit("update:modelValue", listToString(fileList.value))
-    return false
   }
+  return Promise.resolve(true)
 }
 
 // 上传结束处理
@@ -233,7 +236,8 @@ function listToString(list, separator) {
 onMounted(() => {
   if (props.drag && !props.disabled) {
     nextTick(() => {
-      const element = proxy.$refs.imageUpload?.$el?.querySelector('.el-upload-list')
+      const element = proxy.$refs.imageUpload?.$el?.querySelector('.arco-upload-list')
+      if (!element) return
       Sortable.create(element, {
         onEnd: (evt) => {
           const movedItem = fileList.value.splice(evt.oldIndex, 1)[0]
@@ -247,12 +251,11 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-// .el-upload--picture-card 控制加号部分
-:deep(.hide .el-upload--picture-card) {
+:deep(.hide .arco-upload-picture-card) {
     display: none;
 }
 
-:deep(.el-upload.el-upload--picture-card.is-disabled) {
+:deep(.arco-upload-disabled .arco-upload-picture-card) {
   display: none !important;
-} 
+}
 </style>

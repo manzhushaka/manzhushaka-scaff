@@ -1,48 +1,55 @@
 <template>
    <!-- 授权用户 -->
-   <el-dialog title="选择用户" v-model="visible" width="800px" top="5vh" append-to-body>
-      <el-form :model="queryParams" ref="queryRef" :inline="true" class="ui-filter-card">
-         <el-form-item label="用户名称" prop="userName">
-            <el-input
+   <a-modal title="选择用户" v-model:visible="visible" width="800px" top="5vh" render-to-body>
+      <a-form :model="queryParams" ref="queryRef" layout="inline" class="ui-filter-card">
+         <a-form-item label="用户名称" field="userName">
+            <a-input
                v-model="queryParams.userName"
                placeholder="请输入用户名称"
-               clearable
+               allow-clear
                style="width: 180px"
                @keyup.enter="handleQuery"
             />
-         </el-form-item>
-         <el-form-item label="手机号码" prop="phonenumber">
-            <el-input
+         </a-form-item>
+         <a-form-item label="手机号码" field="phonenumber">
+            <a-input
                v-model="queryParams.phonenumber"
                placeholder="请输入手机号码"
-               clearable
+               allow-clear
                style="width: 180px"
                @keyup.enter="handleQuery"
             />
-         </el-form-item>
-         <el-form-item>
-            <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-            <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-         </el-form-item>
-      </el-form>
+         </a-form-item>
+         <a-form-item>
+            <a-button type="primary" @click="handleQuery"><template #icon><Search /></template>搜索</a-button>
+            <a-button @click="resetQuery"><template #icon><Refresh /></template>重置</a-button>
+         </a-form-item>
+      </a-form>
       <div class="ui-table-card" style="margin-bottom: 12px;">
-         <el-table @row-click="clickRow" ref="refTable" :data="userList" @selection-change="handleSelectionChange" height="260px">
-            <el-table-column type="selection" width="55"></el-table-column>
-            <el-table-column label="用户名称" prop="userName" :show-overflow-tooltip="true" />
-            <el-table-column label="用户昵称" prop="nickName" :show-overflow-tooltip="true" />
-            <el-table-column label="邮箱" prop="email" :show-overflow-tooltip="true" />
-            <el-table-column label="手机" prop="phonenumber" :show-overflow-tooltip="true" />
-            <el-table-column label="状态" align="center" prop="status">
-               <template #default="scope">
-                  <dict-tag :options="sys_normal_disable" :value="scope.row.status" />
+         <a-table
+            ref="refTable"
+            v-model:selected-keys="userIds"
+            :data="userList"
+            :row-key="record => record.userId" :pagination="false"
+            :row-selection="{ type: 'checkbox', showCheckedAll: true }"
+            :scroll="{ y: 260 }"
+            @row-click="clickRow"
+         >
+            <a-table-column title="用户名称" data-index="userName" ellipsis tooltip />
+            <a-table-column title="用户昵称" data-index="nickName" ellipsis tooltip />
+            <a-table-column title="邮箱" data-index="email" ellipsis tooltip />
+            <a-table-column title="手机" data-index="phonenumber" ellipsis tooltip />
+            <a-table-column title="状态" align="center" data-index="status">
+               <template #cell="{ record, rowIndex }">
+                  <dict-tag :options="sys_normal_disable" :value="record.status" />
                </template>
-            </el-table-column>
-            <el-table-column label="创建时间" align="center" prop="createTime" width="180">
-               <template #default="scope">
-                  <span>{{ parseTime(scope.row.createTime) }}</span>
+            </a-table-column>
+            <a-table-column title="创建时间" align="center" data-index="createTime" width="180">
+               <template #cell="{ record, rowIndex }">
+                  <span>{{ parseTime(record.createTime) }}</span>
                </template>
-            </el-table-column>
-         </el-table>
+            </a-table-column>
+         </a-table>
          <pagination
             v-show="total > 0"
             :total="total"
@@ -53,11 +60,11 @@
      </div>
       <template #footer>
          <div class="dialog-footer">
-            <el-button type="primary" @click="handleSelectUser">确 定</el-button>
-            <el-button @click="visible = false">取 消</el-button>
+            <a-button type="primary" @click="handleSelectUser">确 定</a-button>
+            <a-button @click="visible = false">取 消</a-button>
          </div>
       </template>
-   </el-dialog>
+   </a-modal>
 </template>
 
 <script setup name="SelectUser">
@@ -94,12 +101,7 @@ function show() {
 
 /**选择行 */
 function clickRow(row) {
-  proxy.$refs["refTable"].toggleRowSelection(row)
-}
-
-// 多选框选中数据
-function handleSelectionChange(selection) {
-  userIds.value = selection.map(item => item.userId)
+  proxy.$refs["refTable"].select(row.userId, !userIds.value.includes(row.userId))
 }
 
 // 查询表数据

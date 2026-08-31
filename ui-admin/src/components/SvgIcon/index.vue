@@ -35,7 +35,6 @@ export default defineComponent({
 </script>
 
 <style scope lang="scss">
-.sub-el-icon,
 .nav-icon {
   display: inline-block;
   font-size: 15px;

@@ -8,14 +8,13 @@
           :index="index"
           :class="item.elTagClass"
         >{{ item.label + " " }}</span>
-        <el-tag
+        <a-tag
           v-else
-          :disable-transitions="true"
           :key="item.value + ''"
           :index="index"
-          :type="item.elTagType"
+          :color="getTagColor(item.elTagType)"
           :class="item.elTagClass"
-        >{{ item.label + " " }}</el-tag>
+        >{{ item.label + " " }}</a-tag>
       </template>
     </template>
     <template v-if="unmatch && showValue">
@@ -78,10 +77,20 @@ function handleArray(array) {
 function isValueMatch(itemValue) {
   return values.value.some(val => val == itemValue)
 }
+
+function getTagColor(type) {
+  return {
+    primary: 'arcoblue',
+    success: 'green',
+    warning: 'orange',
+    danger: 'red',
+    info: 'gray'
+  }[type]
+}
 </script>
 
 <style scoped>
-.el-tag + .el-tag {
+.arco-tag + .arco-tag {
   margin-left: 10px;
 }
 </style>

@@ -45,7 +45,7 @@
           :model="loginForm"
           :rules="loginRules"
           class="login-panel__form"
-          label-position="top"
+          layout="vertical"
           size="large"
           :aria-busy="loading"
           @submit="handleLogin"

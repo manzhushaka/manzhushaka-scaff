@@ -1,9 +1,9 @@
 <template>
   <div class="user-info-head" @click="editCropper()">
     <img :src="options.img" title="点击上传头像" class="img-circle img-lg" />
-    <el-dialog :title="title" v-model="open" width="800px" append-to-body @opened="modalOpened" @close="closeDialog">
-      <el-row>
-        <el-col :xs="24" :md="12" :style="{ height: '350px' }">
+    <a-modal :title="title" v-model:visible="open" width="800px" render-to-body :footer="false" @open="modalOpened" @close="closeDialog">
+      <a-row>
+        <a-col :xs="24" :md="12" :style="{ height: '350px' }">
           <vue-cropper
             ref="cropper"
             :img="options.img"
@@ -16,45 +16,45 @@
             @realTime="realTime"
             v-if="visible"
           />
-        </el-col>
-        <el-col :xs="24" :md="12" :style="{ height: '350px' }">
+        </a-col>
+        <a-col :xs="24" :md="12" :style="{ height: '350px' }">
           <div class="avatar-upload-preview">
             <img :src="options.previews.url" :style="options.previews.img" />
           </div>
-        </el-col>
-      </el-row>
+        </a-col>
+      </a-row>
       <br />
-      <el-row>
-        <el-col :lg="2" :md="2">
-          <el-upload
-            action="#"
-            :http-request="requestUpload"
+      <a-row>
+        <a-col :lg="2" :md="2">
+          <a-upload
+            :auto-upload="false"
             :show-file-list="false"
             :before-upload="beforeUpload"
+            @change="handleAvatarChange"
           >
-            <el-button>
+            <a-button>
               选择
-              <el-icon class="el-icon--right"><Upload /></el-icon>
-            </el-button>
-          </el-upload>
-        </el-col>
-        <el-col :lg="{ span: 1, offset: 2 }" :md="2">
-          <el-button icon="Plus" @click="changeScale(1)"></el-button>
-        </el-col>
-        <el-col :lg="{ span: 1, offset: 1 }" :md="2">
-          <el-button icon="Minus" @click="changeScale(-1)"></el-button>
-        </el-col>
-        <el-col :lg="{ span: 1, offset: 1 }" :md="2">
-          <el-button icon="RefreshLeft" @click="rotateLeft()"></el-button>
-        </el-col>
-        <el-col :lg="{ span: 1, offset: 1 }" :md="2">
-          <el-button icon="RefreshRight" @click="rotateRight()"></el-button>
-        </el-col>
-        <el-col :lg="{ span: 2, offset: 6 }" :md="2">
-          <el-button type="primary" @click="uploadImg()">提 交</el-button>
-        </el-col>
-      </el-row>
-    </el-dialog>
+              <span class="button-icon-right"><Upload /></span>
+            </a-button>
+          </a-upload>
+        </a-col>
+        <a-col :lg="{ span: 1, offset: 2 }" :md="2">
+          <a-button @click="changeScale(1)"><template #icon><Plus /></template></a-button>
+        </a-col>
+        <a-col :lg="{ span: 1, offset: 1 }" :md="2">
+          <a-button @click="changeScale(-1)"><template #icon><Minus /></template></a-button>
+        </a-col>
+        <a-col :lg="{ span: 1, offset: 1 }" :md="2">
+          <a-button @click="rotateLeft()"><template #icon><RefreshLeft /></template></a-button>
+        </a-col>
+        <a-col :lg="{ span: 1, offset: 1 }" :md="2">
+          <a-button @click="rotateRight()"><template #icon><RefreshRight /></template></a-button>
+        </a-col>
+        <a-col :lg="{ span: 2, offset: 6 }" :md="2">
+          <a-button type="primary" @click="uploadImg()">提 交</a-button>
+        </a-col>
+      </a-row>
+    </a-modal>
   </div>
 </template>
 
@@ -93,9 +93,6 @@ function modalOpened() {
   visible.value = true
 }
 
-/** 覆盖默认上传行为 */
-function requestUpload() {}
-
 /** 向左旋转 */
 function rotateLeft() {
   proxy.$refs.cropper.rotateLeft()
@@ -116,13 +113,19 @@ function changeScale(num) {
 function beforeUpload(file) {
   if (file.type.indexOf("image/") == -1) {
     proxy.$modal.msgError("文件格式错误，请上传图片类型,如：JPG，PNG后缀的文件。")
-  } else {
-    const reader = new FileReader()
-    reader.readAsDataURL(file)
-    reader.onload = () => {
-      options.img = reader.result
-      options.filename = file.name
-    }
+    return false
+  }
+  return true
+}
+
+function handleAvatarChange(fileList, fileItem) {
+  const file = fileItem?.file
+  if (!file) return
+  const reader = new FileReader()
+  reader.readAsDataURL(file)
+  reader.onload = () => {
+    options.img = reader.result
+    options.filename = file.name
   }
 }
 
