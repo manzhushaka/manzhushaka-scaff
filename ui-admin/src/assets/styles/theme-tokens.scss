@@ -6,10 +6,10 @@
 // 1. 全局基础变量（:root）
 // ------------------------------------------------------------
 :root {
-  --ui-layout-sidebar-width: 224px;
+  --ui-layout-sidebar-width: 232px;
   --ui-layout-sidebar-collapse-width: 64px;
-  --ui-layout-topbar-height: 52px;
-  --ui-layout-tags-height: 42px;
+  --ui-layout-topbar-height: 72px;
+  --ui-layout-tags-height: 44px;
   --ui-layout-content-padding: 18px;
 
   --ui-font-family: "IBM Plex Sans", "Noto Sans SC", "PingFang SC", system-ui, sans-serif;
@@ -33,7 +33,7 @@
 
   --ui-transition-fast: 160ms ease;
   --ui-transition-normal: 240ms ease;
-  --ui-focus-ring: 0 0 0 3px rgba(255, 106, 42, 0.18);
+  --ui-focus-ring: 0 0 0 3px color-mix(in srgb, var(--ui-primary) 18%, transparent);
 }
 
 // 根节点基础文本和背景
@@ -46,17 +46,18 @@
 // 2. 唯一主题 token
 // ------------------------------------------------------------
 
-// VibeHub 管理后台主题—— 浅灰画布 + 黑褐侧栏 + 明亮橙色信号
+// Arco 橙白主题—— 暖白画布 + 白色导航 + 橙色主信号
+[data-ui-theme='arco-orange'],
 [data-ui-theme='vibehub-admin'] {
-  --ui-bg-page: #f6f5f2;
-  --ui-bg-content: #f7f5f2;
+  --ui-bg-page: #f4f5f7;
+  --ui-bg-content: #f4f5f7;
   --ui-bg-panel: #ffffff;
   --ui-bg-panel-soft: #fbfaf8;
   --ui-bg-panel-muted: #faf9f7;
-  --ui-bg-sidebar: #191612;
-  --ui-bg-sidebar-deep: #211e19;
-  --ui-bg-topbar: #fbfaf8;
-  --ui-bg-tags: #fbfaf8;
+  --ui-bg-sidebar: #ffffff;
+  --ui-bg-sidebar-deep: #ffffff;
+  --ui-bg-topbar: #ffffff;
+  --ui-bg-tags: #ffffff;
   --ui-bg-hover: #f1efeb;
   --ui-bg-selected: #fff0e8;
 
@@ -65,13 +66,14 @@
   --ui-text-secondary: #5c564c;
   --ui-text-muted: #8a8377;
   --ui-text-inverse: #ffffff;
-  --ui-sidebar-text: #aaa7a2;
-  --ui-sidebar-text-hover: #ffffff;
-  --ui-sidebar-text-active: #ff7a3d;
-  --ui-sidebar-item-hover-bg: #302c26;
-  --ui-sidebar-item-active-bg: #38271d;
+  --ui-sidebar-text: #5c6470;
+  --ui-sidebar-text-hover: #16130f;
+  --ui-sidebar-text-active: #f76823;
+  --ui-sidebar-item-hover-bg: #f5f3f0;
+  --ui-sidebar-item-active-bg: #fff0e8;
   --ui-sidebar-item-active-border: #ff6a2a;
-  --ui-sidebar-border: #302c27;
+  --ui-sidebar-border: #e5e7eb;
+  --ui-sidebar-tree-line: #e2e4e8;
 
   --ui-border: #dfdcd5;
   --ui-border-subtle: #ebe8e2;
@@ -103,7 +105,7 @@
   --ui-shadow-panel: 0 2px 8px rgba(22, 19, 15, 0.06);
   --ui-shadow-panel-hover: 0 10px 28px rgba(22, 19, 15, 0.10);
   --ui-shadow-popover: 0 18px 44px rgba(22, 19, 15, 0.14);
-  --ui-shadow-sidebar: 1px 0 0 rgba(22, 19, 15, 0.18);
+  --ui-shadow-sidebar: none;
   --ui-shadow-subtle: 0 1px 2px rgba(22, 19, 15, 0.04);
 
   --ui-hero-bg: #16130f;
@@ -126,8 +128,137 @@
   --ui-tree-current-bg-static: rgba(255, 106, 42, 0.10);
 }
 
+// Arco 紫白主题—— 冷白画布 + 白色导航 + 紫色主信号
+[data-ui-theme='arco-purple'] {
+  --ui-bg-page: #f4f5f8;
+  --ui-bg-content: #f4f5f8;
+  --ui-bg-panel: #ffffff;
+  --ui-bg-panel-soft: #faf9fd;
+  --ui-bg-panel-muted: #f8f7fb;
+  --ui-bg-sidebar: #ffffff;
+  --ui-bg-sidebar-deep: #ffffff;
+  --ui-bg-topbar: #ffffff;
+  --ui-bg-tags: #ffffff;
+  --ui-bg-hover: #f2eff8;
+  --ui-bg-selected: #f3ebff;
+
+  --ui-text-primary: #1d1a22;
+  --ui-text-regular: #47414f;
+  --ui-text-secondary: #655e6e;
+  --ui-text-muted: #91899a;
+  --ui-text-inverse: #ffffff;
+  --ui-sidebar-text: #615b69;
+  --ui-sidebar-text-hover: #1d1a22;
+  --ui-sidebar-text-active: #722ed1;
+  --ui-sidebar-item-hover-bg: #f4f2f7;
+  --ui-sidebar-item-active-bg: #f3ebff;
+  --ui-sidebar-item-active-border: #722ed1;
+  --ui-sidebar-border: #e4e1e8;
+  --ui-sidebar-tree-line: #e3dfe8;
+
+  --ui-border: #dfdbe5;
+  --ui-border-subtle: #ebe8ef;
+  --ui-border-strong: #b6afbf;
+  --ui-border-control: #c9c3d0;
+  --ui-border-control-hover: #9d94a8;
+  --ui-border-focus: var(--ui-primary);
+  --ui-divider: rgba(29, 26, 34, 0.10);
+  --ui-overlay-backdrop: rgba(29, 26, 34, 0.30);
+
+  --ui-primary: #722ed1;
+  --ui-primary-hover: #8348d9;
+  --ui-primary-active: #5f25b5;
+  --ui-primary-deep: #4b1d91;
+  --ui-primary-soft: #f3ebff;
+  --ui-accent: #f76823;
+
+  --ui-success: #00a870;
+  --ui-warning: #d46b08;
+  --ui-danger: #d4380d;
+  --ui-info: #165dff;
+
+  --ui-chart-1: #722ed1;
+  --ui-chart-2: #f76823;
+  --ui-chart-3: #00a870;
+  --ui-chart-4: #165dff;
+  --ui-chart-5: #d46b08;
+
+  --ui-shadow-panel: 0 2px 8px rgba(29, 26, 34, 0.06);
+  --ui-shadow-panel-hover: 0 10px 28px rgba(29, 26, 34, 0.10);
+  --ui-shadow-popover: 0 18px 44px rgba(29, 26, 34, 0.14);
+  --ui-shadow-sidebar: none;
+  --ui-shadow-subtle: 0 1px 2px rgba(29, 26, 34, 0.04);
+
+  --ui-hero-bg: #1d1a22;
+  --ui-hero-text: #ffffff;
+  --ui-hero-text-muted: rgba(255, 255, 255, 0.74);
+  --ui-hero-action-bg: rgba(255, 255, 255, 0.15);
+  --ui-hero-action-border: rgba(255, 255, 255, 0.24);
+
+  --ui-table-header-bg: #f8f7fb;
+  --ui-table-row-hover-bg: #faf8fd;
+  --ui-table-border: #e1dde7;
+
+  --ui-primary-light-3-static: #9d68e2;
+  --ui-primary-light-5-static: #b994ea;
+  --ui-primary-light-7-static: #dbc7f5;
+  --ui-border-lighter-static: #ebe8ef;
+  --ui-tag-bg-static: rgba(0, 168, 112, 0.12);
+  --ui-tag-border-static: rgba(0, 168, 112, 0.28);
+  --ui-tree-current-bg-static: rgba(114, 46, 209, 0.10);
+}
+
 // ------------------------------------------------------------
-// 3. Element Plus 变量映射
+// 3. Arco Design 变量映射
+// ------------------------------------------------------------
+[data-ui-theme='arco-orange'],
+[data-ui-theme='vibehub-admin'] {
+  --primary-1: 255, 247, 232;
+  --primary-2: 255, 236, 204;
+  --primary-3: 255, 217, 166;
+  --primary-4: 255, 190, 117;
+  --primary-5: 255, 145, 63;
+  --primary-6: 247, 104, 35;
+  --primary-7: 205, 76, 15;
+  --primary-8: 160, 55, 9;
+  --primary-9: 116, 38, 5;
+  --primary-10: 72, 22, 2;
+}
+
+[data-ui-theme='arco-purple'] {
+  --primary-1: 248, 245, 255;
+  --primary-2: 239, 232, 255;
+  --primary-3: 220, 204, 255;
+  --primary-4: 193, 166, 255;
+  --primary-5: 157, 116, 255;
+  --primary-6: 114, 46, 209;
+  --primary-7: 95, 37, 181;
+  --primary-8: 75, 29, 145;
+  --primary-9: 57, 22, 111;
+  --primary-10: 39, 14, 77;
+}
+
+[data-ui-theme] {
+  --color-bg-1: var(--ui-bg-panel);
+  --color-bg-2: var(--ui-bg-panel-soft);
+  --color-bg-3: var(--ui-bg-panel-muted);
+  --color-fill-1: var(--ui-bg-panel-soft);
+  --color-fill-2: var(--ui-bg-hover);
+  --color-fill-3: var(--ui-bg-selected);
+  --color-text-1: var(--ui-text-primary);
+  --color-text-2: var(--ui-text-regular);
+  --color-text-3: var(--ui-text-secondary);
+  --color-text-4: var(--ui-text-muted);
+  --color-border: var(--ui-border);
+  --color-border-2: var(--ui-border-control);
+  --border-radius-small: 4px;
+  --border-radius-medium: 6px;
+  --border-radius-large: 8px;
+  --border-radius-circle: 50%;
+}
+
+// ------------------------------------------------------------
+// 4. Element Plus 迁移期变量映射
 // ------------------------------------------------------------
 [data-ui-theme] {
   --el-color-primary: var(--ui-primary);
@@ -171,7 +302,7 @@
 }
 
 // ------------------------------------------------------------
-// 4. 公共样式类
+// 5. 公共样式类
 // ------------------------------------------------------------
 .app-container {
   min-height: 100%;
@@ -273,10 +404,35 @@
   margin-bottom: 8px;
 }
 
+.ui-filter-card .arco-form-item {
+  margin-right: 12px;
+  margin-bottom: 8px;
+}
+
 .ui-filter-card .el-form-item__label,
 .ui-filter-card .el-form-item__content {
   min-height: var(--ui-form-control-height);
   line-height: var(--ui-form-control-height);
+}
+
+.ui-filter-card .arco-form-item-label-col,
+.ui-filter-card .arco-form-item-content-wrapper {
+  min-height: var(--ui-form-control-height);
+}
+
+.ui-table-card .arco-table {
+  border-radius: var(--ui-radius-panel);
+}
+
+.ui-table-card .arco-table-th {
+  color: var(--ui-text-secondary);
+  font-weight: 600;
+  background: var(--ui-table-header-bg);
+}
+
+.ui-table-card .arco-table-td {
+  color: var(--ui-text-regular);
+  border-bottom-color: var(--ui-table-border);
 }
 
 .ui-filter-card .el-form-item__label {

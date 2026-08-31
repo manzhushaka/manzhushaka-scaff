@@ -1,20 +1,23 @@
 <template>
   <div :class="{ 'hidden': hidden }" class="pagination-container">
-    <el-pagination
-      :background="background"
-      v-model:current-page="currentPage"
+    <a-pagination
+      v-model:current="currentPage"
       v-model:page-size="pageSize"
-      :layout="layout"
-      :page-sizes="pageSizes"
-      :pager-count="pagerCount"
+      :page-size-options="pageSizes"
       :total="total"
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
+      :show-total="showTotal"
+      :show-page-size="showPageSize"
+      :show-jumper="showJumper"
+      :simple="isMobile"
+      size="small"
+      @page-size-change="handleSizeChange"
+      @change="handleCurrentChange"
     />
   </div>
 </template>
 
 <script setup>
+import { useWindowSize } from '@vueuse/core'
 import { scrollTo } from '@/utils/scroll-to'
 
 const props = defineProps({
@@ -60,6 +63,11 @@ const props = defineProps({
 })
 
 const emit = defineEmits()
+const { width } = useWindowSize()
+const isMobile = computed(() => width.value < 640)
+const showTotal = computed(() => props.layout.includes('total'))
+const showPageSize = computed(() => props.layout.includes('sizes'))
+const showJumper = computed(() => props.layout.includes('jumper'))
 const currentPage = computed({
   get() {
     return props.page

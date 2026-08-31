@@ -1,5 +1,5 @@
 <template>
-  <main class="login" data-ui-theme="vibehub-admin">
+  <main class="login">
     <section class="login-intro" aria-labelledby="login-slogan">
       <div class="login-intro__content">
         <div class="login-brand">
@@ -40,7 +40,7 @@
         <h2 id="login-heading" class="login-panel__title">登录管理后台</h2>
         <p class="login-panel__description">使用系统账号继续访问管理工作区。</p>
 
-        <el-form
+        <a-form
           ref="loginRef"
           :model="loginForm"
           :rules="loginRules"
@@ -48,10 +48,10 @@
           label-position="top"
           size="large"
           :aria-busy="loading"
-          @submit.prevent="handleLogin"
+          @submit="handleLogin"
         >
-          <el-form-item label="账号" prop="username">
-            <el-input
+          <a-form-item label="账号" field="username">
+            <a-input
               v-model="loginForm.username"
               type="text"
               autocomplete="username"
@@ -59,13 +59,13 @@
               :disabled="loading"
             >
               <template #prefix>
-                <svg-icon icon-class="user" class="el-input__icon input-icon" />
+                <svg-icon icon-class="user" class="input-icon" />
               </template>
-            </el-input>
-          </el-form-item>
+            </a-input>
+          </a-form-item>
 
-          <el-form-item label="密码" prop="password">
-            <el-input
+          <a-form-item label="密码" field="password">
+            <a-input
               v-model="loginForm.password"
               :type="passwordVisible ? 'text' : 'password'"
               autocomplete="current-password"
@@ -73,7 +73,7 @@
               :disabled="loading"
             >
               <template #prefix>
-                <svg-icon icon-class="password" class="el-input__icon input-icon" />
+                <svg-icon icon-class="password" class="input-icon" />
               </template>
               <template #suffix>
                 <button
@@ -83,46 +83,46 @@
                   :disabled="loading"
                   @click="passwordVisible = !passwordVisible"
                 >
-                  <el-icon><Hide v-if="passwordVisible" /><View v-else /></el-icon>
+                  <icon-eye-invisible v-if="passwordVisible" /><icon-eye v-else />
                 </button>
               </template>
-            </el-input>
-          </el-form-item>
+            </a-input>
+          </a-form-item>
 
-          <el-form-item v-if="captchaEnabled" label="验证码" prop="code">
+          <a-form-item v-if="captchaEnabled" label="验证码" field="code">
             <div class="login-code-row">
-              <el-input
+              <a-input
                 v-model="loginForm.code"
                 autocomplete="off"
                 placeholder="请输入验证码"
                 :disabled="loading"
               >
                 <template #prefix>
-                  <svg-icon icon-class="validCode" class="el-input__icon input-icon" />
+                  <svg-icon icon-class="validCode" class="input-icon" />
                 </template>
-              </el-input>
+              </a-input>
               <button class="login-code" type="button" aria-label="刷新验证码" :disabled="loading" @click="getCode">
                 <img :src="codeUrl" class="login-code__image" alt="验证码" />
               </button>
             </div>
-          </el-form-item>
+          </a-form-item>
 
           <div class="login-options">
-            <el-checkbox v-model="loginForm.rememberMe" :disabled="loading">记住账号</el-checkbox>
+            <a-checkbox v-model="loginForm.rememberMe" :disabled="loading">记住账号</a-checkbox>
             <router-link v-if="register" class="login-register-link" :to="'/register'">立即注册</router-link>
           </div>
 
-          <el-button
+          <a-button
             :loading="loading"
             type="primary"
             size="large"
             class="login-submit"
-            native-type="submit"
+            html-type="submit"
           >
             <span v-if="!loading">登 录</span>
             <span v-else>登 录 中...</span>
-          </el-button>
-        </el-form>
+          </a-button>
+        </a-form>
       </div>
 
       <div class="login-footer"><span>{{ footerContent }}</span></div>
@@ -131,12 +131,12 @@
 </template>
 
 <script setup>
+import { IconEye, IconEyeInvisible } from '@arco-design/web-vue/es/icon'
 import { getCodeImg } from "@/api/login"
 import Cookies from "js-cookie"
 import useUserStore from '@/store/modules/user'
 import defaultSettings from '@/settings'
 import brandLogo from '@/assets/logo/logo.png'
-import { Hide, View } from '@element-plus/icons-vue'
 
 const footerContent = defaultSettings.footerContent
 const userStore = useUserStore()
@@ -180,36 +180,34 @@ watch(route, (newRoute) => {
     redirect.value = newRoute.query && newRoute.query.redirect
 }, { immediate: true })
 
-function handleLogin() {
-  proxy.$refs.loginRef.validate(valid => {
-    if (valid) {
-      loading.value = true
-      // 仅记住账号，密码不落浏览器存储
-      if (loginForm.value.rememberMe) {
-        Cookies.set("username", loginForm.value.username, { expires: 30 })
-        Cookies.set("rememberMe", "true", { expires: 30 })
-      } else {
-        Cookies.remove("username")
-        Cookies.remove("rememberMe")
+async function handleLogin() {
+  const errors = await proxy.$refs.loginRef.validate()
+  if (errors) {
+    return
+  }
+  loading.value = true
+  // 仅记住账号，密码不落浏览器存储
+  if (loginForm.value.rememberMe) {
+    Cookies.set("username", loginForm.value.username, { expires: 30 })
+    Cookies.set("rememberMe", "true", { expires: 30 })
+  } else {
+    Cookies.remove("username")
+    Cookies.remove("rememberMe")
+  }
+  Cookies.remove("password")
+  userStore.login(loginForm.value).then(() => {
+    const query = route.query
+    const otherQueryParams = Object.keys(query).reduce((acc, cur) => {
+      if (cur !== "redirect") {
+        acc[cur] = query[cur]
       }
-      Cookies.remove("password")
-      // 调用action的登录方法
-      userStore.login(loginForm.value).then(() => {
-        const query = route.query
-        const otherQueryParams = Object.keys(query).reduce((acc, cur) => {
-          if (cur !== "redirect") {
-            acc[cur] = query[cur]
-          }
-          return acc
-        }, {})
-        router.push({ path: redirect.value || "/", query: otherQueryParams })
-      }).catch(() => {
-        loading.value = false
-        // 重新获取验证码
-        if (captchaEnabled.value) {
-          getCode()
-        }
-      })
+      return acc
+    }, {})
+    router.push({ path: redirect.value || "/", query: otherQueryParams })
+  }).catch(() => {
+    loading.value = false
+    if (captchaEnabled.value) {
+      getCode()
     }
   })
 }
@@ -484,11 +482,11 @@ getCookie()
 .login-panel__form {
   margin-top: 28px;
 
-  .el-form-item {
+  .arco-form-item {
     margin-bottom: 20px;
   }
 
-  :deep(.el-form-item__label) {
+  :deep(.arco-form-item-label-col > label) {
     height: auto;
     margin-bottom: 8px;
     color: var(--ui-text-primary);
@@ -497,7 +495,7 @@ getCookie()
     line-height: 20px;
   }
 
-  :deep(.el-input__wrapper) {
+  :deep(.arco-input-wrapper) {
     min-height: 48px;
     padding: 0 16px;
     border: 1px solid var(--ui-border-strong);
@@ -510,13 +508,13 @@ getCookie()
       border-color: var(--ui-text-muted);
     }
 
-    &.is-focus {
+    &.arco-input-focus {
       border-color: var(--ui-primary);
       box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-primary) 14%, transparent);
     }
   }
 
-  :deep(.el-input__inner) {
+  :deep(.arco-input) {
     height: 48px;
     color: var(--ui-text-primary);
     font-size: 14px;
@@ -532,7 +530,7 @@ getCookie()
     color: var(--ui-text-muted);
   }
 
-  :deep(.el-form-item__error) {
+  :deep(.arco-form-item-message) {
     padding-top: 7px;
   }
 }
@@ -607,7 +605,7 @@ getCookie()
   gap: 16px;
   margin: 2px 0 22px;
 
-  :deep(.el-checkbox__label) {
+  :deep(.arco-checkbox-label) {
     color: var(--ui-text-secondary);
     font-size: 14px;
   }

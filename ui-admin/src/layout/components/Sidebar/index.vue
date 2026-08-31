@@ -1,16 +1,17 @@
 <template>
-  <div :class="['sidebar-theme-wrapper', {'has-logo':showLogo}]" class="sidebar-container">
+  <div :class="['sidebar-theme-wrapper', { 'has-logo': showLogo, 'is-collapsed': isCollapse }]" class="sidebar-container">
     <logo v-if="showLogo" :collapse="isCollapse" />
-    <el-scrollbar wrap-class="scrollbar-wrapper">
-      <el-menu
-        :default-active="activeMenu"
-        :collapse="isCollapse"
-        background-color="var(--ui-bg-sidebar)"
-        text-color="var(--ui-sidebar-text)"
-        :unique-opened="true"
-        active-text-color="var(--ui-sidebar-text-active)"
-        :collapse-transition="false"
+    <div class="sidebar-scrollbar">
+      <a-menu
+        :selected-keys="[activeMenu]"
+        :collapsed="isCollapse"
+        :collapsed-width="64"
+        :auto-open-selected="true"
+        :auto-scroll-into-view="true"
+        :level-indent="18"
+        theme="light"
         mode="vertical"
+        accordion
       >
         <sidebar-item
           v-for="(route, index) in sidebarRouters"
@@ -19,8 +20,8 @@
           :base-path="route.path"
           :show-submenu-arrow="true"
         />
-      </el-menu>
-    </el-scrollbar>
+      </a-menu>
+    </div>
   </div>
 </template>
 
@@ -47,6 +48,7 @@ const activeMenu = computed(() => {
   }
   return path
 })
+
 </script>
 
 <style lang="scss" scoped>
@@ -55,20 +57,30 @@ const activeMenu = computed(() => {
   box-shadow: var(--ui-shadow-sidebar);
   border-right: 1px solid var(--ui-sidebar-border);
 
-  .scrollbar-wrapper {
+  .sidebar-scrollbar {
+    height: calc(100% - var(--ui-layout-topbar-height));
+    overflow-x: hidden;
+    overflow-y: auto;
     background-color: var(--ui-bg-sidebar);
+    scrollbar-width: thin;
+    scrollbar-color: var(--ui-border-strong) transparent;
   }
 
-  .el-menu {
+  :deep(.arco-menu) {
     border: none;
-    height: 100%;
+    min-height: 100%;
     width: 100% !important;
     background-color: transparent !important;
 
-    .el-menu-item, .el-sub-menu__title {
-      border-radius: 8px;
-      margin: 3px 6px;
-      width: calc(100% - 12px);
+    .arco-menu-item,
+    .arco-menu-inline-header {
+      min-height: 42px;
+      line-height: 42px;
+      border-radius: 4px;
+      margin: 2px 8px;
+      width: calc(100% - 16px);
+      color: var(--ui-sidebar-text);
+      transition: color var(--ui-transition-fast), background-color var(--ui-transition-fast);
 
       &:hover {
         background-color: var(--ui-sidebar-item-hover-bg) !important;
@@ -76,40 +88,63 @@ const activeMenu = computed(() => {
       }
     }
 
-    .el-menu-item :deep(.el-menu-tooltip__trigger) {
-      border-radius: inherit;
-      color: inherit;
-    }
+    .arco-menu-item.arco-menu-selected {
+      position: relative;
+      color: var(--ui-sidebar-text-active) !important;
+      background-color: var(--ui-sidebar-item-active-bg) !important;
 
-    .el-menu-item {
-      height: 44px !important;
-      line-height: 44px !important;
-
-      &.is-active {
-        color: var(--ui-sidebar-text-active) !important;
-        background-color: var(--ui-sidebar-item-active-bg) !important;
+      &::before {
+        content: '';
+        position: absolute;
+        top: 7px;
+        bottom: 7px;
+        left: 0;
+        width: 3px;
+        border-radius: 0 2px 2px 0;
+        background: var(--ui-sidebar-item-active-border);
       }
     }
 
-    .el-sub-menu__title {
-      height: 44px !important;
-      line-height: 44px !important;
+    .arco-menu-icon,
+    .arco-menu-inline-header-suffix {
+      color: inherit;
     }
 
-    :deep(.el-sub-menu__title) {
-      padding-right: 34px !important;
-    }
+    .arco-menu-inline-content {
+      position: relative;
 
-    :deep(.el-sub-menu__icon-arrow) {
-      right: 14px !important;
-      color: var(--ui-text-muted) !important;
-      opacity: 1;
-      transition: color var(--ui-transition-fast), transform var(--ui-transition-normal);
-    }
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 8px;
+        left: 28px;
+        width: 1px;
+        background: var(--ui-sidebar-tree-line);
+      }
 
-    :deep(.el-sub-menu.is-opened > .el-sub-menu__title .el-sub-menu__icon-arrow) {
-      transform: rotateZ(180deg);
+      .arco-menu-item,
+      .arco-menu-inline-header {
+        padding-left: 42px !important;
+      }
+
+      .arco-menu-item::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 20px;
+        width: 8px;
+        height: 1px;
+        background: var(--ui-sidebar-tree-line);
+      }
     }
+  }
+}
+
+.sidebar-container.is-collapsed {
+  :deep(.arco-menu-inline-content::before),
+  :deep(.arco-menu-item::after) {
+    display: none;
   }
 }
 </style>

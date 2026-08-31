@@ -1,11 +1,12 @@
 import axios from 'axios'
-import { ElNotification , ElMessageBox, ElMessage, ElLoading } from 'element-plus'
+import { Message, Notification } from '@arco-design/web-vue'
 import { getToken } from '@/utils/auth'
 import errorCode from '@/utils/errorCode'
 import { tansParams, blobValidate } from '@/utils/manzhushaka'
 import cache from '@/plugins/cache'
 import { saveAs } from 'file-saver'
 import useUserStore from '@/store/modules/user'
+import modal from '@/plugins/modal'
 
 // 是否显示重新登录
 export let isRelogin = { show: false }
@@ -84,7 +85,7 @@ service.interceptors.response.use(res => {
     if (code === 401) {
       if (!isRelogin.show) {
         isRelogin.show = true
-        ElMessageBox.confirm('登录状态已过期，您可以继续留在该页面，或者重新登录', '系统提示', { confirmButtonText: '重新登录', cancelButtonText: '取消', type: 'warning' }).then(() => {
+        modal.confirm('登录状态已过期，是否重新登录？').then(() => {
           useUserStore().resetAuthState()
           location.assign(import.meta.env.VITE_APP_BASE_PATH || '/')
         }).catch(() => {
@@ -94,13 +95,13 @@ service.interceptors.response.use(res => {
       }
       return Promise.reject(new Error('无效的会话，或者会话已过期，请重新登录。'))
     } else if (code === 500) {
-      ElMessage({ message: msg, type: 'error' })
+      Message.error(msg)
       return Promise.reject(new Error(msg))
     } else if (code === 601) {
-      ElMessage({ message: msg, type: 'warning' })
+      Message.warning(msg)
       return Promise.reject(new Error(msg))
     } else if (code !== 200) {
-      ElNotification.error({ title: msg })
+      Notification.error({ title: '请求失败', content: msg })
       return Promise.reject(new Error(msg))
     } else {
       return  Promise.resolve(res.data)
@@ -115,14 +116,14 @@ service.interceptors.response.use(res => {
     } else if (message.includes("Request failed with status code")) {
       message = "系统接口" + message.slice(-3) + "异常"
     }
-    ElMessage({ message: message, type: 'error', duration: 5 * 1000 })
+    Message.error({ content: message, duration: 5000 })
     return Promise.reject(error)
   }
 )
 
 // 通用下载方法
 export async function download(url, params, filename, config) {
-  const loadingInstance = ElLoading.service({ text: "正在下载数据，请稍候", background: "rgba(0, 0, 0, 0.7)" })
+  const loadingInstance = Message.loading({ content: '正在下载数据，请稍候', duration: 0 })
   try {
     const data = await service.post(url, params, {
       transformRequest: [(requestParams) => tansParams(requestParams)],
@@ -138,11 +139,11 @@ export async function download(url, params, filename, config) {
       const resText = await data.text()
       const rspObj = JSON.parse(resText)
       const errMsg = errorCode[rspObj.code] || rspObj.msg || errorCode['default']
-      ElMessage.error(errMsg)
+      Message.error(errMsg)
     }
   } catch (error) {
     console.error(error)
-    ElMessage.error('下载文件出现错误，请联系管理员！')
+    Message.error('下载文件出现错误，请联系管理员！')
   } finally {
     loadingInstance.close()
   }

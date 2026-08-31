@@ -1,11 +1,11 @@
 import router from '@/router'
 import cache from '@/plugins/cache'
-import { ElMessageBox, } from 'element-plus'
 import { login as loginApi, logout as logoutApi, getInfo as getInfoApi } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { isHttp, isEmpty } from "@/utils/validate"
 import useLockStore from '@/store/modules/lock'
 import defAva from '@/assets/images/profile.jpg'
+import modal from '@/plugins/modal'
 
 const useUserStore = defineStore(
   'user',
@@ -55,19 +55,12 @@ const useUserStore = defineStore(
         cache.session.set('pwrChrtype', res.pwdChrtype)
         this.setPasswordSecurityState(!!res.isDefaultModifyPwd, !!res.isPasswordExpired)
         if (res.isDefaultModifyPwd) {
-          ElMessageBox.alert('您的密码还是初始密码，请修改密码！', '安全提示', {
-            confirmButtonText: '确定',
-            type: 'warning'
-          }).then(() => {
+          modal.alertWarning('您的密码还是初始密码，请修改密码！').then(() => {
             router.push({ name: 'Profile', params: { activeTab: 'resetPwd' } })
           }).catch(() => {})
         }
         if (!res.isDefaultModifyPwd && res.isPasswordExpired) {
-          ElMessageBox.confirm('您的密码已过期，请尽快修改密码！', '安全提示', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }).then(() => {
+          modal.confirm('您的密码已过期，请尽快修改密码！').then(() => {
             router.push({ name: 'Profile', params: { activeTab: 'resetPwd' } })
           }).catch(() => {})
         }

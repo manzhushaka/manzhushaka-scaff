@@ -2,7 +2,7 @@
   <div id="tags-view-container" class="tags-view-container" :class="{ 'tags-view-container--chrome': tagsViewStyle === 'chrome' }">
     <!-- 左切换箭头 -->
     <span class="tags-nav-btn tags-nav-btn--left" :class="{ disabled: !canScrollLeft }" @click="scrollLeft">
-      <el-icon><arrow-left /></el-icon>
+      <icon-left />
     </span>
 
     <!-- 标签滚动区 -->
@@ -20,54 +20,66 @@
         <svg-icon v-if="tagsIcon && tag.meta && tag.meta.icon && tag.meta.icon !== '#'" :icon-class="tag.meta.icon" style="margin-right: 3px;" />
         {{ tag.title }}
         <span v-if="!isAffix(tag)" @click.prevent.stop="closeSelectedTag(tag)" class="tags-close-btn">
-          <close class="el-icon-close" />
+          <icon-close class="tags-close-icon" />
         </span>
       </router-link>
     </scroll-pane>
 
     <!-- 右切换箭头 -->
     <span class="tags-nav-btn tags-nav-btn--right" :class="{ disabled: !canScrollRight }" @click="scrollRight">
-      <el-icon><arrow-right /></el-icon>
+      <icon-right />
     </span>
 
     <!-- 下拉操作菜单 -->
-    <el-dropdown class="tags-action-dropdown" trigger="click" placement="bottom-end" @command="handleDropdownCommand">
+    <a-dropdown class="tags-action-dropdown" trigger="click" position="br" @select="handleDropdownCommand">
       <span class="tags-action-btn">
-        <el-icon><arrow-down /></el-icon>
+        <icon-down />
       </span>
-      <template #dropdown>
-        <el-dropdown-menu class="tags-dropdown-menu">
-          <el-dropdown-item v-if="!isAffix(selectedDropdownTag)" command="close"><close style="width: 1em; height: 1em;" />关闭当前</el-dropdown-item>
-          <el-dropdown-item command="closeOthers"><circle-close style="width: 1em; height: 1em;" />关闭其他</el-dropdown-item>
-          <el-dropdown-item command="closeLeft" :disabled="isFirstView()"><back style="width: 1em; height: 1em;" />关闭左侧</el-dropdown-item>
-          <el-dropdown-item command="closeRight" :disabled="isLastView()"><right style="width: 1em; height: 1em;" />关闭右侧</el-dropdown-item>
-          <el-dropdown-item command="closeAll"><circle-close style="width: 1em; height: 1em;" />全部关闭</el-dropdown-item>
-          <el-dropdown-item command="fullscreen" divided>
-            <template v-if="!isFullscreen"><full-screen style="width: 1em; height: 1em;" />全屏显示</template>
-            <template v-else><close style="width: 1em; height: 1em;" />退出全屏</template>
-          </el-dropdown-item>
-        </el-dropdown-menu>
+      <template #content>
+        <a-doption v-if="!isAffix(selectedDropdownTag)" value="close"><template #icon><icon-close /></template>关闭当前</a-doption>
+        <a-doption value="closeOthers"><template #icon><icon-close-circle /></template>关闭其他</a-doption>
+        <a-doption value="closeLeft" :disabled="isFirstView()"><template #icon><icon-to-left /></template>关闭左侧</a-doption>
+        <a-doption value="closeRight" :disabled="isLastView()"><template #icon><icon-to-right /></template>关闭右侧</a-doption>
+        <a-doption value="closeAll"><template #icon><icon-delete /></template>全部关闭</a-doption>
+        <a-divider :margin="4" />
+        <a-doption value="fullscreen">
+          <template #icon><icon-fullscreen v-if="!isFullscreen" /><icon-fullscreen-exit v-else /></template>
+          {{ isFullscreen ? '退出全屏' : '全屏显示' }}
+        </a-doption>
       </template>
-    </el-dropdown>
+    </a-dropdown>
 
     <!-- 刷新按钮 -->
     <span class="tags-action-btn tags-refresh-btn" title="刷新页面" aria-label="刷新页面" @click="refreshSelectedTag(selectedDropdownTag)">
-      <el-icon><refresh-right/></el-icon>
+      <icon-refresh />
     </span>
 
     <!-- 右键上下文菜单 -->
     <ul v-show="visible" :style="{ left: left + 'px', top: top + 'px' }" class="contextmenu">
-      <li @click="refreshSelectedTag(selectedTag)"><refresh-right style="width: 1em; height: 1em;" />刷新页面</li>
-      <li v-if="!isAffix(selectedTag)" @click="closeSelectedTag(selectedTag)"><close style="width: 1em; height: 1em;" />关闭当前</li>
-      <li @click="closeOthersTags"><circle-close style="width: 1em; height: 1em;" />关闭其他</li>
-      <li v-if="!isFirstView()" @click="closeLeftTags"><back style="width: 1em; height: 1em;" />关闭左侧</li>
-      <li v-if="!isLastView()" @click="closeRightTags"><right style="width: 1em; height: 1em;" />关闭右侧</li>
-      <li @click="closeAllTags(selectedTag)"><circle-close style="width: 1em; height: 1em;" />全部关闭</li>
+      <li @click="refreshSelectedTag(selectedTag)"><icon-refresh />刷新页面</li>
+      <li v-if="!isAffix(selectedTag)" @click="closeSelectedTag(selectedTag)"><icon-close />关闭当前</li>
+      <li @click="closeOthersTags"><icon-close-circle />关闭其他</li>
+      <li v-if="!isFirstView()" @click="closeLeftTags"><icon-to-left />关闭左侧</li>
+      <li v-if="!isLastView()" @click="closeRightTags"><icon-to-right />关闭右侧</li>
+      <li @click="closeAllTags(selectedTag)"><icon-delete />全部关闭</li>
     </ul>
   </div>
 </template>
 
 <script setup>
+import {
+  IconClose,
+  IconCloseCircle,
+  IconDelete,
+  IconDown,
+  IconFullscreen,
+  IconFullscreenExit,
+  IconLeft,
+  IconRefresh,
+  IconRight,
+  IconToLeft,
+  IconToRight
+} from '@arco-design/web-vue/es/icon'
 import ScrollPane from './ScrollPane'
 import { getNormalPath } from '@/utils/manzhushaka'
 import useTagsViewStore from '@/store/modules/tagsView'
@@ -502,6 +514,11 @@ $tags-bar-height: var(--ui-layout-tags-height, 42px);
       }
   }
 
+  .tags-action-dropdown,
+  .tags-refresh-btn {
+    border-left: 1px solid var(--ui-border-subtle);
+  }
+
   .tags-refresh-btn {
     width: $btn-width;
     padding: 0;
@@ -674,7 +691,7 @@ $tags-bar-height: var(--ui-layout-tags-height, 42px);
       transition: opacity var(--ui-transition-fast), background-color var(--ui-transition-fast);
       cursor: pointer;
       
-      .el-icon-close {
+      .tags-close-icon {
         width: 1em;
         height: 1em;
         vertical-align: 0;
@@ -687,7 +704,7 @@ $tags-bar-height: var(--ui-layout-tags-height, 42px);
       &:hover {
         background-color: color-mix(in srgb, var(--ui-primary) 18%, transparent);
         
-        .el-icon-close {
+        .tags-close-icon {
           color: var(--ui-primary);
         }
       }

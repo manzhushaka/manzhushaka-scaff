@@ -4,7 +4,7 @@ Repository Guidelines
 
 ## 适用范围与优先级
 
-本文件是本仓库的贡献指南与 AI Agent 协作规范。后端 Java 代码以 P3C《Java 开发手册》（嵩山版）为基线，并结合当前仓库的模块边界执行；前端代码遵循 `ui-admin` 现有 Vue 3 + Element Plus 风格。若本文件与用户明确指令冲突，优先遵循用户指令；若与模块内更具体说明冲突，优先遵循更靠近代码的说明。
+本文件是本仓库的贡献指南与 AI Agent 协作规范。后端 Java 代码以 P3C《Java 开发手册》（嵩山版）为基线，并结合当前仓库的模块边界执行；前端代码遵循 `ui-admin` 现有 Vue 3 + Arco Design Vue 风格。若本文件与用户明确指令冲突，优先遵循用户指令；若与模块内更具体说明冲突，优先遵循更靠近代码的说明。
 
 P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除非有充分理由并在评审中说明，否则新增和修改代码默认遵守本文件规则。
 
@@ -96,7 +96,8 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 
 ### 设计基线与主题变量
 
-- `ui-admin` 采用深色侧栏、暖白内容画布、白色工作面板和橙色主信号的后台视觉基线；页面应安静、紧凑、便于扫描，不使用营销页式大标题、装饰性渐变、光斑或大面积高饱和色。
+- `ui-admin` 采用深色侧栏、白色工作面板和可切换的橙白、紫白主题；页面应安静、紧凑、便于扫描，不使用营销页式大标题、装饰性渐变、光斑或大面积高饱和色。
+- 新增页面和完成重构的页面必须使用 Arco Design Vue。存量 Element Plus 页面仅作为迁移期兼容，不在同一页面长期混用两套组件，也不新增 Element Plus 依赖或组件用法。
 - 全站颜色、间距、圆角、阴影、控件高度和布局尺寸统一从 `ui-admin/src/assets/styles/theme-tokens.scss` 的 `--ui-*` 变量取值；业务页面禁止重复硬编码主色、背景色和边框色。
 - 主色只用于当前导航、主要操作、焦点和关键状态；成功、警告、危险、信息状态分别使用 `--ui-success`、`--ui-warning`、`--ui-danger`、`--ui-info`，不把所有状态都改成橙色。
 - 面板和控件圆角默认不超过 `8px`；阴影保持轻量，仅用于需要与画布分层的面板、弹窗和浮层，普通页面区块不做悬浮卡片。
@@ -120,7 +121,7 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 - 表单控件默认高度使用 `--ui-form-control-height`；同一筛选行的标签、输入框、选择器、日期范围和按钮应对齐，不用任意 margin 修补错位。
 - 查询和提交使用主按钮；重置使用默认按钮；新增、修改、删除、导出等动作沿用现有语义色。仅图标即可准确表达的工具按钮使用图标并提供 tooltip 或 `aria-label`。
 - 表格表头、行高、边框和悬停态由全局样式控制；长文本使用省略和 tooltip，操作列保持稳定宽度，空列表返回并展示空状态而不是塌陷布局。
-- 标签、开关、复选框、单选框、分页、弹窗和抽屉优先使用 Element Plus 组件，禁止用普通文本或自绘控件替代成熟交互。
+- 标签、开关、复选框、单选框、分页、弹窗和抽屉优先使用 Arco Design Vue 组件，禁止用普通文本或自绘控件替代成熟交互。
 
 ### 响应式与可用性
 
@@ -610,13 +611,13 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 本仓库使用 Redis Stream 作为异步消息中间件，采用"框架层基础设施 + 系统层台账记录 + 模板方法处理器"的架构。相关文件统一放在以下路径：
 
 
-| 层                                 | 模块                       | 包路径                                                   |
-| ---------------------------------- | -------------------------- | -------------------------------------------------------- |
+| 层                                 | 模块                    | 包路径                                                   |
+| ---------------------------------- | ----------------------- | -------------------------------------------------------- |
 | 基础设施（网关、发布器、处理框架） | `manzhushaka-framework` | `com.manzhushaka.framework.mq`                           |
 | 配置（容器 Bean、调度开关）        | `manzhushaka-framework` | `com.manzhushaka.framework.config`                       |
 | 台账（实体、Mapper、Service）      | `manzhushaka-system`    | 现有`domain`、`mapper`、`service` 目录                   |
 | 管理接口（Controller）             | `manzhushaka-admin`     | `com.manzhushaka.web.controller.monitor`                 |
-| 前端页面                           | `ui-admin`                 | `api/monitor/mqLog.js` + `views/monitor/mqLog/index.vue` |
+| 前端页面                           | `ui-admin`              | `api/monitor/mqLog.js` + `views/monitor/mqLog/index.vue` |
 
 ### 核心概念与术语
 
@@ -870,7 +871,7 @@ public void sendDemoMessage(String businessKey, String payload) {
 - 当前 Agent 可支持：检查 Redis Stream MQ 的 `@Component` Handler 是否遗漏 `messageType()`/`streamKey()` 实现、检查 Handler 是否被 `RedisStreamMessageHandlerRegistry` 自动收集（通过验证 Spring 注解）、检查台账 `toString()` 字段截断、检查权限字符串闭合。
 - 当前无法完全自动保证：Handler 中的 `doHandle()` 业务逻辑正确性、重试间隔秒数是否合理、死信后的人工处理机制、Stream 消息体与台账字段的映射一致性。
 
-## 系统支持边界
+系统支持边界
 
 - 当前 Agent 可支持：读取真实调用链路、对照 `AGENTS.md`、检查 git diff、运行 `rg`、Maven 测试、前端构建和本地脚本，辅助发现权限、SQL、脱敏、异常和模型字段的显性遗漏。
 - 当前项目可支持：`@PreAuthorize` 接口鉴权、`@Anonymous` 匿名声明、`v-hasPermi` 按钮显隐、`M/C/F` 菜单路由过滤、`@Sensitive` JSON 脱敏、全局 `ServiceException` 处理、MyBatis XML 映射和 `sql/manzhushaka_db_init.sql` 初始化。

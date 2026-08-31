@@ -1,5 +1,5 @@
 import router from './router'
-import { ElMessage } from 'element-plus'
+import { Message } from '@arco-design/web-vue'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import { getToken } from '@/utils/auth'
@@ -65,7 +65,7 @@ router.beforeEach(async (to, from) => {
         return { ...to, replace: true }
       } catch (err) {
         await userStore.logOut()
-        ElMessage.error(err)
+        Message.error(err?.message || String(err))
         return { path: '/' }
       }
     }

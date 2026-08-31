@@ -1,21 +1,19 @@
 <template>
-  <el-scrollbar
+  <div
     ref="scrollContainer"
-    :vertical="false"
     class="scroll-container"
     @wheel.prevent="handleScroll"
   >
     <slot />
-  </el-scrollbar>
+  </div>
 </template>
 
 <script setup>
 import useTagsViewStore from '@/store/modules/tagsView'
 
 const tagAndTagSpacing = ref(4)
-const { proxy } = getCurrentInstance()
-
-const scrollWrapper = computed(() => proxy.$refs.scrollContainer.$refs.wrapRef)
+const scrollContainer = ref(null)
+const scrollWrapper = computed(() => scrollContainer.value)
 
 const emits = defineEmits(['scroll', 'updateArrows'])
 
@@ -72,7 +70,7 @@ const tagsViewStore = useTagsViewStore()
 const visitedViews = computed(() => tagsViewStore.visitedViews)
 
 function moveToTarget(currentTag) {
-  const $container = proxy.$refs.scrollContainer.$el
+  const $container = scrollContainer.value
   const $containerWidth = $container.offsetWidth
   const $scrollWrapper = scrollWrapper.value
 
@@ -143,15 +141,15 @@ defineExpose({
   white-space: nowrap;
   position: relative;
   overflow: hidden;
+  overflow-x: auto;
   width: 100%;
   height: 100%;
-  :deep(.el-scrollbar__bar) {
+  display: flex;
+  align-items: center;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
     display: none;
-  }
-  :deep(.el-scrollbar__wrap) {
-    height: 100%;
-    display: flex;
-    align-items: center;
   }
 }
 </style>

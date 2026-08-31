@@ -1,8 +1,9 @@
 import defaultSettings from '@/settings'
 import { useDynamicTitle } from '@/utils/dynamicTitle'
+import { applyUiTheme, getStoredUiTheme, normalizeUiTheme } from '@/utils/uiTheme'
 
 const UNIFIED_NAV_TYPE = 1
-const VIBEHUB_PRIMARY = '#ff6a2a'
+const ARCO_ORANGE_PRIMARY = '#f76823'
 const COOL_TOWER_SIDE_THEME = 'theme-dark'
 
 const { showSettings, tagsView, tagsViewPersist, tagsIcon, tagsViewStyle, fixedHeader, sidebarLogo, dynamicTitle, footerVisible, footerContent } = defaultSettings
@@ -22,7 +23,8 @@ const useSettingsStore = defineStore(
   {
     state: () => ({
       title: '',
-      theme: VIBEHUB_PRIMARY,
+      theme: ARCO_ORANGE_PRIMARY,
+      uiTheme: getStoredUiTheme(),
       sideTheme: COOL_TOWER_SIDE_THEME,
       showSettings: showSettings,
       navType: UNIFIED_NAV_TYPE,
@@ -45,6 +47,10 @@ const useSettingsStore = defineStore(
           this.navType = UNIFIED_NAV_TYPE
           return
         }
+        if (key === 'uiTheme') {
+          this.setUiTheme(value)
+          return
+        }
         if (key === 'theme' || key === 'sideTheme' || key === 'isDark') {
           return
         }
@@ -56,6 +62,19 @@ const useSettingsStore = defineStore(
       setTitle(title) {
         this.title = title
         useDynamicTitle()
+      },
+      /**
+       * 切换并持久化 Arco 界面主题。
+       *
+       * @param {string} uiTheme 主题名称
+       */
+      setUiTheme(uiTheme) {
+        this.uiTheme = applyUiTheme(normalizeUiTheme(uiTheme))
+        const layoutSetting = getStorageSetting()
+        localStorage.setItem('layout-setting', JSON.stringify({
+          ...layoutSetting,
+          uiTheme: this.uiTheme
+        }))
       }
     }
   })

@@ -4,40 +4,74 @@
     <breadcrumb v-if="showBreadcrumb" id="breadcrumb-container" class="breadcrumb-container" />
 
     <div class="right-menu">
-      <el-tooltip :content="isPageFullscreen ? '退出全屏' : '全屏显示'" placement="bottom">
-        <button type="button" class="right-menu-item hover-effect fullscreen-button" @click="toggleFullscreen">
-          <el-icon><FullScreen /></el-icon>
+      <a-tooltip content="切换橙色/紫色主题" position="bottom">
+        <a-button
+          type="text"
+          shape="circle"
+          class="right-menu-item hover-effect tool-button"
+          aria-label="切换橙色/紫色主题"
+          @click="toggleUiTheme"
+        >
+          <template #icon><icon-palette /></template>
+        </a-button>
+      </a-tooltip>
+      <a-tooltip :content="isPageFullscreen ? '退出全屏' : '全屏显示'" position="bottom">
+        <a-button
+          type="text"
+          shape="circle"
+          class="right-menu-item hover-effect tool-button fullscreen-button"
+          :aria-label="isPageFullscreen ? '退出全屏' : '全屏显示'"
+          @click="toggleFullscreen"
+        >
+          <template #icon><icon-fullscreen-exit v-if="isPageFullscreen" /><icon-fullscreen v-else /></template>
+        </a-button>
+      </a-tooltip>
+      <a-tooltip v-if="settingsStore.showSettings" content="界面设置" position="bottom">
+        <a-button
+          type="text"
+          shape="circle"
+          class="right-menu-item hover-effect tool-button"
+          aria-label="界面设置"
+          @click="setLayout"
+        >
+          <template #icon><icon-settings /></template>
+        </a-button>
+      </a-tooltip>
+      <a-dropdown trigger="hover" position="br" @select="handleCommand">
+        <button type="button" class="avatar-container right-menu-item" aria-label="账号菜单">
+          <span class="avatar-wrapper">
+            <img :src="userStore.avatar" class="user-avatar" alt="" />
+            <span class="user-nickname">{{ userStore.nickName }}</span>
+            <icon-down class="avatar-caret" />
+          </span>
         </button>
-      </el-tooltip>
-      <el-dropdown @command="handleCommand" class="avatar-container right-menu-item hover-effect" trigger="hover">
-        <div class="avatar-wrapper">
-          <img :src="userStore.avatar" class="user-avatar" />
-          <span class="user-nickname"> {{ userStore.nickName }} </span>
-          <el-icon class="avatar-caret"><ArrowDown /></el-icon>
-        </div>
-        <template #dropdown>
-          <el-dropdown-menu>
-            <router-link to="/user/profile">
-              <el-dropdown-item>个人中心</el-dropdown-item>
-            </router-link>
-            <el-dropdown-item command="setLayout" v-if="settingsStore.showSettings">
-                <span>布局设置</span>
-            </el-dropdown-item>
-            <el-dropdown-item command="lockScreen">
-                <span>锁定屏幕</span>
-            </el-dropdown-item>
-            <el-dropdown-item divided command="logout">
-              <span>退出登录</span>
-            </el-dropdown-item>
-          </el-dropdown-menu>
+        <template #content>
+          <a-doption value="profile"><template #icon><icon-user /></template>个人中心</a-doption>
+          <a-doption v-if="settingsStore.showSettings" value="setLayout">
+            <template #icon><icon-settings /></template>界面设置
+          </a-doption>
+          <a-doption value="lockScreen"><template #icon><icon-lock /></template>锁定屏幕</a-doption>
+          <a-divider :margin="4" />
+          <a-doption value="logout" class="logout-option">
+            <template #icon><icon-export /></template>退出登录
+          </a-doption>
         </template>
-      </el-dropdown>
+      </a-dropdown>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ElMessageBox } from 'element-plus'
+import {
+  IconDown,
+  IconExport,
+  IconFullscreen,
+  IconFullscreenExit,
+  IconLock,
+  IconPalette,
+  IconSettings,
+  IconUser
+} from '@arco-design/web-vue/es/icon'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
 import useAppStore from '@/store/modules/app'
@@ -50,6 +84,7 @@ const appStore = useAppStore()
 const userStore = useUserStore()
 const lockStore = useLockStore()
 const settingsStore = useSettingsStore()
+const { proxy } = getCurrentInstance()
 const isPageFullscreen = ref(false)
 const showBreadcrumb = computed(() => route.path !== '/' && route.path !== '/index')
 
@@ -72,8 +107,15 @@ function toggleSideBar() {
   appStore.toggleSideBar()
 }
 
+function toggleUiTheme() {
+  settingsStore.setUiTheme(settingsStore.uiTheme === 'arco-purple' ? 'arco-orange' : 'arco-purple')
+}
+
 function handleCommand(command) {
   switch (command) {
+    case "profile":
+      router.push('/user/profile')
+      break
     case "setLayout":
       setLayout()
       break
@@ -89,11 +131,7 @@ function handleCommand(command) {
 }
 
 function logout() {
-  ElMessageBox.confirm('确定注销并退出系统吗？', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(() => {
+  proxy.$modal.confirm('确定注销并退出系统吗？').then(() => {
     userStore.logOut().then(() => {
       router.push('/')
     })
@@ -133,7 +171,8 @@ function lockScreen() {
     display: flex;
     align-items: center;
     flex-shrink: 0;
-    margin-right: 8px;
+    margin: 0 10px 0 8px;
+    border-radius: 6px;
 
     &:hover {
       background: var(--ui-bg-hover);
@@ -149,8 +188,8 @@ function lockScreen() {
     overflow: hidden;
     margin-right: 16px;
 
-    :deep(.el-breadcrumb__item) {
-      .el-breadcrumb__inner {
+    :deep(.arco-breadcrumb-item) {
+      .arco-breadcrumb-item-link {
         font-size: 13px;
         line-height: 20px;
       }
@@ -178,7 +217,7 @@ function lockScreen() {
     align-items: center;
     margin-left: auto;
     gap: 6px;
-    padding-right: 8px;
+    padding-right: 16px;
 
     &:focus {
       outline: none;
@@ -225,6 +264,21 @@ function lockScreen() {
     .fullscreen-button {
       flex: 0 0 36px;
       line-height: 1;
+      color: var(--ui-text-secondary);
+
+      &:hover {
+        color: var(--ui-primary);
+        background: var(--ui-bg-hover);
+      }
+    }
+
+    .tool-button {
+      border: 1px solid var(--ui-border-subtle);
+      background: var(--ui-bg-panel-soft);
+
+      &:hover {
+        border-color: color-mix(in srgb, var(--ui-primary) 28%, var(--ui-border));
+      }
     }
 
     .avatar-container {
@@ -285,5 +339,41 @@ function lockScreen() {
       }
     }
   }
+}
+
+@media screen and (max-width: 640px) {
+  .navbar {
+    .hamburger-container {
+      margin-right: 4px;
+    }
+
+    .breadcrumb-container {
+      margin-right: 6px;
+    }
+
+    .right-menu {
+      gap: 4px;
+      padding-right: 8px;
+
+      .right-menu-item {
+        width: 32px;
+        height: 32px;
+      }
+
+      .avatar-container .avatar-wrapper {
+        padding: 0;
+        border: 0;
+
+        .user-nickname,
+        .avatar-caret {
+          display: none;
+        }
+      }
+    }
+  }
+}
+
+:global(.logout-option) {
+  color: var(--ui-danger);
 }
 </style>
