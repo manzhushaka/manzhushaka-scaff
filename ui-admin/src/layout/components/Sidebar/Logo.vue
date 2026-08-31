@@ -2,12 +2,18 @@
   <div class="sidebar-logo-container" :class="{ 'collapse': collapse }">
     <transition name="sidebarLogoFade">
       <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/">
-        <img v-if="logo" :src="logo" class="sidebar-logo" />
-        <h1 v-else class="sidebar-title">{{ title }}</h1>
+        <span class="sidebar-logo-mark">
+          <img v-if="logo" :src="logo" class="sidebar-logo" alt="" />
+        </span>
       </router-link>
       <router-link v-else key="expand" class="sidebar-logo-link" to="/">
-        <img v-if="logo" :src="logo" class="sidebar-logo" />
-        <h1 class="sidebar-title">{{ title }}</h1>
+        <span class="sidebar-logo-mark">
+          <img v-if="logo" :src="logo" class="sidebar-logo" alt="" />
+        </span>
+        <span class="sidebar-brand-copy">
+          <strong class="sidebar-title">{{ brandName }}</strong>
+          <span class="sidebar-subtitle">{{ brandSubtitle }}</span>
+        </span>
       </router-link>
     </transition>
   </div>
@@ -23,13 +29,9 @@ defineProps({
   }
 })
 
-const title = import.meta.env.VITE_APP_TITLE
-
-// 获取Logo背景色
-const getLogoBackground = computed(() => 'var(--ui-bg-sidebar)')
-
-// 获取Logo文字颜色
-const getLogoTextColor = computed(() => 'var(--ui-sidebar-text-active)')
+const appTitle = import.meta.env.VITE_APP_TITLE || 'manzhushaka'
+const brandName = appTitle.split(/\s+-\s+/)[0]
+const brandSubtitle = `${brandName} Console`
 </script>
 
 <style lang="scss" scoped>
@@ -45,41 +47,70 @@ const getLogoTextColor = computed(() => 'var(--ui-sidebar-text-active)')
 .sidebar-logo-container {
   position: relative;
   height: var(--ui-layout-topbar-height, 52px);
-  line-height: var(--ui-layout-topbar-height, 52px);
-  background: v-bind(getLogoBackground);
-  text-align: center;
+  background: var(--ui-bg-sidebar);
   overflow: hidden;
   border-bottom: 1px solid var(--ui-sidebar-border);
 
   & .sidebar-logo-link {
-    height: 100%;
+    display: flex !important;
+    align-items: center;
     width: 100%;
+    height: 100%;
+    padding: 0 18px;
+    gap: 12px;
+
+    .sidebar-logo-mark {
+      display: grid;
+      flex: 0 0 40px;
+      width: 40px;
+      height: 40px;
+      overflow: hidden;
+      place-items: center;
+      border: 1px solid var(--ui-border-subtle);
+      border-radius: 8px;
+      background: var(--ui-bg-panel);
+    }
 
     & .sidebar-logo {
-      width: 30px;
-      height: 30px;
-      vertical-align: middle;
-      margin-right: 12px;
-      border: 1px solid var(--ui-sidebar-border);
-      border-radius: 8px;
+      width: 34px;
+      height: 34px;
+      object-fit: cover;
+    }
+
+    .sidebar-brand-copy {
+      display: flex;
+      min-width: 0;
+      flex-direction: column;
+      justify-content: center;
     }
 
     & .sidebar-title {
-      display: inline-block;
-      margin: 0;
-      color: v-bind(getLogoTextColor);
-      font-weight: 600;
-      line-height: var(--ui-layout-topbar-height, 52px);
-      font-size: 14px;
+      overflow: hidden;
+      color: var(--ui-text-primary);
+      font-weight: 700;
+      line-height: 22px;
+      font-size: 17px;
       font-family: var(--ui-font-family);
-      vertical-align: middle;
       letter-spacing: 0;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-transform: capitalize;
+    }
+
+    .sidebar-subtitle {
+      overflow: hidden;
+      color: var(--ui-text-muted);
+      font-size: 11px;
+      line-height: 17px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
   }
 
   &.collapse {
-    .sidebar-logo {
-      margin-right: 0px;
+    .sidebar-logo-link {
+      justify-content: center;
+      padding: 0;
     }
   }
 }

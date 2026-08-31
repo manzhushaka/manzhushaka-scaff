@@ -1,57 +1,66 @@
 <template>
    <div class="app-container ui-list-page">
-      <el-form :model="queryParams" ref="queryRef" :inline="true" class="ui-filter-card">
-         <el-form-item label="登录地址" prop="ipaddr">
-            <el-input
+      <a-form :model="queryParams" ref="queryRef" layout="inline" class="ui-filter-card">
+         <a-form-item label="登录地址" field="ipaddr">
+            <a-input
                v-model="queryParams.ipaddr"
                placeholder="请输入登录地址"
                clearable
                style="width: 200px"
                @keyup.enter="handleQuery"
             />
-         </el-form-item>
-         <el-form-item label="用户名称" prop="userName">
-            <el-input
+         </a-form-item>
+         <a-form-item label="用户名称" field="userName">
+            <a-input
                v-model="queryParams.userName"
                placeholder="请输入用户名称"
                clearable
                style="width: 200px"
                @keyup.enter="handleQuery"
             />
-         </el-form-item>
-         <el-form-item>
-            <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-            <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-         </el-form-item>
-      </el-form>
+         </a-form-item>
+         <a-form-item>
+            <a-space>
+               <a-button type="primary" @click="handleQuery"><template #icon><icon-search /></template>搜索</a-button>
+               <a-button @click="resetQuery"><template #icon><icon-refresh /></template>重置</a-button>
+            </a-space>
+         </a-form-item>
+      </a-form>
       <div class="ui-table-card">
-      <el-table
-         v-loading="loading"
+      <a-table
+         :loading="loading"
          :data="onlineList.slice((pageNum - 1) * pageSize, pageNum * pageSize)"
+         :pagination="false"
+         row-key="tokenId"
+         :scroll="{ x: 1180 }"
       >
-         <el-table-column label="序号" width="50" type="index" align="center">
-            <template #default="scope">
-               <span>{{ (pageNum - 1) * pageSize + scope.$index + 1 }}</span>
+         <template #columns>
+         <a-table-column title="序号" :width="64" align="center">
+            <template #cell="{ rowIndex }">
+               <span>{{ (pageNum - 1) * pageSize + rowIndex + 1 }}</span>
             </template>
-         </el-table-column>
-         <el-table-column label="会话编号" align="center" prop="tokenId" :show-overflow-tooltip="true" />
-         <el-table-column label="登录名称" align="center" prop="userName" :show-overflow-tooltip="true" />
-         <el-table-column label="所属部门" align="center" prop="deptName" :show-overflow-tooltip="true" />
-         <el-table-column label="主机" align="center" prop="ipaddr" :show-overflow-tooltip="true" />
-         <el-table-column label="登录地点" align="center" prop="loginLocation" :show-overflow-tooltip="true" />
-         <el-table-column label="操作系统" align="center" prop="os" :show-overflow-tooltip="true" />
-         <el-table-column label="浏览器" align="center" prop="browser" :show-overflow-tooltip="true" />
-         <el-table-column label="登录时间" align="center" prop="loginTime" width="180">
-            <template #default="scope">
-               <span>{{ parseTime(scope.row.loginTime) }}</span>
+         </a-table-column>
+         <a-table-column title="会话编号" align="center" data-index="tokenId" tooltip />
+         <a-table-column title="登录名称" align="center" data-index="userName" tooltip />
+         <a-table-column title="所属部门" align="center" data-index="deptName" tooltip />
+         <a-table-column title="主机" align="center" data-index="ipaddr" tooltip />
+         <a-table-column title="登录地点" align="center" data-index="loginLocation" tooltip />
+         <a-table-column title="操作系统" align="center" data-index="os" tooltip />
+         <a-table-column title="浏览器" align="center" data-index="browser" tooltip />
+         <a-table-column title="登录时间" align="center" data-index="loginTime" :width="180">
+            <template #cell="{ record }">
+               <span>{{ parseTime(record.loginTime) }}</span>
             </template>
-         </el-table-column>
-         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-            <template #default="scope">
-               <el-button link type="primary" icon="Delete" @click="handleForceLogout(scope.row)" v-hasPermi="['monitor:online:forceLogout']">强退</el-button>
+         </a-table-column>
+         <a-table-column title="操作" align="center" :width="96" fixed="right">
+            <template #cell="{ record }">
+               <a-button type="text" status="danger" @click="handleForceLogout(record)" v-hasPermi="['monitor:online:forceLogout']">
+                  <template #icon><icon-export /></template>强退
+               </a-button>
             </template>
-         </el-table-column>
-      </el-table>
+         </a-table-column>
+         </template>
+      </a-table>
       </div>
 
       <pagination v-show="total > 0" :total="total" v-model:page="pageNum" v-model:limit="pageSize" />
@@ -59,6 +68,7 @@
 </template>
 
 <script setup name="Online">
+import { IconExport, IconRefresh, IconSearch } from '@arco-design/web-vue/es/icon'
 import { forceLogout, list as initData } from "@/api/monitor/online"
 
 const { proxy } = getCurrentInstance()

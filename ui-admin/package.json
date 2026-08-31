@@ -16,6 +16,7 @@
     "url": ""
   },
   "dependencies": {
+    "@arco-design/web-vue": "2.58.0",
     "@element-plus/icons-vue": "2.3.2",
     "@vueup/vue-quill": "1.2.0",
     "@vueuse/core": "14.1.0",

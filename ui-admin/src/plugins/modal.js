@@ -1,82 +1,119 @@
-import { ElMessage, ElMessageBox, ElNotification, ElLoading } from 'element-plus'
+import { h, ref } from 'vue'
+import { Input, Message, Modal, Notification } from '@arco-design/web-vue'
 
 let loadingInstance
 
 export default {
   // 消息提示
   msg(content) {
-    ElMessage.info(content)
+    Message.info(content)
   },
   // 错误消息
   msgError(content) {
-    ElMessage.error(content)
+    Message.error(content)
   },
   // 成功消息
   msgSuccess(content) {
-    ElMessage.success(content)
+    Message.success(content)
   },
   // 警告消息
   msgWarning(content) {
-    ElMessage.warning(content)
+    Message.warning(content)
   },
   // 弹出提示
   alert(content) {
-    ElMessageBox.alert(content, "系统提示")
+    return openAlert('info', content)
   },
   // 错误提示
   alertError(content) {
-    ElMessageBox.alert(content, "系统提示", { type: 'error' })
+    return openAlert('error', content)
   },
   // 成功提示
   alertSuccess(content) {
-    ElMessageBox.alert(content, "系统提示", { type: 'success' })
+    return openAlert('success', content)
   },
   // 警告提示
   alertWarning(content) {
-    ElMessageBox.alert(content, "系统提示", { type: 'warning' })
+    return openAlert('warning', content)
   },
   // 通知提示
   notify(content) {
-    ElNotification.info(content)
+    Notification.info({ title: '系统通知', content })
   },
   // 错误通知
   notifyError(content) {
-    ElNotification.error(content)
+    Notification.error({ title: '系统通知', content })
   },
   // 成功通知
   notifySuccess(content) {
-    ElNotification.success(content)
+    Notification.success({ title: '系统通知', content })
   },
   // 警告通知
   notifyWarning(content) {
-    ElNotification.warning(content)
+    Notification.warning({ title: '系统通知', content })
   },
   // 确认窗体
   confirm(content) {
-    return ElMessageBox.confirm(content, "系统提示", {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: "warning",
+    return new Promise((resolve, reject) => {
+      Modal.confirm({
+        title: '系统提示',
+        content,
+        okText: '确定',
+        cancelText: '取消',
+        onOk: () => resolve(true),
+        onCancel: () => reject(new Error('cancel'))
+      })
     })
   },
   // 提交内容
   prompt(content) {
-    return ElMessageBox.prompt(content, "系统提示", {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: "warning",
+    const value = ref('')
+    return new Promise((resolve, reject) => {
+      Modal.confirm({
+        title: '系统提示',
+        content: () => h('div', { class: 'arco-prompt-content' }, [
+          h('div', { class: 'arco-prompt-label' }, content),
+          h(Input, {
+            modelValue: value.value,
+            'onUpdate:modelValue': inputValue => { value.value = inputValue }
+          })
+        ]),
+        okText: '确定',
+        cancelText: '取消',
+        onOk: () => resolve({ value: value.value }),
+        onCancel: () => reject(new Error('cancel'))
+      })
     })
   },
   // 打开遮罩层
   loading(content) {
-    loadingInstance = ElLoading.service({
-      lock: true,
-      text: content,
-      background: "rgba(0, 0, 0, 0.7)",
+    loadingInstance?.close()
+    loadingInstance = Message.loading({
+      content,
+      duration: 0
     })
   },
   // 关闭遮罩层
   closeLoading() {
-    loadingInstance.close()
+    loadingInstance?.close()
+    loadingInstance = undefined
   }
+}
+
+/**
+ * 打开 Arco 提示弹窗。
+ *
+ * @param {'info'|'error'|'success'|'warning'} type 弹窗类型
+ * @param {string} content 提示内容
+ * @return {Promise<boolean>} 用户确认结果
+ */
+function openAlert(type, content) {
+  return new Promise(resolve => {
+    Modal[type]({
+      title: '系统提示',
+      content,
+      hideCancel: true,
+      onOk: () => resolve(true)
+    })
+  })
 }

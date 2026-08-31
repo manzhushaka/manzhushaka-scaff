@@ -2,6 +2,9 @@ import { createApp } from 'vue'
 
 import Cookies from 'js-cookie'
 
+import ArcoVue from '@arco-design/web-vue'
+import '@arco-design/web-vue/dist/arco.css'
+
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import 'element-plus/theme-chalk/dark/css-vars.css'
@@ -43,13 +46,9 @@ import ImageUpload from "@/components/ImageUpload"
 import ImagePreview from "@/components/ImagePreview"
 // 字典标签组件
 import DictTag from '@/components/DictTag'
+import { applyUiTheme, getStoredUiTheme } from '@/utils/uiTheme'
 
-const UI_THEME_NAME = 'vibehub-admin'
-
-if (typeof document !== 'undefined') {
-  document.documentElement.setAttribute('data-ui-theme', UI_THEME_NAME)
-  document.body.setAttribute('data-ui-theme', UI_THEME_NAME)
-}
+applyUiTheme(getStoredUiTheme())
 
 const app = createApp(App)
 registerSvgIcons()
@@ -76,6 +75,7 @@ app.component('Editor', Editor)
 
 app.use(router)
 app.use(store)
+app.use(ArcoVue)
 app.use(plugins)
 app.use(elementIcons)
 app.component('svg-icon', SvgIcon)

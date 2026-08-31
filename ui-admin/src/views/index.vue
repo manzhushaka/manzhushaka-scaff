@@ -10,14 +10,14 @@
           <p class="welcome-sub">聚合用户、权限与运行状态，保持后台运营节奏清晰可控。</p>
         </div>
         <div class="welcome-actions">
-          <el-button class="welcome-action-btn is-primary" @click="goRoute('/userAuth/user')">
+          <a-button type="primary" class="welcome-action-btn is-primary" @click="goRoute('/userAuth/user')">
             <svg-icon icon-class="user" class="action-icon" />
             用户管理
-          </el-button>
-          <el-button class="welcome-action-btn" @click="goRoute('/userAuth/role')">
+          </a-button>
+          <a-button class="welcome-action-btn" @click="goRoute('/userAuth/role')">
             <svg-icon icon-class="peoples" class="action-icon" />
             角色管理
-          </el-button>
+          </a-button>
         </div>
       </div>
     </div>

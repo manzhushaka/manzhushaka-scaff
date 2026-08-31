@@ -1,249 +1,266 @@
 <template>
   <div class="top-right-btn" :style="style">
-    <el-row>
-      <el-tooltip class="item" effect="dark" :content="showSearch ? '隐藏搜索' : '显示搜索'" placement="top" v-if="search">
-        <el-button circle icon="Search" @click="toggleSearch()" />
-      </el-tooltip>
-      <el-tooltip class="item" effect="dark" content="刷新" placement="top">
-        <el-button circle icon="Refresh" @click="refresh()" />
-      </el-tooltip>
-      <el-tooltip class="item" effect="dark" content="显隐列" placement="top" v-if="Object.keys(columns).length > 0">
-        <el-button circle icon="Menu" @click="showColumn()" v-if="showColumnsType == 'transfer'"/>
-        <el-dropdown trigger="click" :hide-on-click="false" style="padding-left: 12px" v-if="showColumnsType == 'checkbox'">
-          <el-button circle icon="Menu" />
-          <template #dropdown>
-            <el-dropdown-menu>
-              <!-- 全选/反选 按钮 -->
-              <el-dropdown-item>
-                <el-checkbox :indeterminate="isIndeterminate" v-model="isChecked" @change="toggleCheckAll"> 列展示 </el-checkbox>
-              </el-dropdown-item>
-              <div class="check-line"></div>
-              <template v-for="(item, key) in columns" :key="item.key">
-                <el-dropdown-item>
-                  <el-checkbox v-model="item.visible" @change="checkboxChange($event, key)" :label="item.label" />
-                </el-dropdown-item>
-              </template>
-            </el-dropdown-menu>
+    <a-space size="mini">
+      <a-tooltip v-if="search" :content="showSearch ? '隐藏搜索' : '显示搜索'" position="top">
+        <a-button shape="circle" :aria-label="showSearch ? '隐藏搜索' : '显示搜索'" @click="toggleSearch">
+          <template #icon><icon-search /></template>
+        </a-button>
+      </a-tooltip>
+      <a-tooltip content="刷新" position="top">
+        <a-button shape="circle" aria-label="刷新" @click="refresh">
+          <template #icon><icon-refresh /></template>
+        </a-button>
+      </a-tooltip>
+      <a-tooltip v-if="columnEntries.length > 0" content="显隐列" position="top">
+        <a-button v-if="showColumnsType === 'transfer'" shape="circle" aria-label="显隐列" @click="showColumn">
+          <template #icon><icon-list /></template>
+        </a-button>
+        <a-dropdown v-else trigger="click" :hide-on-select="false" position="br">
+          <a-button shape="circle" aria-label="显隐列">
+            <template #icon><icon-list /></template>
+          </a-button>
+          <template #content>
+            <div class="column-menu" @click.stop>
+              <a-checkbox
+                :model-value="isChecked"
+                :indeterminate="isIndeterminate"
+                @change="toggleCheckAll"
+              >
+                列展示
+              </a-checkbox>
+              <a-divider :margin="8" />
+              <a-checkbox
+                v-for="column in columnEntries"
+                :key="column.key"
+                :model-value="column.visible"
+                @change="visible => checkboxChange(visible, column.key)"
+              >
+                {{ column.label }}
+              </a-checkbox>
+            </div>
           </template>
-        </el-dropdown>
-      </el-tooltip>
-    </el-row>
-    <el-dialog :title="title" v-model="open" append-to-body>
-      <el-transfer
-        :titles="['显示', '隐藏']"
-        v-model="value"
-        :data="transferData"
-        @change="dataChange"
-      ></el-transfer>
-    </el-dialog>
+        </a-dropdown>
+      </a-tooltip>
+    </a-space>
+
+    <a-modal v-model:visible="open" title="显示/隐藏列" :footer="false" width="420px">
+      <div class="column-dialog-list">
+        <a-checkbox
+          v-for="column in columnEntries"
+          :key="column.key"
+          :model-value="column.visible"
+          @change="visible => checkboxChange(visible, column.key)"
+        >
+          {{ column.label }}
+        </a-checkbox>
+      </div>
+    </a-modal>
   </div>
 </template>
 
 <script setup>
+import { IconList, IconRefresh, IconSearch } from '@arco-design/web-vue/es/icon'
 import cache from '@/plugins/cache'
 
 const props = defineProps({
-  /* 是否显示检索条件 */
   showSearch: {
     type: Boolean,
     default: true
   },
-  /* 显隐列信息（数组格式、对象格式） */
   columns: {
     type: [Array, Object],
     default: () => ({})
   },
-  /* 是否显示检索图标 */
   search: {
     type: Boolean,
     default: true
   },
-  /* 显隐列类型（transfer穿梭框、checkbox复选框） */
   showColumnsType: {
     type: String,
-    default: "checkbox"
+    default: 'checkbox'
   },
-  /* 右外边距 */
   gutter: {
     type: Number,
     default: 10
   },
-  /* 列显隐状态记忆的 localStorage key（传入则启用记忆，不传则不记忆） */
   storageKey: {
     type: String,
-    default: ""
+    default: ''
   }
 })
 
 const emits = defineEmits(['update:showSearch', 'queryTable'])
-
-// 显隐数据
-const value = ref([])
-// 弹出层标题
-const title = ref("显示/隐藏")
-// 是否显示弹出层
 const open = ref(false)
-
-const style = computed(() => {
-  const ret = {}
-  if (props.gutter) {
-    ret.marginRight = `${props.gutter / 2}px`
-  }
-  return ret
-})
-
-// 是否全选/半选 状态
-const isChecked = computed({
-  get: () => Array.isArray(props.columns) ? props.columns.every(col => col.visible) : Object.values(props.columns).every((col) => col.visible),
-  set: () => {}
-})
-const isIndeterminate = computed(() => Array.isArray(props.columns) ? props.columns.some((col) => col.visible) && !isChecked.value : Object.values(props.columns).some((col) => col.visible) && !isChecked.value)
-const transferData = computed(() => Array.isArray(props.columns) ? props.columns.map((item, index) => ({ key: index, label: item.label })) : Object.keys(props.columns).map((key, index) => ({ key: index, label: props.columns[key].label })))
-
-// 搜索
 const { proxy } = getCurrentInstance()
-function toggleSearch() {
-  let el = proxy.$el
-  let formEl = null
-  while ((el = el.parentElement) && el !== document.body) {
-    if ((formEl = el.querySelector('.el-form'))) break
-  }
-  if (!formEl) return emits('update:showSearch', !props.showSearch)
-  animateSearch(formEl, props.showSearch)
-}
-function animateSearch(el, isHide) {
-  const DURATION = 260
-  const TRANSITION = 'max-height 0.25s ease, opacity 0.2s ease'
-  const clear = () => Object.assign(el.style, { transition: '', maxHeight: '', opacity: '', overflow: '' })
-  Object.assign(el.style, { overflow: 'hidden', transition: '' })
-  if (isHide) {
-    Object.assign(el.style, { maxHeight: el.scrollHeight + 'px', opacity: '1', transition: TRANSITION })
-    requestAnimationFrame(() => Object.assign(el.style, { maxHeight: '0', opacity: '0' }))
-    setTimeout(() => { emits('update:showSearch', false); clear() }, DURATION)
-  } else {
-    emits('update:showSearch', true)
-    nextTick(() => {
-      Object.assign(el.style, { maxHeight: '0', opacity: '0' })
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        Object.assign(el.style, { transition: TRANSITION, maxHeight: el.scrollHeight + 'px', opacity: '1' })
-      }))
-      setTimeout(clear, DURATION)
-    })
-  }
-}
 
-// 刷新
-function refresh() {
-  emits("queryTable")
-}
-
-// 右侧列表元素变化
-function dataChange(data) {
+const style = computed(() => props.gutter ? { marginRight: `${props.gutter / 2}px` } : {})
+const columnEntries = computed(() => {
   if (Array.isArray(props.columns)) {
-    for (let item in props.columns) {
-      const key = props.columns[item].key
-      props.columns[item].visible = !data.includes(key)
-    }
-  } else {
-    Object.keys(props.columns).forEach((key, index) => {
-      props.columns[key].visible = !data.includes(index)
-    })
+    return props.columns.map((column, index) => ({
+      key: column.key ?? index,
+      label: column.label,
+      visible: column.visible
+    }))
   }
-  saveStorage()
+  return Object.keys(props.columns).map(key => ({
+    key,
+    label: props.columns[key].label,
+    visible: props.columns[key].visible
+  }))
+})
+const isChecked = computed(() => columnEntries.value.length > 0 && columnEntries.value.every(column => column.visible))
+const isIndeterminate = computed(() => columnEntries.value.some(column => column.visible) && !isChecked.value)
+
+/**
+ * 显示或隐藏当前页面的筛选区域。
+ */
+function toggleSearch() {
+  let element = proxy.$el
+  let formElement = null
+  while ((element = element.parentElement) && element !== document.body) {
+    formElement = element.querySelector('.arco-form, .el-form')
+    if (formElement) {
+      break
+    }
+  }
+  if (!formElement) {
+    emits('update:showSearch', !props.showSearch)
+    return
+  }
+  animateSearch(formElement, props.showSearch)
 }
 
-// 打开显隐列dialog
+/**
+ * 执行筛选区域的展开或收起动画。
+ *
+ * @param {HTMLElement} element 筛选表单元素
+ * @param {boolean} isHide 是否隐藏
+ */
+function animateSearch(element, isHide) {
+  const duration = 260
+  const transition = 'max-height 0.25s ease, opacity 0.2s ease'
+  const clear = () => Object.assign(element.style, { transition: '', maxHeight: '', opacity: '', overflow: '' })
+  Object.assign(element.style, { overflow: 'hidden', transition: '' })
+  if (isHide) {
+    Object.assign(element.style, { maxHeight: `${element.scrollHeight}px`, opacity: '1', transition })
+    requestAnimationFrame(() => Object.assign(element.style, { maxHeight: '0', opacity: '0' }))
+    setTimeout(() => {
+      emits('update:showSearch', false)
+      clear()
+    }, duration)
+    return
+  }
+  emits('update:showSearch', true)
+  nextTick(() => {
+    Object.assign(element.style, { maxHeight: '0', opacity: '0' })
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      Object.assign(element.style, { transition, maxHeight: `${element.scrollHeight}px`, opacity: '1' })
+    }))
+    setTimeout(clear, duration)
+  })
+}
+
+/**
+ * 触发表格刷新。
+ */
+function refresh() {
+  emits('queryTable')
+}
+
+/**
+ * 打开列设置弹窗。
+ */
 function showColumn() {
   open.value = true
 }
 
-// 如果传入了 storageKey，从 localStorage 恢复列显隐状态
-if (props.storageKey) {
-  try {
-    const saved = cache.local.getJSON(props.storageKey)
-    if (saved && typeof saved === 'object') {
-      if (Array.isArray(props.columns)) {
-        props.columns.forEach((col, index) => {
-          if (saved[index] !== undefined) col.visible = saved[index]
-        })
-      } else {
-        Object.keys(props.columns).forEach(key => {
-          if (saved[key] !== undefined) props.columns[key].visible = saved[key]
-        })
-      }
-    }
-  } catch {}
-}
-if (props.showColumnsType == "transfer") {
-  // transfer穿梭显隐列初始默认隐藏列
+/**
+ * 更新单列可见状态。
+ *
+ * @param {boolean} visible 是否可见
+ * @param {string|number} key 列标识
+ */
+function checkboxChange(visible, key) {
   if (Array.isArray(props.columns)) {
-    for (let item in props.columns) {
-      if (props.columns[item].visible === false) {
-        value.value.push(parseInt(item))
-      }
+    const targetColumn = props.columns.find((column, index) => (column.key ?? index) === key)
+    if (targetColumn) {
+      targetColumn.visible = visible
     }
-  } else {
-    Object.keys(props.columns).forEach((key, index) => {
-      if (props.columns[key].visible === false) {
-        value.value.push(index)
-      }
-    })
-  }
-}
-
-// 单勾选
-function checkboxChange(event, key) {
-  if (Array.isArray(props.columns)) {
-    props.columns.filter(item => item.key == key)[0].visible = event
-  } else {
-    props.columns[key].visible = event
+  } else if (props.columns[key]) {
+    props.columns[key].visible = visible
   }
   saveStorage()
 }
 
-// 切换全选/反选
+/**
+ * 切换全部列的可见状态。
+ */
 function toggleCheckAll() {
-  const newValue = !isChecked.value
+  const visible = !isChecked.value
   if (Array.isArray(props.columns)) {
-    props.columns.forEach((col) => (col.visible = newValue))
+    props.columns.forEach(column => { column.visible = visible })
   } else {
-    Object.values(props.columns).forEach((col) => (col.visible = newValue))
+    Object.values(props.columns).forEach(column => { column.visible = visible })
   }
   saveStorage()
 }
 
-// 将当前列显隐状态持久化到 localStorage
+/**
+ * 将列可见状态保存到本地缓存。
+ */
 function saveStorage() {
-  if (!props.storageKey) return
-  try {
-    let state = {}
+  if (!props.storageKey) {
+    return
+  }
+  const state = {}
+  if (Array.isArray(props.columns)) {
+    props.columns.forEach((column, index) => { state[index] = column.visible })
+  } else {
+    Object.keys(props.columns).forEach(key => { state[key] = props.columns[key].visible })
+  }
+  cache.local.setJSON(props.storageKey, state)
+}
+
+if (props.storageKey) {
+  const saved = cache.local.getJSON(props.storageKey)
+  if (saved && typeof saved === 'object') {
     if (Array.isArray(props.columns)) {
-      props.columns.forEach((col, index) => { state[index] = col.visible })
+      props.columns.forEach((column, index) => {
+        if (saved[index] !== undefined) {
+          column.visible = saved[index]
+        }
+      })
     } else {
-      Object.keys(props.columns).forEach(key => { state[key] = props.columns[key].visible })
+      Object.keys(props.columns).forEach(key => {
+        if (saved[key] !== undefined) {
+          props.columns[key].visible = saved[key]
+        }
+      })
     }
-    cache.local.setJSON(props.storageKey, state)
-  } catch {}
+  }
 }
 </script>
 
-<style lang='scss' scoped>
-:deep(.el-transfer__button) {
-  border-radius: 50%;
-  display: block;
-  margin-left: 0px;
+<style lang="scss" scoped>
+.column-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 168px;
+  max-height: 320px;
+  padding: 10px 12px;
+  overflow-y: auto;
 }
-:deep(.el-transfer__button:first-child) {
-  margin-bottom: 10px;
+
+.column-dialog-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 16px;
 }
-:deep(.el-dropdown-menu__item) {
-  line-height: 30px;
-  padding: 0 17px;
-}
-.check-line {
-  width: 90%;
-  height: 1px;
-  background-color: var(--ui-border-subtle);
-  margin: 3px auto;
+
+@media (max-width: 640px) {
+  .column-dialog-list {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
