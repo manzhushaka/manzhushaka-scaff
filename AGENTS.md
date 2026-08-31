@@ -83,21 +83,20 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 - 新功能如果需要调整数据库结构、基础数据或默认配置，必须同步调整 `sql` 目录下的初始化脚本，当前主初始化脚本为 `sql/manzhushaka_db_init.sql`；若后续任务明确引入 `sql/manzhushaka_init.sql`，再同步维护该文件。
 - 新增菜单、按钮权限或角色默认授权时，必须同步维护 `sys_menu` 和必要的 `sys_role_menu` 初始化 SQL，不能只改前端路由或后端接口。
 
-## 前端页面顶部说明条规范
+## 前端技术现状
 
-- `ui-admin` 的业务页面默认通过 `layout/components/PageHeader` 在页面顶部展示统一说明条，不在各页面重复手写同类结构。
-- 页面说明条必须包含英文分组、页面名称和页面说明；页面名称优先取 `route.meta.pageTitle`，其次取 `route.meta.title`。
-- 新增静态路由页面时，应在路由 `meta.description` 或 `meta.pageDescription` 中写清页面用途；英文分组可通过 `meta.pageGroup` 或 `meta.eyebrow` 指定。
-- 新增后端动态菜单页面时，如果后端路由暂未提供说明字段，必须在 `ui-admin/src/utils/pageHeader.js` 为对应页面标题补充说明文案和分组兜底，避免只显示通用默认文案。
-- 页面说明应描述该页面解决什么问题、展示什么信息或维护什么数据，不写键盘快捷键、操作教程、营销文案或与当前页面无关的介绍。
-- 登录、注册、锁屏、首页、错误页、重定向页和外链 iframe 默认不展示说明条；确有需要时，先评估是否会破坏这些特殊页面的既有视觉和交互。
+- `ui-admin` 的页面和公共组件已全部迁移到 Arco Design Vue，`main.js` 只全局注册 Arco Design Vue，`package.json` 已移除 Element Plus 依赖。
+- 所有新增和修改的页面、共享组件统一使用 Arco Design Vue，不得重新引入 Element Plus 依赖、组件 API 或图标。
+- 当前仓库没有 `layout/components/PageHeader` 和 `ui-admin/src/utils/pageHeader.js`，业务页面也不要求路由提供页面说明元数据。不要引用这两个已删除实现，也不要在各页面重新手写统一说明条。
+- 调整前端 UI 时默认保留接口字段、权限字符串、路由名称、查询参数和业务流程，不把视觉或组件改动扩大成业务重构。
+- `docs/frontend-arco-migration.md` 仅作为历史迁移记录，不再表示当前仓库处于双组件库共存阶段。
 
 ## 前端视觉设计规范
 
 ### 设计基线与主题变量
 
 - `ui-admin` 采用深色侧栏、白色工作面板和可切换的橙白、紫白主题；页面应安静、紧凑、便于扫描，不使用营销页式大标题、装饰性渐变、光斑或大面积高饱和色。
-- 新增页面和完成重构的页面必须使用 Arco Design Vue。存量 Element Plus 页面仅作为迁移期兼容，不在同一页面长期混用两套组件，也不新增 Element Plus 依赖或组件用法。
+- 所有业务页面和公共组件必须使用 Arco Design Vue，不得新增 Element Plus 依赖、组件用法或迁移期兼容层。
 - 全站颜色、间距、圆角、阴影、控件高度和布局尺寸统一从 `ui-admin/src/assets/styles/theme-tokens.scss` 的 `--ui-*` 变量取值；业务页面禁止重复硬编码主色、背景色和边框色。
 - 主色只用于当前导航、主要操作、焦点和关键状态；成功、警告、危险、信息状态分别使用 `--ui-success`、`--ui-warning`、`--ui-danger`、`--ui-info`，不把所有状态都改成橙色。
 - 面板和控件圆角默认不超过 `8px`；阴影保持轻量，仅用于需要与画布分层的面板、弹窗和浮层，普通页面区块不做悬浮卡片。
@@ -111,7 +110,7 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 
 ### 页面结构
 
-- 标准业务页结构为“统一页面概览区 + 工作区”。概览区由 `layout/components/PageHeader` 统一输出英文分组、标题、说明和装饰视觉，不在业务页重复实现。
+- 标准业务页直接进入工作区，不额外添加营销式 Hero、页面说明条或装饰性概览卡片。
 - 查询列表页根容器使用 `app-container ui-list-page`；筛选区、操作栏和表格区依次使用 `ui-filter-card`、`ui-action-bar`、`ui-table-card`，分页放在同一工作区底部。
 - 树加列表页面复用 `TreePanel` 和 `tree-sidebar-manage-wrap`；详情页、监控页和资料页可使用 `ui-panel-card`、`ui-detail-card`，但禁止卡片嵌套卡片。
 - 登录、注册、锁屏和错误页可以使用独立构图，但必须沿用同一品牌色、字体、控件圆角和明暗关系，不另建平行主题。
@@ -121,7 +120,7 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 - 表单控件默认高度使用 `--ui-form-control-height`；同一筛选行的标签、输入框、选择器、日期范围和按钮应对齐，不用任意 margin 修补错位。
 - 查询和提交使用主按钮；重置使用默认按钮；新增、修改、删除、导出等动作沿用现有语义色。仅图标即可准确表达的工具按钮使用图标并提供 tooltip 或 `aria-label`。
 - 表格表头、行高、边框和悬停态由全局样式控制；长文本使用省略和 tooltip，操作列保持稳定宽度，空列表返回并展示空状态而不是塌陷布局。
-- 标签、开关、复选框、单选框、分页、弹窗和抽屉优先使用 Arco Design Vue 组件，禁止用普通文本或自绘控件替代成熟交互。
+- 标签、开关、复选框、单选框、分页、弹窗和抽屉使用 Arco Design Vue 组件，禁止用普通文本或自绘控件替代成熟交互。
 
 ### 响应式与可用性
 
@@ -132,7 +131,7 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 ### 前端验收
 
 - UI 改动完成后至少执行 `cd ui-admin && npm run build:prod`，并检查浏览器控制台无新增错误。
-- 涉及壳层、主题或公共组件时，必须截图核对首页、一个标准列表页、一个特殊页和手机视口，确认侧栏、顶栏、页签、概览区、筛选区、表格、分页和弹窗没有重叠或视觉断层。
+- 涉及壳层、主题或公共组件时，必须截图核对首页、一个标准列表页、一个特殊页和手机视口，确认侧栏、顶栏、页签、筛选区、表格、分页和弹窗没有重叠或视觉断层。
 - 新增页面优先复用既有主题类和组件；若必须增加局部样式，只保留当前页面独有的布局，能由全局变量或公共类表达的样式不得复制到页面中。
 
 ## 构建、测试与本地运行
@@ -143,6 +142,7 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 - `cd ui-admin && npm install`：按 `package-lock.json` 安装前端依赖。
 - `cd ui-admin && npm run dev`：启动 Vite 开发服务。
 - `cd ui-admin && npm run build:prod`：构建生产前端包。
+- `.release/verify.sh`：执行后端测试、安装锁定的前端依赖并完成生产构建。
 - 如果有代码变更，最好执行 `codegraph sync .` 更新索引。
 
 ## Java 命名规范
@@ -437,7 +437,7 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 - 单元测试应在提测前完成，不建议发布后补。
 - 避免业务代码中构造方法过重、全局变量和静态方法过多、外部依赖过多、条件语句过多。
 - 本仓库后端使用 Spring Boot Test、JUnit 5 和 ArchUnit；涉及模块边界变更时必须更新架构测试。
-- 前端暂无测试脚本，UI 变更需记录手工验证并提供截图。
+- 前端 `package.json` 暂无 `test` 脚本，UI 变更需执行生产构建、浏览器检查并提供截图。`ui-admin/tests/pageHeader.test.mjs` 依赖已删除的 PageHeader 实现，当前不能作为有效验收项。
 
 ## 安全规约
 
@@ -662,7 +662,7 @@ Handler 接收到消息 → PROCESSING (0)
 
 #### RedisStreamMessagePublisher ([`RedisStreamMessagePublisher.java`](manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMessagePublisher.java))
 
-发布器组件，构造包含标准字段的 body 并调用 `gateway.add()` 写入 Stream。发布的 body 固定包含以下字段：
+发布器组件通过 `publish(streamKey, messageType, businessKey, payload)` 构造标准 body，并调用 `gateway.add()` 写入 Stream。发布的 body 固定包含以下字段：
 
 ```text
 messageType  — 消息类型（用于路由到对应的 Handler）
@@ -744,7 +744,7 @@ protected void doHandle(RedisStreamRecord record) {
 
 - 实现 `SmartLifecycle`，在 Spring 容器启动完成后自动注册所有 Listener
 - 为每个 Handler 执行 `createGroupIfAbsent()`（幂等）
-- 注册 `StreamMessageListenerContainer.receive()` 回调，自动 ACK
+- 注册 `StreamMessageListenerContainer.receive()` 回调并转交 Handler；ACK 由 `AbstractRedisStreamMessageHandler` 在跳过、成功、转入重试或死信后显式执行
 - 应用关闭时自动取消订阅并停止容器
 
 #### RedisStreamRetryScheduler ([`RedisStreamRetryScheduler.java`](manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamRetryScheduler.java))
@@ -757,7 +757,7 @@ protected void doHandle(RedisStreamRecord record) {
 
 ### 配置
 
-在 [`RedisStreamMqConfig.java`](manzhushaka-framework/src/main/java/com/manzhushaka/framework/mq/RedisStreamMqConfig.java) 中定义：
+在 [`RedisStreamMqConfig.java`](manzhushaka-framework/src/main/java/com/manzhushaka/framework/config/RedisStreamMqConfig.java) 中定义：
 
 - `@Configuration` + `@EnableScheduling` 启用调度
 - `StreamMessageListenerContainer<String, MapRecord<String, String, String>>` Bean，`pollTimeout` 为 2 秒
@@ -840,10 +840,7 @@ public class DemoMessageHandler extends AbstractRedisStreamMessageHandler
 private RedisStreamMessagePublisher publisher;
 
 public void sendDemoMessage(String businessKey, String payload) {
-    Map<String, String> body = new HashMap<>();
-    body.put("businessKey", businessKey);
-    body.put("payload", payload);
-    publisher.publish("mq:stream:demo", "demo", body);
+    publisher.publish("mq:stream:demo", "demo", businessKey, payload);
 }
 ```
 
@@ -871,7 +868,7 @@ public void sendDemoMessage(String businessKey, String payload) {
 - 当前 Agent 可支持：检查 Redis Stream MQ 的 `@Component` Handler 是否遗漏 `messageType()`/`streamKey()` 实现、检查 Handler 是否被 `RedisStreamMessageHandlerRegistry` 自动收集（通过验证 Spring 注解）、检查台账 `toString()` 字段截断、检查权限字符串闭合。
 - 当前无法完全自动保证：Handler 中的 `doHandle()` 业务逻辑正确性、重试间隔秒数是否合理、死信后的人工处理机制、Stream 消息体与台账字段的映射一致性。
 
-系统支持边界
+## 系统支持边界
 
 - 当前 Agent 可支持：读取真实调用链路、对照 `AGENTS.md`、检查 git diff、运行 `rg`、Maven 测试、前端构建和本地脚本，辅助发现权限、SQL、脱敏、异常和模型字段的显性遗漏。
 - 当前项目可支持：`@PreAuthorize` 接口鉴权、`@Anonymous` 匿名声明、`v-hasPermi` 按钮显隐、`M/C/F` 菜单路由过滤、`@Sensitive` JSON 脱敏、全局 `ServiceException` 处理、MyBatis XML 映射和 `sql/manzhushaka_db_init.sql` 初始化。

@@ -1,13 +1,14 @@
 # manzhushaka-scaff
 
-`manzhushaka-scaff` 是基于 RuoYi / RuoYi-Vue 体系二次开发的前后端分离后台脚手架。后端采用 `Spring Boot 4 + Spring Security + MyBatis`，前端采用 `Vue 3 + Element Plus + Vite`，当前仓库已按 `com.manzhushaka` 包名和 `manzhushaka-*` Maven 多模块结构继续演进。
+`manzhushaka-scaff` 是基于 RuoYi / RuoYi-Vue 体系二次开发的前后端分离后台脚手架。后端采用 `Spring Boot 4 + Spring Security + MyBatis`，前端采用 `Vue 3 + Arco Design Vue + Vite`。当前仓库已按 `com.manzhushaka` 包名和 `manzhushaka-*` Maven 多模块结构继续演进。
 
 本仓库不是若依官方原版。README 以当前代码状态为准，用于本地开发、模块理解和后续二次开发。
 
 ## 当前状态
 
-- 保留后台基础能力：登录认证、验证码、用户、角色、菜单、部门、字典、参数、操作日志、登录日志、在线用户、服务监控、缓存监控、Druid 监控和 Quartz 定时任务。
-- 前端入口在 `ui-admin`，使用 Vue 3、Element Plus、Pinia、Vue Router 4 和 Axios。
+- 保留后台基础能力：登录认证、验证码、用户、角色、菜单、部门、字典、参数、操作日志、登录日志、运行日志、慢 SQL 日志、在线用户、服务监控、缓存监控、Druid 监控和 Quartz 定时任务。
+- 已接入 Redis Stream 消息发布、消费、重试、死信和消息台账管理。
+- 前端入口在 `ui-admin`，使用 Vue 3、Arco Design Vue、Pinia、Vue Router 4 和 Axios；页面和公共组件已全部迁移到 Arco Design Vue，Element Plus 依赖已移除。
 - 后端入口在 `manzhushaka-admin`，当前启动类为 `com.manzhushaka.ManzhushakaScaffApplication`。
 - 系统业务正在从若依传统分层向更清晰的应用层、领域层、基础设施层拆分；新增代码应优先遵守 `AGENTS.md` 中的模块边界。
 - 当前仓库已移除或正在清理若依原版中的岗位管理、通知公告、在线构建器等旧入口，文档和菜单不再把它们作为内置能力描述。
@@ -34,7 +35,7 @@
 | --- | --- |
 | 框架 | Vue 3.5 |
 | 构建工具 | Vite 6 |
-| UI 组件 | Element Plus |
+| UI 组件 | Arco Design Vue 2.58 |
 | 状态管理 | Pinia |
 | 路由 | Vue Router 4 |
 | HTTP | Axios |
@@ -49,13 +50,15 @@
 ├── manzhushaka-system       # 系统业务，用户、角色、菜单、部门、字典、参数等
 ├── manzhushaka-quartz       # Quartz 定时任务
 ├── manzhushaka-common       # 通用工具、常量、注解、异常和基础能力
-├── ui-admin                    # Vue 3 管理端
-├── sql                         # 初始化脚本和增量修复脚本
-├── doc                         # 原始项目文档
-├── docs                        # 项目审计、设计和迁移记录
-├── scripts                     # 辅助脚本
-├── ry.sh / ry.bat              # 后端运行脚本
-└── pom.xml                     # Maven 聚合工程
+├── ui-admin                 # Vue 3 管理端
+├── sql                      # 主初始化脚本
+├── doc                      # 原始项目文档
+├── docs                     # 项目审计、设计和迁移记录
+├── scripts                  # 架构检查等辅助脚本
+├── deploy                   # Nginx 等部署配置片段
+├── .release                 # 构建、校验和发布脚本
+├── ry.sh / ry.bat           # 后端运行脚本
+└── pom.xml                  # Maven 聚合工程
 ```
 
 ## 环境要求
@@ -73,18 +76,18 @@
 创建数据库，默认配置使用：
 
 ```sql
-CREATE DATABASE `manzhushaka` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+CREATE DATABASE `manzhushaka-scaff` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 ```
 
 导入基础脚本：
 
 ```bash
-mysql --default-character-set=utf8mb4 -uroot -p manzhushaka < sql/manzhushaka_db_init.sql
+mysql --default-character-set=utf8mb4 -uroot -p manzhushaka-scaff < sql/manzhushaka_db_init.sql
 ```
 
 以上导入命令中的 `--default-character-set=utf8mb4` 不要省略，否则初始化中文数据时可能出现乱码。
 
-当前仓库仅保留 `sql/manzhushaka_db_init.sql`，用于从空库一次性完成系统与 Quartz 调度表初始化。
+当前仓库仅保留 `sql/manzhushaka_db_init.sql`，用于从空库一次性完成系统表、Redis Stream MQ 台账表和 Quartz 调度表初始化。
 
 ### 2. 修改后端配置
 
@@ -98,7 +101,7 @@ mysql --default-character-set=utf8mb4 -uroot -p manzhushaka < sql/manzhushaka_db
 | 变量 | 默认值 | 说明 |
 | --- | --- | --- |
 | `SPRING_PROFILES_ACTIVE` | `dev` | Spring Profile |
-| `JDBC_MASTER_URL` | `jdbc:mysql://localhost:3306/manzhushaka...characterEncoding=UTF-8...` | 主库连接 |
+| `JDBC_MASTER_URL` | `jdbc:mysql://localhost:3306/manzhushaka-scaff...characterEncoding=UTF-8...` | 主库连接 |
 | `JDBC_MASTER_USERNAME` | `root` | 主库用户名 |
 | `JDBC_MASTER_PASSWORD` | `1a2s3d4f` | 主库密码 |
 | `JDBC_SLAVE_ENABLED` | `false` | 是否启用从库 |
@@ -179,6 +182,19 @@ npm run build:prod
 npm run build:stage
 ```
 
+### 发布校验与打包
+
+```bash
+# 后端测试 + 前端生产构建
+.release/verify.sh
+
+# 生成分层发布包及校验文件
+.release/build.sh
+
+# 校验已生成的完整发布包
+.release/preflight.sh artifact .release/out/release.tar.gz
+```
+
 ## 开发约定
 
 新增或修改代码前，请先阅读 `AGENTS.md`。其中包含本仓库当前的模块边界、Java 编码规范、权限闭环、SQL 维护、日志注解、安全和测试要求。
@@ -189,6 +205,7 @@ npm run build:stage
 - 框架能力放在 `manzhushaka-framework`。
 - 系统业务放在 `manzhushaka-system`，新增持久化实体优先放到 `infrastructure/persistence/entity`。
 - `manzhushaka-common` 只放通用基础能力，不承载业务实体。
+- 所有页面和公共组件统一使用 Arco Design Vue；新增或修改前端代码时不得重新引入 Element Plus 依赖或组件 API。
 - 新增页面、按钮、接口权限时，需要同步维护前端 `v-hasPermi`、后端 `@PreAuthorize`、`sql/manzhushaka_db_init.sql` 中的 `sys_menu` 和必要的 `sys_role_menu`。
 - 新增或调整数据库结构、基础数据、默认菜单时，需要同步维护 `sql` 目录下的初始化或增量脚本。
 - `manzhushaka-admin/src/main/java/com/manzhushaka/web/controller` 下的 HTTP 接口方法需要同时满足权限注解和 `@Log` 操作日志规范。
@@ -203,14 +220,17 @@ npm run build:stage
 - 前端代理配置：`ui-admin/vite.config.js`
 - 前端路由：`ui-admin/src/router/index.js`
 - 前端页面：`ui-admin/src/views`
+- 前端 Arco 迁移记录（历史）：`docs/frontend-arco-migration.md`
 - 初始化 SQL：`sql/manzhushaka_db_init.sql`
+- 发布配置：`.release/project.env`
 - 协作规范：`AGENTS.md`
 
 ## 文档
 
 - 原始环境手册：`doc/若依环境使用手册.docx`
 - 审计与修复记录：`docs/audit`
-- 设计与迁移计划：`docs/superpowers`
+- Arco Design Vue 迁移记录（历史）：`docs/frontend-arco-migration.md`
+- 设计与迁移记录（历史）：`docs/superpowers`
 - 若依原始生态参考：[RuoYi](https://gitee.com/y_project/RuoYi)、[RuoYi-Vue](https://gitee.com/y_project/RuoYi-Vue)
 
 ## 许可证
