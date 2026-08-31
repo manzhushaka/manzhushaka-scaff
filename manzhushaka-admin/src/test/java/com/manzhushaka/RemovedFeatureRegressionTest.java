@@ -61,6 +61,17 @@ class RemovedFeatureRegressionTest
             "ui-admin/src/api/monitor/requestLog.js",
             "ui-admin/src/views/monitor/requestLog/index.vue");
 
+    /** IIP 模块及其前后端入口路径。 */
+    private static final List<String> REMOVED_IIP_PATHS = List.of(
+            "manzhushaka-iip",
+            "ui-miniapp",
+            "manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/iip",
+            "manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/miniapp",
+            "manzhushaka-admin/src/main/java/com/manzhushaka/web/converter/iip",
+            "manzhushaka-admin/src/main/java/com/manzhushaka/web/dto/iip",
+            "ui-admin/src/api/iip",
+            "ui-admin/src/views/iip");
+
     /**
      * 岗位管理相关后端类应已从类路径移除。
      */
@@ -141,6 +152,21 @@ class RemovedFeatureRegressionTest
     }
 
     /**
+     * IIP 模块及其前后端入口应已从仓库移除。
+     */
+    @Test
+    void iipFeaturePathsShouldBeRemoved()
+    {
+        Path root = repositoryRoot();
+        for (String relativePath : REMOVED_IIP_PATHS)
+        {
+            assertThat(Files.exists(root.resolve(relativePath)))
+                    .as("path should be absent: %s", relativePath)
+                    .isFalse();
+        }
+    }
+
+    /**
      * 初始化 SQL 不应再保留通知公告与若依官网初始化数据。
      *
      * @throws IOException 读取 SQL 文件失败
@@ -163,6 +189,22 @@ class RemovedFeatureRegressionTest
                 .doesNotContain("system:post:")
                 .doesNotContain("sys_post")
                 .doesNotContain("sys_user_post");
+    }
+
+    /**
+     * 初始化 SQL 不应再保留 IIP 表、菜单或权限。
+     *
+     * @throws IOException 读取 SQL 文件失败
+     */
+    @Test
+    void initializationSqlShouldNotContainRemovedIipFeature() throws IOException
+    {
+        String sql = Files.readString(repositoryRoot().resolve(INIT_SQL_PATH));
+
+        assertThat(sql)
+                .doesNotContain("iip_")
+                .doesNotContain("iip:")
+                .doesNotContain("iip/");
     }
 
     /**
