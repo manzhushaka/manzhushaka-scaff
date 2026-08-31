@@ -52,12 +52,9 @@
 ├── manzhushaka-common       # 通用工具、常量、注解、异常和基础能力
 ├── ui-admin                 # Vue 3 管理端
 ├── sql                      # 主初始化脚本
-├── doc                      # 原始项目文档
-├── docs                     # 项目审计、设计和迁移记录
+├── docs                     # 安全与使用文档
 ├── scripts                  # 架构检查等辅助脚本
-├── deploy                   # Nginx 等部署配置片段
-├── .release                 # 构建、校验和发布脚本
-├── ry.sh / ry.bat           # 后端运行脚本
+├── bin                      # Windows 构建与运行脚本
 └── pom.xml                  # Maven 聚合工程
 ```
 
@@ -182,19 +179,6 @@ npm run build:prod
 npm run build:stage
 ```
 
-### 发布校验与打包
-
-```bash
-# 后端测试 + 前端生产构建
-.release/verify.sh
-
-# 生成分层发布包及校验文件
-.release/build.sh
-
-# 校验已生成的完整发布包
-.release/preflight.sh artifact .release/out/release.tar.gz
-```
-
 ## 开发约定
 
 新增或修改代码前，请先阅读 `AGENTS.md`。其中包含本仓库当前的模块边界、Java 编码规范、权限闭环、SQL 维护、日志注解、安全和测试要求。
@@ -220,17 +204,12 @@ npm run build:stage
 - 前端代理配置：`ui-admin/vite.config.js`
 - 前端路由：`ui-admin/src/router/index.js`
 - 前端页面：`ui-admin/src/views`
-- 前端 Arco 迁移记录（历史）：`docs/frontend-arco-migration.md`
 - 初始化 SQL：`sql/manzhushaka_db_init.sql`
-- 发布配置：`.release/project.env`
 - 协作规范：`AGENTS.md`
 
 ## 文档
 
-- 原始环境手册：`doc/若依环境使用手册.docx`
-- 审计与修复记录：`docs/audit`
-- Arco Design Vue 迁移记录（历史）：`docs/frontend-arco-migration.md`
-- 设计与迁移记录（历史）：`docs/superpowers`
+- 敏感字段加密说明：`docs/security/sensitive-encryption.md`
 - 若依原始生态参考：[RuoYi](https://gitee.com/y_project/RuoYi)、[RuoYi-Vue](https://gitee.com/y_project/RuoYi-Vue)
 
 ## 许可证

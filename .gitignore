@@ -44,6 +44,12 @@ logs/
 *.swp
 .superpowers/
 .worktrees/
+.codegraph/
+.codex-run/
+.release/
+dump.rdb
+.env.local
+.env.*.local
 
 !*/build/*.java
 !*/build/*.html
@@ -53,7 +59,3 @@ logs/
 
 # Misgenerated empty root npm lockfile (real lockfiles live in ui-admin/ and ui-miniapp/)
 /package-lock.json
-
-# Personal project release build output
-.release/out/
-.release/work/

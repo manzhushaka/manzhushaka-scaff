@@ -1,4 +1,0 @@
-# Files outside the default build output that a project-specific release script
-# consumes during packaging or deployment. Keep required Nginx, migration, and
-# deployment files here so a missing source file fails before upload.
-deploy/manzhushaka-scaff.locations.conf

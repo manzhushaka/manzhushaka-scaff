@@ -89,7 +89,6 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 - 所有新增和修改的页面、共享组件统一使用 Arco Design Vue，不得重新引入 Element Plus 依赖、组件 API 或图标。
 - 当前仓库没有 `layout/components/PageHeader` 和 `ui-admin/src/utils/pageHeader.js`，业务页面也不要求路由提供页面说明元数据。不要引用这两个已删除实现，也不要在各页面重新手写统一说明条。
 - 调整前端 UI 时默认保留接口字段、权限字符串、路由名称、查询参数和业务流程，不把视觉或组件改动扩大成业务重构。
-- `docs/frontend-arco-migration.md` 仅作为历史迁移记录，不再表示当前仓库处于双组件库共存阶段。
 
 ## 前端视觉设计规范
 
@@ -142,7 +141,6 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 - `cd ui-admin && npm install`：按 `package-lock.json` 安装前端依赖。
 - `cd ui-admin && npm run dev`：启动 Vite 开发服务。
 - `cd ui-admin && npm run build:prod`：构建生产前端包。
-- `.release/verify.sh`：执行后端测试、安装锁定的前端依赖并完成生产构建。
 - 如果有代码变更，最好执行 `codegraph sync .` 更新索引。
 
 ## Java 命名规范

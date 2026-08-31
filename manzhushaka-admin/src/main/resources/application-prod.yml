@@ -1,4 +1,4 @@
-# 生产环境只声明基础设施连接，凭据由 /home/app/manzhushaka-scaff/shared/app.env 注入。
+# 生产环境只声明基础设施连接，凭据通过环境变量注入。
 manzhushaka:
   crypto:
     enabled: ${SENSITIVE_FIELD_CRYPTO_ENABLED:true}
