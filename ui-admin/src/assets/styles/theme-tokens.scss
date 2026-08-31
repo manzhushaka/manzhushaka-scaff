@@ -114,9 +114,9 @@
   --ui-hero-action-bg: rgba(255, 255, 255, 0.15);
   --ui-hero-action-border: rgba(255, 255, 255, 0.24);
 
-  --ui-table-header-bg: #faf9f7;
-  --ui-table-row-hover-bg: #f7f6f3;
-  --ui-table-border: #dfddd7;
+  --ui-table-header-bg: #f7f8fa;
+  --ui-table-row-hover-bg: #f5f7fa;
+  --ui-table-border: #e5e7eb;
 
   // color-mix() 静态回退色值
   --ui-primary-light-3-static: #ff9464;
@@ -195,9 +195,9 @@
   --ui-hero-action-bg: rgba(255, 255, 255, 0.15);
   --ui-hero-action-border: rgba(255, 255, 255, 0.24);
 
-  --ui-table-header-bg: #f8f7fb;
-  --ui-table-row-hover-bg: #faf8fd;
-  --ui-table-border: #e1dde7;
+  --ui-table-header-bg: #f7f8fa;
+  --ui-table-row-hover-bg: #f5f7fa;
+  --ui-table-border: #e5e7eb;
 
   --ui-primary-light-3-static: #9d68e2;
   --ui-primary-light-5-static: #b994ea;
@@ -344,16 +344,13 @@
   box-shadow: none;
 }
 
-// 标准列表页外壳：统一收纳筛选区、操作栏、表格和分页
+// 标准列表页外壳：筛选区与数据工作区分层展示
 .ui-list-page {
   min-height: 0;
   margin: var(--ui-layout-content-padding);
   padding: 0;
-  overflow: hidden;
-  border: 1px solid var(--ui-border);
-  border-radius: var(--ui-radius-panel);
-  background: var(--ui-bg-panel);
-  box-shadow: var(--ui-shadow-panel);
+  overflow: visible;
+  background: transparent;
 }
 
 .app-container.ui-list-page {
@@ -361,23 +358,18 @@
 }
 
 .ui-list-page > .ui-filter-card {
-  margin: 0;
-  border: 0;
-  border-bottom: 0;
-  border-radius: 0;
+  margin: 0 0 12px;
+  border-color: var(--ui-table-border);
+  box-shadow: var(--ui-shadow-panel);
 }
 
 .ui-list-page > .ui-action-bar {
-  margin: 0;
-  padding: 10px 16px;
-  border-top: 1px solid var(--ui-divider);
-  border-bottom: 1px solid var(--ui-divider);
-  background: var(--ui-bg-panel);
+  margin: 0 0 10px;
 }
 
 .ui-list-page > .ui-table-card {
-  border: 0;
-  border-radius: 0;
+  border-color: var(--ui-table-border);
+  box-shadow: none;
 }
 
 .ui-list-page > .pagination-container,
@@ -386,6 +378,35 @@
   padding: 14px 16px;
   border-top: 1px solid var(--ui-divider);
   background: var(--ui-bg-panel) !important;
+}
+
+.ui-list-page > .pagination-container {
+  margin-top: 12px;
+  border: 1px solid var(--ui-table-border);
+  border-radius: var(--ui-radius-panel);
+  box-shadow: none;
+}
+
+.pagination-container .arco-select-view-single,
+.pagination-container .arco-input-wrapper {
+  border-color: var(--ui-border-control);
+  border-radius: var(--ui-radius-control);
+  background-color: var(--ui-bg-panel);
+}
+
+.pagination-container .arco-select-view-single:hover,
+.pagination-container .arco-input-wrapper:hover {
+  border-color: var(--ui-border-control-hover);
+  background-color: var(--ui-bg-panel);
+}
+
+.pagination-container .arco-select-view-single:focus-within,
+.pagination-container .arco-select-view-single.arco-select-view-focus,
+.pagination-container .arco-input-wrapper:focus-within,
+.pagination-container .arco-input-wrapper.arco-input-focus {
+  border-color: var(--ui-border-focus);
+  background-color: var(--ui-bg-panel);
+  box-shadow: var(--ui-focus-ring);
 }
 
 .tree-sidebar-content > .content-inner.ui-list-page {
@@ -420,7 +441,41 @@
   min-height: var(--ui-form-control-height);
 }
 
+.ui-filter-card .arco-input-wrapper,
+.ui-filter-card .arco-select-view-single,
+.ui-filter-card .arco-select-view-multiple,
+.ui-filter-card .arco-picker {
+  min-height: var(--ui-form-control-height);
+  border-color: var(--ui-border-control);
+  border-radius: var(--ui-radius-control);
+  background-color: var(--ui-bg-panel);
+}
+
+.ui-filter-card .arco-input-wrapper:hover,
+.ui-filter-card .arco-select-view-single:hover,
+.ui-filter-card .arco-select-view-multiple:hover,
+.ui-filter-card .arco-picker:hover {
+  border-color: var(--ui-border-control-hover);
+  background-color: var(--ui-bg-panel);
+}
+
+.ui-filter-card .arco-input-wrapper:focus-within,
+.ui-filter-card .arco-input-wrapper.arco-input-focus,
+.ui-filter-card .arco-select-view-single:focus-within,
+.ui-filter-card .arco-select-view-single.arco-select-view-focus,
+.ui-filter-card .arco-select-view-multiple:focus-within,
+.ui-filter-card .arco-select-view-multiple.arco-select-view-focus,
+.ui-filter-card .arco-picker-focused {
+  border-color: var(--ui-border-focus);
+  background-color: var(--ui-bg-panel);
+  box-shadow: var(--ui-focus-ring);
+}
+
 .ui-table-card .arco-table {
+  --color-bg-2: var(--ui-bg-panel);
+  --color-fill-1: var(--ui-table-row-hover-bg);
+  --color-neutral-2: var(--ui-table-header-bg);
+  --color-neutral-3: var(--ui-table-border);
   border-radius: var(--ui-radius-panel);
 }
 
@@ -433,6 +488,11 @@
 .ui-table-card .arco-table-td {
   color: var(--ui-text-regular);
   border-bottom-color: var(--ui-table-border);
+}
+
+.ui-table-card .arco-table-col-fixed-left-last::after,
+.ui-table-card .arco-table-col-fixed-right-first::after {
+  box-shadow: none !important;
 }
 
 .ui-filter-card .el-form-item__label {
@@ -458,10 +518,6 @@
 
 .ui-action-bar .top-right-btn {
   margin-left: auto;
-}
-
-.ui-action-bar + .ui-table-card {
-  border-radius: 0 0 var(--ui-radius-panel) var(--ui-radius-panel);
 }
 
 // 全局表格
