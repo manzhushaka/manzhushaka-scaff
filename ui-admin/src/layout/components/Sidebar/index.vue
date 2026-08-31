@@ -111,40 +111,11 @@ const activeMenu = computed(() => {
     }
 
     .arco-menu-inline-content {
-      position: relative;
-
-      &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        bottom: 8px;
-        left: 28px;
-        width: 1px;
-        background: var(--ui-sidebar-tree-line);
-      }
-
       .arco-menu-item,
       .arco-menu-inline-header {
-        padding-left: 42px !important;
-      }
-
-      .arco-menu-item::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 20px;
-        width: 8px;
-        height: 1px;
-        background: var(--ui-sidebar-tree-line);
+        padding-left: 18px !important;
       }
     }
-  }
-}
-
-.sidebar-container.is-collapsed {
-  :deep(.arco-menu-inline-content::before),
-  :deep(.arco-menu-item::after) {
-    display: none;
   }
 }
 </style>
