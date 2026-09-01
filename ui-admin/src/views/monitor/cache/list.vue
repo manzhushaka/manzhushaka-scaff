@@ -24,7 +24,7 @@
            :pagination="false">
             <a-table-column
               title="序号"
-              width="60"
+              width="72"
             >
               <template #cell="{ rowIndex }">{{ rowIndex + 1 }}</template>
             </a-table-column>
@@ -52,6 +52,8 @@
             >
               <template #cell="{ record, rowIndex }">
                 <a-button
+                  type="text"
+                  status="danger"
 
 
 
@@ -86,7 +88,7 @@
            :pagination="false">
             <a-table-column
               title="序号"
-              width="60"
+              width="72"
             >
               <template #cell="{ rowIndex }">{{ rowIndex + 1 }}</template>
             </a-table-column>
@@ -105,6 +107,8 @@
             >
               <template #cell="{ record, rowIndex }">
                 <a-button
+                  type="text"
+                  status="danger"
 
 
 

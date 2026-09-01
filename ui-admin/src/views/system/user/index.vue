@@ -70,19 +70,19 @@
               <span>{{ parseTime(record.createTime) }}</span>
             </template>
           </a-table-column>
-          <a-table-column title="操作" align="center" width="150" cell-class="small-padding fixed-width">
+          <a-table-column title="操作" align="center" width="180" cell-class="small-padding fixed-width">
             <template #cell="{ record, rowIndex }">
               <a-tooltip content="修改" position="top" v-if="record.userId !== 1">
-                <a-button @click="handleUpdate(record)" v-hasPermi="['system:user:edit']"><template #icon><Edit /></template></a-button>
+                <a-button type="text" @click="handleUpdate(record)" v-hasPermi="['system:user:edit']"><template #icon><Edit /></template></a-button>
               </a-tooltip>
               <a-tooltip content="删除" position="top" v-if="record.userId !== 1">
-                <a-button @click="handleDelete(record)" v-hasPermi="['system:user:remove']"><template #icon><Delete /></template></a-button>
+                <a-button type="text" status="danger" @click="handleDelete(record)" v-hasPermi="['system:user:remove']"><template #icon><Delete /></template></a-button>
               </a-tooltip>
               <a-tooltip content="重置密码" position="top" v-if="record.userId !== 1">
-                <a-button @click="handleResetPwd(record)" v-hasPermi="['system:user:resetPwd']"><template #icon><Key /></template></a-button>
+                <a-button type="text" @click="handleResetPwd(record)" v-hasPermi="['system:user:resetPwd']"><template #icon><Key /></template></a-button>
               </a-tooltip>
               <a-tooltip content="分配角色" position="top" v-if="record.userId !== 1">
-                <a-button @click="handleAuthRole(record)" v-hasPermi="['system:user:edit']"><template #icon><CircleCheck /></template></a-button>
+                <a-button type="text" @click="handleAuthRole(record)" v-hasPermi="['system:user:edit']"><template #icon><CircleCheck /></template></a-button>
               </a-tooltip>
             </template>
           </a-table-column>

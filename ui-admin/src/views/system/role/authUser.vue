@@ -73,9 +73,9 @@
                <span>{{ parseTime(record.createTime) }}</span>
             </template>
          </a-table-column>
-         <a-table-column title="操作" align="center" cell-class="small-padding fixed-width">
+         <a-table-column title="操作" align="center" width="120" cell-class="small-padding fixed-width">
             <template #cell="{ record, rowIndex }">
-               <a-button @click="cancelAuthUser(record)" v-hasPermi="['system:role:remove']"><template #icon><CircleClose /></template>取消授权</a-button>
+               <a-button type="text" status="danger" @click="cancelAuthUser(record)" v-hasPermi="['system:role:remove']"><template #icon><CircleClose /></template>取消授权</a-button>
             </template>
          </a-table-column>
       </a-table>

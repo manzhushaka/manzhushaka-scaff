@@ -1,6 +1,13 @@
 <template>
    <div class="app-container ui-list-page">
-      <a-form :model="queryParams" ref="queryRef" layout="inline" v-show="showSearch" :label-col-props="{ flex: '68px' }" class="ui-filter-card">
+      <a-form
+         :model="queryParams"
+         ref="queryRef"
+         layout="inline"
+         v-show="showSearch"
+         :label-col-props="{ flex: '80px' }"
+         class="ui-filter-card"
+      >
          <a-form-item label="参数名称" field="configName">
             <a-input
                v-model="queryParams.configName"
@@ -113,10 +120,10 @@
                <span>{{ parseTime(record.createTime) }}</span>
             </template>
          </a-table-column>
-         <a-table-column title="操作" align="center" width="150" cell-class="small-padding fixed-width">
+         <a-table-column title="操作" align="center" width="180" cell-class="small-padding fixed-width">
             <template #cell="{ record, rowIndex }">
-               <a-button @click="handleUpdate(record)" v-hasPermi="['system:config:edit']" ><template #icon><Edit /></template>修改</a-button>
-               <a-button @click="handleDelete(record)" v-hasPermi="['system:config:remove']"><template #icon><Delete /></template>删除</a-button>
+               <a-button type="text" @click="handleUpdate(record)" v-hasPermi="['system:config:edit']"><template #icon><Edit /></template>修改</a-button>
+               <a-button type="text" status="danger" @click="handleDelete(record)" v-hasPermi="['system:config:remove']"><template #icon><Delete /></template>删除</a-button>
             </template>
          </a-table-column>
          </template>

@@ -116,9 +116,9 @@
                <span>{{ parseTime(record.createTime) }}</span>
             </template>
          </a-table-column>
-         <a-table-column title="操作" align="center" cell-class="small-padding fixed-width">
+         <a-table-column title="操作" align="center" width="100" cell-class="small-padding fixed-width">
             <template #cell="{ record, rowIndex }">
-               <a-button @click="handleView(record)" v-hasPermi="['monitor:job:query']"><template #icon><View /></template>详细</a-button>
+               <a-button type="text" @click="handleView(record)" v-hasPermi="['monitor:job:query']"><template #icon><View /></template>详细</a-button>
             </template>
          </a-table-column>
       </a-table>

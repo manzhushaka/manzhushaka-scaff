@@ -46,9 +46,9 @@
         <a-table-column title="执行时间" align="center" data-index="executeTime" width="180">
           <template #cell="{ record, rowIndex }">{{ parseTime(record.executeTime) }}</template>
         </a-table-column>
-        <a-table-column title="操作" align="center" width="90">
+        <a-table-column title="操作" align="center" width="100" cell-class="small-padding fixed-width">
           <template #cell="{ record, rowIndex }">
-            <a-button @click="handleDetail(record)" v-hasPermi="['monitor:slowsql:query']"><template #icon><View /></template>详细</a-button>
+            <a-button type="text" @click="handleDetail(record)" v-hasPermi="['monitor:slowsql:query']"><template #icon><View /></template>详细</a-button>
           </template>
         </a-table-column>
       </a-table>

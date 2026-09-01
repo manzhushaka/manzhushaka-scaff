@@ -57,10 +57,10 @@
         <a-table-column title="最后消费" align="center" data-index="lastConsumeTime" width="180">
           <template #cell="{ record, rowIndex }">{{ parseTime(record.lastConsumeTime) }}</template>
         </a-table-column>
-        <a-table-column title="操作" align="center" width="140">
+        <a-table-column title="操作" align="center" width="160" cell-class="small-padding fixed-width">
           <template #cell="{ record, rowIndex }">
-            <a-button @click="handleDetail(record)" v-hasPermi="['monitor:mqlog:query']"><template #icon><View /></template>详细</a-button>
-            <a-button @click="handleDetailList(record)" v-hasPermi="['monitor:mqlog:query']"><template #icon><Tickets /></template>明细</a-button>
+            <a-button type="text" @click="handleDetail(record)" v-hasPermi="['monitor:mqlog:query']"><template #icon><View /></template>详细</a-button>
+            <a-button type="text" @click="handleDetailList(record)" v-hasPermi="['monitor:mqlog:query']"><template #icon><Tickets /></template>明细</a-button>
           </template>
         </a-table-column>
       </a-table>

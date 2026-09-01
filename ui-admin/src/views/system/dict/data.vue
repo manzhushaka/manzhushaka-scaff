@@ -108,10 +108,10 @@
                <span>{{ parseTime(record.createTime) }}</span>
             </template>
          </a-table-column>
-         <a-table-column title="操作" align="center" width="160" cell-class="small-padding fixed-width">
+         <a-table-column title="操作" align="center" width="180" cell-class="small-padding fixed-width">
             <template #cell="{ record, rowIndex }">
-               <a-button @click="handleUpdate(record)" v-hasPermi="['system:dict:edit']"><template #icon><Edit /></template>修改</a-button>
-               <a-button @click="handleDelete(record)" v-hasPermi="['system:dict:remove']"><template #icon><Delete /></template>删除</a-button>
+               <a-button type="text" @click="handleUpdate(record)" v-hasPermi="['system:dict:edit']"><template #icon><Edit /></template>修改</a-button>
+               <a-button type="text" status="danger" @click="handleDelete(record)" v-hasPermi="['system:dict:remove']"><template #icon><Delete /></template>删除</a-button>
             </template>
          </a-table-column>
       </a-table>

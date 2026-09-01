@@ -458,6 +458,11 @@
 }
 
 .ui-filter-card .el-form-item__label,
+.ui-filter-card .arco-form-item-label {
+  white-space: nowrap;
+}
+
+.ui-filter-card .el-form-item__label,
 .ui-filter-card .el-form-item__content {
   min-height: var(--ui-form-control-height);
   line-height: var(--ui-form-control-height);
@@ -515,6 +520,29 @@
 .ui-table-card .arco-table-td {
   color: var(--ui-text-regular);
   border-bottom-color: var(--ui-table-border);
+}
+
+// 表格行操作统一使用 Arco 文字按钮，并保持操作项单行排列。
+.ui-table-card .arco-table-td.small-padding.fixed-width {
+  white-space: nowrap;
+}
+
+.ui-table-card .arco-table-td.small-padding.fixed-width .arco-btn {
+  margin: 0 2px;
+  color: var(--ui-primary);
+  background-color: transparent;
+}
+
+.ui-table-card .arco-table-td.small-padding.fixed-width .arco-btn:hover {
+  background-color: var(--ui-primary-soft);
+}
+
+.ui-table-card .arco-table-td.small-padding.fixed-width .arco-btn-status-danger {
+  color: var(--ui-danger);
+}
+
+.ui-table-card .arco-table-td.small-padding.fixed-width .arco-btn-status-danger:hover {
+  background-color: color-mix(in srgb, var(--ui-danger) 10%, transparent);
 }
 
 .ui-table-card .arco-table-col-fixed-left-last::after,
