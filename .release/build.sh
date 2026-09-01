@@ -19,6 +19,12 @@ maven_command=(mvn)
 [[ -x ./mvnw ]] && maven_command=(./mvnw)
 "${maven_command[@]}" -B -DskipTests package
 
+(
+  cd ui-admin
+  npm ci
+  npm run build:prod
+)
+
 artifact=${JAVA_ARTIFACT:-}
 if [[ -z ${artifact} ]]; then
   candidates=()
