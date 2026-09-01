@@ -48,7 +48,7 @@
             <a-button @click="resetQuery"><template #icon><Refresh /></template>重置</a-button>
          </a-form-item>
       </a-form>
-      <a-row :gutter="10" class="mb8 ui-action-bar">
+      <a-row class="ui-action-bar">
          <a-col :span="1.5">
             <a-button
 
