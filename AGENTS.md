@@ -111,6 +111,8 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 
 - 标准业务页直接进入工作区，不额外添加营销式 Hero、页面说明条或装饰性概览卡片。
 - 查询列表页根容器使用 `app-container ui-list-page`，页面视觉固定为两个面板：筛选区使用独立的 `ui-filter-card`；数据工作区按 `ui-action-bar`、`ui-table-card`、分页的顺序连续拼接。`ui-action-bar` 是数据工作区的表头，必须与表格共用同一外框，不得单独悬在页面背景上、另起圆角卡片，或被额外的 `ui-panel-card`、`a-card` 包裹；分页必须贴合表格底部作为该工作区的页脚。
+- Arco 列表表格必须使用 `<a-table>` 包裹 `<template #columns>`，并将所有 `<a-table-column>` 放在该插槽内；不得把列组件直接放入表格默认插槽，否则接口即使返回 `rows` 和 `total`，页面仍会只显示分页而没有表头和数据行。
+- 标准列表数据工作区的 DOM 顺序固定为 `ui-action-bar` 后紧邻 `ui-table-card`；`a-table` 和按需显示的 `pagination` 必须共同放在 `ui-table-card` 内。分页不得作为独立卡片与表格分离，空数据时也必须保留表头和 Arco 空状态。
 - 树加列表页面复用 `TreePanel` 和 `tree-sidebar-manage-wrap`；详情页、监控页和资料页可使用 `ui-panel-card`、`ui-detail-card`，但禁止卡片嵌套卡片。
 - 登录、注册、锁屏和错误页可以使用独立构图，但必须沿用同一品牌色、字体、控件圆角和明暗关系，不另建平行主题。
 

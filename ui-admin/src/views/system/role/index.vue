@@ -93,6 +93,7 @@
       <!-- 表格数据 -->
       <div class="ui-table-card">
       <a-table :loading="loading" :data="roleList" :row-selection="{ type: 'checkbox', showCheckedAll: true }" :row-key="record => record.roleId" :pagination="false" @selection-change="handleSelectionChange">
+         <template #columns>
          <a-table-column title="角色编号" data-index="roleId" width="120" />
          <a-table-column title="角色名称" data-index="roleName" ellipsis width="150" tooltip />
          <a-table-column title="权限字符" data-index="roleKey" ellipsis width="150" tooltip />
@@ -128,6 +129,7 @@
               </a-tooltip>
             </template>
          </a-table-column>
+         </template>
       </a-table>
 
       <pagination

@@ -45,6 +45,7 @@
 
         <div class="ui-table-card">
         <a-table :loading="loading" :data="userList" :row-selection="{ type: 'checkbox', showCheckedAll: true }" :row-key="record => record.userId" :pagination="false" @selection-change="handleSelectionChange">
+          <template #columns>
           <a-table-column title="用户编号" align="center" key="userId" data-index="userId" v-if="columns.userId.visible" />
           <a-table-column title="用户名称" align="center" key="userName" v-if="columns.userName.visible" ellipsis tooltip>
             <template #cell="{ record, rowIndex }">
@@ -85,6 +86,7 @@
               </a-tooltip>
             </template>
           </a-table-column>
+          </template>
         </a-table>
         <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
         </div>

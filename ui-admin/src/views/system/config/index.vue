@@ -97,6 +97,7 @@
 
       <div class="ui-table-card">
       <a-table :loading="loading" :data="configList" :row-selection="{ type: 'checkbox', showCheckedAll: true }" :row-key="record => record.configId" :pagination="false" @selection-change="handleSelectionChange">
+         <template #columns>
          <a-table-column title="参数主键" align="center" data-index="configId" />
          <a-table-column title="参数名称" align="center" data-index="configName" ellipsis tooltip />
          <a-table-column title="参数键名" align="center" data-index="configKey" ellipsis tooltip />
@@ -118,9 +119,8 @@
                <a-button @click="handleDelete(record)" v-hasPermi="['system:config:remove']"><template #icon><Delete /></template>删除</a-button>
             </template>
          </a-table-column>
+         </template>
       </a-table>
-      </div>
-
       <pagination
          v-show="total > 0"
          :total="total"
@@ -128,6 +128,7 @@
          v-model:limit="queryParams.pageSize"
          @pagination="getList"
       />
+      </div>
 
       <!-- 添加或修改参数配置对话框 -->
       <a-modal :title="title" v-model:visible="open" width="500px" render-to-body>

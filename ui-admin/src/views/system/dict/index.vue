@@ -102,6 +102,7 @@
 
       <div class="ui-table-card">
       <a-table :loading="loading" :data="typeList" :row-selection="{ type: 'checkbox', showCheckedAll: true }" :row-key="record => record.dictId" :pagination="false" @selection-change="handleSelectionChange">
+         <template #columns>
          <a-table-column title="字典编号" align="center" data-index="dictId" />
          <a-table-column title="字典名称" align="center" data-index="dictName" ellipsis tooltip />
          <a-table-column title="字典类型" align="center" ellipsis tooltip>
@@ -127,9 +128,8 @@
                <a-button @click="handleDelete(record)" v-hasPermi="['system:dict:remove']"><template #icon><Delete /></template>删除</a-button>
             </template>
          </a-table-column>
+         </template>
       </a-table>
-      </div>
-
       <pagination
          v-show="total > 0"
          :total="total"
@@ -137,6 +137,7 @@
          v-model:limit="queryParams.pageSize"
          @pagination="getList"
       />
+      </div>
 
       <!-- 添加或修改参数配置对话框 -->
       <a-modal :title="title" v-model:visible="open" width="500px" render-to-body>

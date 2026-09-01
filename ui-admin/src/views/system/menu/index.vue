@@ -64,6 +64,7 @@
          row-key="menuId"
          :default-expand-all-rows="isExpandAll"
        :pagination="false">
+         <template #columns>
          <a-table-column data-index="menuName" title="菜单名称" ellipsis width="220" tooltip>
             <template #cell="{ record, rowIndex }">
                <svg-icon :icon-class="record.icon" />
@@ -98,6 +99,7 @@
                <a-button @click="handleDelete(record)" v-hasPermi="['system:menu:remove']"><template #icon><Delete /></template>删除</a-button>
             </template>
          </a-table-column>
+         </template>
       </a-table>
       </div>
 

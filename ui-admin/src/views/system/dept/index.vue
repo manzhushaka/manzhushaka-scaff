@@ -64,6 +64,7 @@
          row-key="deptId"
          :default-expand-all-rows="isExpandAll"
        :pagination="false">
+         <template #columns>
          <a-table-column data-index="deptName" title="部门名称" width="260"></a-table-column>
          <a-table-column data-index="orderNum" title="排序" width="200">
             <template #cell="{ record, rowIndex }">
@@ -87,6 +88,7 @@
                <a-button v-if="record.parentId != 0" @click="handleDelete(record)" v-hasPermi="['system:dept:remove']"><template #icon><Delete /></template>删除</a-button>
             </template>
          </a-table-column>
+         </template>
       </a-table>
       </div>
 
