@@ -1,0 +1,221 @@
+name: Release personal project
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Final tag created only after this candidate deployment is healthy
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: production-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    name: Plan candidate release
+    runs-on: ubuntu-latest
+    outputs:
+      runtime: ${{ steps.config.outputs.runtime }}
+      runtime_version: ${{ steps.config.outputs.runtime_version }}
+      reuse_ci: ${{ steps.ci.outputs.reuse_ci }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Validate candidate and read configuration
+        id: config
+        env:
+          RELEASE_ID: ${{ inputs.release_tag }}
+        run: |
+          set -euo pipefail
+          [[ ${RELEASE_ID} =~ ^v[0-9A-Za-z._-]+$ ]] || { echo "Invalid release tag: ${RELEASE_ID}" >&2; exit 1; }
+          remote_tag=$(git ls-remote --tags origin "refs/tags/${RELEASE_ID}")
+          [[ -z ${remote_tag} ]] || { echo "Release tag already exists: ${RELEASE_ID}" >&2; exit 1; }
+          source .release/project.env
+          printf 'runtime=%s\n' "${RUNTIME}" >> "${GITHUB_OUTPUT}"
+          printf 'runtime_version=%s\n' "${RUNTIME_VERSION}" >> "${GITHUB_OUTPUT}"
+          .release/preflight.sh local
+      - name: Require deployment secrets
+        env:
+          DEPLOY_ECS_HOST: ${{ secrets.DEPLOY_ECS_HOST }}
+          DEPLOY_ECS_USER: ${{ secrets.DEPLOY_ECS_USER }}
+          DEPLOY_ECS_SSH_KEY: ${{ secrets.DEPLOY_ECS_SSH_KEY }}
+          DEPLOY_HOME_SSH_KEY: ${{ secrets.DEPLOY_HOME_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          for name in DEPLOY_ECS_HOST DEPLOY_ECS_USER DEPLOY_ECS_SSH_KEY DEPLOY_HOME_SSH_KEY DEPLOY_KNOWN_HOSTS; do
+            [[ -n ${!name:-} ]] || { echo "Missing required deployment secret: ${name}" >&2; exit 1; }
+          done
+      - name: Reuse successful CI for this commit
+        id: ci
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [[ -f .github/workflows/ci.yml ]]; then
+            successful_runs=$(gh run list --workflow ci.yml --commit "${GITHUB_SHA}" --limit 10 \
+              --json conclusion --jq 'map(select(.conclusion == "success")) | length')
+          else
+            successful_runs=0
+          fi
+          if (( successful_runs > 0 )); then
+            echo "reuse_ci=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "reuse_ci=false" >> "${GITHUB_OUTPUT}"
+          fi
+
+  verify:
+    name: Verify source
+    needs: plan
+    if: needs.plan.outputs.reuse_ci != 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Java
+        if: needs.plan.outputs.runtime == 'java'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ needs.plan.outputs.runtime_version }}
+          cache: maven
+      - name: Set up Node.js
+        if: needs.plan.outputs.runtime == 'node'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ needs.plan.outputs.runtime_version }}
+          cache: npm
+      - run: .release/verify.sh
+
+  package:
+    name: Build release artifact
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Java
+        if: needs.plan.outputs.runtime == 'java'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ needs.plan.outputs.runtime_version }}
+          cache: maven
+      - name: Set up Node.js
+        if: needs.plan.outputs.runtime == 'node'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ needs.plan.outputs.runtime_version }}
+          cache: npm
+      - name: Build and validate artifact
+        run: |
+          set -euo pipefail
+          started_at=${SECONDS}
+          .release/build.sh
+          .release/preflight.sh local --artifact .release/out/release.tar.gz
+          echo "Release metric: package_seconds=$((SECONDS - started_at))"
+      - name: Prepare transport artifact
+        run: |
+          set -euo pipefail
+          source .release/project.env
+          mkdir -p .release/transport
+          if [[ ${JAVA_LAYERED_RELEASE:-false} == true ]]; then
+            cp .release/out/dependencies.tar.gz* .release/transport/
+            cp .release/out/application.tar.gz* .release/transport/
+          else
+            cp .release/out/release.tar.gz* .release/transport/
+            cp .release/out/release-manifest.txt* .release/transport/
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-transport-${{ github.run_id }}
+          path: .release/transport/
+          include-hidden-files: true
+          retention-days: 1
+          if-no-files-found: error
+
+  verification-gate:
+    name: Verification gate
+    if: always()
+    needs: [plan, verify, package]
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          PLAN_RESULT: ${{ needs.plan.result }}
+          VERIFY_RESULT: ${{ needs.verify.result }}
+          PACKAGE_RESULT: ${{ needs.package.result }}
+          REUSE_CI: ${{ needs.plan.outputs.reuse_ci }}
+        run: |
+          set -euo pipefail
+          [[ ${PLAN_RESULT} == success && ${PACKAGE_RESULT} == success ]]
+          [[ ${REUSE_CI} == true || ${VERIFY_RESULT} == success ]]
+
+  deploy:
+    name: Deploy verified candidate
+    needs: [plan, package, verification-gate]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-transport-${{ github.run_id }}
+          path: .release/transport
+      - name: Restore release artifact
+        run: |
+          set -euo pipefail
+          source .release/project.env
+          mkdir -p .release/out
+          if [[ ${JAVA_LAYERED_RELEASE:-false} == true ]]; then
+            cp .release/transport/* .release/out/
+            .release/assemble.sh archives \
+              .release/out/dependencies.tar.gz \
+              .release/out/application.tar.gz \
+              .release/out
+          else
+            cp .release/transport/* .release/out/
+          fi
+          .release/preflight.sh local --artifact .release/out/release.tar.gz
+      - name: Deploy through ECS and FRP
+        env:
+          DEPLOY_ECS_HOST: ${{ secrets.DEPLOY_ECS_HOST }}
+          DEPLOY_ECS_USER: ${{ secrets.DEPLOY_ECS_USER }}
+          DEPLOY_ECS_SSH_KEY: ${{ secrets.DEPLOY_ECS_SSH_KEY }}
+          DEPLOY_HOME_SSH_KEY: ${{ secrets.DEPLOY_HOME_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          RELEASE_ID: ${{ inputs.release_tag }}
+        run: .release/publish.sh "${RELEASE_ID}"
+      - name: Create final tag after healthy deployment
+        env:
+          RELEASE_ID: ${{ inputs.release_tag }}
+        run: |
+          set -euo pipefail
+          remote_tag=$(git ls-remote --tags origin "refs/tags/${RELEASE_ID}")
+          [[ -z ${remote_tag} ]] || { echo "Release tag already exists: ${RELEASE_ID}" >&2; exit 1; }
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "${RELEASE_ID}" -m "Release ${RELEASE_ID}" "${GITHUB_SHA}"
+          git push origin "refs/tags/${RELEASE_ID}"
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_ID: ${{ inputs.release_tag }}
+        run: |
+          set -euo pipefail
+          gh release create "${RELEASE_ID}" \
+            .release/out/release.tar.gz \
+            .release/out/release.tar.gz.sha256 \
+            .release/out/release-manifest.txt \
+            .release/out/release-manifest.txt.sha256 \
+            --verify-tag \
+            --generate-notes \
+            --title "${RELEASE_ID}"

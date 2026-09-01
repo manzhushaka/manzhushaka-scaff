@@ -47,6 +47,7 @@ logs/
 .codegraph/
 .codex-run/
 .release/
+!.release/
 dump.rdb
 .env.local
 .env.*.local
@@ -59,3 +60,7 @@ dump.rdb
 
 # Misgenerated empty root npm lockfile (real lockfiles live in ui-admin/ and ui-miniapp/)
 /package-lock.json
+
+# Personal project release build output
+.release/out/
+.release/work/
