@@ -110,7 +110,7 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 ### 页面结构
 
 - 标准业务页直接进入工作区，不额外添加营销式 Hero、页面说明条或装饰性概览卡片。
-- 查询列表页根容器使用 `app-container ui-list-page`；筛选区、操作栏和表格区依次使用 `ui-filter-card`、`ui-action-bar`、`ui-table-card`，分页放在同一工作区底部。
+- 查询列表页根容器使用 `app-container ui-list-page`，页面视觉固定为两个面板：筛选区使用独立的 `ui-filter-card`；数据工作区按 `ui-action-bar`、`ui-table-card`、分页的顺序连续拼接。`ui-action-bar` 是数据工作区的表头，必须与表格共用同一外框，不得单独悬在页面背景上、另起圆角卡片，或被额外的 `ui-panel-card`、`a-card` 包裹；分页必须贴合表格底部作为该工作区的页脚。
 - 树加列表页面复用 `TreePanel` 和 `tree-sidebar-manage-wrap`；详情页、监控页和资料页可使用 `ui-panel-card`、`ui-detail-card`，但禁止卡片嵌套卡片。
 - 登录、注册、锁屏和错误页可以使用独立构图，但必须沿用同一品牌色、字体、控件圆角和明暗关系，不另建平行主题。
 

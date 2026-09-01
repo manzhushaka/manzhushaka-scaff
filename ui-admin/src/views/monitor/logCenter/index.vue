@@ -1,19 +1,18 @@
 <template>
-  <div class="app-container log-center-page">
-    <section class="log-center-card">
-      <a-empty
-        v-if="!canViewOperlog && !canViewLogininfor"
-        description="当前账号暂未分配日志查看权限"
-      />
-      <a-tabs v-else v-model:active-key="activeTab" class="log-center-tabs" lazy-load>
-        <a-tab-pane v-if="canViewOperlog" title="操作日志" key="operlog">
-          <operlog-panel />
-        </a-tab-pane>
-        <a-tab-pane v-if="canViewLogininfor" title="登录日志" key="logininfor">
-          <logininfor-panel />
-        </a-tab-pane>
-      </a-tabs>
-    </section>
+  <div class="log-center-page">
+    <a-empty
+      v-if="!canViewOperlog && !canViewLogininfor"
+      class="log-center-empty"
+      description="当前账号暂未分配日志查看权限"
+    />
+    <a-tabs v-else v-model:active-key="activeTab" class="log-center-tabs" lazy-load>
+      <a-tab-pane v-if="canViewOperlog" title="操作日志" key="operlog">
+        <operlog-panel />
+      </a-tab-pane>
+      <a-tab-pane v-if="canViewLogininfor" title="登录日志" key="logininfor">
+        <logininfor-panel />
+      </a-tab-pane>
+    </a-tabs>
   </div>
 </template>
 
@@ -30,25 +29,16 @@ const activeTab = ref(canViewOperlog ? "operlog" : "logininfor")
 
 <style lang="scss" scoped>
 .log-center-page {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-.log-center-card {
-  overflow: hidden;
-  border: 1px solid var(--ui-border);
-  border-radius: var(--ui-radius-panel);
-  background: var(--ui-bg-panel);
-  box-shadow: var(--ui-shadow-panel);
+  min-height: 0;
+  background: var(--ui-bg-content);
 }
 
 .log-center-tabs {
   :deep(.arco-tabs-nav) {
     margin: 0;
-    padding: 0 20px;
-    border-bottom: 1px solid var(--ui-border);
-    background: var(--ui-bg-panel-muted);
+    padding: 0 var(--ui-layout-content-padding);
+    border-bottom: 1px solid var(--ui-divider);
+    background: var(--ui-bg-panel);
   }
 
   :deep(.arco-tabs-nav::before) {
@@ -62,29 +52,38 @@ const activeTab = ref(canViewOperlog ? "operlog" : "logininfor")
   }
 
   :deep(.arco-tabs-content) {
-    background: var(--ui-bg-panel);
+    background: transparent;
   }
 
   :deep(.app-container) {
     min-height: 0;
-    margin: 0;
-    padding: 18px 20px 20px;
-    border: 0;
-    border-radius: 0;
-    background: var(--ui-bg-panel);
-    box-shadow: none;
+    margin: var(--ui-layout-content-padding);
+    padding: 0;
+    background: transparent;
   }
+}
+
+.log-center-empty {
+  margin: var(--ui-layout-content-padding);
+  padding: 40px 20px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-panel);
+  background: var(--ui-bg-panel);
 }
 
 @media (max-width: 768px) {
   .log-center-tabs {
     :deep(.arco-tabs-nav) {
-      padding: 0 14px;
+      padding: 0 12px;
     }
 
     :deep(.app-container) {
-      padding: 14px;
+      margin: 12px;
     }
+  }
+
+  .log-center-empty {
+    margin: 12px;
   }
 }
 </style>
