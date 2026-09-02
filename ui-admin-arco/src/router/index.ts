@@ -95,7 +95,7 @@ const hiddenRoutes: RouteRecordRaw[] = [
 NProgress.configure({ showSpinner: false }); // NProgress Configuration
 
 export const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
