@@ -20,9 +20,9 @@ maven_command=(mvn)
 "${maven_command[@]}" -B -DskipTests package
 
 (
-  cd ui-admin
-  npm ci
-  npm run build:prod
+  cd ui-admin-arco
+  pnpm install --frozen-lockfile
+  pnpm run build
 )
 
 artifact=${JAVA_ARTIFACT:-}
@@ -57,8 +57,8 @@ start_class=$(unzip -p "${artifact}" META-INF/MANIFEST.MF | sed -n 's/^Start-Cla
   || { echo "Invalid or missing Spring Boot Start-Class." >&2; exit 1; }
 printf '%s\n' "${start_class}" > "${application_bundle_dir}/java-runtime/start-class"
 
-install -d "${application_bundle_dir}/ui-admin"
-cp -R "${project_dir}/ui-admin/dist" "${application_bundle_dir}/ui-admin/dist"
+install -d "${application_bundle_dir}/ui-admin-arco"
+cp -R "${project_dir}/ui-admin-arco/dist" "${application_bundle_dir}/ui-admin-arco/dist"
 
 copy_runtime_path() {
   local path=$1

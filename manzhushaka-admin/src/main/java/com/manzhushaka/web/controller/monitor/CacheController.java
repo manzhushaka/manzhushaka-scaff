@@ -96,7 +96,7 @@ public class CacheController
         return AjaxResult.success(cacheInfo);
     }
 
-    @PreAuthorize("@ss.hasPermi('monitor:cache:list')")
+    @PreAuthorize("@ss.hasPermi('monitor:cache:remove')")
     @DeleteMapping("/clearCacheName/{cacheName}")
     public AjaxResult clearCacheName(@PathVariable String cacheName)
     {
@@ -105,7 +105,7 @@ public class CacheController
         return AjaxResult.success();
     }
 
-    @PreAuthorize("@ss.hasPermi('monitor:cache:list')")
+    @PreAuthorize("@ss.hasPermi('monitor:cache:remove')")
     @DeleteMapping("/clearCacheKey/{cacheKey}")
     public AjaxResult clearCacheKey(@PathVariable String cacheKey)
     {
@@ -113,7 +113,7 @@ public class CacheController
         return AjaxResult.success();
     }
 
-    @PreAuthorize("@ss.hasPermi('monitor:cache:list')")
+    @PreAuthorize("@ss.hasPermi('monitor:cache:remove')")
     @DeleteMapping("/clearCacheAll")
     public AjaxResult clearCacheAll()
     {

@@ -222,6 +222,8 @@ insert into sys_menu values('135', '参数修改', '106', '2', '', null, '', '',
 insert into sys_menu values('136', '参数删除', '106', '3', '', null, '', '', 1, 0, 'F', '0', '0', 'system:config:remove',        '#',                'admin', sysdate(), '', null, '参数删除按钮');
 -- 监控模块按钮权限
 insert into sys_menu values('141', '在线查询', '109', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:online:list',         '#',                'admin', sysdate(), '', null, '在线查询按钮');
+insert into sys_menu values('188', '在线用户强退', '109', '2', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:online:forceLogout', '#',                'admin', sysdate(), '', null, '在线用户强退按钮');
+insert into sys_menu values('187', '缓存清理', '114', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:cache:remove',        '#',                'admin', sysdate(), '', null, '缓存清理按钮');
 insert into sys_menu values('168', '运行日志查询', '162', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:runtimelog:list',  '#',                'admin', sysdate(), '', null, '运行日志查询按钮');
 insert into sys_menu values('169', '运行日志详情', '162', '2', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:runtimelog:query', '#',                'admin', sysdate(), '', null, '运行日志详情按钮');
 insert into sys_menu values('170', '运行日志下载', '162', '3', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:runtimelog:download', '#',              'admin', sysdate(), '', null, '运行日志下载按钮');
@@ -289,6 +291,8 @@ insert into sys_role_menu values ('2', '134');
 insert into sys_role_menu values ('2', '135');
 insert into sys_role_menu values ('2', '136');
 insert into sys_role_menu values ('2', '141');
+insert into sys_role_menu values ('2', '188');
+insert into sys_role_menu values ('2', '187');
 insert into sys_role_menu values ('2', '168');
 insert into sys_role_menu values ('2', '169');
 insert into sys_role_menu values ('2', '170');

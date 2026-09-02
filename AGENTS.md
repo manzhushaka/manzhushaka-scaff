@@ -4,7 +4,7 @@ Repository Guidelines
 
 ## 适用范围与优先级
 
-本文件是本仓库的贡献指南与 AI Agent 协作规范。后端 Java 代码以 P3C《Java 开发手册》（嵩山版）为基线，并结合当前仓库的模块边界执行；前端代码遵循 `ui-admin` 现有 Vue 3 + Arco Design Vue 风格。若本文件与用户明确指令冲突，优先遵循用户指令；若与模块内更具体说明冲突，优先遵循更靠近代码的说明。
+本文件是本仓库的贡献指南与 AI Agent 协作规范。后端 Java 代码以 P3C《Java 开发手册》（嵩山版）为基线，并结合当前仓库的模块边界执行；前端代码遵循 `ui-admin-arco` 现有 Vue 3 + Arco Design Vue 风格。若本文件与用户明确指令冲突，优先遵循用户指令；若与模块内更具体说明冲突，优先遵循更靠近代码的说明。
 
 P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除非有充分理由并在评审中说明，否则新增和修改代码默认遵守本文件规则。
 
@@ -77,7 +77,7 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 
 - 后端是 Maven 多模块工程：`manzhushaka-admin` 为 Web 启动层、Controller、HTTP DTO/VO 和全局异常入口；`manzhushaka-framework` 为安全、配置、AOP、拦截器等框架能力；`manzhushaka-system` 为系统业务；`manzhushaka-quartz` 为定时任务；`manzhushaka-common` 仅放通用工具、常量、注解和基础能力。
 - Java 源码放在 `src/main/java`，资源放在 `src/main/resources`，测试放在 `src/test/java`。
-- 前端位于 `ui-admin/src`：页面在 `views`，组件在 `components`，接口在 `api`，状态在 `store`，路由在 `router`，资源和样式在 `assets`。
+- 前端位于 `ui-admin-arco/src`：页面在 `views`，组件在 `components`，接口在 `api`，状态在 `store`，路由在 `router`，资源和样式在 `assets`。
 - SQL 脚本放在 `sql`，文档放在 `doc` 和 `docs`。
 - 业务域各自持久化，不新增统一 `db` 模块；`common` 禁止承载业务实体。
 - 新功能如果需要调整数据库结构、基础数据或默认配置，必须同步调整 `sql` 目录下的初始化脚本，当前主初始化脚本为 `sql/manzhushaka_db_init.sql`；若后续任务明确引入 `sql/manzhushaka_init.sql`，再同步维护该文件。
@@ -85,25 +85,25 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 
 ## 前端技术现状
 
-- `ui-admin` 的页面和公共组件已全部迁移到 Arco Design Vue，`main.js` 只全局注册 Arco Design Vue，`package.json` 已移除 Element Plus 依赖。
+- `ui-admin-arco` 的页面和公共组件统一使用 Arco Design Vue，`main.ts` 负责应用入口，`package.json` 不得引入 Element Plus 依赖。
 - 所有新增和修改的页面、共享组件统一使用 Arco Design Vue，不得重新引入 Element Plus 依赖、组件 API 或图标。
-- 当前仓库没有 `layout/components/PageHeader` 和 `ui-admin/src/utils/pageHeader.js`，业务页面也不要求路由提供页面说明元数据。不要引用这两个已删除实现，也不要在各页面重新手写统一说明条。
+- 当前仓库不使用统一的 `PageHeader` 和页面说明元数据，业务页面也不要求路由提供页面说明元数据。不要在各页面重新手写统一说明条。
 - 调整前端 UI 时默认保留接口字段、权限字符串、路由名称、查询参数和业务流程，不把视觉或组件改动扩大成业务重构。
 
 ## 前端视觉设计规范
 
 ### 设计基线与主题变量
 
-- `ui-admin` 采用深色侧栏、白色工作面板和可切换的橙白、紫白主题；页面应安静、紧凑、便于扫描，不使用营销页式大标题、装饰性渐变、光斑或大面积高饱和色。
+- `ui-admin-arco` 采用浅色侧栏、白色工作面板和可切换的橙白、紫白主题；切换主题只改变主信号色和对应浅色状态面，不改变壳层明暗关系。页面应安静、紧凑、便于扫描，不使用营销页式大标题、装饰性渐变、光斑或大面积高饱和色。
 - 所有业务页面和公共组件必须使用 Arco Design Vue，不得新增 Element Plus 依赖、组件用法或迁移期兼容层。
-- 全站颜色、间距、圆角、阴影、控件高度和布局尺寸统一从 `ui-admin/src/assets/styles/theme-tokens.scss` 的 `--ui-*` 变量取值；业务页面禁止重复硬编码主色、背景色和边框色。
+- 全站颜色、间距、圆角、阴影、控件高度和布局尺寸统一遵循 `ui-admin-arco/src/assets/style` 的主题与样式体系；业务页面禁止重复硬编码主色、背景色和边框色。
 - 主色只用于当前导航、主要操作、焦点和关键状态；成功、警告、危险、信息状态分别使用 `--ui-success`、`--ui-warning`、`--ui-danger`、`--ui-info`，不把所有状态都改成橙色。
 - 面板和控件圆角默认不超过 `8px`；阴影保持轻量，仅用于需要与画布分层的面板、弹窗和浮层，普通页面区块不做悬浮卡片。
 
 ### 应用壳层
 
 - 桌面端侧栏宽度、顶栏高度、页签高度和内容间距分别使用 `--ui-layout-sidebar-width`、`--ui-layout-topbar-height`、`--ui-layout-tags-height`、`--ui-layout-content-padding`，禁止在页面内另写一套壳层尺寸。
-- 侧栏保持深色背景；普通项使用低对比文字，悬停项使用深色提亮背景，当前项使用深棕底和橙色文字，不使用整块亮色铺满侧栏。
+- 侧栏保持白色或极浅中性色背景；普通项使用中性灰文字，悬停项使用低对比浅灰背景，当前项使用主题浅色背景、主题色文字和左侧细信号条，不使用深色侧栏或整块高饱和色铺满菜单项。
 - 顶栏承载折叠菜单、面包屑、全屏和账号入口；页签栏使用清晰分隔，当前页签通过顶部橙色信号和白色背景识别。
 - 页面内容背景使用 `--ui-bg-content`，一级工作面板使用 `--ui-bg-panel`；不得通过每个页面单独改背景制造视觉断层。
 
@@ -112,6 +112,7 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 - 标准业务页直接进入工作区，不额外添加营销式 Hero、页面说明条或装饰性概览卡片。
 - 查询列表页根容器使用 `app-container ui-list-page`，页面视觉固定为两个面板：筛选区使用独立的 `ui-filter-card`；数据工作区按 `ui-action-bar`、`ui-table-card`、分页的顺序连续拼接。`ui-action-bar` 是数据工作区的表头，必须与表格共用同一外框，不得单独悬在页面背景上、另起圆角卡片，或被额外的 `ui-panel-card`、`a-card` 包裹；分页必须贴合表格底部作为该工作区的页脚。
 - Arco 列表表格必须使用 `<a-table>` 包裹 `<template #columns>`，并将所有 `<a-table-column>` 放在该插槽内；不得把列组件直接放入表格默认插槽，否则接口即使返回 `rows` 和 `total`，页面仍会只显示分页而没有表头和数据行。
+- 标准列表页遵循 Arco Design Pro 的无外框表格做法：`ui-table-card` 内的 `<a-table>` 必须显式设置 `:bordered="false"`。数据工作区只允许 `ui-action-bar` 与 `ui-table-card` 共同形成一圈外边界；表格自身不得再绘制左右外边框或继承圆角，避免出现双边框和“卡片嵌套卡片”的视觉效果。
 - 标准列表数据工作区的 DOM 顺序固定为 `ui-action-bar` 后紧邻 `ui-table-card`；`a-table` 和按需显示的 `pagination` 必须共同放在 `ui-table-card` 内。分页不得作为独立卡片与表格分离，空数据时也必须保留表头和 Arco 空状态。
 - 树加列表页面复用 `TreePanel` 和 `tree-sidebar-manage-wrap`；详情页、监控页和资料页可使用 `ui-panel-card`、`ui-detail-card`，但禁止卡片嵌套卡片。
 - 登录、注册、锁屏和错误页可以使用独立构图，但必须沿用同一品牌色、字体、控件圆角和明暗关系，不另建平行主题。
@@ -122,16 +123,21 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 - 查询和提交使用主按钮；重置使用默认按钮；新增、修改、删除、导出等动作沿用现有语义色。仅图标即可准确表达的工具按钮使用图标并提供 tooltip 或 `aria-label`。
 - 表格表头、行高、边框和悬停态由全局样式控制；长文本使用省略和 tooltip，操作列保持稳定宽度，空列表返回并展示空状态而不是塌陷布局。
 - 标签、开关、复选框、单选框、分页、弹窗和抽屉使用 Arco Design Vue 组件，禁止用普通文本或自绘控件替代成熟交互。
+- 列表查询、提交、上传和破坏性操作必须提供可见的进行中状态，防止重复触发；异步 `loading`、`submitting` 等状态统一在 `finally` 或等价的完成分支收口，成功、失败、空数据不得共用一种反馈。
+- 图片、验证码、上传和 `iframe` 等异步媒体必须使用真实的 `load`、`error`、`success` 回调驱动加载态，并提供可识别的替代文本；不得用固定延时伪造加载完成。
+- 破坏性操作必须二次确认；新增或调整操作权限时同步检查前端 `v-hasPermi`、后端 `@PreAuthorize`、`sys_menu` 的 `F` 菜单和必要的 `sys_role_menu` 默认授权，保证权限闭环。
 
 ### 响应式与可用性
 
 - 必须检查至少 `1440px` 桌面、`991px` 平板和 `390px` 手机宽度；固定格式控件使用稳定尺寸或 `minmax`，文本不得遮挡、溢出按钮或挤压相邻操作。
 - `991px` 以下侧栏切换为抽屉式，页面概览视觉可缩小；`640px` 以下隐藏纯装饰内容，筛选项和弹窗表单改为单列，表格允许横向滚动。
 - 所有可点击图标必须具备可识别的悬停、键盘焦点和禁用状态；动画遵守 `prefers-reduced-motion`，不添加持续占用 CPU 的装饰动画。
+- 自定义点击区域优先使用原生 `button`、链接或 Arco 交互组件；确需使用其他元素时，必须补齐语义 `role`、`tabindex`、`aria-label`，并同时支持 `Enter` 和 `Space` 键，不能只绑定鼠标点击。
+- 弹窗宽度和多列表单必须按 Arco 生成的 `.arco-modal`、`.arco-col-*` 类实现移动端规则；不得只维护已移除组件库的 `.el-*` 选择器，并在 `390px` 下验证弹窗不超出视口、双列表单变为单列。
 
 ### 前端验收
 
-- UI 改动完成后至少执行 `cd ui-admin && npm run build:prod`，并检查浏览器控制台无新增错误。
+- UI 改动完成后至少执行 `cd ui-admin-arco && pnpm run build`，并检查浏览器控制台无新增错误。
 - 涉及壳层、主题或公共组件时，必须截图核对首页、一个标准列表页、一个特殊页和手机视口，确认侧栏、顶栏、页签、筛选区、表格、分页和弹窗没有重叠或视觉断层。
 - 新增页面优先复用既有主题类和组件；若必须增加局部样式，只保留当前页面独有的布局，能由全局变量或公共类表达的样式不得复制到页面中。
 
@@ -140,9 +146,9 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 - `mvn clean package`：构建全部后端模块。
 - `mvn test`：运行单元测试和 ArchUnit 架构测试。
 - `mvn -pl manzhushaka-admin -am spring-boot:run`：启动后端服务。
-- `cd ui-admin && npm install`：按 `package-lock.json` 安装前端依赖。
-- `cd ui-admin && npm run dev`：启动 Vite 开发服务。
-- `cd ui-admin && npm run build:prod`：构建生产前端包。
+- `cd ui-admin-arco && pnpm install --frozen-lockfile`：按 `pnpm-lock.yaml` 安装前端依赖。
+- `cd ui-admin-arco && pnpm run dev`：启动 Vite 开发服务。
+- `cd ui-admin-arco && pnpm run build`：构建生产前端包。
 - 如果有代码变更，最好执行 `codegraph sync .` 更新索引。
 
 ## Java 命名规范
@@ -437,7 +443,7 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 - 单元测试应在提测前完成，不建议发布后补。
 - 避免业务代码中构造方法过重、全局变量和静态方法过多、外部依赖过多、条件语句过多。
 - 本仓库后端使用 Spring Boot Test、JUnit 5 和 ArchUnit；涉及模块边界变更时必须更新架构测试。
-- 前端 `package.json` 暂无 `test` 脚本，UI 变更需执行生产构建、浏览器检查并提供截图。`ui-admin/tests/pageHeader.test.mjs` 依赖已删除的 PageHeader 实现，当前不能作为有效验收项。
+- 前端 `package.json` 暂无 `test` 脚本，UI 变更需执行生产构建、浏览器检查并提供截图。
 
 ## 安全规约
 
@@ -587,7 +593,7 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 
 ## 提交与 Pull Request
 
-- 提交信息遵循现有 Conventional Commit 风格，例如 `feat(ui-admin): add theme tokens`、`refactor: remove common coupling`、`test: add architecture guardrails`。
+- 提交信息遵循现有 Conventional Commit 风格，例如 `feat(ui-admin-arco): add theme tokens`、`refactor: remove common coupling`、`test: add architecture guardrails`。
 - PR 需说明变更范围、影响模块、验证命令和关联 Issue。
 - 涉及 UI 时提供截图；涉及数据库时同步 `sql` 脚本和回滚说明；涉及配置时说明本地与生产差异。
 - 合并前至少运行相关后端测试；架构边界、数据库、安全、前后端契约和异常日志规则无法完全依赖静态扫描，必须在评审中人工确认。
@@ -617,7 +623,7 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 | 配置（容器 Bean、调度开关）        | `manzhushaka-framework` | `com.manzhushaka.framework.config`                       |
 | 台账（实体、Mapper、Service）      | `manzhushaka-system`    | 现有`domain`、`mapper`、`service` 目录                   |
 | 管理接口（Controller）             | `manzhushaka-admin`     | `com.manzhushaka.web.controller.monitor`                 |
-| 前端页面                           | `ui-admin`              | `api/monitor/mqLog.js` + `views/monitor/mqLog/index.vue` |
+| 前端页面                           | `ui-admin-arco`         | `api/monitor/mqLog.ts` + `views/monitor/mqLog/index.vue` |
 
 ### 核心概念与术语
 

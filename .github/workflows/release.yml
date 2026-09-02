@@ -86,13 +86,18 @@ jobs:
           distribution: temurin
           java-version: ${{ needs.plan.outputs.runtime_version }}
           cache: maven
+      - name: Set up pnpm
+        if: needs.plan.outputs.runtime == 'java'
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
       - name: Set up Node.js for frontend build
         if: needs.plan.outputs.runtime == 'java'
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-          cache-dependency-path: ui-admin/package-lock.json
+          cache: pnpm
+          cache-dependency-path: ui-admin-arco/pnpm-lock.yaml
       - name: Set up Node.js
         if: needs.plan.outputs.runtime == 'node'
         uses: actions/setup-node@v4
@@ -115,13 +120,18 @@ jobs:
           distribution: temurin
           java-version: ${{ needs.plan.outputs.runtime_version }}
           cache: maven
+      - name: Set up pnpm
+        if: needs.plan.outputs.runtime == 'java'
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
       - name: Set up Node.js for frontend build
         if: needs.plan.outputs.runtime == 'java'
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-          cache-dependency-path: ui-admin/package-lock.json
+          cache: pnpm
+          cache-dependency-path: ui-admin-arco/pnpm-lock.yaml
       - name: Set up Node.js
         if: needs.plan.outputs.runtime == 'node'
         uses: actions/setup-node@v4
