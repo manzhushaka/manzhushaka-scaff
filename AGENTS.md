@@ -4,7 +4,7 @@ Repository Guidelines
 
 ## 适用范围与优先级
 
-本文件是本仓库的贡献指南与 AI Agent 协作规范。后端 Java 代码以 P3C《Java 开发手册》（嵩山版）为基线，并结合当前仓库的模块边界执行；前端代码遵循 `ui-admin-arco` 现有 Vue 3 + Arco Design Vue 风格。若本文件与用户明确指令冲突，优先遵循用户指令；若与模块内更具体说明冲突，优先遵循更靠近代码的说明。
+本文件是本仓库的贡献指南与 AI Agent 协作规范。后端 Java 代码以 P3C《Java 开发手册》（嵩山版）为基线，并结合当前仓库的模块边界执行；前端代码遵循 `ui-admin` 现有 Vue 3 + Arco Design Vue 风格。若本文件与用户明确指令冲突，优先遵循用户指令；若与模块内更具体说明冲突，优先遵循更靠近代码的说明。
 
 P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除非有充分理由并在评审中说明，否则新增和修改代码默认遵守本文件规则。
 
@@ -77,7 +77,7 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 
 - 后端是 Maven 多模块工程：`manzhushaka-admin` 为 Web 启动层、Controller、HTTP DTO/VO 和全局异常入口；`manzhushaka-framework` 为安全、配置、AOP、拦截器等框架能力；`manzhushaka-system` 为系统业务；`manzhushaka-quartz` 为定时任务；`manzhushaka-common` 仅放通用工具、常量、注解和基础能力。
 - Java 源码放在 `src/main/java`，资源放在 `src/main/resources`，测试放在 `src/test/java`。
-- 前端位于 `ui-admin-arco/src`：页面在 `views`，组件在 `components`，接口在 `api`，状态在 `store`，路由在 `router`，资源和样式在 `assets`。
+- 前端位于 `ui-admin/src`：页面在 `views`，组件在 `components`，接口在 `api`，状态在 `store`，路由在 `router`，资源和样式在 `assets`。
 - SQL 脚本放在 `sql`，文档放在 `doc` 和 `docs`。
 - 业务域各自持久化，不新增统一 `db` 模块；`common` 禁止承载业务实体。
 - 新功能如果需要调整数据库结构、基础数据或默认配置，必须同步调整 `sql` 目录下的初始化脚本，当前主初始化脚本为 `sql/manzhushaka_db_init.sql`；若后续任务明确引入 `sql/manzhushaka_init.sql`，再同步维护该文件。
@@ -85,7 +85,7 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 
 ## 前端技术现状
 
-- `ui-admin-arco` 的页面和公共组件统一使用 Arco Design Vue，`main.ts` 负责应用入口，`package.json` 不得引入 Element Plus 依赖。
+- `ui-admin` 的页面和公共组件统一使用 Arco Design Vue，`main.ts` 负责应用入口，`package.json` 不得引入 Element Plus 依赖。
 - 所有新增和修改的页面、共享组件统一使用 Arco Design Vue，不得重新引入 Element Plus 依赖、组件 API 或图标。
 - 当前仓库不使用统一的 `PageHeader` 和页面说明元数据，业务页面也不要求路由提供页面说明元数据。不要在各页面重新手写统一说明条。
 - 调整前端 UI 时默认保留接口字段、权限字符串、路由名称、查询参数和业务流程，不把视觉或组件改动扩大成业务重构。
@@ -94,9 +94,9 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 
 ### 设计基线与主题变量
 
-- `ui-admin-arco` 采用浅色侧栏、白色工作面板和可切换的橙白、紫白主题；切换主题只改变主信号色和对应浅色状态面，不改变壳层明暗关系。页面应安静、紧凑、便于扫描，不使用营销页式大标题、装饰性渐变、光斑或大面积高饱和色。
+- `ui-admin` 采用浅色侧栏、白色工作面板和可切换的橙白、紫白主题；切换主题只改变主信号色和对应浅色状态面，不改变壳层明暗关系。页面应安静、紧凑、便于扫描，不使用营销页式大标题、装饰性渐变、光斑或大面积高饱和色。
 - 所有业务页面和公共组件必须使用 Arco Design Vue，不得新增 Element Plus 依赖、组件用法或迁移期兼容层。
-- 全站颜色、间距、圆角、阴影、控件高度和布局尺寸统一遵循 `ui-admin-arco/src/assets/style` 的主题与样式体系；业务页面禁止重复硬编码主色、背景色和边框色。
+- 全站颜色、间距、圆角、阴影、控件高度和布局尺寸统一遵循 `ui-admin/src/assets/style` 的主题与样式体系；业务页面禁止重复硬编码主色、背景色和边框色。
 - 主色只用于当前导航、主要操作、焦点和关键状态；成功、警告、危险、信息状态分别使用 `--ui-success`、`--ui-warning`、`--ui-danger`、`--ui-info`，不把所有状态都改成橙色。
 - 面板和控件圆角默认不超过 `8px`；阴影保持轻量，仅用于需要与画布分层的面板、弹窗和浮层，普通页面区块不做悬浮卡片。
 
@@ -137,7 +137,7 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 
 ### 前端验收
 
-- UI 改动完成后至少执行 `cd ui-admin-arco && pnpm run build`，并检查浏览器控制台无新增错误。
+- UI 改动完成后至少执行 `cd ui-admin && pnpm run build`，并检查浏览器控制台无新增错误。
 - 涉及壳层、主题或公共组件时，必须截图核对首页、一个标准列表页、一个特殊页和手机视口，确认侧栏、顶栏、页签、筛选区、表格、分页和弹窗没有重叠或视觉断层。
 - 新增页面优先复用既有主题类和组件；若必须增加局部样式，只保留当前页面独有的布局，能由全局变量或公共类表达的样式不得复制到页面中。
 
@@ -146,9 +146,9 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 - `mvn clean package`：构建全部后端模块。
 - `mvn test`：运行单元测试和 ArchUnit 架构测试。
 - `mvn -pl manzhushaka-admin -am spring-boot:run`：启动后端服务。
-- `cd ui-admin-arco && pnpm install --frozen-lockfile`：按 `pnpm-lock.yaml` 安装前端依赖。
-- `cd ui-admin-arco && pnpm run dev`：启动 Vite 开发服务。
-- `cd ui-admin-arco && pnpm run build`：构建生产前端包。
+- `cd ui-admin && pnpm install --frozen-lockfile`：按 `pnpm-lock.yaml` 安装前端依赖。
+- `cd ui-admin && pnpm run dev`：启动 Vite 开发服务。
+- `cd ui-admin && pnpm run build`：构建生产前端包。
 - 如果有代码变更，最好执行 `codegraph sync .` 更新索引。
 
 ## Java 命名规范
@@ -593,7 +593,7 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 
 ## 提交与 Pull Request
 
-- 提交信息遵循现有 Conventional Commit 风格，例如 `feat(ui-admin-arco): add theme tokens`、`refactor: remove common coupling`、`test: add architecture guardrails`。
+- 提交信息遵循现有 Conventional Commit 风格，例如 `feat(ui-admin): add theme tokens`、`refactor: remove common coupling`、`test: add architecture guardrails`。
 - PR 需说明变更范围、影响模块、验证命令和关联 Issue。
 - 涉及 UI 时提供截图；涉及数据库时同步 `sql` 脚本和回滚说明；涉及配置时说明本地与生产差异。
 - 合并前至少运行相关后端测试；架构边界、数据库、安全、前后端契约和异常日志规则无法完全依赖静态扫描，必须在评审中人工确认。
@@ -623,7 +623,7 @@ P3C 规则按约束力理解为【强制】、【推荐】、【参考】。除�
 | 配置（容器 Bean、调度开关）        | `manzhushaka-framework` | `com.manzhushaka.framework.config`                       |
 | 台账（实体、Mapper、Service）      | `manzhushaka-system`    | 现有`domain`、`mapper`、`service` 目录                   |
 | 管理接口（Controller）             | `manzhushaka-admin`     | `com.manzhushaka.web.controller.monitor`                 |
-| 前端页面                           | `ui-admin-arco`         | `api/monitor/mqLog.ts` + `views/monitor/mqLog/index.vue` |
+| 前端页面                           | `ui-admin`              | `api/monitor/mqLog.ts` + `views/monitor/mqLog/index.vue` |
 
 ### 核心概念与术语
 

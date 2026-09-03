@@ -8,7 +8,7 @@
 
 - 保留后台基础能力：登录认证、验证码、用户、角色、菜单、部门、字典、参数、操作日志、登录日志、运行日志、慢 SQL 日志、在线用户、服务监控、缓存监控、Druid 监控和 Quartz 定时任务。
 - 已接入 Redis Stream 消息发布、消费、重试、死信和消息台账管理。
-- 前端入口在 `ui-admin-arco`，使用 Vue 3、Arco Design Vue、Pinia、Vue Router 4 和 Axios。
+- 前端入口在 `ui-admin`，使用 Vue 3、Arco Design Vue、Pinia、Vue Router 4 和 Axios。
 - 后端入口在 `manzhushaka-admin`，当前启动类为 `com.manzhushaka.ManzhushakaScaffApplication`。
 - 系统业务正在从若依传统分层向更清晰的应用层、领域层、基础设施层拆分；新增代码应优先遵守 `AGENTS.md` 中的模块边界。
 - 当前仓库已移除或正在清理若依原版中的岗位管理、通知公告、在线构建器等旧入口，文档和菜单不再把它们作为内置能力描述。
@@ -50,7 +50,7 @@
 ├── manzhushaka-system       # 系统业务，用户、角色、菜单、部门、字典、参数等
 ├── manzhushaka-quartz       # Quartz 定时任务
 ├── manzhushaka-common       # 通用工具、常量、注解、异常和基础能力
-├── ui-admin-arco            # Vue 3 + Arco Design Vue 管理端
+├── ui-admin                 # Vue 3 + Arco Design Vue 管理端
 ├── sql                      # 主初始化脚本
 ├── docs                     # 安全与使用文档
 ├── scripts                  # 架构检查等辅助脚本
@@ -124,12 +124,12 @@ java -jar manzhushaka-admin/target/manzhushaka-admin.jar
 ### 4. 启动前端
 
 ```bash
-cd ui-admin-arco
+cd ui-admin
 pnpm install
 pnpm run dev
 ```
 
-前端开发服务默认监听 `5173` 端口，访问地址为 `http://localhost:5173`。开发环境接口地址由 `ui-admin-arco/.env.development` 配置。
+前端开发服务默认监听 `5173` 端口，访问地址为 `http://localhost:5173`。开发环境接口地址由 `ui-admin/.env.development` 配置。
 
 ### 5. 默认账号与初始密码
 
@@ -164,7 +164,7 @@ bash scripts/architecture/check-module-boundaries.sh
 ### 前端
 
 ```bash
-cd ui-admin-arco
+cd ui-admin
 
 # 安装依赖
 pnpm install
@@ -191,7 +191,7 @@ pnpm run type:check
 - `manzhushaka-common` 只放通用基础能力，不承载业务实体。
 - 所有页面和公共组件统一使用 Arco Design Vue；新增或修改前端代码时不得重新引入 Element Plus 依赖或组件 API。
 - 前端视觉基线固定为浅色侧栏、白色工作面板和橙白/紫白双主题；主题切换仅改变主信号色，页面结构、密度和壳层明暗关系保持一致。
-- 前端页面和公共组件统一使用 `ui-admin-arco` 的 Arco Design Vue 组件与样式体系。
+- 前端页面和公共组件统一使用 `ui-admin` 的 Arco Design Vue 组件与样式体系。
 - 新增页面、按钮、接口权限时，需要同步维护前端 `v-hasPermi`、后端 `@PreAuthorize`、`sql/manzhushaka_db_init.sql` 中的 `sys_menu` 和必要的 `sys_role_menu`。
 - 新增或调整数据库结构、基础数据、默认菜单时，需要同步维护 `sql` 目录下的初始化或增量脚本。
 - `manzhushaka-admin/src/main/java/com/manzhushaka/web/controller` 下的 HTTP 接口方法需要同时满足权限注解和 `@Log` 操作日志规范。
@@ -202,10 +202,10 @@ pnpm run type:check
 - 后端主配置：`manzhushaka-admin/src/main/resources/application.yml`
 - 开发数据源配置：`manzhushaka-admin/src/main/resources/application-dev.yml`
 - MyBatis 映射：`manzhushaka-system/src/main/resources/mapper`
-- 前端环境配置：`ui-admin-arco/.env.development`、`ui-admin-arco/.env.production`
-- 前端代理配置：`ui-admin-arco/config/vite.config.dev.ts`
-- 前端路由：`ui-admin-arco/src/router/index.ts`
-- 前端页面：`ui-admin-arco/src/views`
+- 前端环境配置：`ui-admin/.env.development`、`ui-admin/.env.production`
+- 前端代理配置：`ui-admin/config/vite.config.dev.ts`
+- 前端路由：`ui-admin/src/router/index.ts`
+- 前端页面：`ui-admin/src/views`
 - 初始化 SQL：`sql/manzhushaka_db_init.sql`
 - 协作规范：`AGENTS.md`
 

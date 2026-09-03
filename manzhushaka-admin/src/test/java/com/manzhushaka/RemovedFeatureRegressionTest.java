@@ -47,19 +47,19 @@ class RemovedFeatureRegressionTest
             "com.manzhushaka.system.infrastructure.persistence.entity.SysNoticeRead");
 
     private static final List<String> REMOVED_NOTICE_FRONTEND_FILES = List.of(
-            "ui-admin-arco/src/api/system/notice.ts",
-            "ui-admin-arco/src/layout/components/HeaderNotice/index.vue",
-            "ui-admin-arco/src/layout/components/HeaderNotice/DetailView.vue",
-            "ui-admin-arco/src/views/system/notice/index.vue",
-            "ui-admin-arco/src/views/system/notice/ReadUsers.vue");
+            "ui-admin/src/api/system/notice.ts",
+            "ui-admin/src/layout/components/HeaderNotice/index.vue",
+            "ui-admin/src/layout/components/HeaderNotice/DetailView.vue",
+            "ui-admin/src/views/system/notice/index.vue",
+            "ui-admin/src/views/system/notice/ReadUsers.vue");
 
     private static final List<String> REMOVED_POST_FRONTEND_FILES = List.of(
-            "ui-admin-arco/src/api/system/post.ts",
-            "ui-admin-arco/src/views/system/post/index.vue");
+            "ui-admin/src/api/system/post.ts",
+            "ui-admin/src/views/system/post/index.vue");
 
     private static final List<String> REMOVED_REQUEST_LOG_FRONTEND_FILES = List.of(
-            "ui-admin-arco/src/api/monitor/requestLog.ts",
-            "ui-admin-arco/src/views/monitor/requestLog/index.vue");
+            "ui-admin/src/api/monitor/requestLog.ts",
+            "ui-admin/src/views/monitor/requestLog/index.vue");
 
     /** IIP 模块及其前后端入口路径。 */
     private static final List<String> REMOVED_IIP_PATHS = List.of(
@@ -69,8 +69,8 @@ class RemovedFeatureRegressionTest
             "manzhushaka-admin/src/main/java/com/manzhushaka/web/controller/miniapp",
             "manzhushaka-admin/src/main/java/com/manzhushaka/web/converter/iip",
             "manzhushaka-admin/src/main/java/com/manzhushaka/web/dto/iip",
-            "ui-admin-arco/src/api/iip",
-            "ui-admin-arco/src/views/iip");
+            "ui-admin/src/api/iip",
+            "ui-admin/src/views/iip");
 
     /**
      * 岗位管理相关后端类应已从类路径移除。
