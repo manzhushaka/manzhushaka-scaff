@@ -7,28 +7,6 @@
         <a-tab-pane key="INFO" title="INFO" />
         <a-tab-pane key="WARN" title="WARN" />
         <a-tab-pane key="ERROR" title="ERROR" />
-        <template #extra>
-          <a-space class="log-toolbar">
-            <a-select
-              v-model="fileName"
-              class="log-file-select"
-              :loading="filesLoading"
-              @change="loadData"
-            >
-              <a-option
-                v-for="file in files"
-                :key="file.fileName"
-                :value="file.fileName"
-              >
-                {{ file.fileName }}
-              </a-option>
-            </a-select>
-            <a-button type="primary" :loading="downloading" @click="download">
-              <template #icon><icon-download /></template>
-              下载
-            </a-button>
-          </a-space>
-        </template>
       </a-tabs>
       <a-form
         :model="query"
@@ -37,10 +15,21 @@
         @submit-success="loadData"
       >
         <a-form-item field="keyword" label="关键字">
-          <a-input v-model="query.keyword" allow-clear placeholder="请输入关键字" />
+          <a-input
+            v-model="query.keyword"
+            class="filter-control"
+            allow-clear
+            placeholder="请输入关键字"
+          />
         </a-form-item>
         <a-form-item field="lineCount" label="读取行数">
-          <a-input-number v-model="query.lineCount" :min="50" :max="5000" :step="100" />
+          <a-input-number
+            v-model="query.lineCount"
+            class="filter-control"
+            :min="50"
+            :max="5000"
+            :step="100"
+          />
         </a-form-item>
         <a-form-item>
           <a-button type="primary" html-type="submit">
@@ -59,15 +48,17 @@
             </template>
           </a-table-column>
           <a-table-column title="内容" data-index="content" ellipsis tooltip />
-          <a-table-column title="堆栈" :width="90">
+          <a-table-column title="堆栈" align="center" :width="90">
             <template #cell="{ record }">
               <a-button
                 type="text"
+                class="table-action-button table-action-button--view"
+                aria-label="查看详情"
+                title="查看详情"
                 :disabled="!record.stackTraceBlock"
                 @click="showDetail(record)"
               >
                 <template #icon><icon-eye /></template>
-                查看
               </a-button>
             </template>
           </a-table-column>
@@ -88,19 +79,9 @@
 
 <script lang="ts" setup>
   import { onMounted, ref } from 'vue';
-  import { Message } from '@arco-design/web-vue';
-  import { downloadRuntimeLog, listRuntimeLogFiles, listRuntimeLogs } from '@/api/admin';
-
-  interface RuntimeLogFile {
-    fileName: string;
-    fileSize: number;
-    updateTime: string;
-  }
+  import { listRuntimeLogs } from '@/api/admin';
 
   const loading = ref(false);
-  const filesLoading = ref(false);
-  const downloading = ref(false);
-  const files = ref<RuntimeLogFile[]>([]);
   const fileName = ref('sys-error.log');
   const level = ref('ALL');
   const logs = ref<Record<string, any>[]>([]);
@@ -117,25 +98,6 @@
     if (value === 'ERROR') return 'red';
     if (value === 'WARN') return 'orange';
     return 'green';
-  }
-
-  /** 加载 Java 返回的可用日志文件。 */
-  async function loadFiles() {
-    filesLoading.value = true;
-    errorMessage.value = '';
-    try {
-      const response = await listRuntimeLogFiles();
-      files.value = (response.data || []) as RuntimeLogFile[];
-      if (files.value.length && !files.value.some((file) => file.fileName === fileName.value)) {
-        fileName.value = files.value[0].fileName;
-      }
-    } catch (error) {
-      files.value = [];
-      fileName.value = '';
-      errorMessage.value = getErrorMessage(error, '日志文件列表加载失败');
-    } finally {
-      filesLoading.value = false;
-    }
   }
 
   /** 查询当前日志文件内容。 */
@@ -162,28 +124,6 @@
     }
   }
 
-  /** 下载当前日志文件。 */
-  async function download() {
-    if (!fileName.value) return;
-
-    downloading.value = true;
-    try {
-      const response: any = await downloadRuntimeLog(fileName.value);
-      const blob = new Blob([response]);
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = fileName.value;
-      link.click();
-      URL.revokeObjectURL(url);
-      Message.success('日志下载已开始');
-    } catch (error) {
-      errorMessage.value = getErrorMessage(error, '日志下载失败');
-    } finally {
-      downloading.value = false;
-    }
-  }
-
   /** 打开单条日志的堆栈详情。 */
   function showDetail(record: Record<string, any>) {
     detailContent.value = [record.content, record.stackTraceBlock].filter(Boolean).join('\n');
@@ -191,7 +131,6 @@
   }
 
   onMounted(async () => {
-    await loadFiles();
     await loadData();
   });
 </script>
@@ -207,16 +146,26 @@
     border-radius: 6px;
   }
 
+  .log-card :deep(.arco-card-body) {
+    padding: 0;
+  }
+
   :deep(.arco-alert) + .log-card {
     margin-top: 16px;
   }
 
-  .log-file-select {
-    width: 200px;
+  .filter-form {
+    align-items: center;
+    padding: 12px 16px 4px;
   }
 
-  .filter-form {
-    padding: 8px 0 2px;
+  .filter-form :deep(.arco-form-item) {
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .filter-control {
+    width: 200px;
   }
 
   .log-detail {
@@ -239,23 +188,16 @@
       flex-wrap: wrap;
     }
 
-    :deep(.arco-tabs-nav-extra) {
-      width: 100%;
-      padding: 8px 0;
-    }
-
-    .log-toolbar {
-      display: flex;
-      width: 100%;
-    }
-
-    .log-file-select {
-      flex: 1;
-      min-width: 0;
-      width: auto;
-    }
-
     .filter-form :deep(.arco-form-item) {
+      width: 100%;
+      margin-right: 0;
+    }
+
+    .filter-form {
+      padding: 12px 0 4px;
+    }
+
+    .filter-control {
       width: 100%;
     }
   }

@@ -186,6 +186,7 @@
         row-key="id"
         :loading="loading"
         :pagination="pagination"
+        page-position="bottom"
         :columns="(cloneColumns as TableColumnData[])"
         :data="renderData"
         :bordered="false"
@@ -235,8 +236,15 @@
           {{ $t(`searchTable.form.status.${record.status}`) }}
         </template>
         <template #operations>
-          <a-button v-permission="['admin']" type="text" size="small">
-            {{ $t('searchTable.columns.operations.view') }}
+          <a-button
+            v-permission="['admin']"
+            type="text"
+            size="small"
+            class="table-action-button table-action-button--view"
+            :aria-label="$t('searchTable.columns.operations.view')"
+            :title="$t('searchTable.columns.operations.view')"
+          >
+            <template #icon><icon-eye /></template>
           </a-button>
         </template>
       </a-table>
@@ -342,6 +350,7 @@
       title: t('searchTable.columns.operations'),
       dataIndex: 'operations',
       slotName: 'operations',
+      align: 'center',
     },
   ]);
   const contentTypeOptions = computed<SelectOptionData[]>(() => [
@@ -485,13 +494,6 @@
 <style scoped lang="less">
   .container {
     padding: 20px;
-  }
-  :deep(.arco-table-th) {
-    &:last-child {
-      .arco-table-th-item-title {
-        margin-left: 16px;
-      }
-    }
   }
   .action-icon {
     margin-left: 12px;

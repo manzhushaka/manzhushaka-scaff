@@ -9,6 +9,7 @@
           v-if="renderMenu"
           v-show="!hideMenu"
           class="layout-sider"
+          :class="{ 'layout-sider-with-navbar': navbar }"
           breakpoint="xl"
           :collapsed="collapsed"
           :collapsible="true"
@@ -126,6 +127,7 @@
     left: 0;
     z-index: 99;
     height: 100%;
+    background-color: var(--color-bg-2);
     transition: all 0.2s cubic-bezier(0.34, 0.69, 0.1, 1);
     &::after {
       position: absolute;
@@ -141,6 +143,11 @@
     > :deep(.arco-layout-sider-children) {
       overflow-y: hidden;
     }
+  }
+
+  .layout-sider-with-navbar::after {
+    top: @nav-size-height;
+    height: calc(100% - @nav-size-height);
   }
 
   .menu-wrapper {

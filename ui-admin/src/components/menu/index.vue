@@ -136,7 +136,9 @@
               const icon = element?.meta?.icon
                 ? () => h(iconMap[element.meta?.icon as string] || IconMenu)
                 : null;
-              const label = String(element?.meta?.title || element?.meta?.locale || '');
+              const label = String(
+                element?.meta?.title || element?.meta?.locale || ''
+              );
               const node =
                 element?.children && element?.children.length !== 0 ? (
                   <a-sub-menu
@@ -170,7 +172,7 @@
           mode={topMenu.value ? 'horizontal' : 'vertical'}
           v-model:collapsed={collapsed.value}
           v-model:open-keys={openKeys.value}
-          show-collapse-button={appStore.device !== 'mobile'}
+          show-collapse-button={false}
           auto-open={false}
           selected-keys={selectedKey.value}
           auto-open-selected={true}

@@ -4,7 +4,7 @@
       {{ $t('basicProfile.title.operationLog') }}
     </template>
     <a-spin :loading="loading" style="width: 100%">
-      <a-table :data="renderData">
+      <a-table :data="renderData" :bordered="false" page-position="bottom">
         <template #columns>
           <a-table-column
             :title="$t('basicProfile.column.contentNumber')"
@@ -33,11 +33,16 @@
             :title="$t('basicProfile.column.updateTime')"
             data-index="updateTime"
           />
-          <a-table-column :title="$t('basicProfile.column.operation')">
+          <a-table-column :title="$t('basicProfile.column.operation')" align="center">
             <template #cell>
-              <a-button type="text">{{
-                $t('basicProfile.cell.view')
-              }}</a-button>
+              <a-button
+                type="text"
+                class="table-action-button table-action-button--view"
+                :aria-label="$t('basicProfile.cell.view')"
+                :title="$t('basicProfile.cell.view')"
+              >
+                <template #icon><icon-eye /></template>
+              </a-button>
             </template>
           </a-table-column>
         </template>
@@ -65,13 +70,3 @@
   };
   fetchData();
 </script>
-
-<style scoped lang="less">
-  :deep(.arco-table-th) {
-    &:last-child {
-      .arco-table-th-item-title {
-        margin-left: 16px;
-      }
-    }
-  }
-</style>

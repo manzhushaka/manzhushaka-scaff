@@ -4,7 +4,7 @@
     :title="$t('userSetting.certification.title.record')"
     :header-style="{ border: 'none' }"
   >
-    <a-table v-if="renderData.length" :data="renderData">
+    <a-table v-if="renderData.length" :data="renderData" :bordered="false" page-position="bottom">
       <template #columns>
         <a-table-column
           :title="$t('userSetting.certification.columns.certificationType')"
@@ -35,14 +35,26 @@
         />
         <a-table-column
           :title="$t('userSetting.certification.columns.operation')"
+          align="center"
         >
           <template #cell="{ record }">
-            <a-space>
-              <a-button type="text">
-                {{ $t('userSetting.certification.button.check') }}
+            <a-space class="table-action-buttons">
+              <a-button
+                type="text"
+                class="table-action-button table-action-button--view"
+                :aria-label="$t('userSetting.certification.button.check')"
+                :title="$t('userSetting.certification.button.check')"
+              >
+                <template #icon><icon-eye /></template>
               </a-button>
-              <a-button v-if="record.status === 0" type="text">
-                {{ $t('userSetting.certification.button.withdraw') }}
+              <a-button
+                v-if="record.status === 0"
+                type="text"
+                class="table-action-button table-action-button--withdraw"
+                :aria-label="$t('userSetting.certification.button.withdraw')"
+                :title="$t('userSetting.certification.button.withdraw')"
+              >
+                <template #icon><icon-undo /></template>
               </a-button>
             </a-space>
           </template>
@@ -65,13 +77,3 @@
     },
   });
 </script>
-
-<style scoped lang="less">
-  :deep(.arco-table-th) {
-    &:last-child {
-      .arco-table-th-item-title {
-        margin-left: 16px;
-      }
-    }
-  }
-</style>

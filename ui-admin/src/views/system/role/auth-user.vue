@@ -45,6 +45,7 @@
         :bordered="false"
         row-key="userId"
         :pagination="pagination"
+        page-position="bottom"
         :row-selection="{ type: 'checkbox', showCheckedAll: true }"
         @selection-change="handleSelectionChange"
         @page-change="handlePageChange"
@@ -63,11 +64,17 @@
             </template>
           </a-table-column>
           <a-table-column title="创建时间" data-index="createTime" :width="180" />
-          <a-table-column title="操作" :width="130" fixed="right">
+          <a-table-column title="操作" align="center" :width="130" fixed="right">
             <template #cell="{ record }">
-              <a-button type="text" status="danger" :disabled="!can('edit')" @click="cancelOne(record)">
+              <a-button
+                type="text"
+                class="table-action-button table-action-button--cancel"
+                aria-label="取消授权"
+                title="取消授权"
+                :disabled="!can('edit')"
+                @click="cancelOne(record)"
+              >
                 <template #icon><icon-close-circle /></template>
-                取消授权
               </a-button>
             </template>
           </a-table-column>
@@ -263,7 +270,7 @@
   .filter-panel, .table-panel { border: 1px solid var(--color-border-2); border-radius: 6px; background: var(--color-bg-2); }
   .filter-panel { padding: 18px 20px 2px; margin-bottom: 16px; }
   .table-panel { overflow: hidden; }
-  .action-bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid var(--color-border-2); }
+  .action-bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; }
   .selector-table { margin-top: 18px; }
   .selector-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
   :deep(.arco-table) { min-width: 720px; }

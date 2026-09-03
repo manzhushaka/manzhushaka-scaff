@@ -9,6 +9,7 @@
       :class="{ 'link-activated': itemData.fullPath === $route.fullPath }"
       @click="goto(itemData)"
     >
+      <component :is="tabIcon" class="tab-icon" />
       <span class="tag-link">
         {{ $t(itemData.title) }}
       </span>
@@ -57,11 +58,52 @@
 </template>
 
 <script lang="ts" setup>
-  import { PropType, computed } from 'vue';
+  import { computed } from 'vue';
+  import type { Component, PropType } from 'vue';
   import { useRouter, useRoute } from 'vue-router';
   import { useTabBarStore } from '@/store';
   import type { TagProps } from '@/store/modules/tab-bar/types';
   import { DEFAULT_ROUTE_NAME, REDIRECT_ROUTE_NAME } from '@/router/constants';
+  import {
+    IconApps,
+    IconBarChart,
+    IconBook,
+    IconCalendarClock,
+    IconComputer,
+    IconDashboard,
+    IconEdit,
+    IconFile,
+    IconHome,
+    IconList,
+    IconMenu,
+    IconMindMapping,
+    IconMessage,
+    IconSettings,
+    IconStorage,
+    IconUnorderedList,
+    IconUser,
+    IconUserGroup,
+  } from '@arco-design/web-vue/es/icon';
+
+  const iconMap: Record<string, Component> = {
+    'icon-apps': IconApps,
+    'icon-bar-chart': IconBarChart,
+    'icon-book': IconBook,
+    'icon-calendar-clock': IconCalendarClock,
+    'icon-computer': IconComputer,
+    'icon-dashboard': IconDashboard,
+    'icon-edit': IconEdit,
+    'icon-file': IconFile,
+    'icon-list': IconList,
+    'icon-menu': IconMenu,
+    'icon-mind-mapping': IconMindMapping,
+    'icon-message': IconMessage,
+    'icon-settings': IconSettings,
+    'icon-storage': IconStorage,
+    'icon-unordered-list': IconUnorderedList,
+    'icon-user': IconUser,
+    'icon-user-group': IconUserGroup,
+  };
 
   // eslint-disable-next-line no-shadow
   enum Eaction {
@@ -89,6 +131,13 @@
   const router = useRouter();
   const route = useRoute();
   const tabBarStore = useTabBarStore();
+
+  const tabIcon = computed(() => {
+    if (props.index === 0) return IconHome;
+    if (props.itemData.icon) return iconMap[props.itemData.icon] || IconMenu;
+    if (props.itemData.name === 'DataAnalysis') return IconBarChart;
+    return IconMenu;
+  });
 
   const goto = (tag: TagProps) => {
     if (tag.fullPath !== route.fullPath) {
@@ -172,16 +221,24 @@
 </script>
 
 <style scoped lang="less">
+  .tab-icon {
+    flex-shrink: 0;
+    margin-right: 6px;
+    color: var(--color-text-3);
+    font-size: 14px;
+  }
+
   .tag-link {
     color: var(--color-text-2);
     text-decoration: none;
   }
   .link-activated {
     color: rgb(var(--link-6));
+    .tab-icon,
     .tag-link {
       color: rgb(var(--link-6));
     }
-    & + .arco-tag-close-btn {
+    .arco-tag-close-btn {
       color: rgb(var(--link-6));
     }
   }

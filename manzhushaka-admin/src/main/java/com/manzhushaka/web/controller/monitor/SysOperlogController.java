@@ -42,6 +42,19 @@ public class SysOperlogController extends BaseController
         return getDataTable(list);
     }
 
+    /**
+     * 查询操作日志详情。
+     *
+     * @param operId 操作日志 ID
+     * @return 操作日志详情
+     */
+    @PreAuthorize("@ss.hasPermi('monitor:operlog:query')")
+    @GetMapping("/{operId}")
+    public AjaxResult getInfo(@PathVariable Long operId)
+    {
+        return success(auditAppService.getOperationLog(operId));
+    }
+
     @Log(title = "操作日志", businessType = BusinessType.EXPORT)
     @PreAuthorize("@ss.hasPermi('monitor:operlog:export')")
     @PostMapping("/export")

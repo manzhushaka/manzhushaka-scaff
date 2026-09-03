@@ -62,6 +62,7 @@
         :bordered="false"
         row-key="dictCode"
         :pagination="pagination"
+        page-position="bottom"
         :row-selection="{ type: 'checkbox', showCheckedAll: true }"
         @selection-change="handleSelectionChange"
         @page-change="handlePageChange"
@@ -86,16 +87,28 @@
           </a-table-column>
           <a-table-column title="备注" data-index="remark" ellipsis tooltip />
           <a-table-column title="创建时间" data-index="createTime" :width="180" />
-          <a-table-column title="操作" :width="150" fixed="right">
+          <a-table-column title="操作" align="center" :width="150" fixed="right">
             <template #cell="{ record }">
-              <a-space>
-                <a-button type="text" :disabled="!can('edit')" @click="openEdit(record)">
+              <a-space class="table-action-buttons">
+                <a-button
+                  type="text"
+                  class="table-action-button table-action-button--edit"
+                  aria-label="修改"
+                  title="修改"
+                  :disabled="!can('edit')"
+                  @click="openEdit(record)"
+                >
                   <template #icon><icon-edit /></template>
-                  修改
                 </a-button>
-                <a-button type="text" status="danger" :disabled="!can('remove')" @click="removeRecord(record)">
+                <a-button
+                  type="text"
+                  class="table-action-button table-action-button--delete"
+                  aria-label="删除"
+                  title="删除"
+                  :disabled="!can('remove')"
+                  @click="removeRecord(record)"
+                >
                   <template #icon><icon-delete /></template>
-                  删除
                 </a-button>
               </a-space>
             </template>
@@ -105,7 +118,7 @@
     </section>
 
     <a-modal v-model:visible="dialogVisible" :title="dialogTitle" :width="560" :ok-loading="submitting" render-to-body @ok="submitForm">
-      <a-form ref="formRef" :model="form" :rules="rules" :label-col-props="{ span: 6 }" :wrapper-col-props="{ span: 18 }">
+      <a-form ref="formRef" class="modal-form" :model="form" :rules="rules" :label-col-props="{ span: 5 }" :wrapper-col-props="{ span: 18 }">
         <a-form-item field="dictType" label="字典类型">
           <a-input v-model="form.dictType" disabled />
         </a-form-item>
@@ -306,7 +319,7 @@
   .filter-panel, .table-panel { border: 1px solid var(--color-border-2); border-radius: 6px; background: var(--color-bg-2); }
   .filter-panel { padding: 18px 20px 2px; margin-bottom: 16px; }
   .table-panel { overflow: hidden; }
-  .action-bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid var(--color-border-2); }
+  .action-bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; }
   :deep(.arco-table) { min-width: 900px; }
   :deep(.arco-table-container) { overflow-x: auto; }
   @media (max-width: 640px) { .dict-data-page { padding: 12px; } .page-context { align-items: flex-start; gap: 12px; } .filter-panel { padding: 14px 14px 2px; } .action-bar { padding: 12px 14px; } }

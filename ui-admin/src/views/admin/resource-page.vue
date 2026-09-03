@@ -97,6 +97,7 @@
         :loading="loading"
         :bordered="false"
         :pagination="pagination"
+        page-position="bottom"
         :row-key="rowKey"
         hide-expand-button-on-empty
         :row-selection="supportsSelection ? { type: 'checkbox', showCheckedAll: true } : undefined"
@@ -104,6 +105,12 @@
         @page-change="handlePageChange"
         @page-size-change="handlePageSizeChange"
       >
+        <template #expand-icon="{ expanded }">
+          <icon-right
+            class="table-expand-icon"
+            :class="{ 'table-expand-icon--expanded': expanded }"
+          />
+        </template>
         <template #columns>
           <a-table-column v-if="resource === 'users'" title="用户编号" data-index="userId" :width="100" />
           <a-table-column v-if="resource === 'users'" title="用户名称" data-index="userName" :width="140" ellipsis tooltip />
@@ -224,33 +231,48 @@
           <a-table-column v-if="resource === 'jobLogs'" title="执行状态" data-index="status" :width="110" />
           <a-table-column v-if="resource === 'jobLogs'" title="执行时间" data-index="createTime" :width="170" />
 
-          <a-table-column title="操作" :width="resource === 'users' || resource === 'jobs' ? 220 : 160" fixed="right">
+          <a-table-column title="操作" align="center" :width="resource === 'users' || resource === 'jobs' ? 220 : 160" fixed="right">
             <template #cell="{ record }">
-              <a-space>
+              <a-space class="table-action-buttons">
+                <a-button
+                  v-if="resource === 'operationLogs' && can('query')"
+                  type="text"
+                  class="table-action-button table-action-button--view"
+                  aria-label="查看详情"
+                  title="查看详情"
+                  @click="openDetail(record)"
+                >
+                  <template #icon><icon-eye /></template>
+                </a-button>
                 <a-button
                   v-if="can('edit') && supportsEdit"
                   type="text"
+                  class="table-action-button table-action-button--edit"
+                  aria-label="编辑"
+                  title="编辑"
                   @click="openEdit(record)"
                 >
                   <template #icon><icon-edit /></template>
-                  编辑
                 </a-button>
                 <a-button
                   v-if="resource === 'jobs'"
                   type="text"
+                  class="table-action-button table-action-button--execute"
+                  aria-label="立即执行"
+                  title="立即执行"
                   @click="runJobRecord(record)"
                 >
                   <template #icon><icon-play-arrow /></template>
-                  执行
                 </a-button>
                 <a-button
                   v-if="can('remove') && supportsDelete"
                   type="text"
-                  status="danger"
+                  class="table-action-button table-action-button--delete"
+                  aria-label="删除"
+                  title="删除"
                   @click="removeRecord(record)"
                 >
                   <template #icon><icon-delete /></template>
-                  删除
                 </a-button>
               </a-space>
             </template>
@@ -268,7 +290,7 @@
       @ok="submitForm"
       @cancel="closeDialog"
     >
-      <a-form ref="formRef" :model="form" :label-col-props="{ span: 6 }" :wrapper-col-props="{ span: 18 }">
+      <a-form ref="formRef" class="modal-form" :model="form" :label-col-props="{ span: 5 }" :wrapper-col-props="{ span: 18 }">
         <a-form-item v-if="resource === 'users' && !form.userId" field="userName" label="用户名称" :rules="requiredRule">
           <a-input v-model="form.userName" placeholder="请输入用户名称" />
         </a-form-item>
@@ -344,6 +366,42 @@
         <a-form-item v-if="resource === 'jobs'" field="status" label="状态"><a-radio-group v-model="form.status"><a-radio value="0">正常</a-radio><a-radio value="1">暂停</a-radio></a-radio-group></a-form-item>
       </a-form>
     </a-modal>
+
+    <a-modal
+      v-model:visible="detailVisible"
+      title="操作日志详情"
+      :width="720"
+      :footer="false"
+      render-to-body
+    >
+      <a-spin :loading="detailLoading" class="detail-spin">
+        <a-descriptions class="detail-descriptions" :column="{ xs: 1, sm: 2 }" bordered>
+          <a-descriptions-item label="日志编号">{{ detailRecord.operId || '-' }}</a-descriptions-item>
+          <a-descriptions-item label="系统模块">{{ detailRecord.title || '-' }}</a-descriptions-item>
+          <a-descriptions-item label="操作人员">{{ detailRecord.operName || '-' }}</a-descriptions-item>
+          <a-descriptions-item label="所属部门">{{ detailRecord.deptName || '-' }}</a-descriptions-item>
+          <a-descriptions-item label="请求方式">{{ detailRecord.requestMethod || '-' }}</a-descriptions-item>
+          <a-descriptions-item label="请求方法" :span="2">
+            <div class="detail-inline-content">{{ detailRecord.method || '-' }}</div>
+          </a-descriptions-item>
+          <a-descriptions-item label="请求地址" :span="2">
+            <div class="detail-inline-content">{{ detailRecord.operUrl || '-' }}</div>
+          </a-descriptions-item>
+          <a-descriptions-item label="操作地址">{{ detailRecord.operIp || '-' }}</a-descriptions-item>
+          <a-descriptions-item label="操作时间">{{ detailRecord.operTime || '-' }}</a-descriptions-item>
+          <a-descriptions-item label="消耗时间">{{ detailRecord.costTime ?? '-' }} 毫秒</a-descriptions-item>
+          <a-descriptions-item label="请求参数" :span="2">
+            <pre class="detail-content">{{ detailRecord.operParam || '-' }}</pre>
+          </a-descriptions-item>
+          <a-descriptions-item label="返回参数" :span="2">
+            <pre class="detail-content">{{ detailRecord.jsonResult || '-' }}</pre>
+          </a-descriptions-item>
+          <a-descriptions-item v-if="detailRecord.errorMsg" label="错误消息" :span="2">
+            <span class="detail-error">{{ detailRecord.errorMsg }}</span>
+          </a-descriptions-item>
+        </a-descriptions>
+      </a-spin>
+    </a-modal>
   </div>
 </template>
 
@@ -373,6 +431,7 @@
     getDictType,
     getJob,
     getMenu,
+    getOperationLog,
     getRole,
     getUser,
     listConfigs,
@@ -437,6 +496,9 @@
   const page = ref(1);
   const pageSize = ref(10);
   const dialogVisible = ref(false);
+  const detailVisible = ref(false);
+  const detailLoading = ref(false);
+  const detailRecord = ref<Record<string, any>>({});
   const editing = ref(false);
   const formRef = ref<FormInstance>();
   const form = reactive<Record<string, any>>({});
@@ -492,6 +554,17 @@
   function resetForm() { Object.keys(form).forEach((key) => delete form[key]); Object.assign(form, { status: '0', menuType: 'C', orderNum: 1, roleSort: 1, configType: 'N', parentId: 0 }); }
   function openCreate() { resetForm(); dialogVisible.value = true; editing.value = false; if (props.resource === 'menus') loadMenuTree(); if (props.resource === 'departments') loadDepartmentTree(); }
   async function openEdit(record: Record<string, any>) { resetForm(); editing.value = true; const id = record[rowKey.value as string]; const response = await getDetail(id); Object.assign(form, response?.data || record); dialogVisible.value = true; if (props.resource === 'menus') loadMenuTree(); if (props.resource === 'departments') loadDepartmentTree(); }
+  async function openDetail(record: Record<string, any>) {
+    detailRecord.value = record;
+    detailVisible.value = true;
+    detailLoading.value = true;
+    try {
+      const response = await getOperationLog(record.operId);
+      detailRecord.value = response?.data || record;
+    } finally {
+      detailLoading.value = false;
+    }
+  }
   function closeDialog() { dialogVisible.value = false; }
   function confirm(message: string, action: () => Promise<void>) { Modal.confirm({ title: '请确认操作', content: message, onOk: action }); }
 
@@ -581,7 +654,16 @@
 
   function idsFor(records: Record<string, any>[]) { return records.map((record) => record[rowKey.value as string]); }
   function removeSelected() { const ids = selectedKeys.value; confirm(`确认删除选中的 ${ids.length} 条${title.value}吗？`, async () => { await removeByIds(ids); Message.success('删除成功'); selectedKeys.value = []; await loadData(); }); }
-  function removeRecord(record: Record<string, any>) { const id = record[rowKey.value as string]; confirm(`确认删除“${record.userName || record.roleName || record.menuName || record.deptName || record.configName || record.jobName || id}”吗？`, async () => { await removeByIds([id]); Message.success('删除成功'); await loadData(); }); }
+  function recordDisplayName(record: Record<string, any>) {
+    const nameFields: Partial<Record<Resource, string>> = {
+      users: 'userName', roles: 'roleName', menus: 'menuName', departments: 'deptName',
+      dictTypes: 'dictName', configs: 'configName', jobs: 'jobName', operationLogs: 'operId',
+      loginLogs: 'infoId', slowSql: 'slowSqlId', jobLogs: 'jobLogId',
+    };
+    const value = record[nameFields[props.resource] || ''] || record[rowKey.value as string] || '-';
+    return props.resource === 'operationLogs' ? `操作日志 #${value}` : value;
+  }
+  function removeRecord(record: Record<string, any>) { const id = record[rowKey.value as string]; confirm(`确认删除“${recordDisplayName(record)}”吗？`, async () => { await removeByIds([id]); Message.success('删除成功'); await loadData(); }); }
   async function removeByIds(ids: Array<string | number>) {
     const calls: Partial<Record<Resource, (values: Array<string | number>) => Promise<any>>> = { users: removeUsers, roles: removeRoles, dictTypes: removeDictTypes, configs: removeConfigs, operationLogs: removeOperationLogs, loginLogs: removeLoginLogs, slowSql: removeSlowSqlLogs, jobs: removeJobs, jobLogs: async (values) => (await import('@/api/admin')).removeJobLogs(values), menus: async (values) => removeMenu(values[0]), departments: async (values) => removeDepartment(values[0]) };
     await calls[props.resource]?.(ids);
@@ -603,54 +685,83 @@
 </script>
 
 <style scoped lang="less">
-  .resource-page { min-height: 100%; padding: 20px; background: var(--color-fill-2); }
+  .resource-page { min-height: 100%; padding: 16px 20px 20px; background: var(--color-fill-2); }
   .filter-panel, .table-panel { background: var(--color-bg-2); border: 1px solid var(--color-border-2); border-radius: 6px; }
-  .filter-panel { padding: 18px 20px 2px; margin-bottom: 16px; }
+  .filter-panel {
+    padding: 14px 20px;
+    margin-bottom: 16px;
+  }
+  .filter-panel :deep(.arco-form) { row-gap: 12px; }
+  .filter-panel :deep(.arco-form-item) { margin-bottom: 0; }
+  .filter-panel :deep(.arco-input-wrapper),
+  .filter-panel :deep(.arco-select-view-single) {
+    background-color: var(--color-bg-2);
+    border-color: var(--color-border-2);
+  }
+  .filter-panel :deep(.arco-input-wrapper:hover),
+  .filter-panel :deep(.arco-select-view-single:hover) {
+    background-color: var(--color-bg-2);
+    border-color: var(--color-border-2);
+  }
+  .detail-spin { width: 100%; }
+  .detail-descriptions {
+    max-height: calc(100vh - 180px);
+    overflow-y: auto;
+  }
+  .detail-descriptions :deep(.arco-descriptions-table) {
+    width: 100%;
+    table-layout: fixed;
+  }
+  .detail-descriptions :deep(.arco-descriptions-item-label) {
+    width: 112px;
+    white-space: nowrap;
+  }
+  .detail-descriptions :deep(.arco-descriptions-item-value) {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .detail-content {
+    max-height: 180px;
+    margin: 0;
+    padding: 8px;
+    overflow: auto;
+    background: var(--color-fill-2);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .detail-inline-content {
+    max-height: 96px;
+    overflow: auto;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .detail-error { color: rgb(var(--red-6)); }
   .table-panel { overflow: hidden; }
-  .action-bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid var(--color-border-2); }
+  .action-bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px 5px; }
   :deep(.arco-table-container) { overflow-x: auto; }
   :deep(.arco-table-element) { min-width: 880px; }
-  :deep(.arco-table-pagination) {
-    min-height: 57px;
-    margin-top: 0;
-    padding: 12px 16px;
-    background: var(--color-fill-1);
-    border-top: 1px solid var(--color-border-2);
-  }
-  :deep(.arco-pagination-total) {
-    margin-right: 16px;
+  :deep(.arco-table-expand-btn) {
+    width: 22px;
+    height: 22px;
     color: var(--color-text-3);
+    background-color: transparent;
+    border: 0;
+    border-radius: 4px;
+    transition: color 0.16s ease, background-color 0.16s ease;
   }
-  :deep(.arco-pagination-item) {
-    border: 1px solid transparent;
-    border-radius: 6px;
-    transition: color 0.2s, background-color 0.2s, border-color 0.2s;
+  :deep(.arco-table-expand-btn:hover),
+  :deep(.arco-table-expand-btn:focus-visible) {
+    color: var(--color-primary-6);
+    background-color: var(--color-fill-2);
   }
-  :deep(.arco-pagination-item:not(.arco-pagination-item-disabled):hover) {
-    background: var(--color-bg-2);
-    border-color: var(--color-border-3);
+  :deep(.table-expand-icon) {
+    font-size: 14px;
+    transition: transform 0.16s ease, color 0.16s ease;
   }
-  :deep(.arco-pagination-item-active),
-  :deep(.arco-pagination-item-active:hover) {
-    color: rgb(var(--primary-6));
-    font-weight: 500;
-    background: var(--color-primary-light-1);
-    border-color: var(--color-primary-light-3);
-  }
-  :deep(.arco-pagination-options .arco-select-view) {
-    background: var(--color-bg-2);
-    border-color: var(--color-border-2);
-    border-radius: 6px;
-  }
+  :deep(.table-expand-icon--expanded) { transform: rotate(90deg); }
   @media (max-width: 640px) {
-    .resource-page { padding: 12px; }
-    .filter-panel { padding: 14px 14px 2px; }
-    .action-bar { padding: 12px 14px; }
-    :deep(.arco-table-pagination) {
-      justify-content: flex-start;
-      min-height: 0;
-      padding: 12px;
-      overflow-x: auto;
-    }
+    .resource-page { padding: 16px 12px 12px; }
+    .filter-panel { padding: 12px 14px; }
+    .action-bar { padding: 12px 14px 3px; }
   }
 </style>

@@ -16,6 +16,7 @@ const formatTag = (route: RouteLocationNormalized): TagProps => {
       (typeof meta.title === 'string' ? meta.title : String(name || fullPath)),
     name: String(name),
     fullPath,
+    icon: meta.icon,
     query,
     ignoreCache: meta.ignoreCache,
   };

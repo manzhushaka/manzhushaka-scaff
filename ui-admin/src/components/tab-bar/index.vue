@@ -12,7 +12,6 @@
             />
           </div>
         </div>
-        <div class="tag-bar-operation"></div>
       </div>
     </a-affix>
   </div>
@@ -64,40 +63,68 @@
 <style scoped lang="less">
   .tab-bar-container {
     position: relative;
-    background-color: var(--color-bg-2);
+    z-index: 2;
+    padding: 4px 20px 0;
+    background-color: var(--color-fill-2);
     .tab-bar-box {
       display: flex;
-      padding: 0 0 0 20px;
-      background-color: var(--color-bg-2);
-      border-bottom: 1px solid var(--color-border);
+      min-height: 32px;
+      padding: 0;
       .tab-bar-scroll {
-        height: 32px;
         flex: 1;
+        height: 32px;
         overflow: hidden;
         .tags-wrap {
-          padding: 4px 0;
-          height: 48px;
+          display: flex;
+          align-items: center;
+          height: 32px;
+          gap: 6px;
           white-space: nowrap;
           overflow-x: auto;
 
           :deep(.arco-tag) {
             display: inline-flex;
             align-items: center;
-            margin-right: 6px;
+            flex-shrink: 0;
+            height: 32px;
+            margin-right: 0;
+            padding: 0 10px;
+            color: var(--color-text-2);
+            background-color: var(--color-bg-2);
+            border: 1px solid var(--color-border-2);
+            border-radius: 6px;
             cursor: pointer;
+
             &:first-child {
               .arco-tag-close-btn {
                 display: none;
               }
             }
+
+            &:hover {
+              color: rgb(var(--primary-6));
+              border-color: rgb(var(--primary-3));
+            }
+
+            &.link-activated {
+              color: rgb(var(--primary-6));
+              background-color: var(--color-bg-2);
+              border-color: var(--color-border-2);
+            }
           }
         }
       }
     }
+  }
 
-    .tag-bar-operation {
-      width: 100px;
-      height: 32px;
+  @media (max-width: 640px) {
+    .tab-bar-container {
+      padding: 4px 12px 0;
+
+      .tab-bar-box {
+        min-height: 32px;
+        padding: 0;
+      }
     }
   }
 </style>

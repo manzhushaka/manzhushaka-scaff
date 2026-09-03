@@ -8,7 +8,7 @@
         type: 'checkbox',
         showCheckedAll: true,
       }"
-      :border="false"
+      :bordered="false"
       :pagination="false"
     />
     <a-typography-text type="secondary" class="data-statistic-list-tip">

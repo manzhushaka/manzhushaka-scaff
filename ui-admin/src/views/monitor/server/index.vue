@@ -1,8 +1,5 @@
 <template>
   <div class="monitor-page">
-    <div class="page-actions">
-      <a-button type="outline" :loading="loading" @click="loadData"><template #icon><icon-refresh /></template>刷新</a-button>
-    </div>
     <a-spin :loading="loading" class="monitor-spin">
       <a-alert v-if="error" type="error" show-icon>服务器监控数据暂时无法获取，请确认后端服务状态。</a-alert>
       <template v-else>
@@ -43,8 +40,7 @@
 </script>
 
 <style scoped lang="less">
-  .monitor-page { min-height: 100%; padding: 20px; background: var(--color-fill-2); }
-  .page-actions { display: flex; justify-content: flex-end; margin-bottom: 16px; }
+  .monitor-page { min-height: 100%; padding: 12px 20px 20px; background: var(--color-fill-2); }
   .monitor-spin { display: block; }
   .metric-card, :deep(.arco-card) { border-radius: 6px; }
   .metric-card :deep(.arco-progress) { margin: 16px 0 8px; }

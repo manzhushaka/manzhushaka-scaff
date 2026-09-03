@@ -369,6 +369,11 @@ export function listOperationLogs(params: QueryParams): Promise<TableResponse<Re
   return request.get('/monitor/operlog/list', { params });
 }
 
+/** 查询操作日志详情。 */
+export function getOperationLog(id: string | number) {
+  return request.get(`/monitor/operlog/${id}`);
+}
+
 /** 查询登录日志。 */
 export function listLoginLogs(params: QueryParams): Promise<TableResponse<Record<string, unknown>>> {
   return request.get('/monitor/logininfor/list', { params });

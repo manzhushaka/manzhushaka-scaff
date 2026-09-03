@@ -14,16 +14,49 @@
         >
           manzhushaka
         </a-typography-title>
-        <icon-menu-fold
-          v-if="!topMenu && appStore.device === 'mobile'"
-          style="font-size: 22px; cursor: pointer"
-          @click="toggleDrawerMenu"
-        />
       </div>
-      <div v-if="currentPageTitle" class="current-page" aria-current="page">
-        <icon-apps />
-        <span>{{ currentPageTitle }}</span>
+      <div class="nav-tools">
+        <a-tooltip v-if="showMenuToggle" :content="menuToggleLabel">
+          <a-button
+            class="nav-btn nav-tool-btn"
+            type="text"
+            shape="square"
+            :aria-label="menuToggleLabel"
+            @click="toggleMenu"
+          >
+            <template #icon>
+              <icon-menu-unfold
+                v-if="appStore.device === 'mobile' || isMenuCollapsed"
+              />
+              <icon-menu-fold v-else />
+            </template>
+          </a-button>
+        </a-tooltip>
+        <a-tooltip :content="$t('settings.navbar.refresh')">
+          <a-button
+            class="nav-btn nav-tool-btn"
+            type="text"
+            shape="square"
+            :aria-label="$t('settings.navbar.refresh')"
+            @click="refreshPage"
+          >
+            <template #icon><icon-refresh /></template>
+          </a-button>
+        </a-tooltip>
       </div>
+      <a-breadcrumb
+        v-if="breadcrumbItems.length"
+        class="route-breadcrumb"
+        aria-label="当前页面路径"
+      >
+        <a-breadcrumb-item><icon-apps /></a-breadcrumb-item>
+        <a-breadcrumb-item
+          v-for="(item, index) in visibleBreadcrumbItems"
+          :key="`${item}-${index}`"
+        >
+          {{ item }}
+        </a-breadcrumb-item>
+      </a-breadcrumb>
     </div>
     <div class="center-side">
       <Menu v-if="topMenu" />
@@ -243,6 +276,7 @@
     return appStore.theme;
   });
   const topMenu = computed(() => appStore.topMenu && appStore.menu);
+  const showMenuToggle = computed(() => appStore.menu && !topMenu.value);
   const alignBrandWithSider = computed(
     () => appStore.menu && !topMenu.value && !appStore.hideMenu
   );
@@ -255,16 +289,53 @@
     return { width: `${width}px` };
   });
   const showBrandTitle = computed(() => !brandGroupCollapsed.value);
-  const currentPageTitle = computed(() => {
-    const currentRoute = [...route.matched]
-      .reverse()
-      .find(
-        (matchedRoute) => matchedRoute.meta.locale || matchedRoute.meta.title
-      );
-    const title = currentRoute?.meta.locale || currentRoute?.meta.title;
-    if (typeof title !== 'string') return '';
+  /**
+   * 将路由元数据转换为当前语言下的面包屑标题。
+   *
+   * @param title 路由元数据中的标题或国际化键。
+   * @return 当前语言下的标题。
+   */
+  const resolveRouteTitle = (title?: string) => {
+    if (!title) return '';
     return title.startsWith('menu.') ? t(title) : title;
+  };
+  const breadcrumbItems = computed(() => {
+    return route.matched
+      .map((matchedRoute) =>
+        resolveRouteTitle(matchedRoute.meta.locale || matchedRoute.meta.title)
+      )
+      .filter((title) => title.length > 0);
   });
+  const visibleBreadcrumbItems = computed(() => {
+    if (appStore.device === 'mobile') return breadcrumbItems.value.slice(-1);
+    return breadcrumbItems.value;
+  });
+  const isMenuCollapsed = computed(() => {
+    return appStore.device === 'desktop' && appStore.menuCollapse;
+  });
+  const menuToggleLabel = computed(() => {
+    if (appStore.device === 'mobile') return t('settings.navbar.menuExpand');
+    return isMenuCollapsed.value
+      ? t('settings.navbar.menuExpand')
+      : t('settings.navbar.menuCollapse');
+  });
+  const toggleDrawerMenu = inject('toggleDrawerMenu') as () => void;
+  /**
+   * 切换桌面端侧栏状态，或在移动端打开菜单抽屉。
+   */
+  const toggleMenu = () => {
+    if (appStore.device === 'mobile') {
+      toggleDrawerMenu();
+      return;
+    }
+    appStore.updateSettings({ menuCollapse: !appStore.menuCollapse });
+  };
+  /**
+   * 重新加载当前路由页面。
+   */
+  const refreshPage = () => {
+    router.go(0);
+  };
   const isDark = useDark({
     selector: 'body',
     attribute: 'arco-theme',
@@ -312,7 +383,6 @@
     const res = await userStore.switchRoles();
     Message.success(res as string);
   };
-  const toggleDrawerMenu = inject('toggleDrawerMenu') as () => void;
 </script>
 
 <style scoped lang="less">
@@ -321,8 +391,7 @@
     justify-content: space-between;
     height: 100%;
     min-height: 60px;
-    background-color: var(--color-bg-2);
-    border-bottom: 1px solid var(--color-border);
+    background-color: transparent;
   }
 
   .left-side {
@@ -338,7 +407,6 @@
       gap: 10px;
       height: 100%;
       padding: 0 20px;
-      border-right: 1px solid var(--color-border);
       transition: width 0.2s cubic-bezier(0.34, 0.69, 0.1, 1);
     }
 
@@ -347,26 +415,35 @@
       padding: 0 8px;
     }
 
-    .current-page {
-      display: inline-flex;
+    .nav-tools {
+      display: flex;
       align-items: center;
-      gap: 8px;
-      min-width: 0;
-      height: 32px;
-      margin-left: 20px;
-      color: var(--color-text-2);
-      font-size: 14px;
+      flex-shrink: 0;
+      gap: 2px;
+      padding: 0 8px;
 
-      .arco-icon {
-        color: rgb(var(--primary-6));
-        font-size: 16px;
+      .nav-tool-btn {
+        color: var(--color-text-2);
+        font-size: 18px;
       }
+    }
 
-      span {
-        max-width: 240px;
+    .route-breadcrumb {
+      min-width: 0;
+      overflow: hidden;
+      color: var(--color-text-3);
+
+      :deep(.arco-breadcrumb-item) {
+        max-width: 180px;
         overflow: hidden;
+        color: var(--color-text-3);
         text-overflow: ellipsis;
         white-space: nowrap;
+
+        &:last-child {
+          color: var(--color-text-1);
+          font-weight: 500;
+        }
       }
     }
   }
@@ -425,18 +502,21 @@
 
     .left-side .brand-group {
       padding: 0 12px;
-      border-right: 0;
     }
 
     .left-side :deep(.arco-typography) {
       display: none;
     }
 
-    .left-side .current-page {
-      margin-left: 12px;
+    .left-side .nav-tools {
+      padding: 0 4px;
+    }
 
-      span {
-        max-width: 96px;
+    .left-side .route-breadcrumb {
+      max-width: 150px;
+
+      :deep(.arco-breadcrumb-item) {
+        max-width: 110px;
       }
     }
 
