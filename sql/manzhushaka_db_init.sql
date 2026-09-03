@@ -169,10 +169,70 @@ insert into sys_menu values('111',  '数据监控', '2',   '3', 'druid',      'm
 insert into sys_menu values('112',  '宿主机监控', '2',   '4', 'server',     'monitor/server/index',     '', '', 1, 0, 'C', '0', '0', 'monitor:server:list',     'server',        'admin', sysdate(), '', null, '宿主机监控菜单');
 insert into sys_menu values('113',  '缓存监控', '2',   '5', 'cache',      'monitor/cache/index',      '', '', 1, 0, 'C', '0', '0', 'monitor:cache:list',      'redis',         'admin', sysdate(), '', null, '缓存监控菜单');
 insert into sys_menu values('114',  '缓存列表', '2',   '6', 'cacheList',  'monitor/cache/list',       '', '', 1, 0, 'C', '0', '0', 'monitor:cache:list',      'redis-list',    'admin', sysdate(), '', null, '缓存列表菜单');
+insert into sys_menu values('2041', '导入任务', '2',   '7', 'importTask', 'monitor/importTask/index', '', '', 1, 0, 'C', '0', '0', 'monitor:importtask:list', 'upload', 'admin', sysdate(), '', null, '异步导入任务菜单');
+insert into sys_menu values('2051', '导出任务', '2',   '8', 'exportTask', 'monitor/exportTask/index', '', '', 1, 0, 'C', '0', '0', 'monitor:exporttask:list', 'download', 'admin', sysdate(), '', null, '异步导出任务菜单');
 
 
 -- ----------------------------
--- 6、用户和角色关联表  用户N-1角色
+-- 6、异步导入导出任务表
+-- ----------------------------
+drop table if exists sys_import_task;
+create table sys_import_task (
+  task_id bigint(20) not null auto_increment comment '任务ID',
+  handler_type varchar(128) not null comment '处理器类型',
+  status varchar(32) not null comment '任务状态',
+  file_key varchar(255) not null comment '私有文件键',
+  file_name varchar(255) default null comment '原始文件名',
+  content_type varchar(128) default null comment '内容类型',
+  requested_by bigint(20) not null comment '提交用户ID',
+  update_support tinyint(1) not null default 0 comment '是否更新已存在数据',
+  options_snapshot text default null comment '导入参数快照',
+  security_snapshot text not null comment '安全上下文快照',
+  total_count bigint(20) not null default 0 comment '总数量',
+  processed_count bigint(20) not null default 0 comment '已处理数量',
+  success_count bigint(20) not null default 0 comment '成功数量',
+  failure_count bigint(20) not null default 0 comment '失败数量',
+  error_message varchar(2000) default null comment '错误信息',
+  started_time datetime default null comment '开始时间',
+  finished_time datetime default null comment '结束时间',
+  lease_until datetime default null comment '租约到期时间',
+  lease_token varchar(64) default null comment '租约令牌',
+  create_time datetime not null comment '创建时间',
+  update_time datetime default null comment '更新时间',
+  primary key (task_id),
+  key idx_import_task_status (status, lease_until),
+  key idx_import_task_requester (requested_by, create_time)
+) engine=innodb comment = '异步导入任务表';
+
+drop table if exists sys_export_task;
+create table sys_export_task (
+  task_id bigint(20) not null auto_increment comment '任务ID',
+  handler_type varchar(128) not null comment '处理器类型',
+  status varchar(32) not null comment '任务状态',
+  file_key varchar(255) not null comment '私有文件键',
+  file_name varchar(255) default null comment '导出文件名',
+  content_type varchar(128) default null comment '内容类型',
+  requested_by bigint(20) not null comment '提交用户ID',
+  query_snapshot text default null comment '查询条件快照',
+  security_snapshot text not null comment '安全上下文快照',
+  total_count bigint(20) not null default 0 comment '总数量',
+  processed_count bigint(20) not null default 0 comment '已处理数量',
+  success_count bigint(20) not null default 0 comment '成功数量',
+  failure_count bigint(20) not null default 0 comment '失败数量',
+  error_message varchar(2000) default null comment '错误信息',
+  started_time datetime default null comment '开始时间',
+  finished_time datetime default null comment '结束时间',
+  lease_until datetime default null comment '租约到期时间',
+  lease_token varchar(64) default null comment '租约令牌',
+  create_time datetime not null comment '创建时间',
+  update_time datetime default null comment '更新时间',
+  primary key (task_id),
+  key idx_export_task_status (status, lease_until),
+  key idx_export_task_requester (requested_by, create_time)
+) engine=innodb comment = '异步导出任务表';
+
+-- ----------------------------
+-- 7、用户和角色关联表  用户N-1角色
 -- ----------------------------
 drop table if exists sys_user_role;
 create table sys_user_role (
@@ -252,6 +312,15 @@ insert into sys_menu values('176', '消息队列台账查询', '175', '1', '', n
 insert into sys_menu values('177', '消息队列台账详情', '175', '2', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:mqlog:query', '#',                'admin', sysdate(), '', null, '消息队列台账详情按钮');
 insert into sys_menu values('178', '消息队列台账删除', '175', '3', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:mqlog:remove', '#',                'admin', sysdate(), '', null, '消息队列台账删除按钮');
 insert into sys_menu values('179', '消息队列台账导出', '175', '4', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:mqlog:export', '#',                'admin', sysdate(), '', null, '消息队列台账导出按钮');
+-- 异步导入任务按钮权限
+insert into sys_menu values('2042', '导入任务查询', '2041', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:importtask:query', '#', 'admin', sysdate(), '', null, '异步导入任务详情');
+insert into sys_menu values('2043', '导入任务取消', '2041', '2', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:importtask:cancel', '#', 'admin', sysdate(), '', null, '异步导入任务取消');
+insert into sys_menu values('2044', '导入任务提交', '2041', '3', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:importtask:submit', '#', 'admin', sysdate(), '', null, '异步导入任务提交');
+-- 异步导出任务按钮权限
+insert into sys_menu values('2052', '导出任务查询', '2051', '1', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:exporttask:query', '#', 'admin', sysdate(), '', null, '异步导出任务详情');
+insert into sys_menu values('2053', '导出任务取消', '2051', '2', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:exporttask:cancel', '#', 'admin', sysdate(), '', null, '异步导出任务取消');
+insert into sys_menu values('2054', '导出任务提交', '2051', '3', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:exporttask:submit', '#', 'admin', sysdate(), '', null, '异步导出任务提交');
+insert into sys_menu values('2055', '导出文件下载', '2051', '4', '', null, '', '', 1, 0, 'F', '0', '0', 'monitor:exporttask:download', '#', 'admin', sysdate(), '', null, '异步导出文件下载');
 
 insert into sys_role_menu values ('2', '1');
 insert into sys_role_menu values ('2', '2');
@@ -320,6 +389,15 @@ insert into sys_role_menu values ('2', '176');
 insert into sys_role_menu values ('2', '177');
 insert into sys_role_menu values ('2', '178');
 insert into sys_role_menu values ('2', '179');
+insert into sys_role_menu values ('2', '2041');
+insert into sys_role_menu values ('2', '2042');
+insert into sys_role_menu values ('2', '2043');
+insert into sys_role_menu values ('2', '2044');
+insert into sys_role_menu values ('2', '2051');
+insert into sys_role_menu values ('2', '2052');
+insert into sys_role_menu values ('2', '2053');
+insert into sys_role_menu values ('2', '2054');
+insert into sys_role_menu values ('2', '2055');
 
 -- ----------------------------
 -- 8、角色和部门关联表  角色1-N部门

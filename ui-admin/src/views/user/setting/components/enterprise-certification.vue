@@ -24,7 +24,7 @@
       <template #value="{ value, data }">
         <a-tag
           v-if="data.label === 'userSetting.certification.label.status'"
-          color="green"
+          class="status-tag status-tag--success"
           size="small"
         >
           已认证

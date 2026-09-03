@@ -72,7 +72,7 @@
           <a-table-column title="字典编码" data-index="dictCode" :width="110" />
           <a-table-column title="字典标签" data-index="dictLabel" :width="160" ellipsis tooltip>
             <template #cell="{ record }">
-              <a-tag v-if="record.listClass && record.listClass !== 'default'" :color="tagColor(record.listClass)">{{ record.dictLabel }}</a-tag>
+              <a-tag v-if="record.listClass && record.listClass !== 'default'" :class="['status-tag', `status-tag--${tagColor(record.listClass)}`]">{{ record.dictLabel }}</a-tag>
               <span v-else>{{ record.dictLabel }}</span>
             </template>
           </a-table-column>
@@ -80,7 +80,7 @@
           <a-table-column title="显示排序" data-index="dictSort" :width="100" />
           <a-table-column title="状态" :width="90">
             <template #cell="{ record }">
-              <a-tag :color="record.status === '0' || record.status === 0 ? 'green' : 'red'">
+              <a-tag :class="['status-tag', record.status === '0' || record.status === 0 ? 'status-tag--success' : 'status-tag--danger']">
                 {{ record.status === '0' || record.status === 0 ? '正常' : '停用' }}
               </a-tag>
             </template>
@@ -195,7 +195,7 @@
   }
 
   function tagColor(value: string) {
-    return ({ primary: 'arcoblue', success: 'green', warning: 'orange', danger: 'red', info: 'gray' } as Record<string, string>)[value] || 'gray';
+    return ({ primary: 'info', success: 'success', warning: 'warning', danger: 'danger', info: 'neutral' } as Record<string, string>)[value] || 'neutral';
   }
 
   async function loadType() {

@@ -73,6 +73,35 @@ public class SysUserServiceImpl implements ISysUserService
     }
 
     /**
+     * 统计符合条件的导出用户。
+     *
+     * @param user 用户查询条件
+     * @return 用户数量
+     */
+    @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
+    public long countUserForExport(SysUser user)
+    {
+        return userMapper.countUserForExport(user);
+    }
+
+    /**
+     * 按稳定游标查询用户导出批次。
+     *
+     * @param user 用户查询条件
+     * @param cursorTime 游标创建时间
+     * @param cursorId 游标用户 ID
+     * @param limit 批次大小
+     * @return 用户列表
+     */
+    @Override
+    @DataScope(deptAlias = "d", userAlias = "u")
+    public List<SysUser> selectUserExportBatch(SysUser user, Date cursorTime, Long cursorId, int limit)
+    {
+        return userMapper.selectUserExportBatch(user, cursorTime, cursorId, limit);
+    }
+
+    /**
      * 根据条件分页查询已分配用户角色列表
      * 
      * @param user 用户信息

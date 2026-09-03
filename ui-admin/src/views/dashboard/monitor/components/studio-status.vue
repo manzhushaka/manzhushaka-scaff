@@ -4,7 +4,7 @@
     :title="$t('monitor.studioStatus.title.studioStatus')"
   >
     <template #extra>
-      <a-tag color="green">{{ $t('monitor.studioStatus.smooth') }}</a-tag>
+      <a-tag class="status-tag status-tag--success">{{ $t('monitor.studioStatus.smooth') }}</a-tag>
     </template>
     <a-descriptions layout="horizontal" :data="dataStatus" :column="2">
       <template #label="{ label }">

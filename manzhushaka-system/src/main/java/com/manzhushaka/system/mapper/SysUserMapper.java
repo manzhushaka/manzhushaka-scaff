@@ -20,6 +20,14 @@ public interface SysUserMapper
      */
     public List<SysUser> selectUserList(SysUser sysUser);
 
+    /** 统计用户导出数量。 */
+    long countUserForExport(@Param("user") SysUser user);
+
+    /** 按创建时间和用户 ID 游标查询用户导出批次。 */
+    List<SysUser> selectUserExportBatch(@Param("user") SysUser user,
+            @Param("cursorTime") Date cursorTime, @Param("cursorId") Long cursorId,
+            @Param("limit") int limit);
+
     /**
      * 根据条件分页查询已配用户角色列表
      * 

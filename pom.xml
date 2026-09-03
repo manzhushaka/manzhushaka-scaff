@@ -250,6 +250,13 @@
                 <version>${manzhushaka.version}</version>
             </dependency>
 
+            <!-- 异步导入导出任务模块：任务编排、持久化和任务处理器 -->
+            <dependency>
+                <groupId>com.manzhushaka</groupId>
+                <artifactId>manzhushaka-task</artifactId>
+                <version>${manzhushaka.version}</version>
+            </dependency>
+
             <!-- 通用工具模块：常量定义、通用工具类、自定义注解、异常定义等 -->
             <dependency>
                 <groupId>com.manzhushaka</groupId>
@@ -292,6 +299,7 @@
         <module>manzhushaka-admin</module>      <!-- Web 启动层：Controller、全局异常处理、配置入口 -->
         <module>manzhushaka-framework</module>  <!-- 核心框架层：安全、AOP、配置、拦截器 -->
         <module>manzhushaka-system</module>     <!-- 系统业务层：用户、角色、菜单、部门等业务实现 -->
+        <module>manzhushaka-task</module>       <!-- 异步导入导出任务层：任务编排和执行器 -->
         <module>manzhushaka-quartz</module>     <!-- 定时任务层：Quartz 任务调度管理 -->
         <module>manzhushaka-common</module>     <!-- 通用工具层：常量、工具类、通用注解 -->
     </modules>

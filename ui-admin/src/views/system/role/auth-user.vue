@@ -58,7 +58,7 @@
           <a-table-column title="手机" data-index="phonenumber" :width="150" />
           <a-table-column title="状态" :width="90">
             <template #cell="{ record }">
-              <a-tag :color="record.status === '0' || record.status === 0 ? 'green' : 'red'">
+              <a-tag :class="['status-tag', record.status === '0' || record.status === 0 ? 'status-tag--success' : 'status-tag--danger']">
                 {{ record.status === '0' || record.status === 0 ? '正常' : '停用' }}
               </a-tag>
             </template>

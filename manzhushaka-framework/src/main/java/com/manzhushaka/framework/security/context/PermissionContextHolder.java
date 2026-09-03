@@ -12,16 +12,41 @@ import com.manzhushaka.common.core.text.Convert;
 public class PermissionContextHolder
 {
     private static final String PERMISSION_CONTEXT_ATTRIBUTES = "PERMISSION_CONTEXT";
+    private static final ThreadLocal<String> LOCAL_CONTEXT = new ThreadLocal<>();
 
     public static void setContext(String permission)
     {
-        RequestContextHolder.currentRequestAttributes().setAttribute(PERMISSION_CONTEXT_ATTRIBUTES, permission,
-                RequestAttributes.SCOPE_REQUEST);
+        RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+        if (attributes != null)
+        {
+            attributes.setAttribute(PERMISSION_CONTEXT_ATTRIBUTES, permission, RequestAttributes.SCOPE_REQUEST);
+        }
+        LOCAL_CONTEXT.set(permission);
     }
 
     public static String getContext()
     {
-        return Convert.toStr(RequestContextHolder.currentRequestAttributes().getAttribute(PERMISSION_CONTEXT_ATTRIBUTES,
-                RequestAttributes.SCOPE_REQUEST));
+        RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+        if (attributes != null)
+        {
+            String permission = Convert.toStr(attributes.getAttribute(PERMISSION_CONTEXT_ATTRIBUTES,
+                    RequestAttributes.SCOPE_REQUEST));
+            if (permission != null)
+            {
+                return permission;
+            }
+        }
+        return LOCAL_CONTEXT.get();
+    }
+
+    /** 清理当前线程权限上下文。 */
+    public static void clearContext()
+    {
+        RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+        if (attributes != null)
+        {
+            attributes.removeAttribute(PERMISSION_CONTEXT_ATTRIBUTES, RequestAttributes.SCOPE_REQUEST);
+        }
+        LOCAL_CONTEXT.remove();
     }
 }

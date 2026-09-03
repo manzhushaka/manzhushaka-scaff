@@ -2,6 +2,23 @@
   box-sizing: border-box;
 }
 
+:root {
+  --font-family-base: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+}
+
+body:not([arco-theme='dark']) {
+  /* Keep the interface readable at 14px while using a calmer, cooler text scale. */
+  --color-text-1: #1d2129;
+  --color-text-2: #4e5969;
+  --color-text-3: #86909c;
+  --color-text-4: #c9cdd4;
+  --color-border-2: #e5e6eb;
+  --color-border-3: #c9cdd4;
+  --color-fill-2: #f7f8fa;
+  --color-bg-1: #f7f8fa;
+  --color-bg-2: #ffffff;
+}
+
 html,
 body {
   width: 100%;
@@ -9,9 +26,57 @@ body {
   margin: 0;
   padding: 0;
   font-size: 14px;
+  font-family: var(--font-family-base);
+  font-weight: 400;
+  line-height: 1.5715;
+  color: var(--color-text-1);
   background-color: var(--color-bg-1);
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+.arco-form-item-label,
+.arco-input,
+.arco-select-view,
+.arco-picker,
+.arco-btn {
+  font-size: 14px;
+}
+
+.arco-form-item-label {
+  color: var(--color-text-2);
+  font-weight: 400;
+}
+
+.arco-input-wrapper,
+.arco-select-view-single,
+.arco-select-view-multiple,
+.arco-picker,
+.arco-btn {
+  min-height: 36px;
+  border-radius: 6px;
+}
+
+.arco-input-wrapper,
+.arco-select-view-single,
+.arco-select-view-multiple,
+.arco-picker {
+  background-color: var(--color-bg-2);
+  border-color: var(--color-border-2);
+}
+
+.arco-input-wrapper:hover,
+.arco-select-view-single:hover,
+.arco-select-view-multiple:hover,
+.arco-picker:hover {
+  border-color: var(--color-border-3);
 }
 
 /* Keep modal forms aligned with the white, bordered controls used in the reference form. */
@@ -201,6 +266,8 @@ body {
 
 .arco-table {
   padding: 0 20px;
+  font-size: 14px;
+  line-height: 22px;
 
   .arco-table-container,
   .arco-table-header,
@@ -225,11 +292,13 @@ body {
   }
 
   .arco-table-th {
-    color: var(--color-text-2);
+    color: var(--color-text-3);
     font-weight: 500;
   }
 
   .arco-table-td {
+    color: var(--color-text-2);
+    font-weight: 400;
     background-color: var(--color-bg-2);
   }
 
@@ -386,4 +455,62 @@ body {
   color: var(--color-text-4);
   background-color: var(--color-fill-2);
   opacity: 1;
+}
+
+/* Use a restrained, semantic palette for status labels across business tables. */
+.arco-tag.status-tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 22px;
+}
+
+.arco-tag.status-tag--neutral {
+  color: var(--color-text-2);
+  background-color: var(--color-fill-2);
+  border-color: var(--color-border-2);
+}
+
+.arco-tag.status-tag--success {
+  color: rgb(var(--green-6));
+  background-color: rgba(var(--green-1), 0.72);
+  border-color: rgba(var(--green-3), 0.7);
+}
+
+.arco-tag.status-tag--info {
+  color: rgb(var(--cyan-7));
+  background-color: rgba(var(--cyan-1), 0.72);
+  border-color: rgba(var(--cyan-3), 0.7);
+}
+
+.arco-tag.status-tag--warning {
+  color: rgb(var(--orange-6));
+  background-color: rgba(var(--orange-1), 0.72);
+  border-color: rgba(var(--orange-3), 0.7);
+}
+
+.arco-tag.status-tag--danger {
+  color: rgb(var(--red-6));
+  background-color: rgba(var(--red-1), 0.72);
+  border-color: rgba(var(--red-3), 0.7);
+}
+
+.arco-tag.status-tag .arco-tag-icon {
+  color: inherit;
+}
+
+.arco-tag.menu-type-tag {
+  min-height: 22px;
+  padding: 0 6px;
+  color: var(--color-text-3);
+  background-color: var(--color-fill-1);
+  border: 0;
+  border-radius: 3px;
+  font-size: 12px;
+  line-height: 22px;
 }

@@ -21,14 +21,14 @@
               <a-tag
                 v-if="open && isExpires === false"
                 size="small"
-                color="green"
+                class="status-tag status-tag--success"
               >
                 <template #icon>
                   <icon-check-circle-fill />
                 </template>
                 <span>{{ tagText }}</span>
               </a-tag>
-              <a-tag v-else-if="isExpires" size="small" color="red">
+              <a-tag v-else-if="isExpires" size="small" class="status-tag status-tag--danger">
                 <template #icon>
                   <icon-check-circle-fill />
                 </template>

@@ -136,7 +136,7 @@
           <a-table-column v-if="resource === 'roles'" title="显示顺序" data-index="roleSort" :width="100" />
           <a-table-column v-if="resource === 'roles'" title="状态" :width="100">
             <template #cell="{ record }">
-              <a-tag :color="record.status === '0' || record.status === 0 ? 'green' : 'red'">
+              <a-tag :class="['status-tag', record.status === '0' || record.status === 0 ? 'status-tag--success' : 'status-tag--danger']">
                 {{ record.status === '0' || record.status === 0 ? '正常' : '停用' }}
               </a-tag>
             </template>
@@ -146,7 +146,7 @@
           <a-table-column v-if="resource === 'menus'" title="菜单名称" data-index="menuName" :width="220" ellipsis tooltip />
           <a-table-column v-if="resource === 'menus'" title="菜单类型" data-index="menuType" :width="100">
             <template #cell="{ record }">
-              <a-tag>{{ menuTypeLabel(record.menuType) }}</a-tag>
+              <a-tag class="menu-type-tag">{{ menuTypeLabel(record.menuType) }}</a-tag>
             </template>
           </a-table-column>
           <a-table-column v-if="resource === 'menus'" title="图标" data-index="icon" :width="120" />
@@ -160,7 +160,7 @@
           <a-table-column v-if="resource === 'departments'" title="联系电话" data-index="phone" :width="140" />
           <a-table-column v-if="resource === 'departments'" title="状态" :width="100">
             <template #cell="{ record }">
-              <a-tag :color="record.status === '0' || record.status === 0 ? 'green' : 'red'">
+              <a-tag :class="['status-tag', record.status === '0' || record.status === 0 ? 'status-tag--success' : 'status-tag--danger']">
                 {{ record.status === '0' || record.status === 0 ? '正常' : '停用' }}
               </a-tag>
             </template>
@@ -336,7 +336,21 @@
         <a-form-item v-if="resource === 'menus' && form.menuType !== 'F'" field="component" label="组件路径"><a-input v-model="form.component" /></a-form-item>
         <a-form-item v-if="resource === 'menus'" field="orderNum" label="显示排序"><a-input-number v-model="form.orderNum" :min="0" /></a-form-item>
         <a-form-item v-if="resource === 'menus'" field="perms" label="权限标识"><a-input v-model="form.perms" /></a-form-item>
-        <a-form-item v-if="resource === 'menus'" field="icon" label="图标"><a-input v-model="form.icon" placeholder="请输入图标语义名称" /></a-form-item>
+        <a-form-item v-if="resource === 'menus'" field="icon" label="图标">
+          <a-input
+            :model-value="form.icon"
+            readonly
+            placeholder="请选择图标"
+            aria-label="选择图标"
+            @click="openIconPicker"
+            @keyup.enter="openIconPicker"
+            @keyup.space.prevent="openIconPicker"
+          >
+            <template #prefix>
+              <component :is="selectedIcon?.component || IconMenu" />
+            </template>
+          </a-input>
+        </a-form-item>
 
         <a-form-item v-if="resource === 'departments' && form.parentId !== 0" field="parentId" label="上级部门">
           <a-tree-select v-model="form.parentId" :data="departmentTree" :field-names="deptTreeFieldNames" allow-clear />
@@ -365,6 +379,38 @@
         <a-form-item v-if="resource === 'jobs'" field="cronExpression" label="Cron 表达式"><a-input v-model="form.cronExpression" /></a-form-item>
         <a-form-item v-if="resource === 'jobs'" field="status" label="状态"><a-radio-group v-model="form.status"><a-radio value="0">正常</a-radio><a-radio value="1">暂停</a-radio></a-radio-group></a-form-item>
       </a-form>
+    </a-modal>
+
+    <a-modal
+      v-model:visible="iconPickerVisible"
+      title="选择图标"
+      :width="560"
+      :footer="false"
+      render-to-body
+    >
+      <div class="icon-picker-toolbar">
+        <a-input v-model="iconSearch" allow-clear placeholder="搜索图标名称">
+          <template #prefix><component :is="searchIconComponent" /></template>
+        </a-input>
+        <a-button type="text" status="danger" @click="clearIcon">
+          <template #icon><icon-delete /></template>
+          清除图标
+        </a-button>
+      </div>
+      <div class="icon-picker-grid">
+        <a-button
+          v-for="option in filteredIconOptions"
+          :key="option.name"
+          class="icon-picker-option"
+          :aria-label="`选择 ${option.name} 图标`"
+          :title="option.name"
+          :class="{ 'icon-picker-option--selected': form.icon === option.name }"
+          @click="selectIcon(option.name)"
+        >
+          <template #icon><component :is="option.component" /></template>
+        </a-button>
+      </div>
+      <a-empty v-if="filteredIconOptions.length === 0" description="未找到匹配图标" />
     </a-modal>
 
     <a-modal
@@ -408,8 +454,11 @@
 <script lang="ts" setup>
   /* eslint-disable no-use-before-define */
   import { computed, onMounted, reactive, ref, watch } from 'vue';
+  import type { Component } from 'vue';
   import { Modal, Message } from '@arco-design/web-vue';
   import type { FormInstance } from '@arco-design/web-vue/es/form';
+  import * as ArcoIcons from '@arco-design/web-vue/es/icon';
+  import { IconMenu } from '@arco-design/web-vue/es/icon';
   import { useRoute } from 'vue-router';
   import {
     changeJobStatus,
@@ -496,6 +545,8 @@
   const page = ref(1);
   const pageSize = ref(10);
   const dialogVisible = ref(false);
+  const iconPickerVisible = ref(false);
+  const iconSearch = ref('');
   const detailVisible = ref(false);
   const detailLoading = ref(false);
   const detailRecord = ref<Record<string, any>>({});
@@ -506,8 +557,30 @@
   const menuTree = ref<Record<string, any>[]>([]);
   const departmentTree = ref<Record<string, any>[]>([]);
   const requiredRule = [{ required: true, message: '该字段不能为空' }];
-  const treeFieldNames = { key: 'menuId', title: 'menuName', children: 'children' };
+  const treeFieldNames = { key: 'id', title: 'label', children: 'children' };
   const deptTreeFieldNames = { key: 'deptId', title: 'deptName', children: 'children' };
+  const iconOptions: Array<{ name: string; component: Component }> = Object.entries(ArcoIcons)
+    .filter(([name]) => /^Icon[A-Z]/.test(name))
+    .map(([name, component]) => ({
+      name: `icon-${name.slice(4).replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()}`,
+      component: component as Component,
+    }))
+    .sort((left, right) => left.name.localeCompare(right.name));
+  const filteredIconOptions = computed(() => {
+    const keyword = iconSearch.value.trim().toLowerCase();
+    return keyword
+      ? iconOptions.filter((option) => option.name.toLowerCase().includes(keyword))
+      : iconOptions;
+  });
+  const searchIconComponent = ArcoIcons.IconSearch as Component;
+  const iconAliases: Record<string, string> = {
+    '#': 'icon-menu', system: 'icon-settings', monitor: 'icon-dashboard', people: 'icon-user-group',
+    user: 'icon-user', peoples: 'icon-user-group', 'tree-table': 'icon-unordered-list', tree: 'icon-mind-mapping',
+    dict: 'icon-book', edit: 'icon-edit', log: 'icon-file', druid: 'icon-bar-chart', message: 'icon-message',
+    online: 'icon-user-group', job: 'icon-calendar-clock', server: 'icon-computer', redis: 'icon-storage',
+    'redis-list': 'icon-list', upload: 'icon-upload', download: 'icon-download',
+  };
+  const selectedIcon = computed(() => iconOptions.find((option) => option.name === (iconAliases[form.icon] || form.icon)));
 
   const titleMap: Record<Resource, string> = {
     users: '用户管理', roles: '角色管理', menus: '菜单管理', departments: '部门管理',
@@ -552,6 +625,12 @@
   function handlePageChange(value: number) { page.value = value; loadData(); }
   function handlePageSizeChange(value: number) { pageSize.value = value; page.value = 1; loadData(); }
   function resetForm() { Object.keys(form).forEach((key) => delete form[key]); Object.assign(form, { status: '0', menuType: 'C', orderNum: 1, roleSort: 1, configType: 'N', parentId: 0 }); }
+  /** 打开菜单图标选择器。 */
+  function openIconPicker() { iconSearch.value = ''; iconPickerVisible.value = true; }
+  /** 选择菜单图标并关闭选择器。 */
+  function selectIcon(icon: string) { form.icon = icon; iconPickerVisible.value = false; }
+  /** 清除当前菜单图标。 */
+  function clearIcon() { form.icon = ''; iconPickerVisible.value = false; }
   function openCreate() { resetForm(); dialogVisible.value = true; editing.value = false; if (props.resource === 'menus') loadMenuTree(); if (props.resource === 'departments') loadDepartmentTree(); }
   async function openEdit(record: Record<string, any>) { resetForm(); editing.value = true; const id = record[rowKey.value as string]; const response = await getDetail(id); Object.assign(form, response?.data || record); dialogVisible.value = true; if (props.resource === 'menus') loadMenuTree(); if (props.resource === 'departments') loadDepartmentTree(); }
   async function openDetail(record: Record<string, any>) {
@@ -685,7 +764,7 @@
 </script>
 
 <style scoped lang="less">
-  .resource-page { min-height: 100%; padding: 16px 20px 20px; background: var(--color-fill-2); }
+  .resource-page { min-height: 100%; padding: 16px 20px 20px; background: var(--color-bg-1); }
   .filter-panel, .table-panel { background: var(--color-bg-2); border: 1px solid var(--color-border-2); border-radius: 6px; }
   .filter-panel {
     padding: 14px 20px;
@@ -736,6 +815,35 @@
     overflow-wrap: anywhere;
   }
   .detail-error { color: rgb(var(--red-6)); }
+  .icon-picker-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .icon-picker-toolbar :deep(.arco-input-wrapper) { flex: 1; }
+  .icon-picker-grid {
+    --icon-picker-size: 48px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, var(--icon-picker-size));
+    gap: 10px;
+    justify-content: start;
+    max-height: 390px;
+    overflow-y: auto;
+    padding: 2px;
+  }
+  .icon-picker-option {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--icon-picker-size);
+    min-width: var(--icon-picker-size);
+    height: var(--icon-picker-size);
+    aspect-ratio: 1;
+    padding: 0;
+    color: var(--color-text-2);
+    font-size: 22px;
+    border: 1px solid var(--color-border-2);
+    border-radius: 6px;
+  }
+  .icon-picker-option:hover,
+  .icon-picker-option--selected { color: rgb(var(--primary-6)); border-color: rgb(var(--primary-6)); background: rgb(var(--primary-1)); }
   .table-panel { overflow: hidden; }
   .action-bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px 5px; }
   :deep(.arco-table-container) { overflow-x: auto; }
@@ -763,5 +871,10 @@
     .resource-page { padding: 16px 12px 12px; }
     .filter-panel { padding: 12px 14px; }
     .action-bar { padding: 12px 14px 3px; }
+    .icon-picker-toolbar { align-items: stretch; flex-direction: column; }
+    .icon-picker-grid {
+      --icon-picker-size: 42px;
+      gap: 8px;
+    }
   }
 </style>

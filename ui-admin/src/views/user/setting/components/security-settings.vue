@@ -8,11 +8,11 @@
     </a-list-item>
     <a-list-item>
       <a-list-item-meta title="安全邮箱" description="当前 Java 用户资料中的邮箱地址。" />
-      <template #extra><a-tag :color="email ? 'green' : 'gray'">{{ email ? '已设置' : '未设置' }}</a-tag></template>
+      <template #extra><a-tag :class="['status-tag', email ? 'status-tag--success' : 'status-tag--neutral']">{{ email ? '已设置' : '未设置' }}</a-tag></template>
     </a-list-item>
     <a-list-item>
       <a-list-item-meta title="安全手机" description="当前 Java 用户资料中的手机号码。" />
-      <template #extra><a-tag :color="phone ? 'green' : 'gray'">{{ phone ? '已设置' : '未设置' }}</a-tag></template>
+      <template #extra><a-tag :class="['status-tag', phone ? 'status-tag--success' : 'status-tag--neutral']">{{ phone ? '已设置' : '未设置' }}</a-tag></template>
     </a-list-item>
   </a-list>
 

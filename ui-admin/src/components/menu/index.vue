@@ -6,46 +6,12 @@
   import { useAppStore } from '@/store';
   import { listenerRouteChange } from '@/utils/route-listener';
   import { openWindow, regexUrl } from '@/utils';
-  import {
-    IconApps,
-    IconBarChart,
-    IconBook,
-    IconCalendarClock,
-    IconComputer,
-    IconDashboard,
-    IconEdit,
-    IconFile,
-    IconList,
-    IconMenu,
-    IconMindMapping,
-    IconMessage,
-    IconSettings,
-    IconStorage,
-    IconUnorderedList,
-    IconUser,
-    IconUserGroup,
-  } from '@arco-design/web-vue/es/icon';
+  import * as ArcoIcons from '@arco-design/web-vue/es/icon';
   import useMenuTree from './use-menu-tree';
 
-  const iconMap: Record<string, any> = {
-    'icon-apps': IconApps,
-    'icon-bar-chart': IconBarChart,
-    'icon-book': IconBook,
-    'icon-calendar-clock': IconCalendarClock,
-    'icon-computer': IconComputer,
-    'icon-dashboard': IconDashboard,
-    'icon-edit': IconEdit,
-    'icon-file': IconFile,
-    'icon-list': IconList,
-    'icon-menu': IconMenu,
-    'icon-mind-mapping': IconMindMapping,
-    'icon-message': IconMessage,
-    'icon-settings': IconSettings,
-    'icon-storage': IconStorage,
-    'icon-unordered-list': IconUnorderedList,
-    'icon-user': IconUser,
-    'icon-user-group': IconUserGroup,
-  };
+  const iconMap: Record<string, any> = Object.fromEntries(Object.entries(ArcoIcons)
+    .filter(([name]) => /^Icon[A-Z]/.test(name))
+    .map(([name, component]) => [`icon-${name.slice(4).replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()}`, component]));
 
   export default defineComponent({
     emit: ['collapse'],
@@ -134,7 +100,7 @@
             _route.forEach((element) => {
               // This is demo, modify nodes as needed
               const icon = element?.meta?.icon
-                ? () => h(iconMap[element.meta?.icon as string] || IconMenu)
+                ? () => h(iconMap[element.meta?.icon as string] || ArcoIcons.IconMenu)
                 : null;
               const label = String(
                 element?.meta?.title || element?.meta?.locale || ''

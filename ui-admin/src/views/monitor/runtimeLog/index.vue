@@ -44,7 +44,7 @@
           <a-table-column title="时间" data-index="time" :width="150" />
           <a-table-column title="级别" :width="90">
             <template #cell="{ record }">
-              <a-tag :color="levelColor(record.level)">{{ record.level || '-' }}</a-tag>
+              <a-tag :class="['status-tag', `status-tag--${levelColor(record.level)}`]">{{ record.level || '-' }}</a-tag>
             </template>
           </a-table-column>
           <a-table-column title="内容" data-index="content" ellipsis tooltip />
@@ -95,9 +95,9 @@
   }
 
   function levelColor(value: string) {
-    if (value === 'ERROR') return 'red';
-    if (value === 'WARN') return 'orange';
-    return 'green';
+    if (value === 'ERROR') return 'danger';
+    if (value === 'WARN') return 'warning';
+    return 'success';
   }
 
   /** 查询当前日志文件内容。 */

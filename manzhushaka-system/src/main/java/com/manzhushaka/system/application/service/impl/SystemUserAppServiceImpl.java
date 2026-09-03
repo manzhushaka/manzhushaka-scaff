@@ -1,10 +1,12 @@
 package com.manzhushaka.system.application.service.impl;
 
 import java.util.List;
+import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.manzhushaka.common.exception.ServiceException;
+import com.manzhushaka.common.crypto.SensitiveFieldCryptoHolder;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysRole;
 import com.manzhushaka.system.infrastructure.persistence.entity.SysUser;
 import com.manzhushaka.common.utils.StringUtils;
@@ -21,6 +23,8 @@ import com.manzhushaka.system.application.service.SystemUserAppService;
 import com.manzhushaka.system.application.result.system.SystemResultMapper;
 import com.manzhushaka.system.application.result.system.UserResult;
 import com.manzhushaka.system.application.result.system.UserExcelRow;
+import com.manzhushaka.system.application.result.system.UserExportCursorRow;
+import com.manzhushaka.system.application.result.system.UserImportBatchResult;
 import com.manzhushaka.system.service.ISysDeptService;
 import com.manzhushaka.system.service.ISysRoleService;
 import com.manzhushaka.system.service.ISysUserService;
@@ -44,9 +48,17 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
 
     private List<SysUser> listUserEntities(UserListQuery query)
     {
+        return userService.selectUserList(toUserEntity(query));
+    }
+
+    private SysUser toUserEntity(UserListQuery query)
+    {
         SysUser user = new SysUser();
         user.setUserName(query.userName());
-        user.setPhonenumber(query.phonenumber());
+        if (StringUtils.isNotEmpty(query.phonenumber()))
+        {
+            user.setPhonenumberHash(SensitiveFieldCryptoHolder.hash(query.phonenumber()));
+        }
         user.setStatus(query.status());
         user.setDeptId(query.deptId());
         if (query.beginTime() != null)
@@ -57,7 +69,7 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
         {
             user.getParams().put("endTime", query.endTime());
         }
-        return userService.selectUserList(user);
+        return user;
     }
 
     /**
@@ -108,6 +120,86 @@ public class SystemUserAppServiceImpl implements SystemUserAppService
             return user;
         }).toList();
         return userService.importUser(users, updateSupport, operName);
+    }
+
+    /**
+     * 统计异步导出用户数量。
+     *
+     * @param query 查询条件
+     * @return 用户数量
+     */
+    @Override
+    public long countUserExportRows(UserListQuery query)
+    {
+        return userService.countUserForExport(toUserEntity(query));
+    }
+
+    /**
+     * 按稳定游标读取用户导出批次。
+     *
+     * @param query 查询条件
+     * @param cursorTime 游标创建时间
+     * @param cursorId 游标用户 ID
+     * @param limit 批次大小
+     * @return 用户导出行
+     */
+    @Override
+    public List<UserExportCursorRow> listUserExportRows(UserListQuery query, Date cursorTime,
+            Long cursorId, int limit)
+    {
+        return userService.selectUserExportBatch(toUserEntity(query), cursorTime, cursorId, limit)
+                .stream().map(user -> {
+                    UserExportCursorRow row = new UserExportCursorRow();
+                    row.setUserId(user.getUserId());
+                    row.setDeptId(user.getDeptId());
+                    row.setUserName(user.getUserName());
+                    row.setNickName(user.getNickName());
+                    row.setEmail(user.getEmail());
+                    row.setPhonenumber(user.getPhonenumber());
+                    row.setSex(user.getSex());
+                    row.setStatus(user.getStatus());
+                    row.setDeptName(user.getDept() == null ? null : user.getDept().getDeptName());
+                    row.setDeptLeader(user.getDept() == null ? null : user.getDept().getLeader());
+                    row.setLoginIp(user.getLoginIp());
+                    row.setLoginDate(user.getLoginDate());
+                    row.setCreateTime(user.getCreateTime());
+                    return row;
+                }).toList();
+    }
+
+    /**
+     * 导入一批用户并返回成功失败统计。
+     *
+     * @param rows 用户行
+     * @param updateSupport 是否更新已存在用户
+     * @param operName 操作人
+     * @return 导入批次结果
+     */
+    @Override
+    public UserImportBatchResult importUserRowsBatch(List<UserExcelRow> rows, boolean updateSupport,
+            String operName)
+    {
+        long success = 0L;
+        long failure = 0L;
+        StringBuilder errors = new StringBuilder();
+        for (UserExcelRow row : rows)
+        {
+            try
+            {
+                importUserRows(List.of(row), updateSupport, operName);
+                success++;
+            }
+            catch (Exception exception)
+            {
+                failure++;
+                if (errors.length() < 1800)
+                {
+                    errors.append("账号 ").append(row.getUserName()).append(": ")
+                            .append(exception.getMessage()).append(';');
+                }
+            }
+        }
+        return new UserImportBatchResult(success, failure, errors.toString());
     }
 
     @Override

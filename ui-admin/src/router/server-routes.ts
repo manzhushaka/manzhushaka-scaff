@@ -25,6 +25,8 @@ const iconAliases: Record<string, string> = {
   server: 'icon-computer',
   redis: 'icon-storage',
   'redis-list': 'icon-list',
+  upload: 'icon-upload',
+  download: 'icon-download',
 };
 
 function normalizeViewPath(component: string) {
@@ -84,7 +86,7 @@ function convertRoute(route: BackendRoute, depth = 0): RouteRecordRaw {
     ...(route.meta || {}),
     locale: route.meta?.title || route.name || routePath,
     title: route.meta?.title || route.name || routePath,
-    icon: iconAliases[icon || ''] || 'icon-menu',
+    icon: iconAliases[icon || ''] || (icon?.startsWith('icon-') ? icon : 'icon-menu'),
     requiresAuth: true,
     hideInMenu: Boolean(route.hidden),
     ignoreCache: Boolean(route.meta?.noCache),

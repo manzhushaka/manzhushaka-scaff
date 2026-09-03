@@ -20,6 +20,25 @@ public interface ISysUserService
     public List<SysUser> selectUserList(SysUser user);
 
     /**
+     * 统计符合数据权限和查询条件的用户数量。
+     *
+     * @param user 用户查询条件
+     * @return 用户数量
+     */
+    long countUserForExport(SysUser user);
+
+    /**
+     * 按稳定游标查询一批用户。
+     *
+     * @param user 用户查询条件
+     * @param cursorTime 游标创建时间
+     * @param cursorId 游标用户 ID
+     * @param limit 批次大小
+     * @return 用户列表
+     */
+    List<SysUser> selectUserExportBatch(SysUser user, Date cursorTime, Long cursorId, int limit);
+
+    /**
      * 根据条件分页查询已分配用户角色列表
      * 
      * @param user 用户信息

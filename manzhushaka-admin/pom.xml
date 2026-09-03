@@ -48,6 +48,12 @@
             <artifactId>manzhushaka-framework</artifactId>
         </dependency>
 
+        <!-- 异步导入导出任务 -->
+        <dependency>
+            <groupId>com.manzhushaka</groupId>
+            <artifactId>manzhushaka-task</artifactId>
+        </dependency>
+
         <!-- 定时任务-->
         <dependency>
             <groupId>com.manzhushaka</groupId>

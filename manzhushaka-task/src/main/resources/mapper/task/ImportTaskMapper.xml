@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.manzhushaka.task.mapper.ImportTaskMapper">
+    <resultMap id="ImportTaskResult" type="com.manzhushaka.task.infrastructure.persistence.entity.ImportTask">
+        <id property="taskId" column="task_id" />
+        <result property="handlerType" column="handler_type" />
+        <result property="status" column="status" />
+        <result property="fileKey" column="file_key" />
+        <result property="fileName" column="file_name" />
+        <result property="contentType" column="content_type" />
+        <result property="requestedBy" column="requested_by" />
+        <result property="updateSupport" column="update_support" />
+        <result property="optionsSnapshot" column="options_snapshot" />
+        <result property="securitySnapshot" column="security_snapshot" />
+        <result property="totalCount" column="total_count" />
+        <result property="processedCount" column="processed_count" />
+        <result property="successCount" column="success_count" />
+        <result property="failureCount" column="failure_count" />
+        <result property="errorMessage" column="error_message" />
+        <result property="startedTime" column="started_time" />
+        <result property="finishedTime" column="finished_time" />
+        <result property="leaseUntil" column="lease_until" />
+        <result property="leaseToken" column="lease_token" />
+        <result property="createTime" column="create_time" />
+        <result property="updateTime" column="update_time" />
+    </resultMap>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="taskId">
+        insert into sys_import_task
+        (handler_type, status, file_key, file_name, content_type, requested_by, update_support,
+         options_snapshot, security_snapshot, total_count, processed_count, success_count, failure_count, create_time)
+        values
+        (#{handlerType}, #{status}, #{fileKey}, #{fileName}, #{contentType}, #{requestedBy}, #{updateSupport},
+         #{optionsSnapshot}, #{securitySnapshot}, #{totalCount}, #{processedCount}, #{successCount}, #{failureCount}, sysdate())
+    </insert>
+    <select id="selectById" resultMap="ImportTaskResult">
+        select * from sys_import_task where task_id = #{taskId}
+    </select>
+    <select id="selectList" resultMap="ImportTaskResult">
+        select * from sys_import_task
+        <where>
+            <if test="requestedBy != null">and requested_by = #{requestedBy}</if>
+            <if test="status != null and status != ''">and status = #{status}</if>
+        </where>
+        order by create_time desc, task_id desc
+    </select>
+    <update id="claim">
+        update sys_import_task set status = 'RUNNING', started_time = #{startedTime},
+            lease_until = #{leaseUntil}, lease_token = #{leaseToken}, update_time = sysdate()
+        where task_id = #{taskId}
+          and (status = 'PENDING' or (status = 'RUNNING' and lease_until &lt;= #{startedTime}))
+    </update>
+    <update id="updateProgress">
+        update sys_import_task set total_count = #{total}, processed_count = #{processed}, success_count = #{success},
+            failure_count = #{failure}, lease_until = #{leaseUntil}, update_time = sysdate()
+        where task_id = #{taskId} and lease_token = #{leaseToken} and status = 'RUNNING'
+    </update>
+    <update id="markSuccess">
+        update sys_import_task set status = #{status}, finished_time = #{finishedTime},
+            lease_until = null, lease_token = null, update_time = sysdate()
+        where task_id = #{taskId} and lease_token = #{leaseToken} and status = 'RUNNING'
+    </update>
+    <update id="markFailure">
+        update sys_import_task set status = 'FAILED', error_message = #{message}, finished_time = #{finishedTime},
+            lease_until = null, lease_token = null, update_time = sysdate()
+        where task_id = #{taskId} and lease_token = #{leaseToken} and status = 'RUNNING'
+    </update>
+    <update id="markCancelled">
+        update sys_import_task set status = 'CANCELLED', finished_time = #{finishedTime},
+            lease_until = null, lease_token = null, update_time = sysdate()
+        where task_id = #{taskId} and lease_token = #{leaseToken}
+          and status in ('RUNNING', 'CANCEL_REQUESTED')
+    </update>
+    <update id="requestCancel">
+        update sys_import_task
+        set status = case when status = 'PENDING' then 'CANCELLED' else 'CANCEL_REQUESTED' end,
+            finished_time = case when status = 'PENDING' then sysdate() else finished_time end,
+            update_time = sysdate()
+        where task_id = #{taskId} and status in ('PENDING', 'RUNNING')
+    </update>
+    <select id="selectRecoverable" resultMap="ImportTaskResult">
+        select * from sys_import_task
+        where status = 'PENDING' or (status = 'RUNNING' and lease_until &lt;= #{now})
+        order by create_time asc, task_id asc limit 100
+    </select>
+</mapper>

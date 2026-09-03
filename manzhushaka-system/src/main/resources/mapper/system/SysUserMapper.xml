@@ -61,7 +61,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		    left join sys_role r on r.role_id = ur.role_id
     </sql>
     
-    <select id="selectUserList" parameterType="SysUser" resultMap="SysUserResult">
+	<select id="selectUserList" parameterType="SysUser" resultMap="SysUserResult">
   select u.user_id, u.dept_id, u.nick_name, u.user_name, u.email, u.email_hash, u.avatar, u.phonenumber, u.phonenumber_hash, u.sex, u.status, u.del_flag, u.login_ip, u.login_date, u.create_by, u.create_time, u.remark, d.dept_name, d.leader from sys_user u
 		left join sys_dept d on u.dept_id = d.dept_id
 		where u.del_flag = '0'
@@ -89,6 +89,51 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<!-- 数据范围过滤 -->
 		${params.dataScope}
 	</select>
+
+    <sql id="userExportConditions">
+        where u.del_flag = '0'
+        <if test="user.userName != null and user.userName != ''">
+            and u.user_name like concat('%', #{user.userName}, '%')
+        </if>
+        <if test="user.status != null and user.status != ''">
+            and u.status = #{user.status}
+        </if>
+        <if test="user.phonenumberHash != null and user.phonenumberHash != ''">
+            and u.phonenumber_hash = #{user.phonenumberHash}
+        </if>
+        <if test="user.params.beginTime != null and user.params.beginTime != ''">
+            and date_format(u.create_time,'%Y%m%d') &gt;= date_format(#{user.params.beginTime},'%Y%m%d')
+        </if>
+        <if test="user.params.endTime != null and user.params.endTime != ''">
+            and date_format(u.create_time,'%Y%m%d') &lt;= date_format(#{user.params.endTime},'%Y%m%d')
+        </if>
+        <if test="user.deptId != null and user.deptId != 0">
+            and (u.dept_id = #{user.deptId} or u.dept_id in
+                (select t.dept_id from sys_dept t where find_in_set(#{user.deptId}, ancestors)))
+        </if>
+        ${user.params.dataScope}
+    </sql>
+
+    <select id="countUserForExport" resultType="long">
+        select count(*) from sys_user u
+        left join sys_dept d on u.dept_id = d.dept_id
+        <include refid="userExportConditions" />
+    </select>
+
+    <select id="selectUserExportBatch" resultMap="SysUserResult">
+        select u.user_id, u.dept_id, u.nick_name, u.user_name, u.email, u.email_hash,
+            u.phonenumber, u.phonenumber_hash, u.sex, u.status, u.login_ip, u.login_date,
+            u.create_time, d.dept_name, d.leader
+        from sys_user u
+        left join sys_dept d on u.dept_id = d.dept_id
+        <include refid="userExportConditions" />
+        <if test="cursorTime != null">
+            and (u.create_time &gt; #{cursorTime}
+                or (u.create_time = #{cursorTime} and u.user_id &gt; #{cursorId}))
+        </if>
+        order by u.create_time asc, u.user_id asc
+        limit #{limit}
+    </select>
 	
 	<select id="selectAllocatedList" parameterType="SysUser" resultMap="SysUserResult">
 	    select distinct u.user_id, u.dept_id, u.user_name, u.nick_name, u.email, u.email_hash, u.phonenumber, u.phonenumber_hash, u.status, u.create_time
@@ -232,4 +277,4 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach> 
  	</delete>
 	
-</mapper> 
+</mapper>

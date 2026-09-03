@@ -5,7 +5,7 @@
         <a-list-item-meta :title="record.userName || '未知账号'" :description="record.msg || '登录记录'">
           <template #avatar><a-avatar><icon-safe /></a-avatar></template>
         </a-list-item-meta>
-        <template #extra><a-tag :color="record.status === '0' ? 'green' : 'red'">{{ record.status === '0' ? '成功' : '失败' }}</a-tag></template>
+        <template #extra><a-tag :class="['status-tag', record.status === '0' ? 'status-tag--success' : 'status-tag--danger']">{{ record.status === '0' ? '成功' : '失败' }}</a-tag></template>
       </a-list-item>
     </a-list>
     <a-empty v-else description="暂无异常登录记录" />

@@ -22,7 +22,7 @@
           <a-table-column title="请求方式" data-index="requestMethod" :width="100" />
           <a-table-column title="状态" :width="90">
             <template #cell="{ record }">
-              <a-tag :color="record.status === 0 || record.status === '0' ? 'green' : 'red'">
+              <a-tag :class="['status-tag', record.status === 0 || record.status === '0' ? 'status-tag--success' : 'status-tag--danger']">
                 {{ record.status === 0 || record.status === '0' ? '正常' : '异常' }}
               </a-tag>
             </template>

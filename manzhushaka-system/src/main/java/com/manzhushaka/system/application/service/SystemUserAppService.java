@@ -10,6 +10,8 @@ import com.manzhushaka.system.application.command.UpdateOwnPasswordCommand;
 import com.manzhushaka.system.application.query.UserListQuery;
 import com.manzhushaka.system.application.result.system.UserResult;
 import com.manzhushaka.system.application.result.system.UserExcelRow;
+import com.manzhushaka.system.application.result.system.UserExportCursorRow;
+import com.manzhushaka.system.application.result.system.UserImportBatchResult;
 
 /**
  * 系统用户应用服务
@@ -47,6 +49,36 @@ public interface SystemUserAppService
      * @return 导入结果消息
      */
     String importUserRows(List<UserExcelRow> rows, boolean updateSupport, String operName);
+
+    /**
+     * 统计异步导出用户数量。
+     *
+     * @param query 查询条件
+     * @return 用户数量
+     */
+    long countUserExportRows(UserListQuery query);
+
+    /**
+     * 按创建时间和用户 ID 游标读取导出批次。
+     *
+     * @param query 查询条件
+     * @param cursorTime 游标创建时间
+     * @param cursorId 游标用户 ID
+     * @param limit 批次大小
+     * @return 用户导出行
+     */
+    List<UserExportCursorRow> listUserExportRows(UserListQuery query, java.util.Date cursorTime,
+            Long cursorId, int limit);
+
+    /**
+     * 导入一批用户并返回结构化计数。
+     *
+     * @param rows 用户行
+     * @param updateSupport 是否更新已存在用户
+     * @param operName 操作人
+     * @return 导入批次结果
+     */
+    UserImportBatchResult importUserRowsBatch(List<UserExcelRow> rows, boolean updateSupport, String operName);
 
     /**
      * 获取用户角色组文本。
