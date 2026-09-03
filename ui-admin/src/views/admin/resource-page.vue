@@ -1,12 +1,5 @@
 <template>
   <div class="resource-page">
-    <div class="page-actions">
-      <a-button type="outline" :loading="loading" @click="loadData">
-        <template #icon><icon-refresh /></template>
-        刷新
-      </a-button>
-    </div>
-
     <section class="filter-panel">
       <a-form :model="query" layout="inline" @submit-success="handleQuery">
         <a-form-item
@@ -52,6 +45,10 @@
               <template #icon><icon-refresh /></template>
               重置
             </a-button>
+            <a-button type="outline" :loading="loading" @click="loadData">
+              <template #icon><icon-refresh /></template>
+              刷新
+            </a-button>
           </a-space>
         </a-form-item>
       </a-form>
@@ -93,7 +90,6 @@
             立即执行
           </a-button>
         </a-space>
-        <a-tag v-if="total !== null" color="arcoblue">共 {{ total }} 条</a-tag>
       </div>
 
       <a-table
@@ -102,6 +98,7 @@
         :bordered="false"
         :pagination="pagination"
         :row-key="rowKey"
+        hide-expand-button-on-empty
         :row-selection="supportsSelection ? { type: 'checkbox', showCheckedAll: true } : undefined"
         @selection-change="handleSelectionChange"
         @page-change="handlePageChange"
@@ -506,6 +503,30 @@
   async function loadMenuTree() { const response = await (await import('@/api/admin')).getMenuTree(); menuTree.value = response.data || []; }
   async function loadDepartmentTree() { const response = await (await import('@/api/admin')).getDepartmentTree(); departmentTree.value = response.data || []; }
 
+  /** 将菜单、部门的扁平列表转换为 Arco Table 可展开的树结构。 */
+  function buildTableTree(data: Record<string, any>[], keyField: string) {
+    const nodeMap = new Map<string, Record<string, any>>();
+    const nodes = data.map((record) => {
+      const node = { ...record };
+      delete node.children;
+      nodeMap.set(String(node[keyField]), node);
+      return node;
+    });
+    const rootNodes: Record<string, any>[] = [];
+
+    nodes.forEach((node) => {
+      const parent = nodeMap.get(String(node.parentId));
+      if (parent && parent !== node) {
+        if (!parent.children) parent.children = [];
+        parent.children.push(node);
+      } else {
+        rootNodes.push(node);
+      }
+    });
+    return rootNodes;
+  }
+
+  /** 加载当前资源列表，并为树形资源恢复父子层级。 */
   async function loadData() {
     loading.value = true;
     try {
@@ -527,7 +548,10 @@
         case 'jobLogs': response = await listJobLogs(params); break;
         default: response = { rows: [], total: 0 };
       }
-      rows.value = response.rows || response.data || [];
+      const responseRows = response.rows || response.data || [];
+      rows.value = ['menus', 'departments'].includes(props.resource)
+        ? buildTableTree(responseRows, rowKey.value as string)
+        : responseRows;
       total.value = response.total === undefined ? null : response.total;
     } catch (error) {
       rows.value = [];
@@ -580,12 +604,53 @@
 
 <style scoped lang="less">
   .resource-page { min-height: 100%; padding: 20px; background: var(--color-fill-2); }
-  .page-actions { display: flex; justify-content: flex-end; margin-bottom: 16px; }
   .filter-panel, .table-panel { background: var(--color-bg-2); border: 1px solid var(--color-border-2); border-radius: 6px; }
   .filter-panel { padding: 18px 20px 2px; margin-bottom: 16px; }
   .table-panel { overflow: hidden; }
   .action-bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid var(--color-border-2); }
-  :deep(.arco-table) { min-width: 880px; }
   :deep(.arco-table-container) { overflow-x: auto; }
-  @media (max-width: 640px) { .resource-page { padding: 12px; } .filter-panel { padding: 14px 14px 2px; } .action-bar { padding: 12px 14px; } }
+  :deep(.arco-table-element) { min-width: 880px; }
+  :deep(.arco-table-pagination) {
+    min-height: 57px;
+    margin-top: 0;
+    padding: 12px 16px;
+    background: var(--color-fill-1);
+    border-top: 1px solid var(--color-border-2);
+  }
+  :deep(.arco-pagination-total) {
+    margin-right: 16px;
+    color: var(--color-text-3);
+  }
+  :deep(.arco-pagination-item) {
+    border: 1px solid transparent;
+    border-radius: 6px;
+    transition: color 0.2s, background-color 0.2s, border-color 0.2s;
+  }
+  :deep(.arco-pagination-item:not(.arco-pagination-item-disabled):hover) {
+    background: var(--color-bg-2);
+    border-color: var(--color-border-3);
+  }
+  :deep(.arco-pagination-item-active),
+  :deep(.arco-pagination-item-active:hover) {
+    color: rgb(var(--primary-6));
+    font-weight: 500;
+    background: var(--color-primary-light-1);
+    border-color: var(--color-primary-light-3);
+  }
+  :deep(.arco-pagination-options .arco-select-view) {
+    background: var(--color-bg-2);
+    border-color: var(--color-border-2);
+    border-radius: 6px;
+  }
+  @media (max-width: 640px) {
+    .resource-page { padding: 12px; }
+    .filter-panel { padding: 14px 14px 2px; }
+    .action-bar { padding: 12px 14px; }
+    :deep(.arco-table-pagination) {
+      justify-content: flex-start;
+      min-height: 0;
+      padding: 12px;
+      overflow-x: auto;
+    }
+  }
 </style>

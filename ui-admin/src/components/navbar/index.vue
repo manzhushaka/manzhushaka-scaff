@@ -1,9 +1,14 @@
 <template>
   <div class="navbar">
     <div class="left-side">
-      <a-space>
+      <div
+        class="brand-group"
+        :class="{ 'brand-group-collapsed': brandGroupCollapsed }"
+        :style="brandGroupStyle"
+      >
         <img class="brand-logo" :src="brandLogo" alt="manzhushaka 标识" />
         <a-typography-title
+          v-if="showBrandTitle"
           :style="{ margin: 0, fontSize: '18px' }"
           :heading="5"
         >
@@ -14,7 +19,7 @@
           style="font-size: 22px; cursor: pointer"
           @click="toggleDrawerMenu"
         />
-      </a-space>
+      </div>
       <div v-if="currentPageTitle" class="current-page" aria-current="page">
         <icon-apps />
         <span>{{ currentPageTitle }}</span>
@@ -238,6 +243,18 @@
     return appStore.theme;
   });
   const topMenu = computed(() => appStore.topMenu && appStore.menu);
+  const alignBrandWithSider = computed(
+    () => appStore.menu && !topMenu.value && !appStore.hideMenu
+  );
+  const brandGroupCollapsed = computed(
+    () => alignBrandWithSider.value && appStore.menuCollapse
+  );
+  const brandGroupStyle = computed(() => {
+    if (!alignBrandWithSider.value) return undefined;
+    const width = appStore.menuCollapse ? 48 : appStore.menuWidth;
+    return { width: `${width}px` };
+  });
+  const showBrandTitle = computed(() => !brandGroupCollapsed.value);
   const currentPageTitle = computed(() => {
     const currentRoute = [...route.matched]
       .reverse()
@@ -303,6 +320,7 @@
     display: flex;
     justify-content: space-between;
     height: 100%;
+    min-height: 60px;
     background-color: var(--color-bg-2);
     border-bottom: 1px solid var(--color-border);
   }
@@ -310,19 +328,34 @@
   .left-side {
     display: flex;
     align-items: center;
+    height: 100%;
     min-width: 0;
-    padding-left: 20px;
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      gap: 10px;
+      height: 100%;
+      padding: 0 20px;
+      border-right: 1px solid var(--color-border);
+      transition: width 0.2s cubic-bezier(0.34, 0.69, 0.1, 1);
+    }
+
+    .brand-group-collapsed {
+      justify-content: center;
+      padding: 0 8px;
+    }
 
     .current-page {
       display: inline-flex;
       align-items: center;
       gap: 8px;
       min-width: 0;
-      margin-left: 24px;
-      padding-left: 20px;
+      height: 32px;
+      margin-left: 20px;
       color: var(--color-text-2);
       font-size: 14px;
-      border-left: 1px solid var(--color-border);
 
       .arco-icon {
         color: rgb(var(--primary-6));
@@ -339,8 +372,8 @@
   }
 
   .brand-logo {
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
     border-radius: 6px;
     object-fit: cover;
   }
@@ -351,6 +384,9 @@
 
   .right-side {
     display: flex;
+    align-items: center;
+    height: 100%;
+    margin: 0;
     padding-right: 20px;
     list-style: none;
     :deep(.locale-select) {
@@ -359,7 +395,8 @@
     li {
       display: flex;
       align-items: center;
-      padding: 0 10px;
+      height: 100%;
+      padding: 0 8px;
     }
 
     a {
@@ -384,16 +421,19 @@
   @media (max-width: 640px) {
     .left-side {
       flex-shrink: 0;
-      padding-left: 12px;
+    }
+
+    .left-side .brand-group {
+      padding: 0 12px;
+      border-right: 0;
     }
 
     .left-side :deep(.arco-typography) {
-      white-space: nowrap;
+      display: none;
     }
 
     .left-side .current-page {
       margin-left: 12px;
-      padding-left: 12px;
 
       span {
         max-width: 96px;

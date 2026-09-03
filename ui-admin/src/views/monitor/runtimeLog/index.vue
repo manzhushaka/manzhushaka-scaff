@@ -1,31 +1,5 @@
 <template>
   <div class="monitor-page">
-    <div class="page-actions">
-      <a-space>
-        <a-select
-          v-model="fileName"
-          :loading="filesLoading"
-          :style="{ width: '220px' }"
-          @change="loadData"
-        >
-          <a-option
-            v-for="file in files"
-            :key="file.fileName"
-            :value="file.fileName"
-          >
-            {{ file.fileName }}
-          </a-option>
-        </a-select>
-        <a-button type="outline" :loading="loading" @click="loadData">
-          <template #icon><icon-refresh /></template>
-          刷新
-        </a-button>
-        <a-button type="primary" :loading="downloading" @click="download">
-          <template #icon><icon-download /></template>
-          下载
-        </a-button>
-      </a-space>
-    </div>
     <a-alert v-if="errorMessage" type="error" show-icon>{{ errorMessage }}</a-alert>
     <a-card :bordered="false" class="log-card">
       <a-tabs v-model:active-key="level" @change="loadData">
@@ -33,6 +7,28 @@
         <a-tab-pane key="INFO" title="INFO" />
         <a-tab-pane key="WARN" title="WARN" />
         <a-tab-pane key="ERROR" title="ERROR" />
+        <template #extra>
+          <a-space class="log-toolbar">
+            <a-select
+              v-model="fileName"
+              class="log-file-select"
+              :loading="filesLoading"
+              @change="loadData"
+            >
+              <a-option
+                v-for="file in files"
+                :key="file.fileName"
+                :value="file.fileName"
+              >
+                {{ file.fileName }}
+              </a-option>
+            </a-select>
+            <a-button type="primary" :loading="downloading" @click="download">
+              <template #icon><icon-download /></template>
+              下载
+            </a-button>
+          </a-space>
+        </template>
       </a-tabs>
       <a-form
         :model="query"
@@ -207,19 +203,20 @@
     background: var(--color-fill-2);
   }
 
-  .page-actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 16px;
-  }
-
   .log-card {
-    margin-top: 16px;
     border-radius: 6px;
   }
 
+  :deep(.arco-alert) + .log-card {
+    margin-top: 16px;
+  }
+
+  .log-file-select {
+    width: 200px;
+  }
+
   .filter-form {
-    padding: 18px 0 2px;
+    padding: 8px 0 2px;
   }
 
   .log-detail {
@@ -238,10 +235,24 @@
       padding: 12px;
     }
 
-    .page-actions .arco-space {
-      display: flex;
+    :deep(.arco-tabs-nav) {
       flex-wrap: wrap;
-      justify-content: flex-end;
+    }
+
+    :deep(.arco-tabs-nav-extra) {
+      width: 100%;
+      padding: 8px 0;
+    }
+
+    .log-toolbar {
+      display: flex;
+      width: 100%;
+    }
+
+    .log-file-select {
+      flex: 1;
+      min-width: 0;
+      width: auto;
     }
 
     .filter-form :deep(.arco-form-item) {
