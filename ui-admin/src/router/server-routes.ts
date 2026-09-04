@@ -2,6 +2,7 @@ import { defineAsyncComponent, defineComponent, h } from 'vue';
 import type { Component, AsyncComponentLoader } from 'vue';
 import type { RouteRecordRaw } from 'vue-router';
 import type { BackendRoute } from '@/api/admin';
+import PageLoading from '@/components/page-loading/index.vue';
 import { DEFAULT_LAYOUT, PARENT_VIEW } from './routes/base';
 
 const viewModules = import.meta.glob('../views/**/*.vue');
@@ -53,7 +54,11 @@ function loadView(component?: string) {
 function namedRouteComponent(component: Component, name: string): Component {
   const resolvedComponent =
     typeof component === 'function'
-      ? defineAsyncComponent(component as AsyncComponentLoader)
+      ? defineAsyncComponent({
+          loader: component as AsyncComponentLoader,
+          loadingComponent: PageLoading,
+          delay: 0,
+        })
       : component;
 
   return defineComponent({

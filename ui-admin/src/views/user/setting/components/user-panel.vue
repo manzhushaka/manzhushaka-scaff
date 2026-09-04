@@ -1,5 +1,5 @@
 <template>
-  <a-card :bordered="false">
+  <a-card :loading="loading" :bordered="false">
     <a-space :size="36" wrap>
       <a-upload
         :custom-request="customRequest"
@@ -40,6 +40,7 @@
   import { useUserStore } from '@/store';
 
   const userStore = useUserStore();
+  const loading = ref(true);
   const profile = ref<Record<string, any>>({});
   const fileList = ref<FileItem[]>([]);
   const renderData = computed(() => [
@@ -58,8 +59,13 @@
 
   /** 加载当前账号资料。 */
   async function loadData() {
-    const response = await getProfile();
-    renderProfile(response.data || {});
+    loading.value = true;
+    try {
+      const response = await getProfile();
+      renderProfile(response.data || {});
+    } finally {
+      loading.value = false;
+    }
   }
 
   function uploadChange(items: FileItem[], item: FileItem) {

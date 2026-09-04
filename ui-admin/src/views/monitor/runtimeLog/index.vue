@@ -81,7 +81,7 @@
   import { onMounted, ref } from 'vue';
   import { listRuntimeLogs } from '@/api/admin';
 
-  const loading = ref(false);
+  const loading = ref(true);
   const fileName = ref('sys-error.log');
   const level = ref('ALL');
   const logs = ref<Record<string, any>[]>([]);

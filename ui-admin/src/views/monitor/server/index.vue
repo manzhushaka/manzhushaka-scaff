@@ -26,7 +26,7 @@
   import { computed, onMounted, ref } from 'vue';
   import { getServerInfo } from '@/api/admin';
 
-  const loading = ref(false);
+  const loading = ref(true);
   const error = ref(false);
   const server = ref<Record<string, any>>({});
   const usageCards = computed(() => [

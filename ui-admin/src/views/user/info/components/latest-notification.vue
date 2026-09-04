@@ -1,5 +1,5 @@
 <template>
-  <a-card class="general-card" title="登录安全记录">
+  <a-card :loading="loading" class="general-card" title="登录安全记录">
     <a-list v-if="records.length" :bordered="false">
       <a-list-item v-for="record in records" :key="record.infoId">
         <a-list-item-meta :title="record.userName || '未知账号'" :description="record.msg || '登录记录'">
@@ -16,12 +16,18 @@
   import { onMounted, ref } from 'vue';
   import { queryAdminSnapshot } from '@/api/analytics';
 
+  const loading = ref(true);
   const records = ref<Record<string, any>[]>([]);
 
   /** 加载 Java 登录审计记录。 */
   async function loadData() {
-    const snapshot = await queryAdminSnapshot();
-    records.value = snapshot.loginLogs.rows.filter((record) => record.status !== '0' && record.status !== 0).slice(0, 5);
+    loading.value = true;
+    try {
+      const snapshot = await queryAdminSnapshot();
+      records.value = snapshot.loginLogs.rows.filter((record) => record.status !== '0' && record.status !== 0).slice(0, 5);
+    } finally {
+      loading.value = false;
+    }
   }
 
   onMounted(loadData);

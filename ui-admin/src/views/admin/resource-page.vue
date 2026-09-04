@@ -537,7 +537,7 @@
   const props = defineProps<Props>();
   const route = useRoute();
   const userStore = useUserStore();
-  const loading = ref(false);
+  const loading = ref(true);
   const submitting = ref(false);
   const rows = ref<Record<string, any>[]>([]);
   const selectedKeys = ref<Array<string | number>>([]);

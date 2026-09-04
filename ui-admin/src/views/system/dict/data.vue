@@ -160,7 +160,7 @@
   const route = useRoute();
   const router = useRouter();
   const userStore = useUserStore();
-  const loading = ref(false);
+  const loading = ref(true);
   const submitting = ref(false);
   const exporting = ref(false);
   const dictType = ref('');

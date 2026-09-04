@@ -1,24 +1,22 @@
 <template>
-  <div class="tab-bar-container">
-    <a-affix ref="affixRef" :offset-top="offsetTop">
-      <div class="tab-bar-box">
-        <div class="tab-bar-scroll">
-          <div class="tags-wrap">
-            <tab-item
-              v-for="(tag, index) in tagList"
-              :key="tag.fullPath"
-              :index="index"
-              :item-data="tag"
-            />
-          </div>
+  <div class="tab-bar-container" :style="{ top: `${offsetTop}px` }">
+    <div class="tab-bar-box">
+      <div class="tab-bar-scroll">
+        <div class="tags-wrap">
+          <tab-item
+            v-for="(tag, index) in tagList"
+            :key="tag.fullPath"
+            :index="index"
+            :item-data="tag"
+          />
         </div>
       </div>
-    </a-affix>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-  import { ref, computed, watch, onUnmounted } from 'vue';
+  import { computed, onUnmounted } from 'vue';
   import type { RouteLocationNormalized } from 'vue-router';
   import {
     listenerRouteChange,
@@ -30,7 +28,6 @@
   const appStore = useAppStore();
   const tabBarStore = useTabBarStore();
 
-  const affixRef = ref();
   const tagList = computed(() => {
     return tabBarStore.getTabList;
   });
@@ -38,12 +35,6 @@
     return appStore.navbar ? 60 : 0;
   });
 
-  watch(
-    () => appStore.navbar,
-    () => {
-      affixRef.value.updatePosition();
-    }
-  );
   const handleRouteChange = (route: RouteLocationNormalized) => {
     if (
       !route.meta.noAffix &&
@@ -62,7 +53,7 @@
 
 <style scoped lang="less">
   .tab-bar-container {
-    position: relative;
+    position: sticky;
     z-index: 2;
     padding: 4px 20px 0;
     background-color: var(--color-fill-2);

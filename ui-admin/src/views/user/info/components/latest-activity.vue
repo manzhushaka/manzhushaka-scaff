@@ -1,5 +1,5 @@
 <template>
-  <a-card class="general-card" title="最新操作">
+  <a-card :loading="loading" class="general-card" title="最新操作">
     <a-list v-if="activities.length" :bordered="false">
       <a-list-item v-for="activity in activities" :key="activity.operId">
         <a-list-item-meta
@@ -19,12 +19,18 @@
   import { onMounted, ref } from 'vue';
   import { queryAdminSnapshot } from '@/api/analytics';
 
+  const loading = ref(true);
   const activities = ref<Record<string, any>[]>([]);
 
   /** 加载 Java 操作日志。 */
   async function loadData() {
-    const snapshot = await queryAdminSnapshot();
-    activities.value = snapshot.operationLogs.rows.slice(0, 7);
+    loading.value = true;
+    try {
+      const snapshot = await queryAdminSnapshot();
+      activities.value = snapshot.operationLogs.rows.slice(0, 7);
+    } finally {
+      loading.value = false;
+    }
   }
 
   onMounted(loadData);

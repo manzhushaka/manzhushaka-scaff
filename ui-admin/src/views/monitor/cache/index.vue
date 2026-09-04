@@ -14,7 +14,7 @@
   import { computed, onMounted, ref } from 'vue';
   import { getCacheInfo } from '@/api/admin';
 
-  const loading = ref(false);
+  const loading = ref(true);
   const cache = ref<Record<string, any>>({ info: {}, commandStats: [], dbSize: 0 });
   const redisInfo = computed(() => { const info = cache.value.info || {}; return [{ key: 'version', label: 'Redis 版本', value: info.redis_version || '-' }, { key: 'mode', label: '运行模式', value: info.redis_mode || '-' }, { key: 'port', label: '端口', value: info.tcp_port || '-' }, { key: 'clients', label: '连接客户端', value: info.connected_clients || '-' }, { key: 'memory', label: '已用内存', value: info.used_memory_human || '-' }, { key: 'keys', label: '数据库键数', value: cache.value.dbSize ?? '-' }]; });
   const commandPercent = (record: Record<string, any>) => { const total = (cache.value.commandStats || []).reduce((sum: number, item: Record<string, any>) => sum + Number(item.value || 0), 0); return total ? Number(record.value || 0) / total : 0; };

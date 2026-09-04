@@ -1,5 +1,5 @@
 <template>
-  <a-card class="general-card" title="我的部门" :body-style="{ paddingBottom: '12px' }">
+  <a-card :loading="loading" class="general-card" title="我的部门" :body-style="{ paddingBottom: '12px' }">
     <a-list v-if="departments.length" :bordered="false">
       <a-list-item v-for="department in departments" :key="department.deptId">
         <a-list-item-meta :title="department.deptName || '-'">
@@ -20,12 +20,18 @@
   import { onMounted, ref } from 'vue';
   import { queryAdminSnapshot } from '@/api/analytics';
 
+  const loading = ref(true);
   const departments = ref<Record<string, any>[]>([]);
 
   /** 加载 Java 部门数据。 */
   async function loadData() {
-    const snapshot = await queryAdminSnapshot();
-    departments.value = snapshot.departments.rows.slice(0, 6);
+    loading.value = true;
+    try {
+      const snapshot = await queryAdminSnapshot();
+      departments.value = snapshot.departments.rows.slice(0, 6);
+    } finally {
+      loading.value = false;
+    }
   }
 
   onMounted(loadData);

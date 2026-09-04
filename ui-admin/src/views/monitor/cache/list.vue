@@ -15,7 +15,7 @@
   import { Modal, Message } from '@arco-design/web-vue';
   import { clearCacheAll, clearCacheKey, clearCacheName, getCacheValue, listCacheKeys, listCacheNames } from '@/api/admin';
 
-  const loading = ref(false); const keyLoading = ref(false); const clearing = ref(false);
+  const loading = ref(true); const keyLoading = ref(false); const clearing = ref(false);
   const cacheNames = ref<Record<string, any>[]>([]); const cacheKeys = ref<Record<string, string>[]>([]); const selectedName = ref(''); const selectedKey = ref(''); const selectedValue = ref('');
   async function loadNames() { loading.value = true; try { const response = await listCacheNames(); cacheNames.value = response.data || []; } finally { loading.value = false; } }
   function nameOf(record: Record<string, any>) { return record.cacheName || record.name || ''; }

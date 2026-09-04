@@ -175,7 +175,7 @@
 
   .layout-content {
     min-height: 100vh;
-    overflow-y: hidden;
+    overflow-y: visible;
     background-color: var(--color-fill-2);
     transition: padding 0.2s cubic-bezier(0.34, 0.69, 0.1, 1);
   }

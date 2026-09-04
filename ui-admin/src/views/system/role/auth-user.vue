@@ -144,7 +144,7 @@
   const unallocatedRows = ref<Record<string, any>[]>([]);
   const selectedKeys = ref<Array<string | number>>([]);
   const unallocatedSelected = ref<Array<string | number>>([]);
-  const loading = ref(false);
+  const loading = ref(true);
   const selectorLoading = ref(false);
   const saving = ref(false);
   const selectorVisible = ref(false);

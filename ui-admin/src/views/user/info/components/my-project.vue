@@ -1,5 +1,5 @@
 <template>
-  <a-card class="general-card" title="权限范围">
+  <a-card :loading="loading" class="general-card" title="权限范围">
     <a-row :gutter="16">
       <a-col
         v-for="item in resourceCards"
@@ -34,6 +34,7 @@
   import { computed, onMounted, ref } from 'vue';
   import { queryAdminSnapshot, AdminSnapshot } from '@/api/analytics';
 
+  const loading = ref(true);
   const snapshot = ref<AdminSnapshot>();
   const resourceCards = computed(() => {
     if (!snapshot.value) return [];
@@ -85,7 +86,12 @@
 
   /** 加载当前账号可见的后台资源统计。 */
   async function loadData() {
-    snapshot.value = await queryAdminSnapshot();
+    loading.value = true;
+    try {
+      snapshot.value = await queryAdminSnapshot();
+    } finally {
+      loading.value = false;
+    }
   }
 
   onMounted(loadData);

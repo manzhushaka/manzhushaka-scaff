@@ -1,34 +1,36 @@
 <template>
-  <a-form
-    ref="formRef"
-    :model="formData"
-    class="form"
-    :label-col-props="{ span: 6 }"
-    :wrapper-col-props="{ span: 18 }"
-  >
-    <a-form-item field="nickName" label="昵称" :rules="requiredRule">
-      <a-input v-model="formData.nickName" placeholder="请输入昵称" />
-    </a-form-item>
-    <a-form-item field="email" label="邮箱">
-      <a-input v-model="formData.email" placeholder="请输入邮箱" />
-    </a-form-item>
-    <a-form-item field="phonenumber" label="手机号码">
-      <a-input v-model="formData.phonenumber" placeholder="请输入手机号码" />
-    </a-form-item>
-    <a-form-item field="sex" label="性别">
-      <a-radio-group v-model="formData.sex">
-        <a-radio value="0">男</a-radio>
-        <a-radio value="1">女</a-radio>
-        <a-radio value="2">未知</a-radio>
-      </a-radio-group>
-    </a-form-item>
-    <a-form-item>
-      <a-space>
-        <a-button type="primary" :loading="saving" @click="save">保存</a-button>
-        <a-button @click="reset">重置</a-button>
-      </a-space>
-    </a-form-item>
-  </a-form>
+  <a-spin :loading="loading" class="form-loading">
+    <a-form
+      ref="formRef"
+      :model="formData"
+      class="form"
+      :label-col-props="{ span: 6 }"
+      :wrapper-col-props="{ span: 18 }"
+    >
+      <a-form-item field="nickName" label="昵称" :rules="requiredRule">
+        <a-input v-model="formData.nickName" placeholder="请输入昵称" />
+      </a-form-item>
+      <a-form-item field="email" label="邮箱">
+        <a-input v-model="formData.email" placeholder="请输入邮箱" />
+      </a-form-item>
+      <a-form-item field="phonenumber" label="手机号码">
+        <a-input v-model="formData.phonenumber" placeholder="请输入手机号码" />
+      </a-form-item>
+      <a-form-item field="sex" label="性别">
+        <a-radio-group v-model="formData.sex">
+          <a-radio value="0">男</a-radio>
+          <a-radio value="1">女</a-radio>
+          <a-radio value="2">未知</a-radio>
+        </a-radio-group>
+      </a-form-item>
+      <a-form-item>
+        <a-space>
+          <a-button type="primary" :loading="saving" @click="save">保存</a-button>
+          <a-button @click="reset">重置</a-button>
+        </a-space>
+      </a-form-item>
+    </a-form>
+  </a-spin>
 </template>
 
 <script lang="ts" setup>
@@ -40,6 +42,7 @@
 
   const userStore = useUserStore();
   const formRef = ref<FormInstance>();
+  const loading = ref(true);
   const saving = ref(false);
   const formData = reactive({ nickName: '', email: '', phonenumber: '', sex: '2' });
   const initialData = reactive({ ...formData });
@@ -57,8 +60,13 @@
 
   /** 加载当前用户资料。 */
   async function loadData() {
-    const response = await getProfile();
-    fillForm(response.data || {});
+    loading.value = true;
+    try {
+      const response = await getProfile();
+      fillForm(response.data || {});
+    } finally {
+      loading.value = false;
+    }
   }
 
   /** 保存当前用户资料。 */
@@ -84,6 +92,11 @@
 </script>
 
 <style scoped lang="less">
+  .form-loading {
+    display: block;
+    width: 100%;
+  }
+
   .form {
     width: min(540px, 100%);
     margin: 0 auto;
