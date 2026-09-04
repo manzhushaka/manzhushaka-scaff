@@ -62,7 +62,7 @@
   const route = useRoute();
   const permission = usePermission();
   useResponsive(true);
-  const navbarHeight = `60px`;
+  const navbarHeight = 'var(--ui-layout-topbar-height)';
   const navbar = computed(() => appStore.navbar);
   const renderMenu = computed(() => appStore.menu && !appStore.topMenu);
   const hideMenu = computed(() => appStore.hideMenu);
@@ -104,7 +104,7 @@
 </script>
 
 <style scoped lang="less">
-  @nav-size-height: 60px;
+  @nav-size-height: var(--ui-layout-topbar-height);
   @layout-max-width: 1100px;
 
   .layout {
@@ -119,6 +119,8 @@
     z-index: 100;
     width: 100%;
     height: @nav-size-height;
+    background-color: var(--ui-bg-panel);
+    border-bottom: 1px solid var(--ui-border);
   }
 
   .layout-sider {
@@ -127,8 +129,8 @@
     left: 0;
     z-index: 99;
     height: 100%;
-    background-color: var(--color-bg-2);
-    transition: all 0.2s cubic-bezier(0.34, 0.69, 0.1, 1);
+    background-color: var(--ui-bg-panel);
+    transition: all var(--ui-motion-standard) var(--ui-motion-ease);
     &::after {
       position: absolute;
       top: 0;
@@ -176,7 +178,7 @@
   .layout-content {
     min-height: 100vh;
     overflow-y: visible;
-    background-color: var(--color-fill-2);
-    transition: padding 0.2s cubic-bezier(0.34, 0.69, 0.1, 1);
+    background-color: var(--ui-bg-content);
+    transition: padding var(--ui-motion-standard) var(--ui-motion-ease);
   }
 </style>

@@ -1,0 +1,52 @@
+// Shared design tokens. Component styles should consume these aliases instead
+// of coupling layout and motion values to individual pages.
+:root {
+  --ui-font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+  --ui-font-size-xs: 12px;
+  --ui-font-size-sm: 13px;
+  --ui-font-size-base: 14px;
+  --ui-font-size-md: 16px;
+  --ui-font-size-lg: 18px;
+  --ui-font-size-xl: 20px;
+  --ui-line-height-base: 1.5;
+  --ui-line-height-control: 24px;
+
+  --ui-space-1: 4px;
+  --ui-space-2: 8px;
+  --ui-space-3: 12px;
+  --ui-space-4: 16px;
+  --ui-space-5: 20px;
+  --ui-space-6: 24px;
+
+  --ui-layout-sidebar-width: 220px;
+  --ui-layout-sidebar-collapsed-width: 48px;
+  --ui-layout-topbar-height: 60px;
+  --ui-layout-tags-height: 36px;
+  --ui-layout-content-padding: 20px;
+  --ui-form-control-height: 36px;
+
+  --ui-radius-sm: 4px;
+  --ui-radius-md: 6px;
+  --ui-radius-lg: 8px;
+  --ui-shadow-panel: 0 1px 3px rgba(29, 33, 41, 0.06);
+  --ui-shadow-hover: 0 6px 20px rgba(29, 33, 41, 0.06);
+
+  --ui-motion-fast: 0.18s;
+  --ui-motion-standard: 0.28s;
+  --ui-motion-ease: cubic-bezier(0.23, 1, 0.32, 1);
+  --ui-bg-content: var(--color-fill-2);
+  --ui-bg-panel: var(--color-bg-2);
+  --ui-text-primary: var(--color-text-1);
+  --ui-text-secondary: var(--color-text-2);
+  --ui-text-tertiary: var(--color-text-3);
+  --ui-text-disabled: var(--color-text-4);
+  --ui-border: var(--color-border-2);
+  --ui-border-strong: var(--color-border-3);
+  --ui-primary: rgb(var(--primary-6));
+  --ui-primary-soft: var(--color-primary-light-1);
+  --ui-success: rgb(var(--success-6));
+  --ui-warning: rgb(var(--warning-6));
+  --ui-danger: rgb(var(--danger-6));
+  --ui-info: rgb(var(--link-6));
+}

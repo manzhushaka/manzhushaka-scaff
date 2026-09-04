@@ -80,6 +80,8 @@
             height: 32px;
             margin-right: 0;
             padding: 0 10px;
+            font-size: var(--ui-font-size-sm);
+            line-height: 30px;
             color: var(--color-text-2);
             background-color: var(--color-bg-2);
             border: 1px solid var(--color-border-2);
@@ -95,12 +97,14 @@
             &:hover {
               color: rgb(var(--primary-6));
               border-color: rgb(var(--primary-3));
+              transform: translateY(-1px);
             }
 
             &.link-activated {
               color: rgb(var(--primary-6));
               background-color: var(--color-bg-2);
               border-color: var(--color-border-2);
+              box-shadow: 0 2px 8px rgba(var(--primary-6), 0.12);
             }
           }
         }

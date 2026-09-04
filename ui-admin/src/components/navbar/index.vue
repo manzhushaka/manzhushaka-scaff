@@ -407,7 +407,7 @@
       gap: 10px;
       height: 100%;
       padding: 0 20px;
-      transition: width 0.2s cubic-bezier(0.34, 0.69, 0.1, 1);
+      transition: width var(--ui-motion-standard) var(--ui-motion-ease);
     }
 
     .brand-group-collapsed {
@@ -425,6 +425,16 @@
       .nav-tool-btn {
         color: var(--color-text-2);
         font-size: 18px;
+        transition:
+          color var(--ui-motion-fast) ease,
+          background-color var(--ui-motion-fast) ease,
+          transform var(--ui-motion-fast) var(--ui-motion-ease);
+
+        &:hover {
+          color: rgb(var(--primary-6));
+          background-color: var(--color-primary-light-1);
+          transform: translateY(-1px);
+        }
       }
     }
 
@@ -432,6 +442,8 @@
       min-width: 0;
       overflow: hidden;
       color: var(--color-text-3);
+      font-size: var(--ui-font-size-sm);
+      line-height: var(--line-height-control);
 
       :deep(.arco-breadcrumb-item) {
         max-width: 180px;
@@ -483,7 +495,7 @@
     .nav-btn {
       border-color: rgb(var(--gray-2));
       color: rgb(var(--gray-8));
-      font-size: 16px;
+      font-size: var(--ui-font-size-md);
     }
     .trigger-btn,
     .ref-btn {

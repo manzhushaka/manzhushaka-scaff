@@ -35,6 +35,38 @@
       const openKeys = ref<string[]>([]);
       const selectedKey = ref<string[]>([]);
 
+      // Keep one active branch open so sibling menus collapse smoothly.
+      const menuStructure = computed(() => {
+        const parents = new Map<string, string | undefined>();
+        const subMenus = new Set<string>();
+        const walk = (routes: RouteRecordRaw[], parent?: string) => {
+          routes?.forEach((item) => {
+            const key = String(item.name);
+            parents.set(key, parent);
+            if (item.children?.length) {
+              subMenus.add(key);
+              walk(item.children, key);
+            }
+          });
+        };
+        walk(menuTree.value);
+        return { parents, subMenus };
+      });
+
+      const syncOpenKeys = (keys: string[]) => {
+        const { parents, subMenus } = menuStructure.value;
+        const lastKey = [...keys].reverse().find((key) => subMenus.has(key));
+        if (!lastKey) return [];
+
+        const branch: string[] = [];
+        let current: string | undefined = lastKey;
+        while (current) {
+          if (subMenus.has(current)) branch.unshift(current);
+          current = parents.get(current);
+        }
+        return branch;
+      };
+
       const goto = (item: RouteRecordRaw) => {
         // Open external link
         if (regexUrl.test(item.path)) {
@@ -81,8 +113,7 @@
             (activeMenu || newRoute.name) as string
           );
 
-          const keySet = new Set([...menuOpenKeys, ...openKeys.value]);
-          openKeys.value = [...keySet];
+          openKeys.value = syncOpenKeys(menuOpenKeys);
 
           selectedKey.value = [
             activeMenu || menuOpenKeys[menuOpenKeys.length - 1],
@@ -92,6 +123,10 @@
       const setCollapse = (val: boolean) => {
         if (appStore.device === 'desktop')
           appStore.updateSettings({ menuCollapse: val });
+      };
+
+      const updateOpenKeys = (keys: string[]) => {
+        openKeys.value = syncOpenKeys(keys);
       };
 
       const renderSubMenu = () => {
@@ -135,6 +170,7 @@
 
       return () => (
         <a-menu
+          class="app-menu"
           mode={topMenu.value ? 'horizontal' : 'vertical'}
           v-model:collapsed={collapsed.value}
           v-model:open-keys={openKeys.value}
@@ -145,6 +181,7 @@
           level-indent={34}
           style="height: 100%;width:100%;"
           onCollapse={setCollapse}
+          onUpdateOpenKeys={updateOpenKeys}
         >
           {renderSubMenu()}
         </a-menu>
@@ -163,6 +200,61 @@
       &:not(.arco-icon-down) {
         font-size: 18px;
       }
+    }
+  }
+
+  :deep(.app-menu) {
+    .arco-menu-item,
+    .arco-menu-inline-header {
+      margin-inline: var(--ui-space-1);
+      font-size: var(--ui-font-size-base);
+      line-height: 40px;
+      transition:
+        color 0.2s var(--ui-motion-ease),
+        background-color 0.2s var(--ui-motion-ease),
+        transform 0.2s var(--ui-motion-ease);
+
+      &::before {
+        position: absolute;
+        top: 8px;
+        bottom: 8px;
+        left: 0;
+        width: 3px;
+        border-radius: 0 3px 3px 0;
+        background-color: var(--ui-primary);
+        content: '';
+        opacity: 0;
+        transform: scaleY(0.35);
+        transition:
+          opacity 0.2s ease,
+          transform 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+      }
+
+      &:hover {
+        transform: translateX(1px);
+      }
+    }
+
+    .arco-menu-item.arco-menu-selected::before,
+    .arco-menu-inline-header.arco-menu-selected::before {
+      opacity: 1;
+      transform: scaleY(1);
+    }
+
+    .arco-menu-icon-suffix {
+      transition: transform 0.22s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .arco-menu-inline-content {
+      transition: height 0.24s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :deep(.app-menu),
+    :deep(.app-menu *) {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
     }
   }
 </style>

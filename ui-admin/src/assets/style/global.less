@@ -1,9 +1,19 @@
+@import './tokens.less';
+
 * {
   box-sizing: border-box;
 }
 
 :root {
-  --font-family-base: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  --font-family-base: var(--ui-font-family);
+  --font-size-xs: var(--ui-font-size-xs);
+  --font-size-sm: var(--ui-font-size-sm);
+  --font-size-base: var(--ui-font-size-base);
+  --font-size-md: var(--ui-font-size-md);
+  --font-size-lg: var(--ui-font-size-lg);
+  --font-size-xl: var(--ui-font-size-xl);
+  --line-height-base: var(--ui-line-height-base);
+  --line-height-control: var(--ui-line-height-control);
 }
 
 body:not([arco-theme='dark']) {
@@ -19,16 +29,21 @@ body:not([arco-theme='dark']) {
   --color-bg-2: #ffffff;
 }
 
+body[arco-theme='dark'] {
+  --ui-bg-content: var(--color-fill-1);
+  --ui-bg-panel: var(--color-bg-2);
+}
+
 html,
 body {
   width: 100%;
   height: 100%;
   margin: 0;
   padding: 0;
-  font-size: 14px;
+  font-size: var(--font-size-base);
   font-family: var(--font-family-base);
   font-weight: 400;
-  line-height: 1.5715;
+  line-height: var(--line-height-base);
   color: var(--color-text-1);
   background-color: var(--color-bg-1);
   -moz-osx-font-smoothing: grayscale;
@@ -47,12 +62,13 @@ select {
 .arco-select-view,
 .arco-picker,
 .arco-btn {
-  font-size: 14px;
+  font-size: var(--font-size-base);
 }
 
 .arco-form-item-label {
   color: var(--color-text-2);
   font-weight: 400;
+  line-height: var(--line-height-control);
 }
 
 .arco-input-wrapper,
@@ -60,8 +76,8 @@ select {
 .arco-select-view-multiple,
 .arco-picker,
 .arco-btn {
-  min-height: 36px;
-  border-radius: 6px;
+  min-height: var(--ui-form-control-height);
+  border-radius: var(--ui-radius-md);
 }
 
 .arco-input-wrapper,
@@ -109,7 +125,7 @@ select {
   .arco-picker {
     background-color: var(--color-bg-2);
     border-color: var(--color-border-2);
-    border-radius: 6px;
+    border-radius: var(--ui-radius-md);
   }
 
   .arco-input-wrapper,
@@ -234,15 +250,54 @@ select {
 }
 
 .general-card {
-  border-radius: 4px;
+  border-radius: var(--ui-radius-sm);
   border: none;
+  transition:
+    box-shadow 0.22s ease,
+    transform 0.22s cubic-bezier(0.23, 1, 0.32, 1);
+
+  &:hover {
+    box-shadow: var(--ui-shadow-hover);
+  }
+
   & > .arco-card-header {
     height: auto;
     padding: 20px;
     border: none;
+
+    .arco-card-header-title {
+      font-size: var(--ui-font-size-lg);
+      font-weight: 500;
+      line-height: 1.55;
+    }
   }
   & > .arco-card-body {
     padding: 0 20px 20px 20px;
+  }
+}
+
+/* Shared motion language for the compact controls used throughout the shell. */
+.arco-btn,
+.arco-input-wrapper,
+.arco-select-view-single,
+.arco-picker,
+.arco-tag {
+  transition:
+    color 0.18s ease,
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }
 
