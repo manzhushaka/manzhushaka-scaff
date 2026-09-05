@@ -14,7 +14,7 @@
           :collapsed="collapsed"
           :collapsible="true"
           :width="menuWidth"
-          :style="{ paddingTop: navbar ? '60px' : '' }"
+          :style="{ paddingTop: navbar ? navbarHeight : '' }"
           :hide-trigger="true"
           @collapse="setCollapsed"
         >
@@ -175,8 +175,9 @@
     }
   }
 
-  .layout-content {
+  .layout .layout-content {
     min-height: 100vh;
+    overflow-x: clip;
     overflow-y: visible;
     background-color: var(--ui-bg-content);
     transition: padding var(--ui-motion-standard) var(--ui-motion-ease);

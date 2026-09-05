@@ -29,8 +29,6 @@
 </script>
 
 <style scoped lang="less">
-  .monitor-page { min-height: 100%; padding: 20px; background: var(--color-fill-2); }
   .page-actions { display: flex; justify-content: flex-end; margin-bottom: 16px; }
   .value-area { margin-top: 16px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
-  @media (max-width: 640px) { .monitor-page { padding: 12px; } }
 </style>

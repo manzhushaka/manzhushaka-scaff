@@ -15,6 +15,7 @@
   import { queryContentPeriodAnalysis } from '@/api/visualization';
   import { ToolTipFormatterParams } from '@/types/echarts';
   import useChartOption from '@/hooks/chart-option';
+  import { getChartTheme } from '@/utils/chart-theme';
 
   const tooltipItemsHtmlString = (items: ToolTipFormatterParams[]) => {
     return items
@@ -38,6 +39,7 @@
   const imgChartsData = ref<number[]>([]);
   const videoChartsData = ref<number[]>([]);
   const { chartOption } = useChartOption((isDark) => {
+    const chartTheme = getChartTheme(isDark);
     return {
       grid: {
         left: '40',
@@ -49,7 +51,7 @@
         bottom: 0,
         icon: 'circle',
         textStyle: {
-          color: '#4E5969',
+          color: chartTheme.text,
         },
       },
       xAxis: {
@@ -58,14 +60,14 @@
         boundaryGap: false,
         axisLine: {
           lineStyle: {
-            color: isDark ? '#3f3f3f' : '#A9AEB8',
+            color: chartTheme.axis,
           },
         },
         axisTick: {
           show: true,
           alignWithLabel: true,
           lineStyle: {
-            color: '#86909C',
+            color: chartTheme.text,
           },
           interval(idx: number) {
             if (idx === 0) return false;
@@ -74,7 +76,7 @@
           },
         },
         axisLabel: {
-          color: '#86909C',
+          color: chartTheme.text,
           formatter(value: number, idx: number) {
             if (idx === 0) return '';
             if (idx === xAxis.value.length - 1) return '';
@@ -85,12 +87,12 @@
       yAxis: {
         type: 'value',
         axisLabel: {
-          color: '#86909C',
+          color: chartTheme.text,
           formatter: '{value}%',
         },
         splitLine: {
           lineStyle: {
-            color: isDark ? '#3F3F3F' : '#E5E6EB',
+            color: chartTheme.grid,
           },
         },
       },

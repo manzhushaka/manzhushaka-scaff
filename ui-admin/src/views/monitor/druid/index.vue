@@ -80,7 +80,7 @@
     flex-direction: column;
     height: calc(100vh - 100px);
     padding: 20px;
-    background: var(--color-fill-2);
+    background: var(--ui-bg-content);
   }
 
   .druid-toolbar {
@@ -97,7 +97,7 @@
     align-items: center;
     justify-content: center;
     background: var(--color-bg-2);
-    border: 1px solid var(--color-border-2);
+    border: 1px solid var(--ui-border);
   }
 
   .druid-frame {

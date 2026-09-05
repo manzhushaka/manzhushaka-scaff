@@ -88,11 +88,6 @@
         });
         return result;
       };
-      const navigateAfterMenuTransition = (name: RouteRecordRaw['name']) => {
-        requestAnimationFrame(() => {
-          router.push({ name });
-        });
-      };
       const goto = (item: RouteRecordRaw) => {
         const { hideInMenu, activeMenu } = item.meta as RouteMeta;
         const target = (activeMenu || item.name) as string;
@@ -109,7 +104,7 @@
           return;
         }
         // Trigger router change
-        navigateAfterMenuTransition(item.name);
+        router.push({ name: item.name });
       };
       listenerRouteChange((newRoute) => {
         const { requiresAuth, activeMenu, hideInMenu } = newRoute.meta;

@@ -20,11 +20,14 @@
   import useLoading from '@/hooks/loading';
   import { queryDashboardData, DashboardSnapshot } from '@/api/dashboard';
   import useChartOption from '@/hooks/chart-option';
+  import { getChartTheme } from '@/utils/chart-theme';
 
   const { loading, setLoading } = useLoading(true);
   const xAxis = ref<string[]>([]);
   const chartsData = ref<number[]>([]);
-  const { chartOption } = useChartOption((isDark) => ({
+  const { chartOption } = useChartOption((isDark) => {
+    const chartTheme = getChartTheme(isDark);
+    return ({
     grid: { left: '2.6%', right: '0', top: '10', bottom: '30' },
     xAxis: {
       type: 'category',
@@ -32,15 +35,15 @@
       boundaryGap: false,
       axisLine: { show: false },
       axisTick: { show: false },
-      axisLabel: { color: isDark ? '#C9CDD4' : '#4E5969' },
-      splitLine: { show: true, lineStyle: { color: isDark ? '#3F3F3F' : '#E5E6EB' } },
+      axisLabel: { color: chartTheme.text },
+      splitLine: { show: true, lineStyle: { color: chartTheme.grid } },
     },
     yAxis: {
       type: 'value',
       minInterval: 1,
       axisLine: { show: false },
-      axisLabel: { color: isDark ? '#C9CDD4' : '#4E5969' },
-      splitLine: { lineStyle: { type: 'dashed', color: isDark ? '#3F3F3F' : '#E5E6EB' } },
+      axisLabel: { color: chartTheme.text },
+      splitLine: { lineStyle: { type: 'dashed', color: chartTheme.grid } },
     },
     tooltip: { trigger: 'axis' },
     series: [
@@ -54,7 +57,8 @@
         areaStyle: { color: 'rgba(22, 93, 255, 0.12)' },
       },
     ],
-  }));
+    });
+  });
 
   function formatDay(value: unknown) {
     const date = new Date(String(value));

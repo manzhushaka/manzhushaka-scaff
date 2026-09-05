@@ -154,13 +154,13 @@
             >
               <div class="action-icon"><icon-settings size="18" /></div>
               <template #content>
-                <div id="tableSetting">
+                <div ref="tableSettingRef">
                   <div
                     v-for="(item, index) in showColumns"
                     :key="item.dataIndex"
                     class="setting"
                   >
-                    <div style="margin-right: 4px; cursor: move">
+                    <div class="drag-handle">
                       <icon-drag-arrow />
                     </div>
                     <div>
@@ -253,8 +253,9 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, ref, reactive, watch, nextTick } from 'vue';
+  import { computed, onBeforeUnmount, ref, reactive, watch, nextTick } from 'vue';
   import { useI18n } from 'vue-i18n';
+  import { Message } from '@arco-design/web-vue';
   import useLoading from '@/hooks/loading';
   import { queryPolicyList, PolicyRecord, PolicyParams } from '@/api/list';
   import { Pagination } from '@/types/global';
@@ -276,6 +277,8 @@
       status: '',
     };
   };
+  const tableSettingRef = ref<HTMLElement>();
+  let sortableInstance: Sortable | null = null;
   const { loading, setLoading } = useLoading(true);
   const { t } = useI18n();
   const renderData = ref<PolicyRecord[]>([]);
@@ -396,8 +399,8 @@
       renderData.value = data.list;
       pagination.current = params.current;
       pagination.total = data.total;
-    } catch (err) {
-      // you can report use errorHandler or other
+    } catch (error) {
+      Message.error(error instanceof Error ? error.message : '数据加载失败');
     } finally {
       setLoading(false);
     }
@@ -418,10 +421,7 @@
     formModel.value = generateFormModel();
   };
 
-  const handleSelectDensity = (
-    val: string | number | Record<string, any> | undefined,
-    e: Event
-  ) => {
+  const handleSelectDensity = (val: string | number | Record<string, any> | undefined) => {
     size.value = val as SizeProps;
   };
 
@@ -458,12 +458,13 @@
   };
 
   const popupVisibleChange = (val: boolean) => {
-    if (val) {
+    if (val && tableSettingRef.value) {
       nextTick(() => {
-        const el = document.getElementById('tableSetting') as HTMLElement;
-        const sortable = new Sortable(el, {
-          onEnd(e: any) {
+        sortableInstance?.destroy();
+        sortableInstance = new Sortable(tableSettingRef.value as HTMLElement, {
+          onEnd(e) {
             const { oldIndex, newIndex } = e;
+            if (oldIndex === undefined || newIndex === undefined) return;
             exchangeArray(cloneColumns.value, oldIndex, newIndex);
             exchangeArray(showColumns.value, oldIndex, newIndex);
           },
@@ -471,6 +472,11 @@
       });
     }
   };
+
+  onBeforeUnmount(() => {
+    sortableInstance?.destroy();
+    sortableInstance = null;
+  });
 
   watch(
     () => columns.value,
@@ -498,6 +504,10 @@
   .action-icon {
     margin-left: 12px;
     cursor: pointer;
+  }
+  .drag-handle {
+    margin-right: var(--ui-space-1);
+    cursor: move;
   }
   .active {
     color: #0960bd;

@@ -136,12 +136,6 @@
 </script>
 
 <style scoped lang="less">
-  .monitor-page {
-    min-height: 100%;
-    padding: 20px;
-    background: var(--color-fill-2);
-  }
-
   .log-card {
     border-radius: 6px;
   }
@@ -173,17 +167,13 @@
     margin: 0;
     padding: 14px;
     overflow: auto;
-    background: var(--color-fill-2);
+    background: var(--ui-bg-content);
     white-space: pre-wrap;
     word-break: break-word;
     line-height: 1.6;
   }
 
   @media (max-width: 760px) {
-    .monitor-page {
-      padding: 12px;
-    }
-
     :deep(.arco-tabs-nav) {
       flex-wrap: wrap;
     }

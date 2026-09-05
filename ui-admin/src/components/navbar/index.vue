@@ -184,61 +184,12 @@
         </a-tooltip>
       </li>
       <li>
-        <a-dropdown trigger="click">
-          <a-avatar
-            :size="32"
-            :style="{ marginRight: '8px', cursor: 'pointer' }"
-          >
-            <img v-if="avatar" alt="用户头像" :src="avatar" />
-            <icon-user v-else />
-          </a-avatar>
-          <template #content>
-            <a-doption>
-              <a-space @click="switchRoles">
-                <icon-tag />
-                <span>
-                  {{ $t('messageBox.switchRoles') }}
-                </span>
-              </a-space>
-            </a-doption>
-            <a-doption>
-              <a-space @click="$router.push({ name: 'Info' })">
-                <icon-user />
-                <span>
-                  {{ $t('messageBox.userCenter') }}
-                </span>
-              </a-space>
-            </a-doption>
-            <a-doption>
-              <a-space @click="$router.push({ name: 'Setting' })">
-                <icon-settings />
-                <span>
-                  {{ $t('messageBox.userSettings') }}
-                </span>
-              </a-space>
-            </a-doption>
-            <a-doption>
-              <a-space @click="$router.push({ name: 'AccountProfile' })">
-                <icon-user-group />
-                <span>个人资料</span>
-              </a-space>
-            </a-doption>
-            <a-doption>
-              <a-space @click="handleLock">
-                <icon-lock />
-                <span>锁定屏幕</span>
-              </a-space>
-            </a-doption>
-            <a-doption>
-              <a-space @click="handleLogout">
-                <icon-export />
-                <span>
-                  {{ $t('messageBox.logout') }}
-                </span>
-              </a-space>
-            </a-doption>
-          </template>
-        </a-dropdown>
+        <navbar-user-menu
+          :avatar="avatar"
+          @switch-roles="switchRoles"
+          @lock="handleLock"
+          @logout="handleLogout"
+        />
       </li>
     </ul>
   </div>
@@ -258,6 +209,7 @@
   import Menu from '@/components/menu/index.vue';
   import brandLogo from '@/assets/brand-logo.png';
   import MessageBox from '../message-box/index.vue';
+  import NavbarUserMenu from './navbar-user-menu.vue';
 
   const appStore = useAppStore();
   const userStore = useUserStore();
@@ -407,6 +359,7 @@
       gap: 10px;
       height: 100%;
       padding: 0 20px;
+      background-color: var(--color-bg-2);
       transition: width var(--ui-motion-standard) var(--ui-motion-ease);
     }
 
@@ -425,8 +378,7 @@
       .nav-tool-btn {
         color: var(--color-text-2);
         font-size: 18px;
-        transition:
-          color var(--ui-motion-fast) ease,
+        transition: color var(--ui-motion-fast) ease,
           background-color var(--ui-motion-fast) ease,
           transform var(--ui-motion-fast) var(--ui-motion-ease);
 

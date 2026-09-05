@@ -299,15 +299,11 @@
 </script>
 
 <style scoped lang="less">
-  .task-page { min-height: 100%; padding: 20px; background: var(--color-fill-2); }
-  .ui-filter-card { margin-bottom: 16px; padding: 18px 20px 2px; border: 1px solid var(--color-border-2); border-radius: 6px; background: var(--color-bg-2); }
-  .task-workspace { overflow: hidden; border: 1px solid var(--color-border-2); border-radius: 6px; background: var(--color-bg-2); }
-  .ui-action-bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid var(--color-border-2); }
-  .ui-table-card { min-width: 0; }
+  .task-workspace { overflow: hidden; border: 1px solid var(--ui-border); border-radius: var(--ui-radius-md); background: var(--ui-bg-panel); }
   .progress-cell { display: grid; grid-template-columns: minmax(90px, 1fr) 72px; align-items: center; gap: 10px; }
   .success-count { color: rgb(var(--success-6)); }
   .failure-count { color: rgb(var(--danger-6)); }
   .count-separator { padding: 0 6px; color: var(--color-text-4); }
   .task-pagination { display: flex; justify-content: flex-end; padding: 14px 20px; border-top: 1px solid var(--color-border-2); }
-  @media (max-width: 640px) { .task-page { padding: 12px; } .ui-filter-card { padding: 14px 14px 2px; } .ui-filter-card :deep(.arco-form-item) { width: 100%; } .ui-action-bar { align-items: flex-start; gap: 12px; padding: 12px 14px; } .task-pagination { justify-content: center; padding: 12px; overflow-x: auto; } }
+  @media (max-width: 640px) { .task-pagination { justify-content: center; padding: 12px; overflow-x: auto; } }
 </style>
