@@ -35,7 +35,7 @@
       const openKeys = ref<string[]>([]);
       const selectedKey = ref<string[]>([]);
 
-      // Keep one active branch open so sibling menus collapse smoothly.
+      // Keep the selected route's ancestor chain so other open branches can close.
       const menuStructure = computed(() => {
         const parents = new Map<string, string | undefined>();
         const subMenus = new Set<string>();
@@ -67,24 +67,6 @@
         return branch;
       };
 
-      const goto = (item: RouteRecordRaw) => {
-        // Open external link
-        if (regexUrl.test(item.path)) {
-          openWindow(item.path);
-          selectedKey.value = [item.name as string];
-          return;
-        }
-        // Eliminate external link side effects
-        const { hideInMenu, activeMenu } = item.meta as RouteMeta;
-        if (route.name === item.name && !hideInMenu && !activeMenu) {
-          selectedKey.value = [item.name as string];
-          return;
-        }
-        // Trigger router change
-        router.push({
-          name: item.name,
-        });
-      };
       const findMenuOpenKeys = (target: string) => {
         const result: string[] = [];
         let isFind = false;
@@ -106,6 +88,29 @@
         });
         return result;
       };
+      const navigateAfterMenuTransition = (name: RouteRecordRaw['name']) => {
+        requestAnimationFrame(() => {
+          router.push({ name });
+        });
+      };
+      const goto = (item: RouteRecordRaw) => {
+        const { hideInMenu, activeMenu } = item.meta as RouteMeta;
+        const target = (activeMenu || item.name) as string;
+        selectedKey.value = [target];
+        openKeys.value = syncOpenKeys(findMenuOpenKeys(target));
+
+        // Open external link
+        if (regexUrl.test(item.path)) {
+          openWindow(item.path);
+          return;
+        }
+        // Eliminate external link side effects
+        if (route.name === item.name && !hideInMenu && !activeMenu) {
+          return;
+        }
+        // Trigger router change
+        navigateAfterMenuTransition(item.name);
+      };
       listenerRouteChange((newRoute) => {
         const { requiresAuth, activeMenu, hideInMenu } = newRoute.meta;
         if (requiresAuth && (!hideInMenu || activeMenu)) {
@@ -126,7 +131,7 @@
       };
 
       const updateOpenKeys = (keys: string[]) => {
-        openKeys.value = syncOpenKeys(keys);
+        openKeys.value = keys;
       };
 
       const renderSubMenu = () => {
@@ -241,13 +246,15 @@
       transform: scaleY(1);
     }
 
-    .arco-menu-icon-suffix {
-      transition: transform 0.22s cubic-bezier(0.23, 1, 0.32, 1);
-    }
+  }
 
-    .arco-menu-inline-content {
-      transition: height 0.24s cubic-bezier(0.23, 1, 0.32, 1);
-    }
+  :global(.app-menu .arco-menu-icon-suffix) {
+    transition: transform var(--ui-motion-standard) var(--ui-motion-ease);
+  }
+
+  :global(.app-menu .arco-menu-inline-content) {
+    will-change: height;
+    transition: height var(--ui-motion-standard) var(--ui-motion-ease);
   }
 
   @media (prefers-reduced-motion: reduce) {

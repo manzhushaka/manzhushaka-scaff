@@ -299,7 +299,7 @@
     downloadingId.value = record.taskId;
     try {
       const response = await downloadExportTask(record.taskId);
-      const url = URL.createObjectURL(new Blob([response as unknown as BlobPart]));
+      const url = URL.createObjectURL(new Blob([response as unknown as Blob]));
       const link = document.createElement('a');
       link.href = url;
       link.download = record.fileName || `export-${record.taskId}.xlsx`;

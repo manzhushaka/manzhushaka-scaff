@@ -1,6 +1,6 @@
 <template>
   <router-view v-slot="{ Component, route }">
-    <transition name="fade" mode="out-in">
+    <transition name="page-fade" appear>
       <component
         :is="Component"
         v-if="route.meta.ignoreCache"
@@ -23,26 +23,27 @@
 </script>
 
 <style scoped lang="less">
-  :deep(.fade-enter-active),
-  :deep(.fade-leave-active) {
+  :global(.page-fade-enter-active),
+  :global(.page-fade-leave-active) {
+    will-change: opacity, transform;
     transition:
-      opacity 0.22s ease,
-      transform 0.22s cubic-bezier(0.23, 1, 0.32, 1);
+      opacity var(--ui-motion-standard) ease,
+      transform var(--ui-motion-standard) var(--ui-motion-ease);
   }
 
-  :deep(.fade-enter-from) {
+  :global(.page-fade-enter-from) {
     opacity: 0;
     transform: translateY(6px);
   }
 
-  :deep(.fade-leave-to) {
+  :global(.page-fade-leave-to) {
     opacity: 0;
     transform: translateY(-4px);
   }
 
   @media (prefers-reduced-motion: reduce) {
-    :deep(.fade-enter-active),
-    :deep(.fade-leave-active) {
+    :global(.page-fade-enter-active),
+    :global(.page-fade-leave-active) {
       transition-duration: 0.01ms;
     }
   }
